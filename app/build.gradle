@@ -1,0 +1,48 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+android {
+    namespace 'com.shizuku.runner.plus'
+    compileSdk project.properties.compileSdkVersion.toInteger()
+
+    defaultConfig {
+        applicationId "com.shizuku.runner.plus"
+        minSdk project.properties.minSdkVersion.toInteger()
+        targetSdk project.properties.targetSdkVersion.toInteger()
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+        aidl true
+    }
+}
+
+
+dependencies {
+    implementation libs.shizuku.api
+    implementation libs.shizuku.provider
+    implementation libs.material
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
+    implementation libs.appcompat
+    implementation libs.preference
+    implementation libs.activity
+    implementation libs.constraintlayout
+}

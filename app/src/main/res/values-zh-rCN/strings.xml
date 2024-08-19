@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">主页</string>
+    <string name="title_terminal">终端</string>
+    <string name="title_processes">进程</string>
+    <string name="title_settings">设置</string>
+
+    <string name="settings_menu_backup">备份</string>
+    <string name="settings_menu_export_data">导出数据(json)</string>
+    <string name="settings_menu_import_data">导入数据(json)</string>
+    <string name="settings_menu_bin_files_manager">二进制文件管理</string>
+    <string name="settings_menu_exec_files_manager">可执行文件管理</string>
+    <string name="settings_menu_lib_file_manager">运行库文件管理</string>
+    <string name="settings_menu_env_manager">环境管理</string>
+    <string name="settings_menu_about">关于</string>
+    <string name="settings_menu_ver">版本:</string>
+    <string name="settings_menu_help">帮助</string>
+
+    <string name="dialog_edit">编辑</string>
+    <string name="dialog_finish">完成</string>
+    <string name="dialog_name">名称</string>
+    <string name="dialog_command">命令</string>
+    <string name="dialog_chid">降低权限</string>
+    <string name="dialog_keep_it_alive">保活</string>
+
+    <string name="dialog_cancel">取消</string>
+    <string name="exec_running">执行中...</string>
+    <string name="exec_finish">结束</string>
+    <string name="exec_return">返回值: %d(%s)</string>
+    <string name="exec_time">所用时间: %.2f</string>
+    <string name="exec_normal">正常</string>
+    <string name="exec_command_not_found">找不到命令</string>
+    <string name="exec_segmentation_error">分段错误</string>
+    <string name="exec_ctrl_c_error">使用了Ctrl+C</string>
+    <string name="exec_other_error">其他错误</string>
+
+    <string name="home_shizuku_is_running">正在运行</string>
+    <string name="home_shizuku_is_not_running">没有运行</string>
+    <string name="home_shizuku_has_been_authorized">已授权</string>
+    <string name="home_shizuku_is_not_authorized">未授权</string>
+
+    <string name="home_service_is_running">服务运行中</string>
+    <string name="home_service_is_not_running">服务终止</string>
+    <string name="home_service_is_disconnected">服务断连</string>
+    <string name="home_service_is_connected">服务连接成功</string>
+
+    <string name="home_copy_command">已复制到剪切板:</string>
+
+    <string name="long_click_pack">打包成APK</string>
+    <string name="long_click_del">删除</string>
+    <string name="long_click_copy_name">复制名字</string>
+    <string name="long_click_copy_command">复制命令</string>
+    <string name="long_click_new">在下方新建</string>
+    <string name="pack_name">名称</string>
+    <string name="pack_packageName">包名</string>
+    <string name="pack_versionName">版本名</string>
+    <string name="pack_versionCode">版本号</string>
+    <string name="pack_pinToAShortcutTile">固定到快捷磁贴</string>
+    <string name="dialog_kill">杀死</string>
+    <string name="dialog_kill_this_process">杀死这个进程吗?</string>
+</resources>

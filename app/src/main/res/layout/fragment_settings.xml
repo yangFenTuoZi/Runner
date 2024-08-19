@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragment.SettingsFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:orientation="vertical"
+                tools:ignore="UselessParent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/settings_menu_backup"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="15sp" />
+
+
+                <Button
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/settings_menu_export_data"
+                    android:textSize="15sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    app:shapeAppearance="?attr/shapeAppearance" />
+
+                <Button
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/settings_menu_import_data"
+                    android:textSize="15sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    app:shapeAppearance="?attr/shapeAppearance" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:orientation="vertical"
+                tools:ignore="UselessParent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/settings_menu_bin_files_manager"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="15sp" />
+
+                <Button
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/settings_menu_exec_files_manager"
+                    android:textSize="15sp"
+                    android:onClick="startBinManager"
+                    android:textColor="?android:attr/textColorPrimary"
+                    app:shapeAppearance="?attr/shapeAppearance" />
+
+                <Button
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/settings_menu_lib_file_manager"
+                    android:textSize="15sp"
+                    android:onClick="startLibManager"
+                    android:textColor="?android:attr/textColorPrimary"
+                    app:shapeAppearance="?attr/shapeAppearance" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

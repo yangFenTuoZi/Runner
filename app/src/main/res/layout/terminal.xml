@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:id="@+id/terminal_view_terminal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.shizuku.runner.plus.ui.widget.TerminalTextView
+                    android:id="@+id/terminal_view_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#000000"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/terminal_view_esc"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Esc"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_tab"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Tab"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_pgup"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="PgUp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_home"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Home"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_up"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="▲"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_end"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="End"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/terminal_view_ctrl"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Ctrl"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_alt"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Alt"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_pgdn"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="PgDn"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_left"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="◀"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_down"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="▼"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/terminal_view_right"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="▶"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:shapeAppearance="?attr/shapeAppearance"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
