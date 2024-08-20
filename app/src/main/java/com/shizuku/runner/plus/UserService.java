@@ -22,6 +22,7 @@ public class UserService extends IUserService.Stub {
         destroy();
     }
 
+    // TODO 尝试先write完再flash，最后一个可以是$bin/busybox --install -s $bin/applets\nexit\n
     @Override
     public void releaseFile(String packageName, String libraryPath, String apkPath) throws RemoteException {
         try {
