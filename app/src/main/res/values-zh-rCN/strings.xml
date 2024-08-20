@@ -58,6 +58,6 @@
     <string name="pack_pinToAShortcutTile">固定到快捷磁贴</string>
     <string name="dialog_kill">杀死</string>
     <string name="dialog_kill_this_process">杀死这个进程吗?</string>
-    <string name="process_failed_to_kill_the_process">成功杀死进程</string>
-    <string name="process_the_killing_process_succeeded">杀死进程失败</string>
+    <string name="process_failed_to_kill_the_process">杀死进程失败</string>
+    <string name="process_the_killing_process_succeeded">成功杀死进程</string>
 </resources>

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.shizuku.runner.plus.adapters.ProcessAdapter;
 import com.shizuku.runner.plus.databinding.FragmentProcessesBinding;
+import com.shizuku.runner.plus.ui.activity.MainActivity;
 
 import java.io.File;
 
@@ -23,7 +24,6 @@ public class ProcessesFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProcessesBinding.inflate(inflater, container, false);
         listView = binding.procList;
-        initList();
         return binding.getRoot();
     }
 
@@ -43,7 +43,7 @@ public class ProcessesFragment extends Fragment {
             System.arraycopy(s, 0, data, 0, i);
         } else
             data = new int[0];
-        listView.setAdapter(new ProcessAdapter(requireContext(), data, this));
+        listView.setAdapter(new ProcessAdapter((MainActivity) requireContext(), data, this));
     }
 
     @Override
@@ -52,5 +52,9 @@ public class ProcessesFragment extends Fragment {
         binding = null;
     }
 
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        initList();
+    }
 }

@@ -22,39 +22,31 @@ public class UserService extends IUserService.Stub {
         destroy();
     }
 
-    // TODO 尝试先write完再flash，最后一个可以是$bin/busybox --install -s $bin/applets\nexit\n
     @Override
     public void releaseFile(String packageName, String libraryPath, String apkPath) throws RemoteException {
         try {
+            String cmds = """
+                    bin=/data/local/tmp/$packageName/bin
+                    lib=/data/local/tmp/$packageName/lib
+                    etc=/data/local/tmp/$packageName/etc
+                    home=/data/local/tmp/$packageName/home
+                    mkdir -p $bin/applets
+                    mkdir -p $lib
+                    mkdir -p $etc/profile.d
+                    mkdir -p $home
+                    cp -f $libraryPath/libchid.so $bin/chid
+                    cp -f $libraryPath/libbusybox.so $bin/busybox
+                    cp -f $libraryPath/libbash.so $bin/bash
+                    unzip -q -o -j $apkPath assets/profile -d $etc
+                    $bin/busybox --install -s $bin/applets
+                    """;
             Process process = Runtime.getRuntime().exec("sh");
             OutputStream out = process.getOutputStream();
-            out.write(("bin=/data/local/tmp/" + packageName + "/bin\n").getBytes());
+            out.write(("packageName=" + packageName + "\n").getBytes());
+            out.write(("libraryPath=" + libraryPath + "\n").getBytes());
+            out.write(("apkPath=" + apkPath + "\n").getBytes());
             out.flush();
-            out.write(("lib=/data/local/tmp/" + packageName + "/lib\n").getBytes());
-            out.flush();
-            out.write(("etc=/data/local/tmp/" + packageName + "/etc\n").getBytes());
-            out.flush();
-            out.write(("home=/data/local/tmp/" + packageName + "/home\n").getBytes());
-            out.flush();
-            out.write(("mkdir -p $bin/applets\n").getBytes());
-            out.flush();
-            out.write(("mkdir -p $lib\n").getBytes());
-            out.flush();
-            out.write(("mkdir -p $etc/profile.d\n").getBytes());
-            out.flush();
-            out.write(("mkdir -p $home\n").getBytes());
-            out.flush();
-            out.write(("cp -f " + libraryPath + "/libchid.so $bin/chid\n").getBytes());
-            out.flush();
-            out.write(("cp -f " + libraryPath + "/libbusybox.so $bin/busybox\n").getBytes());
-            out.flush();
-            out.write(("cp -f " + libraryPath + "/libbash.so $bin/bash\n").getBytes());
-            out.flush();
-            out.write(("unzip -q -o -j " + apkPath + " assets/profile -d $etc\n").getBytes());
-            out.flush();
-            out.write(("$bin/busybox --install -s $bin/applets\n").getBytes());
-            out.flush();
-            out.write(("exit\n").getBytes());
+            out.write(cmds.getBytes());
             out.flush();
             out.close();
             process.waitFor();
@@ -70,19 +62,14 @@ public class UserService extends IUserService.Stub {
             Process p = Runtime.getRuntime().exec("/data/local/tmp/" + packageName + "/bin/bash");
             OutputStream out = p.getOutputStream();
             out.write(("export APP_PACKAGE_NAME=" + packageName + "\n").getBytes());
-            out.flush();
             out.write((". /data/local/tmp/$APP_PACKAGE_NAME/etc/profile\n").getBytes());
-            out.flush();
             out.write(("/data/local/tmp/" + packageName + "/bin/bash >> " + pipe + " 2>> " + pipe + "\n").getBytes());
             out.flush();
             out.write((cmd + "\n").getBytes());
             out.flush();
             out.write(("exit\n").getBytes());
-            out.flush();
             out.write(("exitValue=$?\n").getBytes());
-            out.flush();
             out.write(("rm -f " + pipe + "\n").getBytes());
-            out.flush();
             out.write(("exit $exitValue\n").getBytes());
             out.flush();
             out.close();

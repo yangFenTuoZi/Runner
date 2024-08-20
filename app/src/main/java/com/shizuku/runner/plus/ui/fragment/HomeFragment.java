@@ -22,7 +22,6 @@ import com.shizuku.runner.plus.ui.activity.PackActivity;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.databinding.FragmentHomeBinding;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,6 +69,12 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        initList();
+    }
+
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences(String.valueOf(item.getGroupId()), 0);
         switch (item.getItemId()) {
@@ -96,8 +101,7 @@ public class HomeFragment extends Fragment {
                     arrayList.remove(String.valueOf(item.getGroupId()));
                     sp.edit().putString("data", String.join(",", arrayList)).apply();
                 }
-                sharedPreferences.edit().clear().commit();
-                new File(requireContext().getApplicationInfo().dataDir + "/shared_prefs/" + item.getGroupId() + ".xml").delete();
+                requireContext().deleteSharedPreferences(String.valueOf(item.getGroupId()));
                 listView.setAdapter(null);
                 initList();
                 return true;

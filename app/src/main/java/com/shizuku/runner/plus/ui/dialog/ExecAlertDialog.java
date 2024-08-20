@@ -17,7 +17,6 @@ import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.ui.widget.TextViewX;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -90,18 +89,17 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                                         boolean pid_ = false;
                                         while ((inline = br.readLine()) != null && !ExecAlertDialog.this.br) {
                                             String finalInline = inline;
-                                            Log.d(getClass().getName(), inline);
                                             if (pid_) {
                                                 mContext.runOnUiThread(() -> t2.append(finalInline + "\n"));
                                             } else {
                                                 mContext.runOnUiThread(() -> t1.append(String.format(mContext.getString(R.string.exec_pid), Integer.parseInt(finalInline))));
                                                 pid_ = true;
                                                 pid = Integer.parseInt(inline);
-                                                mContext.getSharedPreferences("proc_" + pid, 0)
-                                                        .edit().putString("name", intent.getStringExtra("name")).apply();
+                                                mContext.getSharedPreferences("proc_" + pid, 0).edit()
+                                                        .putString("name", intent.getStringExtra("name"))
+                                                        .putString("pipe", pipe).apply();
                                             }
                                         }
-//                                        socket.shutdownInput();
                                         br.close();
                                         socket.close();
                                     } catch (Exception ignored) {
@@ -163,14 +161,12 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
         if (mContext.iUserService != null) {
             try {
                 serverSocket.close();
-                if (intent.getBooleanExtra("keep_in_alive", false)) {
+                if (!intent.getBooleanExtra("keep_in_alive", false)) {
                     new Thread(() -> {
                         try {
-                            if (ProcessAdapter.killPID(pid, mContext)) {
-                                mContext.getSharedPreferences("proc_" + pid, 0).edit().clear().commit();
-                                new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/proc_" + pid + ".xml").delete();
+                            if (ProcessAdapter.killPID(pipe, pid, mContext)) {
+                                mContext.deleteSharedPreferences("proc_" + pid);
                                 mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
-                                mContext.iUserService.exec("rm -rf " + pipe, mContext.getApplicationInfo().packageName);
                             } else
                                 mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());
                         } catch (Exception ignored) {
