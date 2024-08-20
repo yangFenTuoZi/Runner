@@ -66,4 +66,6 @@
     <string name="pack_pinToAShortcutTile">Pin to a shortcut tile</string>
     
     <string name="process_pid" translatable="false">PID: %d</string>
+    <string name="process_the_killing_process_succeeded">The killing process succeeded</string>
+    <string name="process_failed_to_kill_the_process">Failed to kill the process</string>
 </resources>

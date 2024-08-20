@@ -1,7 +1,6 @@
 package com.shizuku.runner.plus.ui.dialog;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -12,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.shizuku.runner.plus.adapters.ProcessAdapter;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.ui.widget.TextViewX;
@@ -22,9 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -138,23 +135,13 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                     }).start();
                     h2.start();
                     int exitValue = mContext.iUserService.execX(cmd, mContext.getApplicationInfo().packageName, pipe, port);
-                    int error;
-                    switch (exitValue) {
-                        case 0:
-                            error = R.string.exec_normal;
-                            break;
-                        case 127:
-                            error = R.string.exec_command_not_found;
-                            break;
-                        case 130:
-                            error = R.string.exec_ctrl_c_error;
-                            break;
-                        case 139:
-                            error = R.string.exec_segmentation_error;
-                            break;
-                        default:
-                            error = R.string.exec_other_error;
-                    }
+                    int error = switch (exitValue) {
+                        case 0 -> R.string.exec_normal;
+                        case 127 -> R.string.exec_command_not_found;
+                        case 130 -> R.string.exec_ctrl_c_error;
+                        case 139 -> R.string.exec_segmentation_error;
+                        default -> R.string.exec_other_error;
+                    };
                     mContext.runOnUiThread(() -> {
                         t1.append("\n");
                         t1.append(String.format(mContext.getString(R.string.exec_return), exitValue, mContext.getString(error)));
@@ -176,10 +163,19 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
         if (mContext.iUserService != null) {
             try {
                 serverSocket.close();
-                mContext.iUserService.stopExec(intent.getBooleanExtra("keep_in_alive", false), pid, pipe);
-                if (!intent.getBooleanExtra("keep_in_alive", false)) {
-                    mContext.getSharedPreferences("proc_" + pid, 0).edit().clear().commit();
-                    new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/proc_" + pid + ".xml").delete();
+                if (intent.getBooleanExtra("keep_in_alive", false)) {
+                    new Thread(() -> {
+                        try {
+                            if (ProcessAdapter.killPID(pid, mContext)) {
+                                mContext.getSharedPreferences("proc_" + pid, 0).edit().clear().commit();
+                                new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/proc_" + pid + ".xml").delete();
+                                mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
+                                mContext.iUserService.exec("rm -rf " + pipe, mContext.getApplicationInfo().packageName);
+                            } else
+                                mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());
+                        } catch (Exception ignored) {
+                        }
+                    }).start();
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

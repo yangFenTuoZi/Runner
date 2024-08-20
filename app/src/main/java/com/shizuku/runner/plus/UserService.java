@@ -12,7 +12,6 @@ import java.util.Objects;
 
 public class UserService extends IUserService.Stub {
     private Process p;
-    private Thread h1;
 
     @Override
     public void destroy() throws RemoteException {
@@ -87,58 +86,42 @@ public class UserService extends IUserService.Stub {
             out.write(("exit $exitValue\n").getBytes());
             out.flush();
             out.close();
-            h1 = new Thread(() -> {
-                try {
-                    // 建立socket连接
-                    OutputStream os = socket.getOutputStream();
+            try {
+                // 建立socket连接
+                OutputStream os = socket.getOutputStream();
 
-                    // 获取并返回p(Process)的pid
-                    String pid = "";
-                    String process = p.toString();
-                    for (String i : process.substring(process.indexOf("["), process.indexOf("]")).substring("[".length()).split(", ")) {
-                        if (i.split("=")[0].equals("pid")) pid = i.split("=")[1];
-                    }
-                    os.write(String.valueOf(pid).getBytes());
+                // 获取并返回p(Process)的pid
+                String pid = "";
+                String process = p.toString();
+                for (String i : process.substring(process.indexOf("["), process.indexOf("]")).substring("[".length()).split(", ")) {
+                    if (i.split("=")[0].equals("pid")) pid = i.split("=")[1];
+                }
+                os.write(String.valueOf(pid).getBytes());
+                os.write("\n".getBytes());
+                os.flush();
+
+                // 实时读取并返回存储shell执行结果的管道
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(pipe));
+                String inline;
+                while ((inline = bufferedReader.readLine()) != null) {
+                    os.write(inline.getBytes());
                     os.write("\n".getBytes());
                     os.flush();
-
-                    // 实时读取并返回存储shell执行结果的管道
-                    BufferedReader bufferedReader = new BufferedReader(new FileReader(pipe));
-                    String inline;
-                    while ((inline = bufferedReader.readLine()) != null) {
-                        os.write(inline.getBytes());
-                        os.write("\n".getBytes());
-                        os.flush();
-                    }
-
-                    // 读完了要关掉
-                    os.close();
-                    bufferedReader.close();
-                    socket.shutdownOutput();
-                    socket.close();
-                } catch (Exception e) {
-                    Log.e(getClass().getName(), Objects.requireNonNull(e.getMessage()));
                 }
-            });
-            h1.start();
+
+                // 读完了要关掉
+                os.close();
+                bufferedReader.close();
+                socket.shutdownOutput();
+                socket.close();
+            } catch (Exception e) {
+                Log.e(getClass().getName(), Objects.requireNonNull(e.getMessage()));
+            }
             p.waitFor();
             return p.exitValue();
         } catch (Exception e) {
             Log.e(getClass().getName(), Objects.requireNonNull(e.getMessage()));
             return -1;
-        }
-    }
-
-    @Override
-    public void stopExec(boolean keep_in_alive, int pid, String pipe) throws RemoteException {
-        try {
-            if (!keep_in_alive) {
-                p.destroyForcibly();
-                Runtime.getRuntime().exec(new String[]{"kill", "-9", String.valueOf(pid)});
-            }
-            h1.interrupt();
-            Runtime.getRuntime().exec(new String[]{"rm", "-rf", pipe});
-        } catch (Exception ignored) {
         }
     }
 
@@ -167,7 +150,7 @@ public class UserService extends IUserService.Stub {
             process.waitFor();
             return sb.toString();
         } catch (Exception e) {
-            return "";
+            throw new RuntimeException(e);
         }
     }
 }
