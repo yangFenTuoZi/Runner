@@ -2,7 +2,6 @@ package com.shizuku.runner.plus.adapters;
 
 import android.content.Context;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,19 +17,16 @@ import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.ui.fragment.ProcessesFragment;
 
 import java.io.File;
-import java.util.Arrays;
 
 public class ProcessAdapter extends BaseAdapter {
     private final int[] data;
     private final Context mContext;
-    private final ProcessesFragment processesFragment;
 
     public ProcessAdapter(Context mContext, int[] data, ProcessesFragment processesFragment) {
         //设置adapter需要接收两个参数：上下文、int数组
         super();
         this.mContext = mContext;
         this.data = data;
-        this.processesFragment = processesFragment;
     }
 
     //固定的写法
@@ -135,15 +131,13 @@ public class ProcessAdapter extends BaseAdapter {
         String name = mContext.getSharedPreferences("proc_" + pid, 0).getString("name", "");
         holder.text_name.setText(name.isEmpty() ? "Process" : name);
         holder.text_pid.setText(String.valueOf(pid));
-        holder.button_kill.setOnClickListener((view) -> new MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process).setPositiveButton(R.string.dialog_finish, (dialog, which) -> {
-            new Thread(() -> {
-                if (killPID(pid, mContext)) {
-                    mContext.getSharedPreferences("proc_" + pid, 0).edit().clear().commit();
-                    new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/proc_" + pid + ".xml").delete();
-                    ((MainActivity) mContext).runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
-                } else
-                    ((MainActivity) mContext).runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());
-            }).start();
-        }).setNeutralButton(R.string.dialog_cancel, null).show());
+        holder.button_kill.setOnClickListener((view) -> new MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process).setPositiveButton(R.string.dialog_finish, (dialog, which) -> new Thread(() -> {
+            if (killPID(pid, mContext)) {
+                mContext.getSharedPreferences("proc_" + pid, 0).edit().clear().commit();
+                new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/proc_" + pid + ".xml").delete();
+                ((MainActivity) mContext).runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
+            } else
+                ((MainActivity) mContext).runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());
+        }).start()).setNeutralButton(R.string.dialog_cancel, null).show());
     }
 }

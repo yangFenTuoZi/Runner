@@ -29,7 +29,7 @@
     <string name="dialog_kill">Kill</string>
     <string name="dialog_kill_this_process">Kill this process?</string>
 
-    <string name="exec_running">Running...</string>
+    <string name="exec_running">Running…</string>
     <string name="exec_finish">Finish</string>
     <string name="exec_return">Return value: %d(%s)</string>
     <string name="exec_time">Time spent: %.2f</string>

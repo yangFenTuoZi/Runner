@@ -11,7 +11,6 @@ import java.net.Socket;
 import java.util.Objects;
 
 public class UserService extends IUserService.Stub {
-    private Process p;
 
     @Override
     public void destroy() throws RemoteException {
@@ -67,7 +66,7 @@ public class UserService extends IUserService.Stub {
         try {
             Runtime.getRuntime().exec(new String[]{"/data/local/tmp/" + packageName + "/bin/busybox", "mkfifo", pipe}).waitFor();
             Socket socket = new Socket("localhost", port);
-            p = Runtime.getRuntime().exec("/data/local/tmp/" + packageName + "/bin/bash");
+            Process p = Runtime.getRuntime().exec("/data/local/tmp/" + packageName + "/bin/bash");
             OutputStream out = p.getOutputStream();
             out.write(("export APP_PACKAGE_NAME=" + packageName + "\n").getBytes());
             out.flush();

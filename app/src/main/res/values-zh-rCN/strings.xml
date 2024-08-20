@@ -24,7 +24,7 @@
     <string name="dialog_keep_it_alive">保活</string>
 
     <string name="dialog_cancel">取消</string>
-    <string name="exec_running">执行中...</string>
+    <string name="exec_running">执行中…</string>
     <string name="exec_finish">结束</string>
     <string name="exec_return">返回值: %d(%s)</string>
     <string name="exec_time">所用时间: %.2f</string>
