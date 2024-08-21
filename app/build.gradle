@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+//    id 'dev.rikka.tools.materialthemebuilder' version '1.4.1'
 }
 android {
     namespace 'com.shizuku.runner.plus'
@@ -33,9 +34,29 @@ android {
         aidl true
     }
 }
-
-
+/*
+materialThemeBuilder {
+    themes {
+        create("MaterialBlue") {
+            lightThemeFormat = "ThemeOverlay.Light.%s"
+            darkThemeFormat = "ThemeOverlay.Dark.%s"
+            primaryColor = "#2196F3"
+        }
+    }
+    generatePalette = true
+}
+*/
 dependencies {
+    implementation(libs.rikkax.appcompat)
+    implementation(libs.rikkax.core)
+    implementation(libs.rikkax.insets)
+    implementation(libs.rikkax.material)
+    implementation(libs.rikkax.material.preference)
+    implementation(libs.rikkax.preference)
+    implementation(libs.rikkax.recyclerview)
+    implementation(libs.rikkax.widget.borderview)
+    implementation(libs.rikkax.widget.mainswitchbar)
+    implementation(libs.rikkax.layoutinflater)
     implementation libs.shizuku.api
     implementation libs.shizuku.provider
     implementation libs.material
@@ -45,4 +66,11 @@ dependencies {
     implementation libs.preference
     implementation libs.activity
     implementation libs.constraintlayout
+}
+
+configurations.all {
+    exclude group: "org.jetbrains", module: "annotations"
+    exclude group: "androidx.appcompat", module: "appcompat"
+    exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
+    exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
 }

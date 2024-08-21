@@ -41,7 +41,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Runner+"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="22sp"
                         tools:ignore="HardcodedText" />
 
@@ -51,7 +51,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="3dp"
                         android:layout_marginBottom="7dp"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="12sp" />
 
                 </LinearLayout>
@@ -68,7 +68,7 @@
                         android:id="@+id/home_a"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="14sp" />
 
                     <TextView
@@ -76,7 +76,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -92,7 +92,7 @@
                         android:id="@+id/home_c"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="14sp" />
 
                     <TextView
@@ -100,7 +100,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>

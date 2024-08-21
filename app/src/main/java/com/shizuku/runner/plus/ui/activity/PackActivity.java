@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -14,7 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.databinding.ActivityPackBinding;
 
-public class PackActivity extends AppCompatActivity {
+public class PackActivity extends BaseActivity {
     private ActivityPackBinding binding;
     private SharedPreferences sp;
 
@@ -22,7 +20,6 @@ public class PackActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         binding = ActivityPackBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
