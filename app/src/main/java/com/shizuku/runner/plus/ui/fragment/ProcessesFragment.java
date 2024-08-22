@@ -1,9 +1,11 @@
 package com.shizuku.runner.plus.ui.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +16,8 @@ import com.shizuku.runner.plus.databinding.FragmentProcessesBinding;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 
 import java.io.File;
+
+import rikka.core.util.ResourceUtils;
 
 public class ProcessesFragment extends Fragment {
 
@@ -56,5 +60,12 @@ public class ProcessesFragment extends Fragment {
     public void onStart() {
         super.onStart();
         initList();
+        Window window = requireActivity().getWindow();
+        window.setStatusBarColor(Color.TRANSPARENT);
+        if (ResourceUtils.isNightMode(getResources().getConfiguration())) {
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        } else {
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
     }
 }

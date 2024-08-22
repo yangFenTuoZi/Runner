@@ -1,14 +1,8 @@
 package com.shizuku.runner.plus.ui.activity;
 
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
-
-import androidx.annotation.NonNull;
-
-import com.shizuku.runner.plus.R;
 
 import rikka.core.util.ResourceUtils;
 import rikka.material.app.MaterialActivity;

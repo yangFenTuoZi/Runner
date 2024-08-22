@@ -5,14 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -28,6 +31,7 @@ import com.shizuku.runner.plus.ui.fragment.HomeFragment;
 
 import java.util.Objects;
 
+import rikka.core.util.ResourceUtils;
 import rikka.shizuku.Shizuku;
 
 
@@ -168,6 +172,17 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
         initShizuku();
         packageName = getApplicationInfo().packageName;
+
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
+        int color;
+        if (ResourceUtils.isNightMode(getResources().getConfiguration())) {
+            color = ColorUtils.blendARGB(typedValue.data, Color.BLACK, 0.8f);
+        } else {
+            color = ColorUtils.blendARGB(typedValue.data, Color.WHITE, 0.9f);
+        }
+        binding.navView.setBackgroundColor(color);
+        getWindow().setNavigationBarColor(color);
     }
 
     @Override
@@ -176,6 +191,7 @@ public class MainActivity extends BaseActivity {
         check();
 
     }
+
     public void setHomeFragment(HomeFragment homeFragment) {
         this.homeFragment = homeFragment;
         FragmentHomeBinding homeBinding = homeFragment.getBinding();

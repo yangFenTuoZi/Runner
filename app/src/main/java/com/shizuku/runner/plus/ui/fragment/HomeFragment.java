@@ -5,11 +5,13 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,6 +27,8 @@ import com.shizuku.runner.plus.databinding.FragmentHomeBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import rikka.core.util.ResourceUtils;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
@@ -72,6 +76,13 @@ public class HomeFragment extends Fragment {
     public void onStart() {
         super.onStart();
         initList();
+        Window window = requireActivity().getWindow();
+        window.setStatusBarColor(Color.TRANSPARENT);
+        if (ResourceUtils.isNightMode(getResources().getConfiguration())) {
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        } else {
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
     }
 
     @Override
