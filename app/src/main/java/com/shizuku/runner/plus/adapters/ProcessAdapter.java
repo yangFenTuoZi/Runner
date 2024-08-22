@@ -73,6 +73,7 @@ public class ProcessAdapter extends BaseAdapter {
         MaterialButton button_kill;
     }
 
+    //获取一个进程的所有子进程(包括子子进程、子子子进程…)
     private static String getChidProcess(String pid, String[] processesInfo) {
         StringBuilder result = new StringBuilder();
         boolean firstLine = true;
@@ -93,10 +94,12 @@ public class ProcessAdapter extends BaseAdapter {
         return result.toString();
     }
 
+    //获取需要杀死的所有进程
     public static String getPIDs(String pid, String[] processesInfo) {
         return pid + getChidProcess(pid, processesInfo);
     }
 
+    //判断进程是否噶了
     public static boolean isDied(String pid, String[] processesInfo) {
         boolean firstLine = true;
         boolean isAlive = false;
@@ -111,6 +114,7 @@ public class ProcessAdapter extends BaseAdapter {
         return !isAlive;
     }
 
+    //噶进程，删管道，顺便判断死没死透
     public static boolean killPID(String pipe, int pid, MainActivity mContext) {
         if (mContext.iUserService != null) {
             try {
@@ -127,11 +131,16 @@ public class ProcessAdapter extends BaseAdapter {
         return false;
     }
 
+    //初始化
     void init(ViewHolder holder, int pid) {
         String name = mContext.getSharedPreferences("proc_" + pid, 0).getString("name", "");
         holder.text_name.setText(name.isEmpty() ? "Process" : name);
         holder.text_pid.setText(String.valueOf(pid));
+
+        //设置点击事件
         holder.button_kill.setOnClickListener((view) -> new MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process).setPositiveButton(R.string.dialog_finish, (dialog, which) -> new Thread(() -> {
+
+            //判断进程是否已经死了，如果是就删掉这个格子
             try {
                 if (isDied(String.valueOf(pid), mContext.iUserService.exec("busybox ps -A -o pid,ppid | grep " + pid, mContext.getApplicationInfo().packageName).split("\n"))) {
                     mContext.deleteSharedPreferences("proc_" + pid);
@@ -140,6 +149,8 @@ public class ProcessAdapter extends BaseAdapter {
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
+
+            //杀死进程
             if (killPID(mContext.getSharedPreferences("proc_" + pid, 0).getString("pipe", ""), pid, mContext)) {
                 mContext.deleteSharedPreferences("proc_" + pid);
                 mContext.runOnUiThread(() -> {

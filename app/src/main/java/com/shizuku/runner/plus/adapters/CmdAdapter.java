@@ -88,6 +88,7 @@ public class CmdAdapter extends BaseAdapter {
         return convertView;
     }
 
+    //判断是否为空
     static boolean[] isEmpty(SharedPreferences b) {
         boolean exist_c = b.getString("command", null) == null || b.getString("command", "").isEmpty();
         boolean exist_n = b.getString("name", null) == null || b.getString("name", "").isEmpty();
@@ -166,11 +167,16 @@ public class CmdAdapter extends BaseAdapter {
             }
             new ExecAlertDialog((MainActivity) mContext, intent).show();
         });
+
+        //点击编辑
         holder.item_button_add.setOnClickListener(voc);
+        holder.layout.setOnClickListener(voc);
+
         holder.text_name.setText(empty[1] ? "" : b.getString("name", ""));
         holder.text_command.setText(empty[2] ? "" : b.getString("command", ""));
-        holder.layout.setOnClickListener(voc);
-        if (new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/" + id + ".xml").exists())
+
+        //如果不为空则设置长按菜单
+        if (!isEmpty(b)[0]||new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/" + id + ".xml").exists())
             holder.layout.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
                 menu.setHeaderTitle("选择操作");
                 menu.add(id, long_click_copy_name, 0, mContext.getString(R.string.long_click_copy_name));

@@ -50,6 +50,7 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
+    //初始化列表
     public void initList() {
         String[] s;
         int[] data;
@@ -75,6 +76,18 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        MainActivity mainActivity = (MainActivity) requireActivity();
+        mainActivity.isHome = true;
+        if (mainActivity.iUserService == null) {
+            binding.homeD.setText(getString(R.string.home_service_is_disconnected));
+        } else {
+            binding.homeD.setText(getString(R.string.home_service_is_connected));
+        }
+        if (mainActivity.shizukuServiceState) {
+            binding.homeC.setText(getString(R.string.home_service_is_running));
+        } else {
+            binding.homeC.setText(getString(R.string.home_service_is_not_running));
+        }
         initList();
         Window window = requireActivity().getWindow();
         window.setStatusBarColor(Color.TRANSPARENT);
@@ -85,6 +98,13 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((MainActivity) requireActivity()).isHome = false;
+    }
+
+    //菜单选择事件
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences(String.valueOf(item.getGroupId()), 0);
