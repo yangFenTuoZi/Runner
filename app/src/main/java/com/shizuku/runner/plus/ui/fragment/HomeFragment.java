@@ -33,7 +33,7 @@ import rikka.core.util.ResourceUtils;
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     private SharedPreferences sp;
-    private ListView listView;
+    public ListView listView;
 
     public FragmentHomeBinding getBinding() {
         return binding;
@@ -126,7 +126,7 @@ public class HomeFragment extends Fragment {
                 requireContext().startActivity(intent);
                 return true;
             case CmdAdapter.long_click_del:
-                List<String> list = Arrays.asList(sp.getString("xxx", "").split(","));
+                List<String> list = Arrays.asList(sp.getString("data", "").split(","));
                 if (list.contains(String.valueOf(item.getGroupId()))) {
                     List<String> arrayList = new ArrayList<>(list);
                     arrayList.remove(String.valueOf(item.getGroupId()));

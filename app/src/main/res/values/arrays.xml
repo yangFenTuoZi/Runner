@@ -1,12 +1,24 @@
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="reply_entries">
-        <item>Reply</item>
-        <item>Reply to all</item>
+    <string-array name="theme_texts" translatable="false">
+        <item>@string/dark_theme_off</item>
+        <item>@string/dark_theme_on</item>
+        <item>@string/dark_theme_follow_system</item>
     </string-array>
 
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
+    <string-array name="theme_values" translatable="false">
+        <item>MODE_NIGHT_NO</item>
+        <item>MODE_NIGHT_YES</item>
+        <item>MODE_NIGHT_FOLLOW_SYSTEM</item>
+    </string-array>
+
+
+    <string-array name="update_channel_texts" translatable="false">
+        <item>@string/settings_update_channel_stable</item>
+        <item>@string/settings_update_channel_beta</item>
+    </string-array>
+
+    <string-array name="update_channel_values" translatable="false">
+        <item>CHANNEL_STABLE</item>
+        <item>CHANNEL_BETA</item>
     </string-array>
 </resources>

@@ -6,18 +6,6 @@
     <string name="title_processes">Processes</string>
     <string name="title_settings">Settings</string>
 
-    <string name="settings_menu_backup">Backup</string>
-    <string name="settings_menu_export_data">Export Data(json)</string>
-    <string name="settings_menu_import_data">Import Data(json)</string>
-    <string name="settings_menu_bin_files_manager">Binary file manager</string>
-    <string name="settings_menu_exec_files_manager">Execute file manager</string>
-    <string name="settings_menu_lib_file_manager">Library file manager</string>
-    <string name="settings_menu_env_manager">Environment manager</string>
-    <string name="settings_menu_about">About</string>
-    <string name="settings_menu_ver">Version:</string>
-    <string name="settings_menu_help">Help</string>
-    <string name="title_activity_settings" translatable="false">SettingsActivity</string>
-
     <string name="dialog_edit">Edit</string>
     <string name="dialog_finish">Finish</string>
     <string name="dialog_name">Name</string>
@@ -32,7 +20,6 @@
     <string name="exec_running">Running…</string>
     <string name="exec_finish">Finish</string>
     <string name="exec_return">Return value: %d(%s)</string>
-    <string name="exec_time">Time spent: %.2f</string>
     <string name="exec_pid" translatable="false">PID: %d</string>
     <string name="exec_normal">Normal</string>
     <string name="exec_command_not_found">Command not found</string>
@@ -68,4 +55,29 @@
     <string name="process_pid" translatable="false">PID: %d</string>
     <string name="process_the_killing_process_succeeded">The killing process succeeded</string>
     <string name="process_failed_to_kill_the_process">Failed to kill the process</string>
+
+    <string name="settings_update_channel">Update Channel</string>
+    <string name="settings_update_channel_stable">Stable</string>
+    <string name="settings_update_channel_beta">Beta</string>
+    <string name="settings_backup">Backup</string>
+    <string name="settings_export_data">Export Data</string>
+    <string name="settings_export_data_summary">Export the data to JSON</string>
+    <string name="settings_import_data">Import Data</string>
+    <string name="settings_import_data_summary">Import JSON</string>
+    <string name="settings_shortcut_commands_and_terminals">Shortcut commands and terminals</string>
+    <string name="settings_exec_files_manager">Execute file manager</string>
+    <string name="settings_exec_files_manager_summary">These files can be used in shortcut commands and terminals</string>
+    <string name="settings_lib_file_manager">Library file manager</string>
+    <string name="settings_lib_file_manager_summary">These files can be used in shortcut commands and terminals</string>
+    <string name="settings_env_manager">Environment manager</string>
+    <string name="settings_env_manager_summary">These configurations will be loaded in the shortcut command and terminal</string>
+    <string name="settings_about">About</string>
+    <string name="settings_ver">Version:</string>
+    <string name="settings_help">Help</string>
+    <string name="settings_copy">Copy</string>
+    <string name="settings_can_not_parse_json_data">Can not parse JSON data</string>
+    <string name="settings_ver_is_low">The JSON data version is too low</string>
+    <string name="settings_is_not_app_data">It is not App data</string>
+    <string name="settings_data_error">Data error</string>
+    <string name="settings_decode_error">Decode data error</string>
 </resources>

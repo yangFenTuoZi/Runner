@@ -40,7 +40,7 @@ public class MainActivity extends BaseActivity {
     private int m;
     public IUserService iUserService;
     public boolean shizukuServiceState = false;
-    public boolean isHome = true;
+    public boolean isHome;
 
     //shizuku权限监听
     private final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener = (i, i1) -> check();
@@ -191,22 +191,5 @@ public class MainActivity extends BaseActivity {
             packageName = "com.shizuku.runner.plus";
         return "/data/local/tmp/" + packageName;
     }
-
-    public void startBinManager(View view) {
-        Intent intent = new Intent(this, FileMangerActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("path", getDataPath(this) + "/bin");
-        intent.putExtra("bundle", bundle);
-        startActivity(intent);
-    }
-
-    public void startLibManager(View view) {
-        Intent intent = new Intent(this, FileMangerActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("path", getDataPath(this) + "/lib");
-        intent.putExtra("bundle", bundle);
-        startActivity(intent);
-    }
-
 
 }

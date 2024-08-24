@@ -22,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -143,6 +146,17 @@ public class CmdAdapter extends BaseAdapter {
                             : sp.getString("data", "") + "," + id
                     ).apply();
                     init(holder, b, id);
+                    home.initList();
+                } else if(!empty[0] && isEmpty(b)[0]) {
+                    SharedPreferences sp = mContext.getSharedPreferences("data", 0);
+                    List<String> list = Arrays.asList(sp.getString("data", "").split(","));
+                    if (list.contains(String.valueOf(id))) {
+                        List<String> arrayList = new ArrayList<>(list);
+                        arrayList.remove(String.valueOf(id));
+                        sp.edit().putString("data", String.join(",", arrayList)).apply();
+                    }
+                    mContext.deleteSharedPreferences(String.valueOf(id));
+                    home.listView.setAdapter(null);
                     home.initList();
                 } else
                     init(holder, b, id);

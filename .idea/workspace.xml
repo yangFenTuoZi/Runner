@@ -5,7 +5,7 @@
       <config>
         <locale>zh-rCN</locale>
         <pickBest>false</pickBest>
-        <target>android-34</target>
+        <target>android-35</target>
       </config>
     </shared>
     <layouts>
@@ -31,7 +31,7 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_edit.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml">
@@ -39,9 +39,14 @@
           <theme>@style/Theme.Runner</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_import.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_processes.xml">
@@ -51,7 +56,7 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_settings.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_terminal.xml">
@@ -84,14 +89,47 @@
           <theme>@style/Theme.Runner</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
+        </config>
+      </layout>
     </layouts>
   </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="添加注释，优化shizuku监听">
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="update文件">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/Utils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_backup_restore_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_configs_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_dark_mode_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_file_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_help_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_info_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_language_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_merge_type_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_restore_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_import.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/proguard-rules.pro" beforeDir="false" afterPath="$PROJECT_DIR$/app/proguard-rules.pro" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/SettingsFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/SettingsFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/arrays.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/arrays.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +139,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.6:40669;connection=9eb0c79a)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.6:39707;connection=3610b4d9)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -150,6 +188,7 @@
       <list>
         <option value="valueResourceFile" />
         <option value="Kotlin Class" />
+        <option value="resourceFile" />
         <option value="Class" />
       </list>
     </option>
@@ -422,7 +461,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724304071300</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="update文件">
+      <option name="closed" value="true" />
+      <created>1724392053507</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1724392053509</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -447,6 +494,7 @@
     <MESSAGE value="使用RikkaX的theme&#10;使用DynamicColors.applyToActivitiesIfAvailable(this)进行动态取色" />
     <MESSAGE value="动态变化状态栏,导航栏与navView颜色保持一致" />
     <MESSAGE value="添加注释，优化shizuku监听" />
-    <option name="LAST_COMMIT_MESSAGE" value="添加注释，优化shizuku监听" />
+    <MESSAGE value="update文件" />
+    <option name="LAST_COMMIT_MESSAGE" value="update文件" />
   </component>
 </project>

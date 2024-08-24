@@ -19,6 +19,7 @@ public class ProcessAdapter extends BaseAdapter {
     private final int[] data;
     private final MainActivity mContext;
     private final ProcessesFragment processesFragment;
+    private String[] processesInfo;
 
     public ProcessAdapter(MainActivity mContext, int[] data, ProcessesFragment processesFragment) {
         //设置adapter需要接收两个参数：上下文、int数组
@@ -26,6 +27,10 @@ public class ProcessAdapter extends BaseAdapter {
         this.mContext = mContext;
         this.data = data;
         this.processesFragment = processesFragment;
+    }
+
+    public void setProcessesInfo(String[] processesInfo) {
+        this.processesInfo = processesInfo;
     }
 
     //固定的写法
@@ -115,14 +120,29 @@ public class ProcessAdapter extends BaseAdapter {
     }
 
     //噶进程，删管道，顺便判断死没死透
+    public boolean killPID(String pipe, int pid) {
+        if (mContext.iUserService != null) {
+            try {
+                IUserService iUserService = mContext.iUserService;
+                String PIDs = getPIDs(String.valueOf(pid), processesInfo);
+                iUserService.exec("kill -9 " + PIDs + "\nrm -rf " + pipe + "\n", mContext.getApplicationInfo().packageName);
+                processesInfo = iUserService.exec("busybox ps -A -o pid,ppid | grep " + pid, mContext.getApplicationInfo().packageName).split("\n");
+                return isDied(String.valueOf(pid), processesInfo);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return false;
+    }
+
+    //噶进程，删管道，顺便判断死没死透
     public static boolean killPID(String pipe, int pid, MainActivity mContext) {
         if (mContext.iUserService != null) {
             try {
                 IUserService iUserService = mContext.iUserService;
-                String[] processesInfo = iUserService.exec("busybox ps -A -o pid,ppid | grep -v grep", mContext.getApplicationInfo().packageName).split("\n");
+                String[] processesInfo = iUserService.exec("busybox ps -A -o pid,ppid | grep " + pid, mContext.getApplicationInfo().packageName).split("\n");
                 String PIDs = getPIDs(String.valueOf(pid), processesInfo);
-                iUserService.exec("kill -9 " + PIDs + "\n", mContext.getApplicationInfo().packageName);
-                iUserService.exec("rm -rf " + pipe + "\n", mContext.getApplicationInfo().packageName);
+                iUserService.exec("kill -9 " + PIDs + "\nrm -rf " + pipe + "\n", mContext.getApplicationInfo().packageName);
                 return isDied(String.valueOf(pid), iUserService.exec("busybox ps -A -o pid,ppid | grep " + pid, mContext.getApplicationInfo().packageName).split("\n"));
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
@@ -133,6 +153,19 @@ public class ProcessAdapter extends BaseAdapter {
 
     //初始化
     void init(ViewHolder holder, int pid) {
+
+        //判断进程是否已经死了，如果是就删掉这个格子
+        try {
+            if (mContext.iUserService != null)
+                if (isDied(String.valueOf(pid), processesInfo)) {
+                    mContext.deleteSharedPreferences("proc_" + pid);
+                    mContext.runOnUiThread(processesFragment::initList);
+                    processesInfo = mContext.iUserService.exec("busybox ps -A -o pid,ppid | grep " + pid, mContext.getApplicationInfo().packageName).split("\n");
+                }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
         String name = mContext.getSharedPreferences("proc_" + pid, 0).getString("name", "");
         holder.text_name.setText(name.isEmpty() ? "Process" : name);
         holder.text_pid.setText(String.valueOf(pid));
@@ -140,18 +173,8 @@ public class ProcessAdapter extends BaseAdapter {
         //设置点击事件
         holder.button_kill.setOnClickListener((view) -> new MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process).setPositiveButton(R.string.dialog_finish, (dialog, which) -> new Thread(() -> {
 
-            //判断进程是否已经死了，如果是就删掉这个格子
-            try {
-                if (isDied(String.valueOf(pid), mContext.iUserService.exec("busybox ps -A -o pid,ppid | grep " + pid, mContext.getApplicationInfo().packageName).split("\n"))) {
-                    mContext.deleteSharedPreferences("proc_" + pid);
-                    mContext.runOnUiThread(processesFragment::initList);
-                }
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-
             //杀死进程
-            if (killPID(mContext.getSharedPreferences("proc_" + pid, 0).getString("pipe", ""), pid, mContext)) {
+            if (killPID(mContext.getSharedPreferences("proc_" + pid, 0).getString("pipe", ""), pid)) {
                 mContext.deleteSharedPreferences("proc_" + pid);
                 mContext.runOnUiThread(() -> {
                     processesFragment.initList();

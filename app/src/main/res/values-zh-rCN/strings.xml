@@ -5,17 +5,6 @@
     <string name="title_processes">进程</string>
     <string name="title_settings">设置</string>
 
-    <string name="settings_menu_backup">备份</string>
-    <string name="settings_menu_export_data">导出数据(json)</string>
-    <string name="settings_menu_import_data">导入数据(json)</string>
-    <string name="settings_menu_bin_files_manager">二进制文件管理</string>
-    <string name="settings_menu_exec_files_manager">可执行文件管理</string>
-    <string name="settings_menu_lib_file_manager">运行库文件管理</string>
-    <string name="settings_menu_env_manager">环境管理</string>
-    <string name="settings_menu_about">关于</string>
-    <string name="settings_menu_ver">版本:</string>
-    <string name="settings_menu_help">帮助</string>
-
     <string name="dialog_edit">编辑</string>
     <string name="dialog_finish">完成</string>
     <string name="dialog_name">名称</string>
@@ -27,7 +16,6 @@
     <string name="exec_running">执行中…</string>
     <string name="exec_finish">结束</string>
     <string name="exec_return">返回值: %d(%s)</string>
-    <string name="exec_time">所用时间: %.2f</string>
     <string name="exec_normal">正常</string>
     <string name="exec_command_not_found">找不到命令</string>
     <string name="exec_segmentation_error">分段错误</string>
@@ -51,13 +39,41 @@
     <string name="long_click_copy_name">复制名字</string>
     <string name="long_click_copy_command">复制命令</string>
     <string name="long_click_new">在下方新建</string>
+
     <string name="pack_name">名称</string>
     <string name="pack_packageName">包名</string>
     <string name="pack_versionName">版本名</string>
     <string name="pack_versionCode">版本号</string>
     <string name="pack_pinToAShortcutTile">固定到快捷磁贴</string>
+
     <string name="dialog_kill">杀死</string>
     <string name="dialog_kill_this_process">杀死这个进程吗?</string>
+
     <string name="process_failed_to_kill_the_process">杀死进程失败</string>
     <string name="process_the_killing_process_succeeded">成功杀死进程</string>
+
+    <string name="settings_update_channel">更新渠道</string>
+    <string name="settings_update_channel_stable">稳定版</string>
+    <string name="settings_update_channel_beta">测试版</string>
+    <string name="settings_backup">备份</string>
+    <string name="settings_export_data">导出数据</string>
+    <string name="settings_export_data_summary">将数据导出为JSON</string>
+    <string name="settings_import_data">导入数据</string>
+    <string name="settings_import_data_summary">导入JSON</string>
+    <string name="settings_shortcut_commands_and_terminals">快捷命令与终端</string>
+    <string name="settings_exec_files_manager">可执行文件管理</string>
+    <string name="settings_exec_files_manager_summary">这些文件可以在快捷命令和终端用到</string>
+    <string name="settings_lib_file_manager">运行库文件管理</string>
+    <string name="settings_lib_file_manager_summary">这些文件可以在快捷命令和终端用到</string>
+    <string name="settings_env_manager">运行环境管理</string>
+    <string name="settings_env_manager_summary">这些配置将会在快捷执行命令与终端加载</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_ver">版本:</string>
+    <string name="settings_help">帮助</string>
+    <string name="settings_copy">复制</string>
+    <string name="settings_can_not_parse_json_data">无法解析JSON数据</string>
+    <string name="settings_ver_is_low">JSON数据版本过低</string>
+    <string name="settings_is_not_app_data">不是此APP的数据</string>
+    <string name="settings_data_error">数据错误</string>
+    <string name="settings_decode_error">解密数据失败</string>
 </resources>

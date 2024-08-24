@@ -2,6 +2,7 @@ package com.shizuku.runner.plus.ui.fragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,7 @@ public class ProcessesFragment extends Fragment {
             int i = 0;
             for (String s1 : ls) {
                 if (s1.matches("^proc_[1-9]\\d*.xml$")) {
-                    s[i] = Integer.parseInt(s1.substring(5, s1.length()-4));
+                    s[i] = Integer.parseInt(s1.substring(5, s1.length() - 4));
                     i++;
                 }
             }
@@ -47,7 +48,15 @@ public class ProcessesFragment extends Fragment {
             System.arraycopy(s, 0, data, 0, i);
         } else
             data = new int[0];
+
         listView.setAdapter(new ProcessAdapter((MainActivity) requireContext(), data, this));
+        if (((MainActivity) requireContext()).iUserService != null) {
+            try {
+                ((ProcessAdapter) listView.getAdapter()).setProcessesInfo(((MainActivity) requireContext()).iUserService.exec("busybox ps -A -o pid,ppid", requireContext().getApplicationInfo().packageName).split("\n"));
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

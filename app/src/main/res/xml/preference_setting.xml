@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="App">
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="MODE_NIGHT_FOLLOW_SYSTEM"
+            android:entries="@array/theme_texts"
+            android:entryValues="@array/theme_values"
+            android:icon="@drawable/ic_dark_mode_24dp"
+            android:key="dark_theme"
+            android:summary="%s"
+            android:title="@string/dark_theme" />
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="CHANNEL_STABLE"
+            android:entries="@array/update_channel_texts"
+            android:entryValues="@array/update_channel_values"
+            android:icon="@drawable/ic_merge_type_24dp"
+            android:key="update_channel"
+            android:summary="%s"
+            android:title="@string/settings_update_channel" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_backup">
+
+        <Preference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_backup_restore_24dp"
+            android:key="export_data"
+            android:summary="@string/settings_export_data_summary"
+            android:title="@string/settings_export_data" />
+        <Preference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_restore_24dp"
+            android:key="import_data"
+            android:summary="@string/settings_import_data_summary"
+            android:title="@string/settings_import_data" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_shortcut_commands_and_terminals">
+
+        <PreferenceScreen
+            android:defaultValue="false"
+            android:icon="@drawable/ic_file_24dp"
+            android:key="exec_files_manager"
+            android:summary="@string/settings_exec_files_manager_summary"
+            android:title="@string/settings_exec_files_manager">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetClass="com.shizuku.runner.plus.ui.activity.FileMangerActivity"
+                android:targetPackage="com.shizuku.runner.plus">
+                <extra
+                    android:name="exec"
+                    android:value="true" />
+            </intent>
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:defaultValue="false"
+            android:icon="@drawable/ic_file_24dp"
+            android:key="lib_files_manager"
+            android:summary="@string/settings_lib_file_manager_summary"
+            android:title="@string/settings_lib_file_manager">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetClass="com.shizuku.runner.plus.ui.activity.FileMangerActivity"
+                android:targetPackage="com.shizuku.runner.plus">
+                <extra
+                    android:name="exec"
+                    android:value="false" />
+            </intent>
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:defaultValue="false"
+            android:icon="@drawable/ic_configs_24dp"
+            android:key="env_configs"
+            android:summary="@string/settings_env_manager_summary"
+            android:title="@string/settings_env_manager" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_about">
+
+        <Preference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_info_24dp"
+            android:key="ver"
+            android:title="@string/settings_ver" />
+        <Preference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_help_24dp"
+            android:key="help"
+            android:title="@string/settings_help" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

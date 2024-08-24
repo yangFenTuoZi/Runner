@@ -21,6 +21,7 @@
             android:checkable="true"
             app:cardBackgroundColor="?attr/colorPrimary"
             app:cardElevation="0dp"
+            app:strokeWidth="0dp"
             app:state_dragged="true">
 
             <LinearLayout
