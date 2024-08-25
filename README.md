@@ -1,6 +1,6 @@
 # Runner
-本APP受到[ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)的启发而写，引用部分[ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)的代码
-目前仍在开发，大部分功能不全，请等后续
+本APP受到[ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)的启发而写，引用部分[ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)的代码  
+目前仍在开发，大部分功能不全，请等后续  
 如果喜欢这个项目的话请多多为我Star吧
 
 ### 下载
