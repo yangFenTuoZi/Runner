@@ -55,6 +55,8 @@
     <string name="process_pid" translatable="false">PID: %d</string>
     <string name="process_the_killing_process_succeeded">The killing process succeeded</string>
     <string name="process_failed_to_kill_the_process">Failed to kill the process</string>
+    <string name="process_there_are_no_running_processes">There are no running processes</string>
+    <string name="process_kill_all_processes">Kill all processes?</string>
 
     <string name="settings_update_channel">Update Channel</string>
     <string name="settings_update_channel_stable">Stable</string>
@@ -80,4 +82,6 @@
     <string name="settings_is_not_app_data">It is not App data</string>
     <string name="settings_data_error">Data error</string>
     <string name="settings_decode_error">Decode data error</string>
+
+    <string name="yes">Yes</string>
 </resources>

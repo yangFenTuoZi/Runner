@@ -8,15 +8,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.adapters.ProcessAdapter;
 import com.shizuku.runner.plus.databinding.FragmentProcessesBinding;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
-
-import java.io.File;
 
 import rikka.core.util.ResourceUtils;
 
@@ -29,33 +30,47 @@ public class ProcessesFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProcessesBinding.inflate(inflater, container, false);
         listView = binding.procList;
+        binding.procKillAll.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.process_kill_all_processes)
+                .setPositiveButton(R.string.yes, ((dialog, which) -> {
+                    if (((MainActivity) requireContext()).iUserService != null) {
+                        try {
+                            ((MainActivity) requireContext()).iUserService.exec("sh /data/local/tmp/$APP_PACKAGE_NAME/etc/profile k_a", requireContext().getApplicationInfo().packageName);
+                            initList();
+                        } catch (RemoteException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
+                    }
+                }))
+                .show());
         return binding.getRoot();
     }
 
     public void initList() {
-        int[] data;
-        String[] ls = new File(requireContext().getApplicationInfo().dataDir + "/shared_prefs").list();
-        if (ls != null) {
-            int[] s = new int[ls.length];
-            int i = 0;
-            for (String s1 : ls) {
-                if (s1.matches("^proc_[1-9]\\d*.xml$")) {
-                    s[i] = Integer.parseInt(s1.substring(5, s1.length() - 4));
-                    i++;
-                }
-            }
-            data = new int[i];
-            System.arraycopy(s, 0, data, 0, i);
-        } else
-            data = new int[0];
-
-        listView.setAdapter(new ProcessAdapter((MainActivity) requireContext(), data, this));
         if (((MainActivity) requireContext()).iUserService != null) {
             try {
-                ((ProcessAdapter) listView.getAdapter()).setProcessesInfo(((MainActivity) requireContext()).iUserService.exec("busybox ps -A -o pid,ppid", requireContext().getApplicationInfo().packageName).split("\n"));
+                String[] strings = ((MainActivity) requireContext()).iUserService.exec("busybox ps -A -o pid,args|grep RUNNER-bash:|grep -v grep", requireContext().getApplicationInfo().packageName).split("\n");
+                int[] data = new int[strings.length];
+                String[] data_name = new String[strings.length];
+                int i = 0;
+                for (String proc : strings) {
+                    if (!proc.isEmpty()) {
+                        String[] pI = proc.replaceAll(" +", " ").trim().split(" ");
+                        if (pI[2].matches("^RUNNER-bash:.*")) {
+                            data[i] = Integer.parseInt(pI[0]);
+                            data_name[i] = pI[2].split(":", 2)[1];
+                            i++;
+                        }
+                    }
+                }
+                listView.setAdapter(new ProcessAdapter((MainActivity) requireContext(), data, data_name, this));
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
         }
     }
 

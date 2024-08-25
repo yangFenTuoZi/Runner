@@ -25,7 +25,13 @@ public class UserService extends IUserService.Stub {
     @Override
     public void releaseFile(String packageName, String libraryPath, String apkPath) throws RemoteException {
         try {
-            String cmds = """
+            Process process = Runtime.getRuntime().exec("sh");
+            OutputStream out = process.getOutputStream();
+            out.write(("packageName=" + packageName + "\n").getBytes());
+            out.write(("libraryPath=" + libraryPath + "\n").getBytes());
+            out.write(("apkPath=" + apkPath + "\n").getBytes());
+            out.flush();
+            out.write(("""
                     bin=/data/local/tmp/$packageName/bin
                     lib=/data/local/tmp/$packageName/lib
                     etc=/data/local/tmp/$packageName/etc
@@ -33,20 +39,15 @@ public class UserService extends IUserService.Stub {
                     mkdir -p $bin/applets
                     mkdir -p $lib
                     mkdir -p $etc/profile.d
-                    mkdir -p $home
+                    mkdir -p $home/.pipe
                     cp -f $libraryPath/libchid.so $bin/chid
                     cp -f $libraryPath/libbusybox.so $bin/busybox
                     cp -f $libraryPath/libbash.so $bin/bash
                     unzip -q -o -j $apkPath assets/profile -d $etc
                     $bin/busybox --install -s $bin/applets
-                    """;
-            Process process = Runtime.getRuntime().exec("sh");
-            OutputStream out = process.getOutputStream();
-            out.write(("packageName=" + packageName + "\n").getBytes());
-            out.write(("libraryPath=" + libraryPath + "\n").getBytes());
-            out.write(("apkPath=" + apkPath + "\n").getBytes());
+                    """).getBytes());
             out.flush();
-            out.write(cmds.getBytes());
+            out.write(("for i in $HOME/.pipe/.pipe*;do fuser $i||rm -f $i;done\n").getBytes());
             out.flush();
             out.close();
             process.waitFor();
@@ -55,7 +56,7 @@ public class UserService extends IUserService.Stub {
     }
 
     @Override
-    public int execX(String cmd, String packageName, String pipe, int port) throws RemoteException {
+    public int execX(String cmd, String name, String packageName, String pipe, int port) throws RemoteException {
         try {
             Runtime.getRuntime().exec(new String[]{"/data/local/tmp/" + packageName + "/bin/busybox", "mkfifo", pipe}).waitFor();
             Socket socket = new Socket("localhost", port);
@@ -63,7 +64,9 @@ public class UserService extends IUserService.Stub {
             OutputStream out = p.getOutputStream();
             out.write(("export APP_PACKAGE_NAME=" + packageName + "\n").getBytes());
             out.write((". /data/local/tmp/$APP_PACKAGE_NAME/etc/profile\n").getBytes());
-            out.write(("/data/local/tmp/" + packageName + "/bin/bash >> " + pipe + " 2>> " + pipe + "\n").getBytes());
+            out.write(("exec -a RUNNER-bash:" + name + " /data/local/tmp/" + packageName + "/bin/bash >> " + pipe + " 2>> " + pipe + "\n").getBytes());
+            out.flush();
+            out.write(("echo $$\n").getBytes());
             out.flush();
             out.write((cmd + "\n").getBytes());
             out.flush();
@@ -76,16 +79,6 @@ public class UserService extends IUserService.Stub {
             try {
                 // 建立socket连接
                 OutputStream os = socket.getOutputStream();
-
-                // 获取并返回p(Process)的pid
-                String pid = "";
-                String process = p.toString();
-                for (String i : process.substring(process.indexOf("["), process.indexOf("]")).substring("[".length()).split(", ")) {
-                    if (i.split("=")[0].equals("pid")) pid = i.split("=")[1];
-                }
-                os.write(String.valueOf(pid).getBytes());
-                os.write("\n".getBytes());
-                os.flush();
 
                 // 实时读取并返回存储shell执行结果的管道
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(pipe));
@@ -136,6 +129,26 @@ public class UserService extends IUserService.Stub {
             bufferedReader.close();
             process.waitFor();
             return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteFreePIPE(String packageName) throws RemoteException {
+        try {
+            Process process = Runtime.getRuntime().exec("/data/local/tmp/" + packageName + "/bin/bash");
+            OutputStream out = process.getOutputStream();
+            out.write(("export APP_PACKAGE_NAME=" + packageName + "\n").getBytes());
+            out.flush();
+            out.write((". /data/local/tmp/$APP_PACKAGE_NAME/etc/profile\n").getBytes());
+            out.flush();
+            out.write(("sh /data/local/tmp/$APP_PACKAGE_NAME/etc/profile d_p\n").getBytes());
+            out.flush();
+            out.write(("exit\n").getBytes());
+            out.flush();
+            out.close();
+            process.waitFor();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

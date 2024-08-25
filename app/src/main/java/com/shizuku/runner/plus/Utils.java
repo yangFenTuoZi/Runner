@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 
 import java.io.File;
@@ -13,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 public class Utils {
     public static class UpdateUtils {
@@ -65,6 +65,9 @@ public class Utils {
             SharedPreferences sharedPreferences = mContext.getSharedPreferences("data", 0);
             String string = sharedPreferences.getString("data", "");
             JSONObject json = new JSONObject();
+            json.put("APP_PACKAGE_NAME", BuildConfig.APPLICATION_ID);
+            json.put("APP_VERSION_NAME", BuildConfig.VERSION_NAME);
+            json.put("APP_VERSION_CODE", String.valueOf(BuildConfig.VERSION_CODE));
             if (!string.isEmpty()) {
                 String[] s = string.split(",");
                 JSONArray jsonArray = json.putArray("data");
@@ -99,6 +102,20 @@ public class Utils {
         }
 
         public static void restore(Context mContext, JSONObject json, boolean isCovered) throws RestoreException {
+            try {
+                if (((String) json.get("APP_PACKAGE_NAME")).isEmpty()
+                        || !json.get("APP_PACKAGE_NAME").equals(BuildConfig.APPLICATION_ID)
+                        || ((String) json.get("APP_VERSION_NAME")).isEmpty()
+                        || ((String) json.get("APP_VERSION_CODE")).isEmpty()) {
+                    RestoreException exception = new RestoreException();
+                    exception.setWhat(RestoreException.WHAT_IS_NOT_APP_DATA);
+                    throw exception;
+                }
+            } catch (Exception e) {
+                RestoreException exception = new RestoreException(e);
+                exception.setWhat(RestoreException.WHAT_IS_NOT_APP_DATA);
+                throw exception;
+            }
             if (isCovered) {
                 for (File file1 : Objects.requireNonNull(mContext.getDataDir().listFiles()))
                     if (file1.isFile()) file1.delete();
@@ -206,7 +223,7 @@ public class Utils {
                 encI = groupCount * 4;
                 encBuf[encI] = (byte) CHS[(b1 >> 2) & 0x3F];
                 encBuf[encI + 1] = (byte) CHS[((b1 << 4) & 0x30) | ((b2 >> 4) & 0x0F)];
-                encBuf[encI + 2] = (byte) CHS[((b2 << 2) & 0x3C) | ((b3 >> 6) & 0x03)];
+                encBuf[encI + 2] = (byte) CHS[((b2 << 2) & 0x3C) | ((0) & 0x03)];
                 encBuf[encI + 3] = '=';
             }
 
@@ -217,7 +234,7 @@ public class Utils {
 
                 encI = groupCount * 4;
                 encBuf[encI] = (byte) CHS[(b1 >> 2) & 0x3F];
-                encBuf[encI + 1] = (byte) CHS[((b1 << 4) & 0x30) | ((b2 >> 4) & 0x0F)];
+                encBuf[encI + 1] = (byte) CHS[((b1 << 4) & 0x30) | ((0) & 0x0F)];
                 encBuf[encI + 2] = encBuf[encI + 3] = '=';
             }
 
@@ -298,15 +315,12 @@ public class Utils {
         public static String a(String a) {
             StringBuilder result = new StringBuilder();
             for (int i = 1; i <= a.length(); i++) {
-                if (i % 5 == 0) {
-                    result.append(switch (i % 8) {
-                        case 1 -> "\\+";
-                        case 2 -> "#";
-                        case 3 -> "\\$";
-                        case 4 -> "%";
-                        case 5 -> "\\*";
-                        case 6 -> "@";
-                        case 7 -> "\\\\";
+                if (i % 7 == 0) {
+                    result.append(switch (new Random().nextInt(5)) {
+                        case 1 -> "+";
+                        case 2 -> "&";
+                        case 3 -> "$";
+                        case 4 -> "\\";
                         default -> "-";
                     });
                 }
@@ -319,11 +333,8 @@ public class Utils {
             return a
                     .replaceAll("-", "")
                     .replaceAll("\\+", "")
-                    .replaceAll("#", "")
+                    .replaceAll("&", "")
                     .replaceAll("\\$", "")
-                    .replaceAll("%", "")
-                    .replaceAll("\\*", "")
-                    .replaceAll("@", "")
                     .replaceAll("\\\\", "");
         }
     }

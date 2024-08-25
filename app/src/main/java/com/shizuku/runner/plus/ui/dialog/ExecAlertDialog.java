@@ -50,7 +50,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
     @Override
     public AlertDialog create() {
         alertDialog = super.create();
-        pipe = "/data/local/tmp/" + mContext.getApplicationInfo().packageName + "/home/.pipe" + (new Random().nextInt(89999) + 10000);
+        pipe = "/data/local/tmp/" + mContext.getApplicationInfo().packageName + "/home/.pipe/.pipe" + (new Random().nextInt(89999) + 10000);
         return alertDialog;
     }
 
@@ -95,9 +95,6 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                                                 mContext.runOnUiThread(() -> t1.append(String.format(mContext.getString(R.string.exec_pid), Integer.parseInt(finalInline))));
                                                 pid_ = true;
                                                 pid = Integer.parseInt(inline);
-                                                mContext.getSharedPreferences("proc_" + pid, 0).edit()
-                                                        .putString("name", intent.getStringExtra("name"))
-                                                        .putString("pipe", pipe).apply();
                                             }
                                         }
                                         br.close();
@@ -132,7 +129,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                         }
                     }).start();
                     h2.start();
-                    int exitValue = mContext.iUserService.execX(cmd, mContext.getApplicationInfo().packageName, pipe, port);
+                    int exitValue = mContext.iUserService.execX(cmd, intent.getStringExtra("name"), mContext.getApplicationInfo().packageName, pipe, port);
                     int error = switch (exitValue) {
                         case 0 -> R.string.exec_normal;
                         case 127 -> R.string.exec_command_not_found;
@@ -164,8 +161,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                 if (!intent.getBooleanExtra("keep_in_alive", false)) {
                     new Thread(() -> {
                         try {
-                            if (ProcessAdapter.killPID(pipe, pid, mContext)) {
-                                mContext.deleteSharedPreferences("proc_" + pid);
+                            if (ProcessAdapter.killPID(pid, mContext)) {
                                 mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
                             } else
                                 mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());

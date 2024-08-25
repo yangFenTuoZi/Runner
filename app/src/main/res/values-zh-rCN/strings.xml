@@ -76,4 +76,7 @@
     <string name="settings_is_not_app_data">不是此APP的数据</string>
     <string name="settings_data_error">数据错误</string>
     <string name="settings_decode_error">解密数据失败</string>
+    <string name="process_there_are_no_running_processes">没有正在运行的进程</string>
+    <string name="process_kill_all_processes">杀死所有进程?</string>
+    <string name="yes">是</string>
 </resources>

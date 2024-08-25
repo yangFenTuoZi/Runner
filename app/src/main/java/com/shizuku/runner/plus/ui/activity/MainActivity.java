@@ -2,7 +2,6 @@ package com.shizuku.runner.plus.ui.activity;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -77,10 +76,14 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this, getString(R.string.home_shizuku_is_not_running), Toast.LENGTH_SHORT).show();
             }
         }
-        A.setText(b ? getString(R.string.home_shizuku_is_running) : getString(R.string.home_shizuku_is_not_running));
-        A.setTextColor(b ? m : 0x77ff0000);
-        B.setText(c ? getString(R.string.home_shizuku_has_been_authorized) : getString(R.string.home_shizuku_is_not_authorized));
-        B.setTextColor(c ? m : 0x77ff0000);
+        if (A != null) {
+            A.setText(b ? getString(R.string.home_shizuku_is_running) : getString(R.string.home_shizuku_is_not_running));
+            A.setTextColor(b ? m : 0x77ff0000);
+        }
+        if (B != null) {
+            B.setText(c ? getString(R.string.home_shizuku_has_been_authorized) : getString(R.string.home_shizuku_is_not_authorized));
+            B.setTextColor(c ? m : 0x77ff0000);
+        }
         if (b && c) {
             homeRootShell.setText(Shizuku.getUid() == 0 ? "Root" : "Shell");
             if (!shizukuServiceState || iUserService == null)

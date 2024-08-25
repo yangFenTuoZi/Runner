@@ -20,6 +20,7 @@ import com.shizuku.runner.plus.ui.fragment.HomeFragment;
 
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -170,16 +171,18 @@ public class CmdAdapter extends BaseAdapter {
         //如果用户还没设置命令内容，则点击时将编辑命令，否则点击将运行命令
         holder.item_button.setOnClickListener(view -> {
 
-            //这里会根据用户是否勾选了降权，来执行不同的命令
-            Intent intent = new Intent()
-                    .putExtra("name", b.getString("name",""))
-                    .putExtra("command", b.getString("command", ""))
-                    .putExtra("keep_in_alive", b.getBoolean("keep_in_alive", false));
-            if (b.getBoolean("chid", false)) {
-                intent.putExtra("chid", b.getBoolean("chid", false))
-                        .putExtra("ids", b.getString("ids", ""));
-            }
-            new ExecAlertDialog((MainActivity) mContext, intent).show();
+            if (((MainActivity)mContext).iUserService != null) {
+                Intent intent = new Intent()
+                        .putExtra("name", b.getString("name", ""))
+                        .putExtra("command", b.getString("command", ""))
+                        .putExtra("keep_in_alive", b.getBoolean("keep_in_alive", false));
+                if (b.getBoolean("chid", false)) {
+                    intent.putExtra("chid", b.getBoolean("chid", false))
+                            .putExtra("ids", b.getString("ids", ""));
+                }
+                new ExecAlertDialog((MainActivity) mContext, intent).show();
+            } else
+                Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
         });
 
         //点击编辑
