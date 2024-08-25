@@ -40,6 +40,7 @@ public class MainActivity extends BaseActivity {
     public IUserService iUserService;
     public boolean shizukuServiceState = false;
     public boolean isHome;
+    public boolean isDialogShow = false;
 
     //shizuku权限监听
     private final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener = (i, i1) -> check();

@@ -115,6 +115,8 @@ public class CmdAdapter extends BaseAdapter {
 
         //这个点击事件是点击编辑命令
         View.OnClickListener voc = view -> {
+            if (((MainActivity) mContext).isDialogShow)
+                return;
             View v = View.inflate(mContext, R.layout.dialog_edit, null);
             final MaterialSwitch chid = v.findViewById(R.id.dialog_chid);
             final MaterialSwitch keep_in_alive = v.findViewById(R.id.dialog_keep_it_alive);
@@ -133,6 +135,7 @@ public class CmdAdapter extends BaseAdapter {
             ids.setText(b.getString("ids", null));
             name.requestFocus();
             name.postDelayed(() -> ((InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(name, 0), 200);
+            ((MainActivity) mContext).isDialogShow = true;
             new MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.dialog_edit)).setView(v).setPositiveButton(mContext.getString(R.string.dialog_finish), (dialog, which) -> {
                 b.edit().putString("command", Objects.requireNonNull(command.getText()).toString())
                         .putString("name", Objects.requireNonNull(name.getText()).toString())
@@ -148,7 +151,7 @@ public class CmdAdapter extends BaseAdapter {
                     ).apply();
                     init(holder, b, id);
                     home.initList();
-                } else if(!empty[0] && isEmpty(b)[0]) {
+                } else if (!empty[0] && isEmpty(b)[0]) {
                     SharedPreferences sp = mContext.getSharedPreferences("data", 0);
                     List<String> list = Arrays.asList(sp.getString("data", "").split(","));
                     if (list.contains(String.valueOf(id))) {
@@ -161,7 +164,7 @@ public class CmdAdapter extends BaseAdapter {
                     home.initList();
                 } else
                     init(holder, b, id);
-            }).show();
+            }).setOnDismissListener(dialog -> ((MainActivity) mContext).isDialogShow = false).show();
         };
 
         //如果用户还没设置命令内容，则显示加号，否则显示运行符号
@@ -170,8 +173,10 @@ public class CmdAdapter extends BaseAdapter {
 
         //如果用户还没设置命令内容，则点击时将编辑命令，否则点击将运行命令
         holder.item_button.setOnClickListener(view -> {
+            if (((MainActivity) mContext).isDialogShow)
+                return;
 
-            if (((MainActivity)mContext).iUserService != null) {
+            if (((MainActivity) mContext).iUserService != null) {
                 Intent intent = new Intent()
                         .putExtra("name", b.getString("name", ""))
                         .putExtra("command", b.getString("command", ""))
@@ -180,6 +185,7 @@ public class CmdAdapter extends BaseAdapter {
                     intent.putExtra("chid", b.getBoolean("chid", false))
                             .putExtra("ids", b.getString("ids", ""));
                 }
+                ((MainActivity) mContext).isDialogShow = true;
                 new ExecAlertDialog((MainActivity) mContext, intent).show();
             } else
                 Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
@@ -193,7 +199,7 @@ public class CmdAdapter extends BaseAdapter {
         holder.text_command.setText(empty[2] ? "" : b.getString("command", ""));
 
         //如果不为空则设置长按菜单
-        if (!isEmpty(b)[0]||new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/" + id + ".xml").exists())
+        if (!isEmpty(b)[0] || new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/" + id + ".xml").exists())
             holder.layout.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
                 menu.setHeaderTitle("选择操作");
                 menu.add(id, long_click_copy_name, 0, mContext.getString(R.string.long_click_copy_name));

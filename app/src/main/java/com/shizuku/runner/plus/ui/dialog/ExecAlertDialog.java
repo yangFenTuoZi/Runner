@@ -42,7 +42,10 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
         mContext = context;
         setView(R.layout.dialog_exec);
         setTitle(mContext.getString(R.string.exec_running));
-        setOnDismissListener(dialog -> onDestroy());
+        setOnDismissListener(dialog -> {
+            onDestroy();
+            mContext.isDialogShow = false;
+        });
         this.intent = intent;
     }
 

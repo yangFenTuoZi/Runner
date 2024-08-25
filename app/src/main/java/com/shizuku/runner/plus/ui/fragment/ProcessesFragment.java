@@ -30,21 +30,39 @@ public class ProcessesFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProcessesBinding.inflate(inflater, container, false);
         listView = binding.procList;
-        binding.procKillAll.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.process_kill_all_processes)
-                .setPositiveButton(R.string.yes, ((dialog, which) -> {
-                    if (((MainActivity) requireContext()).iUserService != null) {
-                        try {
-                            ((MainActivity) requireContext()).iUserService.exec("sh /data/local/tmp/$APP_PACKAGE_NAME/etc/profile k_a", requireContext().getApplicationInfo().packageName);
-                            initList();
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
+        binding.procKillAll.setOnClickListener(v -> {
+            if (((MainActivity) requireContext()).iUserService != null) {
+                try {
+                    if (listView.getAdapter().getCount() == 0) {
+                        Toast.makeText(requireContext(), R.string.process_there_are_no_running_processes, Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                }))
-                .show());
+                } catch (NullPointerException ignored) {
+                }
+            } else {
+                Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (((MainActivity) requireContext()).isDialogShow)
+                return;
+            ((MainActivity) requireContext()).isDialogShow = true;
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.process_kill_all_processes)
+                    .setPositiveButton(R.string.yes, ((dialog, which) -> {
+                        if (((MainActivity) requireContext()).iUserService != null) {
+                            try {
+                                ((MainActivity) requireContext()).iUserService.exec("sh /data/local/tmp/$APP_PACKAGE_NAME/etc/profile k_a", requireContext().getApplicationInfo().packageName);
+                                initList();
+                            } catch (RemoteException e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
+                        }
+                    }))
+                    .setOnDismissListener(dialog -> ((MainActivity) requireContext()).isDialogShow = false)
+                    .show();
+        });
         return binding.getRoot();
     }
 
