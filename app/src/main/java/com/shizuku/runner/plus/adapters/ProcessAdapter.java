@@ -113,7 +113,7 @@ public class ProcessAdapter extends BaseAdapter {
     void init(ViewHolder holder, int pid, String name) {
 
         holder.text_name.setText(name);
-        holder.text_pid.append(String.valueOf(pid));
+        holder.text_pid.setText(mContext.getString(R.string.exec_pid, pid));
 
         //设置点击事件
         holder.button_kill.setOnClickListener((view) -> new MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process).setPositiveButton(R.string.dialog_finish, (dialog, which) -> new Thread(() -> {

@@ -51,8 +51,7 @@
     <string name="pack_versionName">VersionName</string>
     <string name="pack_versionCode">VersionCode</string>
     <string name="pack_pinToAShortcutTile">Pin to a shortcut tile</string>
-    
-    <string name="process_pid" translatable="false">PID: %d</string>
+
     <string name="process_the_killing_process_succeeded">The killing process succeeded</string>
     <string name="process_failed_to_kill_the_process">Failed to kill the process</string>
     <string name="process_there_are_no_running_processes">There are no running processes</string>
@@ -74,7 +73,7 @@
     <string name="settings_env_manager">Environment manager</string>
     <string name="settings_env_manager_summary">These configurations will be loaded in the shortcut command and terminal</string>
     <string name="settings_about">About</string>
-    <string name="settings_ver">Version:</string>
+    <string name="settings_ver">versionName: %s\nversionCode: %d</string>
     <string name="settings_help">Help</string>
     <string name="settings_copy">Copy</string>
     <string name="settings_can_not_parse_json_data">Can not parse JSON data</string>
@@ -82,6 +81,15 @@
     <string name="settings_is_not_app_data">It is not App data</string>
     <string name="settings_data_error">Data error</string>
     <string name="settings_decode_error">Decode data error</string>
+    <string name="settings_backup_settings">Backup settings</string>
+    <string name="settings_backup_settings_summary">Back up settings (e.g. night mode, language settings, etc.)</string>
+    <string name="settings_check_update">Update</string>
+    <string name="settings_can_not_connect_update_server">Can not connect update server</string>
+    <string name="settings_can_not_parse_json">Can not parse JSON</string>
+    <string name="settings_json_format_error">JSON format error</string>
+    <string name="settings_error" translatable="false">Error</string>
+    <string name="settings_check_update_msg">Local version name: %s\nLocal version code: %d\nNew version name: %s\nNew version code: %d\nUpdate message: %s</string>
+    <string name="settings_latest_version">It is the latest version</string>
 
     <string name="yes">Yes</string>
 </resources>

@@ -95,7 +95,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                                             if (pid_) {
                                                 mContext.runOnUiThread(() -> t2.append(finalInline + "\n"));
                                             } else {
-                                                mContext.runOnUiThread(() -> t1.append(String.format(mContext.getString(R.string.exec_pid), Integer.parseInt(finalInline))));
+                                                mContext.runOnUiThread(() -> t1.append(mContext.getString(R.string.exec_pid, Integer.parseInt(finalInline))));
                                                 pid_ = true;
                                                 pid = Integer.parseInt(inline);
                                             }
@@ -119,7 +119,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                                     mContext.runOnUiThread(() -> {
                                         Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
                                         t1.append("\n");
-                                        t1.append(String.format(mContext.getString(R.string.exec_return), -1, mContext.getString(R.string.exec_other_error)));
+                                        t1.append(mContext.getString(R.string.exec_return, -1, mContext.getString(R.string.exec_other_error)));
                                         alertDialog.setTitle(mContext.getString(R.string.exec_finish));
                                     });
                                     onDestroy();
@@ -142,7 +142,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                     };
                     mContext.runOnUiThread(() -> {
                         t1.append("\n");
-                        t1.append(String.format(mContext.getString(R.string.exec_return), exitValue, mContext.getString(error)));
+                        t1.append(mContext.getString(R.string.exec_return, exitValue, mContext.getString(error)));
                         alertDialog.setTitle(mContext.getString(R.string.exec_finish));
                     });
                     br = true;

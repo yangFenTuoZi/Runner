@@ -44,7 +44,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
-                    android:text="PID: "
                     android:textSize="14sp"
                     android:ellipsize="end"
                     android:maxLines="1"

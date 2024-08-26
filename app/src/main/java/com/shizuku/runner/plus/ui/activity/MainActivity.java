@@ -34,7 +34,6 @@ import rikka.shizuku.Shizuku;
 
 public class MainActivity extends BaseActivity {
 
-    private boolean b, c;
     private TextView A, B, C, D, homeRootShell;
     private int m;
     public IUserService iUserService;
@@ -63,8 +62,8 @@ public class MainActivity extends BaseActivity {
     public void check() {
 
         //本函数用于检查shizuku状态，b代表shizuku是否运行，c代表shizuku是否授权
-        b = true;
-        c = false;
+        boolean b = true;
+        boolean c = false;
         try {
             if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED)
                 Shizuku.requestPermission(0);
@@ -127,7 +126,7 @@ public class MainActivity extends BaseActivity {
     private final Shizuku.UserServiceArgs userServiceArgs =
             new Shizuku.UserServiceArgs(new ComponentName(BuildConfig.APPLICATION_ID, UserService.class.getName()))
                     .daemon(false)
-                    .processNameSuffix("Runner_UserService")
+                    .processNameSuffix("RUNNER_USER_SERVICE")
                     .debuggable(BuildConfig.DEBUG)
                     .version(BuildConfig.VERSION_CODE);
 

@@ -3,10 +3,18 @@ package com.shizuku.runner.plus;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.preference.PreferenceFragmentCompat;
+
 import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,15 +24,163 @@ import java.util.Random;
 
 public class Utils {
     public static class UpdateUtils {
-        String[] mirrors_list = new String[]{
-                "https://gh.llkk.cc/",
-                "https://github.moeyy.xyz/",
-                "https://mirror.ghproxy.com/",
-                "https://ghproxy.net/",
-                "https://gh.ddlc.top/",
-                "https://gh.api.99988866.xyz/"
-        };
+        public static class UpdateException extends RuntimeException {
+            public final static int WHAT_CAN_NOT_CONNECT_UPDATE_SERVER = 0;
+            public final static int WHAT_CAN_NOT_PARSE_JSON = 1;
+            public final static int WHAT_JSON_FORMAT_ERROR = 2;
 
+            private int what;
+
+            public UpdateException() {
+                super();
+            }
+
+            public UpdateException(String message) {
+                super(message);
+            }
+
+            public UpdateException(String message, Throwable cause) {
+                super(message, cause);
+            }
+
+            public UpdateException(Throwable cause) {
+                super(cause);
+            }
+
+            public void setWhat(int what) {
+                this.what = what;
+            }
+
+            public int getWhat() {
+                return what;
+            }
+        }
+
+        public static class UpdateInfo {
+            public String version_name;
+            public int version_code;
+            public String update_url;
+            public String update_msg;
+
+            public UpdateInfo(String version_name, int version_code, String update_url, String update_msg) {
+                this.version_name = version_name;
+                this.version_code = version_code;
+                this.update_url = update_url;
+                this.update_msg = update_msg;
+            }
+
+            public UpdateInfo(JSONObject jsonObject) throws UpdateException {
+                String version_name = jsonObject.getString("version_name");
+                int version_code = jsonObject.getIntValue("version_code");
+                String update_url = jsonObject.getString("update_url");
+                String update_msg = jsonObject.getString("update_msg");
+                if (version_name == null || version_code == 0 || update_url == null || update_msg == null) {
+                    UpdateException e = new UpdateException();
+                    e.setWhat(UpdateException.WHAT_JSON_FORMAT_ERROR);
+                    throw e;
+                }
+                this.version_name = version_name;
+                this.version_code = version_code;
+                this.update_url = update_url;
+                this.update_msg = update_msg;
+            }
+
+            public UpdateInfo(String jsonInfo) throws UpdateException {
+                JSONObject jsonObject;
+                try {
+                    jsonObject = JSONObject.parseObject(jsonInfo);
+                } catch (JSONException jsonException) {
+                    UpdateException e = new UpdateException(jsonException);
+                    e.setWhat(UpdateException.WHAT_CAN_NOT_PARSE_JSON);
+                    throw e;
+                }
+                String version_name = jsonObject.getString("version_name");
+                int version_code = jsonObject.getIntValue("version_code");
+                String update_url = jsonObject.getString("update_url");
+                String update_msg = jsonObject.getString("update_msg");
+                if (version_name == null || version_code == 0 || update_url == null || update_msg == null) {
+                    UpdateException e = new UpdateException(new NullPointerException());
+                    e.setWhat(UpdateException.WHAT_JSON_FORMAT_ERROR);
+                    throw e;
+                }
+                this.version_name = version_name;
+                this.version_code = version_code;
+                this.update_url = update_url;
+                this.update_msg = update_msg;
+            }
+        }
+
+        private final static int timeOut = 3000;
+        private final static String mirror_url = "https://raw.gitmirror.com/";
+        private final static String original_url = "https://raw.githubusercontent.com/";
+        private final static String beta_url = "yangFenTuoZi/Runner/master/update_beta.json";
+        private final static String stable_url = "yangFenTuoZi/Runner/master/update_stable.json";
+
+        public static boolean ping(String url) {
+            try {
+                return InetAddress.getByName(url).isReachable(timeOut);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        public static String wget(String url) {
+            try {
+                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                connection.setConnectTimeout(timeOut);
+                connection.setRequestMethod("GET");
+                if (connection.getResponseCode() == 200) {
+                    StringBuilder result = new StringBuilder();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String s;
+                    while ((s = bufferedReader.readLine()) != null)
+                        result.append(s).append("\n");
+                    return result.toString();
+                }
+                return null;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        private static UpdateInfo Update(String url) throws UpdateException {
+            if (!ping(url)) {
+                UpdateException e = new UpdateException();
+                e.setWhat(UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER);
+                throw e;
+            }
+            String jsonInfo = wget(url);
+            if (jsonInfo == null) {
+                UpdateException e = new UpdateException();
+                e.setWhat(UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER);
+                throw e;
+            }
+            return new UpdateInfo(jsonInfo);
+        }
+
+        public static UpdateInfo Update(boolean isBeta) throws UpdateException {
+            if (isBeta) {
+                if (ping(mirror_url + beta_url)) {
+                    return Update(mirror_url + beta_url);
+                } else if (ping(original_url + beta_url)) {
+                    return Update(original_url + beta_url);
+                } else {
+                    UpdateException e = new UpdateException();
+                    e.setWhat(UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER);
+                    throw e;
+                }
+            } else {
+                if (ping(mirror_url + stable_url)) {
+                    return Update(mirror_url + stable_url);
+                } else if (ping(original_url + stable_url)) {
+                    return Update(original_url + stable_url);
+                } else {
+                    UpdateException e = new UpdateException();
+                    e.setWhat(UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER);
+                    throw e;
+                }
+            }
+        }
     }
 
     public static class BackupUtils {
@@ -61,7 +217,7 @@ public class Utils {
             }
         }
 
-        public static JSONObject backup(Context mContext) {
+        public static JSONObject backup(Context mContext, PreferenceFragmentCompat mSettingsFragment) {
             SharedPreferences sharedPreferences = mContext.getSharedPreferences("data", 0);
             String string = sharedPreferences.getString("data", "");
             JSONObject json = new JSONObject();
