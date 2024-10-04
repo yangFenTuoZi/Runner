@@ -1,28 +1,23 @@
 [versions]
-agp = "8.5.1"
+agp = "8.6.0"
 alibabaFastjson = "2.0.28"
 appcompat = "1.6.1"
-gson = "2.11.0"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 navigationFragment = "2.6.0"
 navigationUi = "2.6.0"
 preference = "1.2.0"
-activity = "1.8.0"
-shizuku-api = "13.1.5"
+activity = "1.8.2"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 com-alibaba-fastjson = { module = "com.alibaba:fastjson", version.ref = "alibabaFastjson" }
-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku-api" }
-shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku-api" }
 
 rikkax-appcompat = { module = "dev.rikka.rikkax.appcompat:appcompat", version = "1.6.1" }
 rikkax-core = { module = "dev.rikka.rikkax.core:core", version = "1.4.1" }
@@ -30,7 +25,6 @@ rikkax-insets = { module = "dev.rikka.rikkax.insets:insets", version = "1.3.0" }
 rikkax-layoutinflater = { module = "dev.rikka.rikkax.layoutinflater:layoutinflater", version = "1.3.0" }
 rikkax-material = { module = "dev.rikka.rikkax.material:material", version = "2.7.0" }
 rikkax-material-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
-rikkax-parcelablelist = { module = "dev.rikka.rikkax.parcelablelist:parcelablelist", version = "2.0.1" }
 rikkax-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
 rikkax-recyclerview = { module = "dev.rikka.rikkax.recyclerview:recyclerview-ktx", version = "1.3.2" }
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
@@ -38,3 +32,4 @@ rikkax-widget-mainswitchbar = { module = "dev.rikka.rikkax.widget:mainswitchbar"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }

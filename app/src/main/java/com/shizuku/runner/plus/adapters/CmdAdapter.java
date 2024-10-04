@@ -13,6 +13,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.ui.dialog.ExecAlertDialog;
 import com.shizuku.runner.plus.R;
@@ -176,7 +177,7 @@ public class CmdAdapter extends BaseAdapter {
             if (((MainActivity) mContext).isDialogShow)
                 return;
 
-            if (((MainActivity) mContext).iUserService != null) {
+            if (App.iService != null) {
                 Intent intent = new Intent()
                         .putExtra("name", b.getString("name", ""))
                         .putExtra("command", b.getString("command", ""))

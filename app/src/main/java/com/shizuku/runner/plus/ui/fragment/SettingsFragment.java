@@ -70,7 +70,7 @@ public class SettingsFragment extends Fragment {
                     try {
                         Utils.UpdateUtils.UpdateInfo updateInfo = Utils.UpdateUtils.Update(
                                 ((SimpleMenuPreference) findPreference("update_channel"))
-                                        .getEntry().equals(getResources().getStringArray(R.array.update_channel_values)[1]));
+                                        .getValue().equals(getResources().getStringArray(R.array.update_channel_values)[1]));
                         if (updateInfo.version_code > BuildConfig.VERSION_CODE) {
                             mContext.isDialogShow = true;
                             new MaterialAlertDialogBuilder(mContext)

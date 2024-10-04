@@ -1,0 +1,77 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+android {
+    namespace 'com.shizuku.runner.plus.tools'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    buildTypes {
+        debug {
+            multiDexEnabled false
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    libraryVariants.all { variant ->
+        variant.outputs.all {
+
+            def outDir = new File(rootDir, "out")
+            def mappingPath = new File(outDir, "mapping").absolutePath
+            def dexPath = "${rootProject.rootDir.path}/app/src/main/assets"
+            variant.assembleProvider.get().doLast {
+                if (variant.getBuildType().isMinifyEnabled()) {
+                    copy {
+                        from variant.mappingFileProvider.get()
+                        into mappingPath
+                        rename { String fileName ->
+                            mappingPath + File.separator + "cmd-v${variant.versionName}.txt"
+                        }
+                    }
+                }
+                def _date = null
+                def _file = null
+                fileTree(dir: "build/.transforms", include: ['**']).each { File file ->
+                    if (file.name == "classes.dex") {
+                        if (_date == null || file.lastModified() > _date) {
+                            _date = file.lastModified()
+                            _file = file
+                        }
+                    }
+                }
+                println(_file)
+                copy {
+                    from _file
+                    into dexPath
+                    rename { String fileName ->
+                        fileName.replace(_file.getName(), "tools.dex")
+                    }
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    compileOnly(project ":hiddenapi:stubs")
+}

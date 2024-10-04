@@ -1,5 +1,7 @@
 package com.shizuku.runner.plus.ui.fragment;
 
+import static com.shizuku.runner.plus.ui.activity.MainActivity.sendSomethingToServerBySocket;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -16,9 +18,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.adapters.CmdAdapter;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.ui.activity.PackActivity;
@@ -77,17 +79,16 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        try {
+            sendSomethingToServerBySocket("sendBinderToApp");
+        } catch (Exception ignored) {
+        }
         MainActivity mainActivity = (MainActivity) requireActivity();
         mainActivity.isHome = true;
-        if (mainActivity.iUserService == null) {
+        if (mainActivity.serviceState) {
+            binding.homeD.setText(getString(R.string.home_service_is_running));
+        } else {
             binding.homeD.setText(getString(R.string.home_service_is_disconnected));
-        } else {
-            binding.homeD.setText(getString(R.string.home_service_is_connected));
-        }
-        if (mainActivity.shizukuServiceState) {
-            binding.homeC.setText(getString(R.string.home_service_is_running));
-        } else {
-            binding.homeC.setText(getString(R.string.home_service_is_not_running));
         }
         initList();
         Window window = requireActivity().getWindow();

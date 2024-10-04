@@ -1,7 +1,14 @@
 package com.shizuku.runner.plus;
 
+import android.annotation.SuppressLint;
+import android.app.IApplicationThread;
 import android.content.Context;
+import android.content.IIntentReceiver;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -12,8 +19,9 @@ import com.alibaba.fastjson2.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,7 +126,16 @@ public class Utils {
 
         public static boolean ping(String url) {
             try {
-                return InetAddress.getByName(url).isReachable(timeOut);
+                URL url_ = new URL(url);
+                HttpURLConnection connection = (HttpURLConnection) url_.openConnection();
+                try {
+                    connection.setRequestMethod("HEAD");
+                    connection.setConnectTimeout(500);
+                    connection.setReadTimeout(500);
+                    return true;
+                } finally {
+                    connection.disconnect();
+                }
             } catch (Exception e) {
                 return false;
             }
@@ -161,8 +178,10 @@ public class Utils {
         public static UpdateInfo Update(boolean isBeta) throws UpdateException {
             if (isBeta) {
                 if (ping(mirror_url + beta_url)) {
+                    Log.d("Utils$UpdateUtils$Update(boolean)", "mirror");
                     return Update(mirror_url + beta_url);
                 } else if (ping(original_url + beta_url)) {
+                    Log.d("Utils$UpdateUtils$Update(boolean)", "original");
                     return Update(original_url + beta_url);
                 } else {
                     UpdateException e = new UpdateException();

@@ -10,7 +10,8 @@ import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.shizuku.runner.plus.IUserService;
+import com.shizuku.runner.plus.App;
+import com.shizuku.runner.plus.server.IService;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.ui.fragment.ProcessesFragment;
@@ -96,12 +97,12 @@ public class ProcessAdapter extends BaseAdapter {
 
     //噶进程，删管道，顺便判断死没死透
     public static boolean killPID(int pid, MainActivity mContext) {
-        if (mContext.iUserService != null) {
+        if (App.iService != null) {
             try {
-                IUserService iUserService = mContext.iUserService;
-                iUserService.exec("kill -9 " + pid, mContext.getPackageName());
-                iUserService.deleteFreePIPE(mContext.getPackageName());
-                return isDied(String.valueOf(pid), iUserService.exec("busybox ps -A -o pid,ppid|grep " + pid, mContext.getApplicationInfo().packageName).split("\n"));
+                IService iService = App.iService;
+                iService.exec("kill -9 " + pid);
+                iService.deleteFreePIPE();
+                return isDied(String.valueOf(pid), iService.exec("busybox ps -A -o pid,ppid|grep " + pid).split("\n"));
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -117,7 +118,7 @@ public class ProcessAdapter extends BaseAdapter {
 
         //设置点击事件
         holder.button_kill.setOnClickListener((view) -> new MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process).setPositiveButton(R.string.dialog_finish, (dialog, which) -> new Thread(() -> {
-            if (mContext.iUserService == null) {
+            if (App.iService == null) {
                 Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
                 return;
             }

@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.adapters.ProcessAdapter;
 import com.shizuku.runner.plus.databinding.FragmentProcessesBinding;
@@ -31,7 +32,7 @@ public class ProcessesFragment extends Fragment {
         binding = FragmentProcessesBinding.inflate(inflater, container, false);
         listView = binding.procList;
         binding.procKillAll.setOnClickListener(v -> {
-            if (((MainActivity) requireContext()).iUserService != null) {
+            if (App.iService != null) {
                 try {
                     if (listView.getAdapter().getCount() == 0) {
                         Toast.makeText(requireContext(), R.string.process_there_are_no_running_processes, Toast.LENGTH_SHORT).show();
@@ -49,9 +50,9 @@ public class ProcessesFragment extends Fragment {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.process_kill_all_processes)
                     .setPositiveButton(R.string.yes, ((dialog, which) -> {
-                        if (((MainActivity) requireContext()).iUserService != null) {
+                        if (App.iService != null) {
                             try {
-                                ((MainActivity) requireContext()).iUserService.exec("sh /data/local/tmp/$APP_PACKAGE_NAME/etc/profile k_a", requireContext().getApplicationInfo().packageName);
+                                App.iService.exec("sh /data/local/tmp/$APP_PACKAGE_NAME/etc/profile k_a");
                                 initList();
                             } catch (RemoteException e) {
                                 throw new RuntimeException(e);
@@ -67,9 +68,9 @@ public class ProcessesFragment extends Fragment {
     }
 
     public void initList() {
-        if (((MainActivity) requireContext()).iUserService != null) {
+        if (App.iService != null) {
             try {
-                String[] strings = ((MainActivity) requireContext()).iUserService.exec("busybox ps -A -o pid,args|grep RUNNER-bash:|grep -v grep", requireContext().getApplicationInfo().packageName).split("\n");
+                String[] strings = App.iService.exec("busybox ps -A -o pid,args|grep RUNNER-bash:|grep -v grep").split("\n");
                 int[] data = new int[strings.length];
                 String[] data_name = new String[strings.length];
                 int i = 0;

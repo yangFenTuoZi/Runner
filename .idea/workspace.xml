@@ -41,7 +41,7 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_processes.xml">
@@ -95,10 +95,188 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="去除部分冗余代码">
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="改用自己写的Server">
+      <change afterPath="$PROJECT_DIR$/Server/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/proguard-rules.pro" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/BinderContainer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/LOGGER.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/Server.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/UserCli.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/tools.dex" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/arm64-v8a/bin/bash" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/arm64-v8a/bin/busybox" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/arm64-v8a/bin/chid" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/armeabi-v7a/bin/bash" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/armeabi-v7a/bin/busybox" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/armeabi-v7a/bin/chid" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/common/etc/profile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/ver.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/x86/bin/bash" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/x86/bin/busybox" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/x86/bin/chid" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/x86_64/bin/bash" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/x86_64/bin/busybox" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/usr/x86_64/bin/chid" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceConnectListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceDisconnectListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/serverStateReceiver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/bridge/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/bridge/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/bridge/src/main/java/hidden/ByteBufferDexClassLoader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/bridge/src/main/java/hidden/HiddenApiBridge.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/annotation/NonNull.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/annotation/Nullable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/ActivityManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/ActivityThread.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/Application.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/ContentProviderHolder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/ContextImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/IActivityController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/IActivityManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/IApplicationThread.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/INotificationManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/IServiceConnection.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/IUidObserver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/LoadedApk.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/Notification.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/NotificationChannel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/ProfilerInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/app/ResourcesManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/AttributionSource.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/BroadcastReceiver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/ComponentName.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/Context.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/IContentProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/IIntentReceiver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/IIntentSender.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/Intent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/IntentFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/IntentSender.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/ApplicationInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/BaseParceledListSlice.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/IPackageInstaller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/IPackageManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/PackageInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/PackageInstaller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/PackageManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/PackageParser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/ParceledListSlice.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/ResolveInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/UserInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/pm/VersionedPackage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/res/AssetManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/res/CompatibilityInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/res/Configuration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/res/Resources.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/res/ResourcesImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/res/ResourcesKey.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/content/res/TypedArray.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/ddm/DdmHandleAppName.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/graphics/Movie.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/graphics/drawable/Drawable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/Binder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/Build.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/Bundle.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/Environment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/Handler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/IBinder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/IInterface.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/IPowerManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/IServiceCallback.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/IServiceManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/IUserManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/Parcel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/Parcelable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/PersistableBundle.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/RemoteException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/ResultReceiver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/SELinux.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/ServiceManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/ShellCallback.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/ShellCommand.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/SystemProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/UserHandle.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/os/UserManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/permission/IPermissionManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/system/ErrnoException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/system/Int32Ref.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/system/Os.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/util/DisplayMetrics.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/util/MutableInt.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/util/TypedValue.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/view/IWindowManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/webkit/WebViewDelegate.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/webkit/WebViewFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/android/webkit/WebViewFactoryProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/androidx/annotation/IntRange.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/androidx/annotation/RequiresApi.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/internal/os/BinderInternal.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/internal/os/ZygoteInit.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/internal/util/XmlUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/server/LocalServices.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/server/SystemService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/server/SystemServiceManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/server/am/ActivityManagerService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/com/android/server/am/ProcessRecord.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/dalvik/system/BaseDexClassLoader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/dalvik/system/VMRuntime.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/org/xmlpull/v1/XmlPullParserException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/sun/net/www/ParseUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/sun/net/www/protocol/jar/Handler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/xposed/dummy/XResourcesSuperClass.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hiddenapi/stubs/src/main/java/xposed/dummy/XTypedArraySuperClass.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shell/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shell/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shell/proguard-rules.pro" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shell/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/proguard-rules.pro" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/Tools.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/getAppPath.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/aidl/com/shizuku/runner/plus/IUserService.aidl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/assets/profile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/AppApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/UserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecAlertDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecAlertDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/SettingsFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/SettingsFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/arm64-v8a/libbash.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/arm64-v8a/libbusybox.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/arm64-v8a/libchid.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/armeabi-v7a/libbash.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/armeabi-v7a/libbusybox.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/armeabi-v7a/libchid.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/x86/libbash.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/x86/libbusybox.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/x86/libchid.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/x86_64/libbash.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/x86_64/libbusybox.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/jniLibs/x86_64/libchid.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +286,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.4:41339;connection=42a29000)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=1aaa06a9)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -118,6 +296,9 @@
     <system id="GRADLE">
       <state>
         <task path="$PROJECT_DIR$/app">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$">
           <activation />
         </task>
         <projects_view>
@@ -156,6 +337,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="valueResourceFile" />
+        <option value="Kotlin Class" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -168,6 +351,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -175,10 +359,13 @@
     &quot;assignee&quot;: &quot;yangFenTuoZi&quot;
   }
 }</component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="cc1c8dd4-3e7f-4a5a-8fb4-c7c51ce04dca" />
+  </component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/yangFenTuoZi/Runner.git&quot;,
-    &quot;accountId&quot;: &quot;79192bb3-df66-4a01-814b-f6bc7524b114&quot;
+    &quot;accountId&quot;: &quot;cc1c8dd4-3e7f-4a5a-8fb4-c7c51ce04dca&quot;
   }
 }</component>
   <component name="ProblemsViewState">
@@ -195,43 +382,54 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.libtermexec.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.term.executor&quot;: &quot;Run&quot;,
-    &quot;ApkExportedModule&quot;: &quot;Runner.app&quot;,
-    &quot;ExportApk.ApkPathForRunner.app&quot;: &quot;C:\\Users\\zeyu\\AndroidStudioProjects\\Runner\\app&quot;,
-    &quot;ResourceManagerPrefKey.ResourceType&quot;: &quot;DRAWABLE&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_directory_selection&quot;: &quot;C:/Users/zeyu/AndroidStudioProjects/Runner/app/src/main/res/drawable&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/zeyu/AndroidStudioProjects/Runner/app/src/main/java/com/shizuku/runner/plus/ui/Fragment&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.ChangelistConflict&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android App.app.executor": "Run",
+    "Android App.getAppPath.executor": "Run",
+    "Android App.libtermexec.executor": "Run",
+    "Android App.server.executor": "Run",
+    "Android App.term.executor": "Run",
+    "Android App.tools.executor": "Run",
+    "ApkExportedModule": "Runner.app",
+    "ExportApk.ApkPathForRunner.app": "C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\app",
+    "ExportApk.ApkPathForRunner.getAppPath": "C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\getAppPath",
+    "Gradle.Runner [copyDexToAssets].executor": "Run",
+    "Notification.DisplayName-DoNotAsk-Execution": "外部进程执行失败",
+    "Notification.DoNotAsk-Execution": "true",
+    "ResourceManagerPrefKey.ResourceType": "DRAWABLE",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.advertisement.text.has.clang-format": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "deletionFromPopupRequiresConfirmation": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_directory_selection": "C:/Users/Administrator/AndroidStudioProjects/Runner/getAppPath/src/main/java/com/shizuku/runner/plus/getAppPath",
+    "last_opened_file_path": "C:/Users/Administrator/AndroidStudioProjects/Runner/app",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.gitlab.GitLabSettingsConfigurable"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;ExportApk.BuildVariants&quot;: [
-      &quot;release&quot;
+  "keyToStringList": {
+    "ExportApk.BuildVariants": [
+      "debug"
     ],
-    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
-      &quot;GitIgnore&quot;
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "GitIgnore"
     ]
   }
-}</component>
+}]]></component>
   <component name="PsdUISettings">
     <option name="MODULES_LIST_MINIMIZE" value="true" />
+    <option name="MODULE_TAB" value="Signing Configs" />
+    <option name="LAST_EDITED_SIGNING_CONFIG" value="debug" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -242,6 +440,8 @@
       <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\res\layout" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\aidl\com\shizuku\runner\plus" />
+      <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\aidl\com\shizuku\runner\plus\server" />
       <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\res\drawable" />
       <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\res\menu" />
     </key>
@@ -255,14 +455,14 @@
       <recent name="com.shizuku.runner.plus" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.shizuku.runner.plus.receiver" />
+      <recent name="com.shizuku.runner.plus.tools" />
+      <recent name="com.shizuku.runner.plus.getAppPath" />
       <recent name="com.shizuku.runner.plus.ui.widget" />
       <recent name="com.shizuku.runner.plus.ui.fragment" />
-      <recent name="com.shizuku.runner.plus.ui.dialog" />
-      <recent name="com.shizuku.runner.plus.terminal" />
-      <recent name="com.shizuku.runner.plus.Adapters" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Android App.app">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="Runner.app.main" />
       <option name="DEPLOY" value="true" />
@@ -329,10 +529,80 @@
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="tools" type="AndroidRunConfigurationType" factoryName="Android App">
+      <module name="Runner.tools.main" />
+      <option name="DEPLOY" value="true" />
+      <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
+      <option name="DEPLOY_AS_INSTANT" value="false" />
+      <option name="ARTIFACT_NAME" value="" />
+      <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="ALL_USERS" value="false" />
+      <option name="ALWAYS_INSTALL_WITH_PM" value="false" />
+      <option name="CLEAR_APP_STORAGE" value="false" />
+      <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
+      <option name="ACTIVITY_EXTRA_FLAGS" value="" />
+      <option name="MODE" value="do_nothing" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
+      <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
+      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
+      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
+      <option name="DEBUGGER_TYPE" value="Auto" />
+      <Auto>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Auto>
+      <Hybrid>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Hybrid>
+      <Java>
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Java>
+      <Native>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Native>
+      <Profilers>
+        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Java/Kotlin Method Sample (legacy)" />
+        <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
+        <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
+      </Profilers>
+      <option name="DEEP_LINK" value="" />
+      <option name="ACTIVITY_CLASS" value="" />
+      <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
+      <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Android App.app" />
+      <item itemvalue="Android App.tools" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
-    <configuration>C:\Users\zeyu\AppData\Roaming\Subversion</configuration>
+    <configuration>C:\Users\Administrator\AppData\Roaming\Subversion</configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
@@ -390,7 +660,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724127938024</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="添加检查更新功能">
+      <option name="closed" value="true" />
+      <created>1724679802047</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1724679802047</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -411,6 +689,10 @@
     <MESSAGE value="Update" />
     <MESSAGE value="优化杀进程功能，之前只杀外围父进程，现在连根拔起，连诛九族" />
     <MESSAGE value="去除部分冗余代码" />
-    <option name="LAST_COMMIT_MESSAGE" value="去除部分冗余代码" />
+    <MESSAGE value="a" />
+    <MESSAGE value="更改为LF换行&#10;添加检查更新功能" />
+    <MESSAGE value="添加检查更新功能" />
+    <MESSAGE value="改用自己写的Server" />
+    <option name="LAST_COMMIT_MESSAGE" value="改用自己写的Server" />
   </component>
 </project>

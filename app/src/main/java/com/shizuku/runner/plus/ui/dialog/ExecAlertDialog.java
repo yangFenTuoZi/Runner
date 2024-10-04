@@ -11,7 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.adapters.ProcessAdapter;
+import com.shizuku.runner.plus.server.Server;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.ui.widget.TextViewX;
@@ -53,7 +55,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
     @Override
     public AlertDialog create() {
         alertDialog = super.create();
-        pipe = "/data/local/tmp/" + mContext.getApplicationInfo().packageName + "/home/.pipe/.pipe" + (new Random().nextInt(89999) + 10000);
+        pipe = Server.usr_path + "/tmp/.pipe" + (new Random().nextInt(89999) + 10000);
         return alertDialog;
     }
 
@@ -74,7 +76,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
             cmd = "chid " + intent.getStringExtra("ids") + " " + intent.getStringExtra("command");
         else
             cmd = intent.getStringExtra("command");
-        if (mContext.iUserService != null) {
+        if (App.iService != null) {
             h1 = new Thread(() -> {
                 try {
                     br = false;
@@ -115,7 +117,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                     new Thread(() -> {
                         try {
                             while (true) {
-                                if (mContext.iUserService == null) {
+                                if (App.iService == null) {
                                     mContext.runOnUiThread(() -> {
                                         Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
                                         t1.append("\n");
@@ -132,7 +134,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                         }
                     }).start();
                     h2.start();
-                    int exitValue = mContext.iUserService.execX(cmd, intent.getStringExtra("name"), mContext.getApplicationInfo().packageName, pipe, port);
+                    int exitValue = App.iService.execX(cmd, intent.getStringExtra("name"), pipe, port);
                     int error = switch (exitValue) {
                         case 0 -> R.string.exec_normal;
                         case 127 -> R.string.exec_command_not_found;
@@ -158,7 +160,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
         br = true;
         h2.interrupt();
         h1.interrupt();
-        if (mContext.iUserService != null) {
+        if (App.iService != null) {
             try {
                 serverSocket.close();
                 if (!intent.getBooleanExtra("keep_in_alive", false)) {

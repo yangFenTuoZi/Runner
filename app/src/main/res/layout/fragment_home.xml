@@ -27,14 +27,16 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:baselineAligned="false"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="25dp"
                 android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="4"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="horizontal">
 
@@ -46,63 +48,21 @@
                         android:textSize="22sp"
                         tools:ignore="HardcodedText" />
 
-                    <TextView
-                        android:id="@+id/home_root_shell"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="3dp"
-                        android:layout_marginBottom="7dp"
-                        android:textColor="?attr/colorOnPrimary"
-                        android:textSize="12sp" />
-
                 </LinearLayout>
-
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="3"
-                    android:gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/home_a"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="?attr/colorOnPrimary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/home_b"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:textColor="?attr/colorOnPrimary"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="3"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/home_c"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="?attr/colorOnPrimary"
-                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/home_d"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
                         android:textColor="?attr/colorOnPrimary"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

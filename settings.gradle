@@ -1,14 +1,9 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
         gradlePluginPortal()
+        google()
+        mavenCentral()
+        mavenLocal()
     }
 }
 dependencyResolutionManagement {
@@ -16,10 +11,15 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/' }
-        maven { url 'https://jitpack.io'}
+        mavenLocal()
+        maven { url 'https://jitpack.io' }
     }
 }
 
 rootProject.name = "Runner"
 include ':app'
+include ':tools'
+include ':server'
+include ':shell'
+include ':hiddenapi:stubs'
+include ':hiddenapi:bridge'

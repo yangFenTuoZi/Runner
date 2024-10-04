@@ -1,16 +1,10 @@
 package com.shizuku.runner.plus.ui.activity;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
@@ -18,129 +12,187 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.BuildConfig;
-import com.shizuku.runner.plus.IUserService;
 import com.shizuku.runner.plus.R;
-import com.shizuku.runner.plus.UserService;
 import com.shizuku.runner.plus.databinding.ActivityMainBinding;
 import com.shizuku.runner.plus.databinding.FragmentHomeBinding;
+import com.shizuku.runner.plus.receiver.OnServiceConnectListener;
+import com.shizuku.runner.plus.receiver.OnServiceDisconnectListener;
+import com.shizuku.runner.plus.server.IService;
+import com.shizuku.runner.plus.server.Server;
+import com.shizuku.runner.plus.tools.getAppPath;
 import com.shizuku.runner.plus.ui.fragment.HomeFragment;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 import rikka.core.util.ResourceUtils;
-import rikka.shizuku.Shizuku;
 
 
 public class MainActivity extends BaseActivity {
 
-    private TextView A, B, C, D, homeRootShell;
+    private TextView D;
     private int m;
-    public IUserService iUserService;
-    public boolean shizukuServiceState = false;
+    private boolean confirmStopServer = false;
+    private Thread t;
     public boolean isHome;
     public boolean isDialogShow = false;
-
-    //shizuku权限监听
-    private final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener = (i, i1) -> check();
-
-    //shizuku服务状态监听
-    private final Shizuku.OnBinderReceivedListener onBinderReceivedListener = () -> {
-        shizukuServiceState = true;
-        if (isHome)
-            runOnUiThread(() -> C.setText(getString(R.string.home_service_is_running)));
-    };
-
-    private final Shizuku.OnBinderDeadListener onBinderDeadListener = () -> {
-        shizukuServiceState = false;
-        iUserService = null;
-        if (isHome)
-            runOnUiThread(() -> C.setText(getString(R.string.home_service_is_not_running)));
-    };
-
-    //检查shizuku服务及权限状态
-    public void check() {
-
-        //本函数用于检查shizuku状态，b代表shizuku是否运行，c代表shizuku是否授权
-        boolean b = true;
-        boolean c = false;
-        try {
-            if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED)
-                Shizuku.requestPermission(0);
-            else c = true;
-        } catch (Exception e) {
-            if (checkSelfPermission("moe.shizuku.manager.permission.API_V23") == PackageManager.PERMISSION_GRANTED)
-                c = true;
-            if (e.getClass() == IllegalStateException.class) {
-                b = false;
-                Toast.makeText(this, getString(R.string.home_shizuku_is_not_running), Toast.LENGTH_SHORT).show();
-            }
-        }
-        if (A != null) {
-            A.setText(b ? getString(R.string.home_shizuku_is_running) : getString(R.string.home_shizuku_is_not_running));
-            A.setTextColor(b ? m : 0x77ff0000);
-        }
-        if (B != null) {
-            B.setText(c ? getString(R.string.home_shizuku_has_been_authorized) : getString(R.string.home_shizuku_is_not_authorized));
-            B.setTextColor(c ? m : 0x77ff0000);
-        }
-        if (b && c) {
-            homeRootShell.setText(Shizuku.getUid() == 0 ? "Root" : "Shell");
-            if (!shizukuServiceState || iUserService == null)
-                Shizuku.bindUserService(userServiceArgs, serviceConnection);
-        }
-    }
-
-    //shizuku初始化注册监听
-    private void initShizuku() {
-        Shizuku.addRequestPermissionResultListener(onRequestPermissionResultListener);
-        Shizuku.addBinderReceivedListenerSticky(onBinderReceivedListener);
-        Shizuku.addBinderDeadListener(onBinderDeadListener);
-    }
-
-    //shizuku服务连接状态监听
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
+    public boolean serviceState = false;
+    public App app;
+    private final OnServiceConnectListener onServiceConnectListener = new OnServiceConnectListener() {
         @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+        public void onServiceConnect(IService iService) {
+            serviceState = true;
             if (isHome)
-                runOnUiThread(() -> D.setText(getString(R.string.home_service_is_connected)));
-            if (iBinder != null && iBinder.pingBinder()) {
-                iUserService = IUserService.Stub.asInterface(iBinder);
-                try {
-                    iUserService.releaseFile(getApplicationInfo().packageName, getApplicationInfo().nativeLibraryDir, getApplicationInfo().sourceDir);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            if (isHome)
-                runOnUiThread(() -> D.setText(getString(R.string.home_service_is_disconnected)));
-            iUserService = null;
+                D.setText(R.string.home_service_is_running);
         }
     };
-
-    //shizuku UserService服务参数
-    private final Shizuku.UserServiceArgs userServiceArgs =
-            new Shizuku.UserServiceArgs(new ComponentName(BuildConfig.APPLICATION_ID, UserService.class.getName()))
-                    .daemon(false)
-                    .processNameSuffix("RUNNER_USER_SERVICE")
-                    .debuggable(BuildConfig.DEBUG)
-                    .version(BuildConfig.VERSION_CODE);
+    private final OnServiceDisconnectListener onServiceDisconnectListener = new OnServiceDisconnectListener() {
+        @Override
+        public void onServiceDisconnect() {
+            serviceState = false;
+            if (isHome)
+                D.setText(R.string.home_service_is_disconnected);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        app = (App) getApplication();
+        App.addOnServiceConnectListener(onServiceConnectListener);
+        App.addOnServiceDisconnectListener(onServiceDisconnectListener);
+        AssetManager assetManager = getAssets();
+        InputStream tools;
+        try {
+            tools = assetManager.open("tools.dex");
+            Files.copy(tools, new File(getExternalFilesDir(""), "tools.dex").toPath(), StandardCopyOption.REPLACE_EXISTING);
+            tools.close();
+        } catch (IOException e) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("警告!")
+                    .setMessage("请先构建一次 tools 模块\n构建过一次后再构建 app !")
+                    .setNegativeButton("退出", (dialog, which) -> {
+                        finish();
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
+        // server_starter
+        try {
+            String starter_content = String.format("""
+                    #!/system/bin/sh
+                    log() {
+                        echo "[$(date "%s")] [server_starter] [$1] $2"
+                    }
+                    log I "Begin"
+                    
+                    # check uid
+                    uid=$(id -u)
+                    if [ ! $uid -eq 0 ] && [ ! $uid -eq 2000 ]; then
+                        log E "Insufficient permission! Need to be launched by root or shell, but your uid is $uid." >&2
+                        exit 255
+                    fi
+                    
+                    # get app path
+                    GET_APP_PATH_DEX="$(dirname "$0")/tools.dex"
+                    if [ ! -f "$GET_APP_PATH_DEX" ]; then
+                        log E "Cannot find $GET_APP_PATH_DEX." >&2
+                        exit 1
+                    fi
+                    log I "Get app path"
+                    APP_PATH="$(app_process -Djava.class.path="$GET_APP_PATH_DEX" /system/bin %s %s)"
+                    if [ ! $? -eq 0 ] || [ ! -f "$APP_PATH" ]; then
+                        log E "Cannot find the app APK." >&2
+                        exit 1
+                    fi
+                    
+                    # start server
+                    log I "Start server"
+                    export appPath_file="/data/local/tmp/runner/appPath"
+                    app_process -Djava.class.path="$APP_PATH" /system/bin --nice-name=runner_server %s
+                    exitValue=$?
+                    while [ $exitValue -eq 10 ]; do
+                        appPath=$(cat $appPath_file)
+                        [ -f $appPath_file ] && rm $appPath_file
+                        app_process -Djava.class.path="$appPath" /system/bin --nice-name=runner_server %s restart
+                        exitValue=$?
+                    done
+                    [ -f $appPath_file ] && rm $appPath_file
+                    exit $exitValue
+                    """, "+%H:%M:%S", getAppPath.class.getName(), BuildConfig.APPLICATION_ID, Server.class.getName(), Server.class.getName());
+            File starter = new File(getExternalFilesDir(""), "server_starter.sh");
+            if (starter.exists()) {
+                starter.delete();
+                starter.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(starter);
+            fileWriter.write(starter_content);
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // cli
+        try {
+            String cli_content = String.format("""
+                    #!/system/bin/sh
+                    GET_APP_PATH_DEX="$(dirname "$0")/tools.dex"
+                    if [ ! -f "$GET_APP_PATH_DEX" ]; then
+                        echo "Cannot find $GET_APP_PATH_DEX." >&2
+                        exit 1
+                    fi
+                    
+                    if [ $(getprop ro.build.version.sdk) -ge 34 ]; then
+                      if [ -w $GET_APP_PATH_DEX ]; then
+                        echo "On Android 14+, app_process cannot load writable dex."
+                        echo "Attempting to remove the write permission..."
+                        chmod 400 $GET_APP_PATH_DEX
+                      fi
+                      if [ -w $GET_APP_PATH_DEX ]; then
+                        echo "Cannot remove the write permission of $GET_APP_PATH_DEX."
+                        echo "You can copy to file to terminal app's private directory (/data/data/<package>, so that remove write permission is possible"
+                        exit 1
+                      fi
+                    fi
+                    
+                    APP_PATH="$(app_process -Djava.class.path="$GET_APP_PATH_DEX" /system/bin %s %s)"
+                    if [ ! $? -eq 0 ] || [ ! -f "$APP_PATH" ]; then
+                        echo "Cannot find the app APK, please try giving this app permission to read the application list." >&2
+                        exit 1
+                    fi
+                    
+                    app_process -Djava.class.path="$APP_PATH" /system/bin %s "$@"
+                    """, com.shizuku.runner.plus.tools.getAppPath.class.getName(), BuildConfig.APPLICATION_ID, com.shizuku.runner.plus.server.UserCli.class.getName());
+            File cli = new File(getExternalFilesDir(""), "runner_cli");
+            if (cli.exists()) {
+                cli.delete();
+                cli.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(cli);
+            fileWriter.write(cli_content);
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         Fragment fragment = Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main));
         NavController navController = ((NavHostFragment) fragment).getNavController();
         NavigationUI.setupWithNavController(binding.navView, navController);
-        initShizuku();
 
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
@@ -154,45 +206,72 @@ public class MainActivity extends BaseActivity {
         getWindow().setNavigationBarColor(color);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        check();
-    }
-
-    //在APP退出时，取消注册Shizuku监听
-    @Override
-    public void onDestroy() {
-        Shizuku.removeRequestPermissionResultListener(onRequestPermissionResultListener);
-        Shizuku.removeBinderReceivedListener(onBinderReceivedListener);
-        Shizuku.removeBinderDeadListener(onBinderDeadListener);
-        Shizuku.unbindUserService(userServiceArgs, serviceConnection, true);
-        super.onDestroy();
-    }
-
-    //获取HomeFragment，方便子控件事件调用这个类的方法以及shizuku监听
     public void setHomeFragment(HomeFragment homeFragment) {
         FragmentHomeBinding homeBinding = homeFragment.getBinding();
-        A = homeBinding.homeA;
-        B = homeBinding.homeB;
-        C = homeBinding.homeC;
         D = homeBinding.homeD;
-        homeRootShell = homeBinding.homeRootShell;
-        m = A.getCurrentTextColor();
-        homeBinding.homeCard.setOnClickListener((View view) -> check());
-        check();
+        homeBinding.homeCard.setOnLongClickListener(v -> {
+            if (confirmStopServer) {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("Warning!")
+                        .setMessage("Confirm to stop server?")
+                        .setNegativeButton("YES", (dialog, which) -> new Thread(() -> {
+                            try {
+                                sendSomethingToServerBySocket("stopServer");
+                            } catch (Exception e) {
+                                runOnUiThread(() -> new MaterialAlertDialogBuilder(this)
+                                        .setTitle("Error!")
+                                        .setMessage("Cannot stop server!\n" + e.getMessage())
+                                        .show());
+                            }
+                        }).start())
+                        .show();
+                confirmStopServer = false;
+            } else {
+                t = new Thread(() -> {
+                    try {
+                        confirmStopServer = true;
+                        Thread.sleep(4000);
+                        confirmStopServer = false;
+                    } catch (InterruptedException ignored) {
+                    }
+                    t = null;
+                });
+                t.start();
+            }
+            return true;
+        });
+        homeBinding.homeCard.setOnClickListener(v -> {
+            new Thread(() -> {
+                try {
+                    sendSomethingToServerBySocket("sendBinderToApp");
+                } catch (Exception ignored) {
+                }
+            }).start();
+        });
     }
 
-    public static String getDataPath(Context mContext) {
-        String packageName;
-        try {
-            packageName = mContext.getPackageName();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public static void sendSomethingToServerBySocket(String msg) throws IOException {
+        Socket socket = new Socket("localhost", Server.PORT);
+
+        OutputStream out = socket.getOutputStream();
+        out.write((msg + "\n").getBytes());
+        out.close();
+        socket.close();
+    }
+
+    @Override
+    public void onStop() {
+        if (t != null) {
+            t.interrupt();
+            t = null;
         }
-        if (Objects.equals(packageName, ""))
-            packageName = "com.shizuku.runner.plus";
-        return "/data/local/tmp/" + packageName;
+        super.onStop();
     }
 
+    @Override
+    public void onDestroy() {
+        App.removeOnServiceConnectListener(onServiceConnectListener);
+        App.removeOnServiceDisconnectListener(onServiceDisconnectListener);
+        super.onDestroy();
+    }
 }

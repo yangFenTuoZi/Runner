@@ -1,0 +1,32 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'rikka.shizuku.shell'
+    compileSdk project.properties.compileSdkVersion.toInteger()
+
+    defaultConfig {
+        minSdk project.properties.minSdkVersion.toInteger()
+        targetSdk project.properties.targetSdkVersion.toInteger()
+    }
+    buildTypes {
+        debug {
+            multiDexEnabled false
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    lint {
+        checkReleaseBuilds false
+    }
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+dependencies {
+    compileOnly(project ":hiddenapi:stubs")
+}
