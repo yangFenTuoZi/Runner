@@ -88,4 +88,6 @@
 
     <string name="yes">是</string>
     <string name="settings_latest_version">已是最新版本</string>
+    <string name="menu_stop_server">停止服务</string>
+    <string name="menu_start_server">启动服务</string>
 </resources>

@@ -38,5 +38,7 @@ android {
 
 dependencies {
     implementation project(":tools")
+    implementation libs.picocli
+    annotationProcessor libs.picocli.codegen
     compileOnly(project ":hiddenapi:stubs")
 }

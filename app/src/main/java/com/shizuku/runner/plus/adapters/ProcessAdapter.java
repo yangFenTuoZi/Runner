@@ -101,7 +101,6 @@ public class ProcessAdapter extends BaseAdapter {
             try {
                 IService iService = App.iService;
                 iService.exec("kill -9 " + pid);
-                iService.deleteFreePIPE();
                 return isDied(String.valueOf(pid), iService.exec("busybox ps -A -o pid,ppid|grep " + pid).split("\n"));
             } catch (RemoteException e) {
                 throw new RuntimeException(e);

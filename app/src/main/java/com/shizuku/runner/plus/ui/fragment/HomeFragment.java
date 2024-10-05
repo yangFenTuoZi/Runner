@@ -2,6 +2,7 @@ package com.shizuku.runner.plus.ui.fragment;
 
 import static com.shizuku.runner.plus.ui.activity.MainActivity.sendSomethingToServerBySocket;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -18,9 +19,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 
-import com.shizuku.runner.plus.App;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.shizuku.runner.plus.adapters.CmdAdapter;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.ui.activity.PackActivity;
@@ -33,7 +36,7 @@ import java.util.List;
 
 import rikka.core.util.ResourceUtils;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
     private FragmentHomeBinding binding;
     private SharedPreferences sp;
     public ListView listView;
@@ -50,6 +53,29 @@ public class HomeFragment extends Fragment {
         sp = requireContext().getSharedPreferences("data", 0);
         initList();
         ((MainActivity) requireContext()).setHomeFragment(this);
+        setupToolbar(binding.toolbar, null, R.string.app_name, R.menu.menu_home);
+        binding.toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.menu_start_server) {
+
+            } else if (item.getItemId() == R.id.menu_stop_server) {
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Warning!")
+                        .setMessage("Confirm to stop server?")
+                        .setNegativeButton("Yes", (dialog, which) -> new Thread(() -> {
+                            try {
+                                sendSomethingToServerBySocket("stopServer");
+                            } catch (Exception e) {
+                                requireActivity().runOnUiThread(() -> new MaterialAlertDialogBuilder(requireContext())
+                                        .setTitle("Error!")
+                                        .setMessage("Cannot stop server!\n" + e.getMessage())
+                                        .show());
+                            }
+                        }).start())
+                        .show();
+                return true;
+            }
+            return true;
+        });
         return root;
     }
 
@@ -79,16 +105,20 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        try {
-            sendSomethingToServerBySocket("sendBinderToApp");
-        } catch (Exception ignored) {
-        }
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(100);
+                sendSomethingToServerBySocket("sendBinderToApp");
+            } catch (Exception ignored) {
+            }
+        }).start();
         MainActivity mainActivity = (MainActivity) requireActivity();
         mainActivity.isHome = true;
         if (mainActivity.serviceState) {
-            binding.homeD.setText(getString(R.string.home_service_is_running));
+            binding.toolbar.setSubtitle(R.string.home_service_is_running);
         } else {
-            binding.homeD.setText(getString(R.string.home_service_is_disconnected));
+            binding.toolbar.setSubtitle(R.string.home_service_is_not_running);
         }
         initList();
         Window window = requireActivity().getWindow();

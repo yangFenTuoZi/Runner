@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
-import java.util.Random;
 
 public class ExecAlertDialog extends MaterialAlertDialogBuilder {
 
@@ -35,7 +34,6 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
     Thread h1, h2;
     boolean br = false;
     AlertDialog alertDialog;
-    String pipe;
     ServerSocket serverSocket;
     MainActivity mContext;
 
@@ -55,7 +53,6 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
     @Override
     public AlertDialog create() {
         alertDialog = super.create();
-        pipe = Server.usr_path + "/tmp/.pipe" + (new Random().nextInt(89999) + 10000);
         return alertDialog;
     }
 
@@ -134,7 +131,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                         }
                     }).start();
                     h2.start();
-                    int exitValue = App.iService.execX(cmd, intent.getStringExtra("name"), pipe, port);
+                    int exitValue = App.iService.execX(cmd, intent.getStringExtra("name"), port);
                     int error = switch (exitValue) {
                         case 0 -> R.string.exec_normal;
                         case 127 -> R.string.exec_command_not_found;

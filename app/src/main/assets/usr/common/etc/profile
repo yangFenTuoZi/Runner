@@ -1,20 +1,12 @@
 #!/system/bin/sh
 if [ "$1" = "k_a" ]; then
-    for i in $HOME/.pipe/.pipe*; do
-      fuser $i || rm -f $i
-    done
     IFS=$'\n'
     for i in $(ps -A | grep RUNNER-bash); do
         kill -9 $(echo $i|awk '{print $2')
     done
     exit
-elif [ "$1" = "d_p" ]; then
-    for i in $HOME/.pipe/.pipe*; do
-      fuser $i || rm -f $i
-    done
-    exit
 fi
-export PREFIX=/data/local/tmp/Runner
+export PREFIX=/data/local/tmp/runner/usr
 export HOME=$PREFIX/home
 export TMPDIR=$PREFIX/tmp
 export PATH=$PATH:$PREFIX/bin:$PREFIX/bin/applets
@@ -23,8 +15,7 @@ if [ ! -z $LD_LIBRARY_PATH ]; then
 else
   export LD_LIBRARY_PATH=$PREFIX/lib
 fi
-chmod 755 -R $PREFIX/bin
-chmod 755 -R $PREFIX/etc
+chmod 777 -R $PREFIX
 
 # 添加App内设置的环境
 if [ -r $PREFIX/etc/app_env.list ]; then

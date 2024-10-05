@@ -6,8 +6,6 @@ interface IService {
 
     int getuid() = 2;
 
-    int execX(String cmd, String name, String pipe, int port) = 3;
+    int execX(String cmd, String name,int port) = 3;
     String exec(String cmd) = 4;
-
-    void deleteFreePIPE() = 5;
 }

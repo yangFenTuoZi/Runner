@@ -62,6 +62,7 @@ dependencies {
     implementation libs.com.alibaba.fastjson
     implementation project(":tools")
     implementation project(":server")
+    implementation libs.coordinatorlayout
     compileOnly(project ":hiddenapi:stubs")
 }
 

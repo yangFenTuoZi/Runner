@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.button.MaterialButton;
@@ -107,7 +108,7 @@ public class CmdAdapter extends BaseAdapter {
         LinearLayout list_add;
         MaterialButton item_button;
         MaterialButton item_button_add;
-        LinearLayout layout;
+        MaterialCardView layout;
     }
 
     void init(ViewHolder holder, SharedPreferences b, int id) {

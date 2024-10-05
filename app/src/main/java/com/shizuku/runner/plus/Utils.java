@@ -178,10 +178,8 @@ public class Utils {
         public static UpdateInfo Update(boolean isBeta) throws UpdateException {
             if (isBeta) {
                 if (ping(mirror_url + beta_url)) {
-                    Log.d("Utils$UpdateUtils$Update(boolean)", "mirror");
                     return Update(mirror_url + beta_url);
                 } else if (ping(original_url + beta_url)) {
-                    Log.d("Utils$UpdateUtils$Update(boolean)", "original");
                     return Update(original_url + beta_url);
                 } else {
                     UpdateException e = new UpdateException();

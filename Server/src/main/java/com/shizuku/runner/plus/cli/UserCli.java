@@ -1,4 +1,4 @@
-package com.shizuku.runner.plus.server;
+package com.shizuku.runner.plus.cli;
 
 import android.app.IActivityManager;
 import android.content.Intent;

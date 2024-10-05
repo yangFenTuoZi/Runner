@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.RemoteException;
 
 import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.server.BinderContainer;

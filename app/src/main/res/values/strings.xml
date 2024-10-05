@@ -92,4 +92,7 @@
     <string name="settings_latest_version">It is the latest version</string>
 
     <string name="yes">Yes</string>
+    
+    <string name="menu_stop_server">Stop server</string>
+    <string name="menu_start_server">Start server</string>
 </resources>

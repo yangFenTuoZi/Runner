@@ -37,7 +37,7 @@ public class PackActivity extends BaseActivity {
 
         sp = getSharedPreferences(String.valueOf(id), 0);
         binding.packName.setText(sp.getString("name", ""));
-        binding.packPackageName.setText("com.shizuku.runner.plus.app." + sp.getString("name", ""));
+        binding.packPackageName.setText("runner.app." + sp.getString("name", ""));
         binding.packVersionName.setText("1.0");
         binding.packVersionCode.setText("1");
     }

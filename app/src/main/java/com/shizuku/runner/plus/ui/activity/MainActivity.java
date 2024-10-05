@@ -4,8 +4,8 @@ import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
-import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.BuildConfig;
 import com.shizuku.runner.plus.R;
+import com.shizuku.runner.plus.cli.UserCli;
 import com.shizuku.runner.plus.databinding.ActivityMainBinding;
 import com.shizuku.runner.plus.databinding.FragmentHomeBinding;
 import com.shizuku.runner.plus.receiver.OnServiceConnectListener;
@@ -40,9 +41,8 @@ import rikka.core.util.ResourceUtils;
 
 public class MainActivity extends BaseActivity {
 
-    private TextView D;
+    private Toolbar toolbar;
     private int m;
-    private boolean confirmStopServer = false;
     private Thread t;
     public boolean isHome;
     public boolean isDialogShow = false;
@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity {
         public void onServiceConnect(IService iService) {
             serviceState = true;
             if (isHome)
-                D.setText(R.string.home_service_is_running);
+                toolbar.setSubtitle(R.string.home_service_is_running);
         }
     };
     private final OnServiceDisconnectListener onServiceDisconnectListener = new OnServiceDisconnectListener() {
@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity {
         public void onServiceDisconnect() {
             serviceState = false;
             if (isHome)
-                D.setText(R.string.home_service_is_disconnected);
+                toolbar.setSubtitle(R.string.home_service_is_not_running);
         }
     };
 
@@ -72,6 +72,7 @@ public class MainActivity extends BaseActivity {
         app = (App) getApplication();
         App.addOnServiceConnectListener(onServiceConnectListener);
         App.addOnServiceDisconnectListener(onServiceDisconnectListener);
+
         AssetManager assetManager = getAssets();
         InputStream tools;
         try {
@@ -174,7 +175,7 @@ public class MainActivity extends BaseActivity {
                     fi
                     
                     app_process -Djava.class.path="$APP_PATH" /system/bin %s "$@"
-                    """, com.shizuku.runner.plus.tools.getAppPath.class.getName(), BuildConfig.APPLICATION_ID, com.shizuku.runner.plus.server.UserCli.class.getName());
+                    """, com.shizuku.runner.plus.tools.getAppPath.class.getName(), BuildConfig.APPLICATION_ID, UserCli.class.getName());
             File cli = new File(getExternalFilesDir(""), "runner_cli");
             if (cli.exists()) {
                 cli.delete();
@@ -208,46 +209,7 @@ public class MainActivity extends BaseActivity {
 
     public void setHomeFragment(HomeFragment homeFragment) {
         FragmentHomeBinding homeBinding = homeFragment.getBinding();
-        D = homeBinding.homeD;
-        homeBinding.homeCard.setOnLongClickListener(v -> {
-            if (confirmStopServer) {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("Warning!")
-                        .setMessage("Confirm to stop server?")
-                        .setNegativeButton("YES", (dialog, which) -> new Thread(() -> {
-                            try {
-                                sendSomethingToServerBySocket("stopServer");
-                            } catch (Exception e) {
-                                runOnUiThread(() -> new MaterialAlertDialogBuilder(this)
-                                        .setTitle("Error!")
-                                        .setMessage("Cannot stop server!\n" + e.getMessage())
-                                        .show());
-                            }
-                        }).start())
-                        .show();
-                confirmStopServer = false;
-            } else {
-                t = new Thread(() -> {
-                    try {
-                        confirmStopServer = true;
-                        Thread.sleep(4000);
-                        confirmStopServer = false;
-                    } catch (InterruptedException ignored) {
-                    }
-                    t = null;
-                });
-                t.start();
-            }
-            return true;
-        });
-        homeBinding.homeCard.setOnClickListener(v -> {
-            new Thread(() -> {
-                try {
-                    sendSomethingToServerBySocket("sendBinderToApp");
-                } catch (Exception ignored) {
-                }
-            }).start();
-        });
+        toolbar = homeBinding.toolbar;
     }
 
     public static void sendSomethingToServerBySocket(String msg) throws IOException {
