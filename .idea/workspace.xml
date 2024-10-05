@@ -105,39 +105,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="更改exec逻辑，放弃管道，直接向socket输出，改用此方法后可以正常执行cmd命令(am, pm, settings)了&#10;更改App界面">
-      <change afterPath="$PROJECT_DIR$/Server/server/BinderContainer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Server/server/Logger.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Server/server/Server.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/cli/UserCli.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/requestBinderActivity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/BaseFragment.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_home.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/Server/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/BinderContainer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/LOGGER.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/Server.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/com/shizuku/runner/plus/server/UserCli.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/assets/usr/common/etc/profile" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/assets/usr/common/etc/profile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/Utils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/serverStateReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/serverStateReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/PackActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/PackActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecAlertDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecAlertDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/item_cmd.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_cmd.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-    </list>
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="1" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -545,7 +513,23 @@
       <option name="project" value="LOCAL" />
       <updated>1728047559497</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="更改exec逻辑，放弃管道，直接向socket输出，改用此方法后可以正常执行cmd命令(am, pm, settings)了&#10;更改App界面">
+      <option name="closed" value="true" />
+      <created>1728132129734</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1728132129734</updated>
+    </task>
+    <task id="LOCAL-00011" summary="1">
+      <option name="closed" value="true" />
+      <created>1728132182869</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1728132182869</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -572,6 +556,7 @@
     <MESSAGE value="改用自己写的Server" />
     <MESSAGE value="更新README" />
     <MESSAGE value="更改exec逻辑，放弃管道，直接向socket输出，改用此方法后可以正常执行cmd命令(am, pm, settings)了&#10;更改App界面" />
-    <option name="LAST_COMMIT_MESSAGE" value="更改exec逻辑，放弃管道，直接向socket输出，改用此方法后可以正常执行cmd命令(am, pm, settings)了&#10;更改App界面" />
+    <MESSAGE value="1" />
+    <option name="LAST_COMMIT_MESSAGE" value="1" />
   </component>
 </project>
