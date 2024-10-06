@@ -90,4 +90,7 @@
     <string name="settings_latest_version">已是最新版本</string>
     <string name="menu_stop_server">停止服务</string>
     <string name="menu_start_server">启动服务</string>
+    <string name="allow_once">允许本次</string>
+    <string name="refuse">拒绝</string>
+    <string name="grant_description">要允许<![CDATA[<b>%s</b>]]>访问用户空间CLI吗?</string>
 </resources>

@@ -10,15 +10,14 @@ import com.shizuku.runner.plus.server.BinderContainer;
 import com.shizuku.runner.plus.server.IService;
 import com.shizuku.runner.plus.server.Server;
 
-public class serverStateReceiver extends BroadcastReceiver {
+public class ServerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Server.ACTION_SERVER_RUNNING.equals(intent.getAction())) {
             BinderContainer binderContainer = intent.getParcelableExtra("binder");
             IBinder binder = binderContainer.getBinder();
             if (!binder.pingBinder()) return;
-            IService iService = IService.Stub.asInterface(binder);
-            App.onServerReceive(iService);
+            App.onServerReceive(binder);
         } else if (Server.ACTION_SERVER_STOPPED.equals(intent.getAction())) {
             App.onServerReceive(null);
         }

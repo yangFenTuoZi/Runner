@@ -1,10 +1,14 @@
 package com.shizuku.runner.plus;
 
 import android.app.Application;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.system.Os;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.material.color.DynamicColors;
+import com.shizuku.runner.plus.cli.IApp;
 import com.shizuku.runner.plus.receiver.OnServiceConnectListener;
 import com.shizuku.runner.plus.receiver.OnServiceDisconnectListener;
 import com.shizuku.runner.plus.server.IService;
@@ -14,6 +18,7 @@ import java.util.List;
 
 public class App extends Application {
     public static IService iService;
+    public static IBinder binder;
     private static final List<OnServiceConnectListener> mConnectListeners;
     private static final List<OnServiceDisconnectListener> mDisconnectListeners;
 
@@ -28,8 +33,9 @@ public class App extends Application {
         DynamicColors.applyToActivitiesIfAvailable(this);
     }
 
-    public static void onServerReceive(IService iService) {
-        App.iService = iService;
+    public static void onServerReceive(IBinder binder) {
+        App.binder = binder;
+        App.iService = IService.Stub.asInterface(binder);
         if (iService == null){
             for (OnServiceDisconnectListener listener : mDisconnectListeners) {
                 listener.onServiceDisconnect();

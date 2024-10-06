@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".ui.dialog.ExecAlertDialog">
+    tools:context=".ui.dialog.ExecDialog">
 
     <LinearLayout
         android:layout_width="match_parent"

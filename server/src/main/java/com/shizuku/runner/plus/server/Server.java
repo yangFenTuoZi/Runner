@@ -41,6 +41,7 @@ public class Server {
     public static final int PORT = 13432;
     public static final String ACTION_SERVER_RUNNING = "runner.plus.intent.action.SERVER_RUNNING";
     public static final String ACTION_SERVER_STOPPED = "runner.plus.intent.action.SERVER_STOPPED";
+    public static final String ACTION_REQUEST_BINDER = "runner.plus.intent.action.REQUEST_BINDER";
     private IPackageManager packageManager;
     private IActivityManager activityManager;
     private Intent intent;
@@ -373,6 +374,7 @@ public class Server {
         }
     }
 
+    @SuppressLint("WrongConstant")
     public boolean sendBinderToAppByStickyBroadcast() {
         try {
             BinderContainer binderContainer = new BinderContainer(createBinder());
@@ -487,15 +489,6 @@ public class Server {
     private IBinder createBinder() {
         //生成binder
         return new IService.Stub() {
-            @Override
-            public void destroy() throws RemoteException {
-                System.exit(0);
-            }
-
-            @Override
-            public void exit() throws RemoteException {
-                destroy();
-            }
 
             @Override
             public int getuid() throws RemoteException {

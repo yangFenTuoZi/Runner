@@ -16,7 +16,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
-import com.shizuku.runner.plus.ui.dialog.ExecAlertDialog;
+import com.shizuku.runner.plus.ui.dialog.ExecDialog;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.ui.fragment.HomeFragment;
 
@@ -188,7 +188,7 @@ public class CmdAdapter extends BaseAdapter {
                             .putExtra("ids", b.getString("ids", ""));
                 }
                 ((MainActivity) mContext).isDialogShow = true;
-                new ExecAlertDialog((MainActivity) mContext, intent).show();
+                new ExecDialog((MainActivity) mContext, intent).show();
             } else
                 Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
         });

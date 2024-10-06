@@ -39,6 +39,11 @@
           <theme>@style/Theme.Runner</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml">
         <config>
           <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
@@ -100,16 +105,29 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="重新上传server">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="更新agp到8.7&#10;更新gradle到8.9">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestPermissionActivity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/RequestPermissionDialog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/IApp.aidl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/invokeCli.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/serverStateReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/ServerReceiver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/server/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/requestBinderActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestBinderActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecAlertDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/UserCli.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +137,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Administrator\.android\avd\Pixel_8_Pro_API_34.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=8beddbca)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -274,6 +292,7 @@
       <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\java\com\shizuku\runner\plus\ui" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\server\src\main\aidl\com\shizuku\runner\plus\cli" />
       <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\aidl\com\shizuku\runner\plus" />
       <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\aidl\com\shizuku\runner\plus\server" />
       <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\res\drawable" />
@@ -546,7 +565,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728132583636</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="更新agp到8.7&#10;更新gradle到8.9">
+      <option name="closed" value="true" />
+      <created>1728193229260</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1728193229260</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -575,6 +602,7 @@
     <MESSAGE value="更改exec逻辑，放弃管道，直接向socket输出，改用此方法后可以正常执行cmd命令(am, pm, settings)了&#10;更改App界面" />
     <MESSAGE value="1" />
     <MESSAGE value="重新上传server" />
-    <option name="LAST_COMMIT_MESSAGE" value="重新上传server" />
+    <MESSAGE value="更新agp到8.7&#10;更新gradle到8.9" />
+    <option name="LAST_COMMIT_MESSAGE" value="更新agp到8.7&#10;更新gradle到8.9" />
   </component>
 </project>

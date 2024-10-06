@@ -13,7 +13,6 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.adapters.ProcessAdapter;
-import com.shizuku.runner.plus.server.Server;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.ui.widget.TextViewX;
@@ -25,7 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
 
-public class ExecAlertDialog extends MaterialAlertDialogBuilder {
+public class ExecDialog extends MaterialAlertDialogBuilder {
 
     int pid, port;
     Intent intent;
@@ -37,7 +36,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
     ServerSocket serverSocket;
     MainActivity mContext;
 
-    public ExecAlertDialog(@NonNull MainActivity context, Intent intent) {
+    public ExecDialog(@NonNull MainActivity context, Intent intent) {
         super(context);
         mContext = context;
         setView(R.layout.dialog_exec);
@@ -89,7 +88,7 @@ public class ExecAlertDialog extends MaterialAlertDialogBuilder {
                                         BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                                         String inline;
                                         boolean pid_ = false;
-                                        while ((inline = br.readLine()) != null && !ExecAlertDialog.this.br) {
+                                        while ((inline = br.readLine()) != null && !ExecDialog.this.br) {
                                             String finalInline = inline;
                                             if (pid_) {
                                                 mContext.runOnUiThread(() -> t2.append(finalInline + "\n"));

@@ -16,7 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.BuildConfig;
 import com.shizuku.runner.plus.R;
-import com.shizuku.runner.plus.cli.UserCli;
+import com.shizuku.runner.plus.cli.Main;
 import com.shizuku.runner.plus.databinding.ActivityMainBinding;
 import com.shizuku.runner.plus.databinding.FragmentHomeBinding;
 import com.shizuku.runner.plus.receiver.OnServiceConnectListener;
@@ -24,6 +24,7 @@ import com.shizuku.runner.plus.receiver.OnServiceDisconnectListener;
 import com.shizuku.runner.plus.server.IService;
 import com.shizuku.runner.plus.server.Server;
 import com.shizuku.runner.plus.tools.getAppPath;
+import com.shizuku.runner.plus.tools.invokeCli;
 import com.shizuku.runner.plus.ui.fragment.HomeFragment;
 
 import java.io.File;
@@ -149,33 +150,28 @@ public class MainActivity extends BaseActivity {
         try {
             String cli_content = String.format("""
                     #!/system/bin/sh
-                    GET_APP_PATH_DEX="$(dirname "$0")/tools.dex"
-                    if [ ! -f "$GET_APP_PATH_DEX" ]; then
-                        echo "Cannot find $GET_APP_PATH_DEX." >&2
+                    DEX="$(dirname "$0")/tools.dex"
+                    if [ ! -f "$DEX" ]; then
+                        echo "Cannot find $DEX." >&2
                         exit 1
                     fi
                     
                     if [ $(getprop ro.build.version.sdk) -ge 34 ]; then
-                      if [ -w $GET_APP_PATH_DEX ]; then
+                      if [ -w $DEX ]; then
                         echo "On Android 14+, app_process cannot load writable dex."
                         echo "Attempting to remove the write permission..."
-                        chmod 400 $GET_APP_PATH_DEX
+                        chmod 400 $DEX
                       fi
-                      if [ -w $GET_APP_PATH_DEX ]; then
-                        echo "Cannot remove the write permission of $GET_APP_PATH_DEX."
+                      if [ -w $DEX ]; then
+                        echo "Cannot remove the write permission of $DEX."
                         echo "You can copy to file to terminal app's private directory (/data/data/<package>, so that remove write permission is possible"
                         exit 1
                       fi
                     fi
                     
-                    APP_PATH="$(app_process -Djava.class.path="$GET_APP_PATH_DEX" /system/bin %s %s)"
-                    if [ ! $? -eq 0 ] || [ ! -f "$APP_PATH" ]; then
-                        echo "Cannot find the app APK, please try giving this app permission to read the application list." >&2
-                        exit 1
-                    fi
-                    
-                    app_process -Djava.class.path="$APP_PATH" /system/bin %s "$@"
-                    """, com.shizuku.runner.plus.tools.getAppPath.class.getName(), BuildConfig.APPLICATION_ID, UserCli.class.getName());
+                    export APP_PACKAGE_NAME="%s"
+                    app_process -Djava.class.path="$DEX" /system/bin %s "$@"
+                    """, Server.appPackageName, invokeCli.class.getName());
             File cli = new File(getExternalFilesDir(""), "runner_cli");
             if (cli.exists()) {
                 cli.delete();

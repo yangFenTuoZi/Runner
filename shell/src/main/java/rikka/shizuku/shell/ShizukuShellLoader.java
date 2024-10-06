@@ -1,6 +1,6 @@
 package rikka.shizuku.shell;
 
-import android.app.ActivityManagerNative;
+import android.annotation.SuppressLint;
 import android.app.IActivityManager;
 import android.content.Intent;
 import android.os.Binder;
@@ -52,7 +52,7 @@ public class ShizukuShellLoader {
         Bundle data = new Bundle();
         data.putBinder("binder", receiverBinder);
 
-        Intent intent = new Intent("rikka.shizuku.intent.action.REQUEST_BINDER")
+        @SuppressLint("WrongConstant") Intent intent = new Intent("rikka.shizuku.intent.action.REQUEST_BINDER")
                 .setPackage("moe.shizuku.privileged.api")
                 .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                 .putExtra("data", data);
