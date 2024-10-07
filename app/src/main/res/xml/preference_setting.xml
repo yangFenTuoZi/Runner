@@ -37,7 +37,7 @@
             android:summary="@string/settings_import_data_summary"
             android:title="@string/settings_import_data" />
 
-        <rikka.material.preference.MaterialSwitchPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_settings_black_24dp"
             android:key="backup_settings"

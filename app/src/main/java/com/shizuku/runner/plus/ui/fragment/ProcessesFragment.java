@@ -32,7 +32,7 @@ public class ProcessesFragment extends Fragment {
         binding = FragmentProcessesBinding.inflate(inflater, container, false);
         listView = binding.procList;
         binding.procKillAll.setOnClickListener(v -> {
-            if (App.iService != null) {
+            if (App.pingServer()) {
                 try {
                     if (listView.getAdapter().getCount() == 0) {
                         Toast.makeText(requireContext(), R.string.process_there_are_no_running_processes, Toast.LENGTH_SHORT).show();
@@ -50,7 +50,7 @@ public class ProcessesFragment extends Fragment {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.process_kill_all_processes)
                     .setPositiveButton(R.string.yes, ((dialog, which) -> {
-                        if (App.iService != null) {
+                        if (App.pingServer()) {
                             try {
                                 App.iService.exec("sh /data/local/tmp/$APP_PACKAGE_NAME/etc/profile k_a");
                                 initList();
@@ -68,7 +68,7 @@ public class ProcessesFragment extends Fragment {
     }
 
     public void initList() {
-        if (App.iService != null) {
+        if (App.pingServer()) {
             try {
                 String[] strings = App.iService.exec("busybox ps -A -o pid,args|grep RUNNER-bash:|grep -v grep").split("\n");
                 int[] data = new int[strings.length];

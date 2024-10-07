@@ -19,7 +19,8 @@
             android:id="@+id/exec_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:layout_marginBottom="10dp" />
 
         <ScrollView
             android:id="@+id/scrollView"
@@ -30,11 +31,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <com.shizuku.runner.plus.ui.widget.TextViewX
+                <TextView
                     android:id="@+id/exec_msg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
                     android:textIsSelectable="true"
                     android:textSize="10sp"
                     android:typeface="monospace"

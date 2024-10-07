@@ -63,6 +63,7 @@ dependencies {
     implementation project(":tools")
     implementation project(":server")
     implementation libs.coordinatorlayout
+    implementation project(':shell')
     compileOnly(project ":hiddenapi:stubs")
 }
 

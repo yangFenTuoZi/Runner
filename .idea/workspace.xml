@@ -29,6 +29,11 @@
           <theme>@style/Theme.Runner</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_choose_start_server.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_edit.xml">
         <config>
           <theme>@style/Theme.Runner</theme>
@@ -36,7 +41,7 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml">
@@ -105,10 +110,31 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="初步加入cli">
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="优化cli">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/StartServerDialog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_choose_start_server.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/cmdInfo.aidl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/cmdInfo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/assets/tools.dex" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/assets/tools.dex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/invokeCli.java" beforeDir="false" afterPath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/invokeCli.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestBinderActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestBinderActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/RequestPermissionDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/RequestPermissionDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/IApp.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/IApp.aidl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shell/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/shell/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +144,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=3d1110b3)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=7883a573)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -215,50 +241,50 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.getAppPath.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.libtermexec.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.server.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.term.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.tools.executor&quot;: &quot;Run&quot;,
-    &quot;ApkExportedModule&quot;: &quot;Runner.app&quot;,
-    &quot;ExportApk.ApkPathForRunner.app&quot;: &quot;C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\app&quot;,
-    &quot;ExportApk.ApkPathForRunner.getAppPath&quot;: &quot;C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\getAppPath&quot;,
-    &quot;Gradle.Runner [copyDexToAssets].executor&quot;: &quot;Run&quot;,
-    &quot;Notification.DisplayName-DoNotAsk-Execution&quot;: &quot;外部进程执行失败&quot;,
-    &quot;Notification.DoNotAsk-Execution&quot;: &quot;true&quot;,
-    &quot;ResourceManagerPrefKey.ResourceType&quot;: &quot;DRAWABLE&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_directory_selection&quot;: &quot;C:/Users/Administrator/AndroidStudioProjects/Runner/getAppPath/src/main/java/com/shizuku/runner/plus/getAppPath&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Administrator/Downloads/zh.242.152.zip&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android App.app.executor": "Run",
+    "Android App.getAppPath.executor": "Run",
+    "Android App.libtermexec.executor": "Run",
+    "Android App.server.executor": "Run",
+    "Android App.term.executor": "Run",
+    "Android App.tools.executor": "Run",
+    "ApkExportedModule": "Runner.app",
+    "ExportApk.ApkPathForRunner.app": "C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\app",
+    "ExportApk.ApkPathForRunner.getAppPath": "C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\getAppPath",
+    "Gradle.Runner [copyDexToAssets].executor": "Run",
+    "Notification.DisplayName-DoNotAsk-Execution": "外部进程执行失败",
+    "Notification.DoNotAsk-Execution": "true",
+    "ResourceManagerPrefKey.ResourceType": "DRAWABLE",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.advertisement.text.has.clang-format": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "deletionFromPopupRequiresConfirmation": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_directory_selection": "C:/Users/Administrator/AndroidStudioProjects/Runner/getAppPath/src/main/java/com/shizuku/runner/plus/getAppPath",
+    "last_opened_file_path": "D:/Administrator/Downloads/zh.242.152.zip",
+    "project.structure.last.edited": "Dependencies",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;ExportApk.BuildVariants&quot;: [
-      &quot;debug&quot;
+  "keyToStringList": {
+    "ExportApk.BuildVariants": [
+      "debug"
     ],
-    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
-      &quot;GitIgnore&quot;
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "GitIgnore"
     ]
   }
-}</component>
+}]]></component>
   <component name="PsdUISettings">
     <option name="MODULES_LIST_MINIMIZE" value="true" />
     <option name="MODULE_TAB" value="Signing Configs" />
@@ -562,7 +588,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728217934302</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="优化cli">
+      <option name="closed" value="true" />
+      <created>1728273166071</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1728273166071</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -593,6 +627,7 @@
     <MESSAGE value="重新上传server" />
     <MESSAGE value="更新agp到8.7&#10;更新gradle到8.9" />
     <MESSAGE value="初步加入cli" />
-    <option name="LAST_COMMIT_MESSAGE" value="初步加入cli" />
+    <MESSAGE value="优化cli" />
+    <option name="LAST_COMMIT_MESSAGE" value="优化cli" />
   </component>
 </project>

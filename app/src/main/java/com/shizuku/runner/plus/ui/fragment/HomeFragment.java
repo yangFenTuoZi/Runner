@@ -16,23 +16,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.shizuku.runner.plus.adapters.CmdAdapter;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.ui.activity.PackActivity;
 import com.shizuku.runner.plus.R;
 import com.shizuku.runner.plus.databinding.FragmentHomeBinding;
+import com.shizuku.runner.plus.ui.dialog.StartServerDialog;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import rikka.core.util.ResourceUtils;
 
@@ -56,18 +59,58 @@ public class HomeFragment extends BaseFragment {
         setupToolbar(binding.toolbar, null, R.string.app_name, R.menu.menu_home);
         binding.toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.menu_start_server) {
-
+                AtomicInteger a = new AtomicInteger();
+                @SuppressLint("WrongConstant") AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.choose_start_server)
+                        .setView(R.layout.dialog_choose_start_server)
+                        .setNegativeButton(R.string.start, (dialog, which) -> {
+                            if (a.get() == 2) {
+                                String command = "sh " + requireActivity().getExternalFilesDir("") + "/server_starter.sh";
+                                AlertDialog alertDialog1 = new MaterialAlertDialogBuilder(requireContext())
+                                        .setTitle(R.string.exec_start_server_command)
+                                        .setMessage(command)
+                                        .setNegativeButton(R.string.long_click_copy_command, (dialog1, which1) -> {
+                                            ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
+                                            Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
+                                        })
+                                        .show();
+                                try {
+                                    Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
+                                    mAlert.setAccessible(true);
+                                    Object mAlertController = mAlert.get(alertDialog1);
+                                    Field mMessage = mAlertController.getClass().getDeclaredField("mMessageView");
+                                    mMessage.setAccessible(true);
+                                    TextView mMessageView = (TextView) mMessage.get(mAlertController);
+                                    mMessageView.setTextIsSelectable(true);
+                                } catch (Exception ignored) {
+                                }
+                            } else
+                                new StartServerDialog(requireActivity(), a.get()).show();
+                        })
+                        .show();
+                alertDialog.findViewById(R.id.root).setOnClickListener(v -> {
+                    if (((MaterialRadioButton) v).isChecked())
+                        a.set(0);
+                });
+                alertDialog.findViewById(R.id.shizuku).setOnClickListener(v -> {
+                    if (((MaterialRadioButton) v).isChecked())
+                        a.set(1);
+                });
+                alertDialog.findViewById(R.id.adb).setOnClickListener(v -> {
+                    if (((MaterialRadioButton) v).isChecked())
+                        a.set(2);
+                });
             } else if (item.getItemId() == R.id.menu_stop_server) {
                 new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Warning!")
-                        .setMessage("Confirm to stop server?")
-                        .setNegativeButton("Yes", (dialog, which) -> new Thread(() -> {
+                        .setTitle(R.string.warning)
+                        .setMessage(R.string.confirm_stop_server)
+                        .setNegativeButton(R.string.yes, (dialog, which) -> new Thread(() -> {
                             try {
                                 sendSomethingToServerBySocket("stopServer");
                             } catch (Exception e) {
                                 requireActivity().runOnUiThread(() -> new MaterialAlertDialogBuilder(requireContext())
-                                        .setTitle("Error!")
-                                        .setMessage("Cannot stop server!\n" + e.getMessage())
+                                        .setTitle(R.string.error)
+                                        .setMessage(getString(R.string.can_not_stop_server) + "\n" + e.getMessage())
                                         .show());
                             }
                         }).start())
@@ -137,6 +180,7 @@ public class HomeFragment extends BaseFragment {
     }
 
     //菜单选择事件
+    @SuppressLint("WrongConstant")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences(String.valueOf(item.getGroupId()), 0);

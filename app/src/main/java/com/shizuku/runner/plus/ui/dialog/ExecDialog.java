@@ -15,7 +15,6 @@ import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.adapters.ProcessAdapter;
 import com.shizuku.runner.plus.ui.activity.MainActivity;
 import com.shizuku.runner.plus.R;
-import com.shizuku.runner.plus.ui.widget.TextViewX;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
     int pid, port;
     Intent intent;
     TextView t1;
-    TextViewX t2;
+    TextView t2;
     Thread h1, h2;
     boolean br = false;
     AlertDialog alertDialog;
@@ -72,7 +71,7 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
             cmd = "chid " + intent.getStringExtra("ids") + " " + intent.getStringExtra("command");
         else
             cmd = intent.getStringExtra("command");
-        if (App.iService != null) {
+        if (App.pingServer()) {
             h1 = new Thread(() -> {
                 try {
                     br = false;
@@ -113,7 +112,7 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
                     new Thread(() -> {
                         try {
                             while (true) {
-                                if (App.iService == null) {
+                                if (!App.pingServer()) {
                                     mContext.runOnUiThread(() -> {
                                         Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
                                         t1.append("\n");
@@ -156,7 +155,7 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
         br = true;
         h2.interrupt();
         h1.interrupt();
-        if (App.iService != null) {
+        if (App.pingServer()) {
             try {
                 serverSocket.close();
                 if (!intent.getBooleanExtra("keep_in_alive", false)) {

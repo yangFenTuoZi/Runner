@@ -5,17 +5,20 @@ import static com.shizuku.runner.plus.ui.activity.MainActivity.sendSomethingToSe
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.system.Os;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.shizuku.runner.plus.App;
 import com.shizuku.runner.plus.cli.IApp;
+import com.shizuku.runner.plus.cli.cmdInfo;
 import com.shizuku.runner.plus.server.Server;
 
 import java.io.IOException;
@@ -45,7 +48,7 @@ public class RequestBinderActivity extends AppCompatActivity {
         }
 
         if (uid >= 0 && uid < 10000) {
-            reply(true, binder);
+            reply(true, binder, getApplicationContext());
             finish();
         } else {
             startActivity(new Intent(this, RequestPermissionActivity.class)
@@ -57,12 +60,12 @@ public class RequestBinderActivity extends AppCompatActivity {
         }
     }
 
-    public static void reply(boolean allow, IBinder binder) {
+    public static void reply(boolean allow, IBinder binder, Context context) {
+        Parcel data = Parcel.obtain();
         if (allow) {
-            Parcel data = Parcel.obtain();
             IBinder[] binders = new IBinder[2];
             binders[1] = App.binder;
-            binders[0] = createBinder();
+            binders[0] = createBinder(context);
             try {
                 data.writeBinderArray(binders);
                 binder.transact(1, data, null, IBinder.FLAG_ONEWAY);
@@ -72,7 +75,6 @@ public class RequestBinderActivity extends AppCompatActivity {
                 data.recycle();
             }
         } else {
-            Parcel data = Parcel.obtain();
             try {
                 binder.transact(2, data, null, IBinder.FLAG_ONEWAY);
             } catch (Throwable e) {
@@ -83,15 +85,43 @@ public class RequestBinderActivity extends AppCompatActivity {
         }
     }
 
-    private static IBinder createBinder() {
+    private static IBinder createBinder(Context context) {
         return new IApp.Stub() {
             @Override
-            public void ping() throws RemoteException {
+            public cmdInfo[] getAllCmds() throws RemoteException {
+                SharedPreferences sp = context.getSharedPreferences("data", 0);
+                if (sp.getString("data", "").isEmpty()) {
+                    return new cmdInfo[0];
+                } else {
+                    String[] s = sp.getString("data", "").split(",");
+                    cmdInfo[] cmdInfos = new cmdInfo[s.length];
+                    for (int i = 0; i < s.length; i++) {
+                        SharedPreferences sharedPreferences = context.getSharedPreferences(s[i], 0);
+                        cmdInfos[i] = new cmdInfo();
+                        cmdInfos[i].id = Integer.parseInt(s[i]);
+                        cmdInfos[i].name = sharedPreferences.getString("name", "");
+                        cmdInfos[i].command = sharedPreferences.getString("command", "");
+                        cmdInfos[i].keepAlive = sharedPreferences.getBoolean("keep_in_alive", false);
+                        cmdInfos[i].useChid = sharedPreferences.getBoolean("chid", false);
+                        cmdInfos[i].ids = sharedPreferences.getString("ids", "");
+                    }
+                    return cmdInfos;
+                }
             }
 
             @Override
-            public int getuid() throws RemoteException {
-                return Os.getuid();
+            public cmdInfo getCmdByID(int id) throws RemoteException {
+                return null;
+            }
+
+            @Override
+            public void delete(int id) throws RemoteException {
+
+            }
+
+            @Override
+            public void edit(cmdInfo cmd_info) throws RemoteException {
+
             }
         };
     }

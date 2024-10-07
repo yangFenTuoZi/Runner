@@ -44,7 +44,6 @@ public class Server {
     public static final String ACTION_REQUEST_BINDER = "runner.plus.intent.action.REQUEST_BINDER";
     private IPackageManager packageManager;
     private IActivityManager activityManager;
-    private Intent intent;
     public Logger Log;
     public boolean isStop = false;
     public String appPath;
@@ -379,7 +378,7 @@ public class Server {
         try {
             BinderContainer binderContainer = new BinderContainer(createBinder());
 
-            intent = new Intent(Server.ACTION_SERVER_RUNNING)
+            Intent intent = new Intent(Server.ACTION_SERVER_RUNNING)
                     .setPackage(Server.appPackageName)
                     .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                     .putExtra("binder", binderContainer);
@@ -389,20 +388,6 @@ public class Server {
                     null, -1, null, true, false, 0);
         } catch (Throwable e) {
             Log.e(e.toString());
-            return false;
-        }
-        return true;
-    }
-
-    @SuppressLint({"DiscouragedPrivateApi", "SoonBlockedPrivateApi"})
-    public boolean removeStickyBroadcast() {
-        if (intent == null || activityManager == null) return true;
-        try {
-            Method unbroadcastIntentMethod = IActivityManager.class.getDeclaredMethod("unbroadcastIntent", IApplicationThread.class, Intent.class, int.class);
-            unbroadcastIntentMethod.invoke(activityManager, null, intent, -1);
-            intent = null;
-            activityManager = null;
-        } catch (Exception e) {
             return false;
         }
         return true;
@@ -458,9 +443,10 @@ public class Server {
         }
     }
 
+    @SuppressLint("WrongConstant")
     public void onStop() {
         try {
-            intent = new Intent(Server.ACTION_SERVER_STOPPED)
+            Intent intent = new Intent(Server.ACTION_SERVER_STOPPED)
                     .setPackage(Server.appPackageName)
                     .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             activityManager = IActivityManager.Stub.asInterface(ServiceManager.getService("activity"));
@@ -475,15 +461,8 @@ public class Server {
     }
 
     public void exit(int status) {
-        if (removeStickyBroadcast()) {
-            Log.i("Removed broadcast.");
-            onStop();
-            System.exit(status);
-        } else {
-            Log.e("Failed to remove broadcast!");
-            onStop();
-            System.exit(1);
-        }
+        onStop();
+        System.exit(status);
     }
 
     private IBinder createBinder() {

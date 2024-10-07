@@ -99,4 +99,13 @@
     <string name="allow_once">Allow once</string>
     <string name="refuse">Refuse</string>
     <string name="grant_description">Do you want to allow <![CDATA[<b>%s</b>]]> to access the userspace cli?</string>
+
+    <string name="warning">Warning!</string>
+    <string name="error">Error!</string>
+    <string name="confirm_stop_server">Confirm to stop server?</string>
+    <string name="can_not_stop_server">Cannot stop server!</string>
+    <string name="choose_start_server">Select a startup method</string>
+    <string name="start">Start</string>
+    
+    <string name="exec_start_server_command">Execute the command as the Root/Shell/ADB user</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.shizuku.runner.plus.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -116,7 +117,7 @@ public class CmdAdapter extends BaseAdapter {
         boolean[] empty = isEmpty(b);
 
         //这个点击事件是点击编辑命令
-        View.OnClickListener voc = view -> {
+        @SuppressLint("WrongConstant") View.OnClickListener voc = view -> {
             if (((MainActivity) mContext).isDialogShow)
                 return;
             View v = View.inflate(mContext, R.layout.dialog_edit, null);
@@ -178,7 +179,7 @@ public class CmdAdapter extends BaseAdapter {
             if (((MainActivity) mContext).isDialogShow)
                 return;
 
-            if (App.iService != null) {
+            if (App.pingServer()) {
                 Intent intent = new Intent()
                         .putExtra("name", b.getString("name", ""))
                         .putExtra("command", b.getString("command", ""))

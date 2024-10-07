@@ -97,7 +97,7 @@ public class ProcessAdapter extends BaseAdapter {
 
     //噶进程，删管道，顺便判断死没死透
     public static boolean killPID(int pid, MainActivity mContext) {
-        if (App.iService != null) {
+        if (App.pingServer()) {
             try {
                 IService iService = App.iService;
                 iService.exec("kill -9 " + pid);
@@ -117,10 +117,6 @@ public class ProcessAdapter extends BaseAdapter {
 
         //设置点击事件
         holder.button_kill.setOnClickListener((view) -> new MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process).setPositiveButton(R.string.dialog_finish, (dialog, which) -> new Thread(() -> {
-            if (App.iService == null) {
-                Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             //杀死进程
             if (killPID(pid, mContext)) {

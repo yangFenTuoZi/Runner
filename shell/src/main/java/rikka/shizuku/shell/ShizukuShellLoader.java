@@ -61,11 +61,6 @@ public class ShizukuShellLoader {
         IActivityManager am;
         am = IActivityManager.Stub.asInterface(amBinder);
 
-        // broadcastIntent will fail on Android 8.x
-        //  com.android.server.am.ActivityManagerService.isInstantApp(ActivityManagerService.java:18547)
-        //  com.android.server.am.ActivityManagerService.broadcastIntentLocked(ActivityManagerService.java:18972)
-        //  com.android.server.am.ActivityManagerService.broadcastIntent(ActivityManagerService.java:19703)
-        //
         am.broadcastIntent(null, intent, null, null, 0, null, null,
                 null, -1, null, true, false, 0);
     }
@@ -84,8 +79,7 @@ public class ShizukuShellLoader {
             optimizedDirectoryFile.mkdirs();
             try {
                 Os.chmod(optimizedDirectory, 00711);
-            } catch (ErrnoException e) {
-                System.err.println(e.getMessage());
+            } catch (ErrnoException ignored) {
             }
         }
 

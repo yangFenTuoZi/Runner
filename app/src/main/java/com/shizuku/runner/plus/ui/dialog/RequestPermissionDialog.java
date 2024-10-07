@@ -53,11 +53,11 @@ public class RequestPermissionDialog extends MaterialAlertDialogBuilder {
         allow = alertDialog.findViewById(R.id.allow);
         refuse = alertDialog.findViewById(R.id.refuse);
         allow.setOnClickListener(v -> {
-            reply(true, binder);
+            reply(true, binder, mActivity.getApplicationContext());
             alertDialog.cancel();
         });
         refuse.setOnClickListener(v -> {
-            reply(false, binder);
+            reply(false, binder, mActivity.getApplicationContext());
             alertDialog.cancel();
         });
         return alertDialog;
