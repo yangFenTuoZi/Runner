@@ -44,6 +44,11 @@
           <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_import.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml">
         <config>
           <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
@@ -110,31 +115,21 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="优化cli">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/StartServerDialog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_choose_start_server.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/cmdInfo.aidl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/cmdInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" afterDir="false" />
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="cli实现list命令&#10;支持app内置激活&#10;改进判断server连接状态方法&#10;Application内实时监听服务socket端口">
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceConnectListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceConnectListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceDisconnectListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceDisconnectListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/ServerReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/ServerReceiver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestBinderActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestBinderActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestPermissionActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestPermissionActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/RequestPermissionDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/RequestPermissionDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/IApp.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/IApp.aidl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/StartServerDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/StartServerDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/BaseFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/BaseFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/cmdInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/cmdInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/BinderContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/BinderContainer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Logger.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Logger.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/shell/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -596,7 +591,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728273166071</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="cli实现list命令&#10;支持app内置激活&#10;改进判断server连接状态方法&#10;Application内实时监听服务socket端口">
+      <option name="closed" value="true" />
+      <created>1728300823810</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1728300823810</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -628,6 +631,7 @@
     <MESSAGE value="更新agp到8.7&#10;更新gradle到8.9" />
     <MESSAGE value="初步加入cli" />
     <MESSAGE value="优化cli" />
-    <option name="LAST_COMMIT_MESSAGE" value="优化cli" />
+    <MESSAGE value="cli实现list命令&#10;支持app内置激活&#10;改进判断server连接状态方法&#10;Application内实时监听服务socket端口" />
+    <option name="LAST_COMMIT_MESSAGE" value="cli实现list命令&#10;支持app内置激活&#10;改进判断server连接状态方法&#10;Application内实时监听服务socket端口" />
   </component>
 </project>
