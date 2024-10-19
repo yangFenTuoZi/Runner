@@ -20,6 +20,6 @@ rootProject.name = "Runner"
 include ':app'
 include ':tools'
 include ':server'
-include ':shell'
 include ':hiddenapi:stubs'
 include ':hiddenapi:bridge'
+include ':info'

@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.shizuku.runner.plus.ui.fragment.HomeFragment"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_terminal"
-        android:name="com.shizuku.runner.plus.ui.fragment.TerminalFragment"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.TerminalFragment"
         android:label="@string/title_terminal"
         tools:layout="@layout/fragment_terminal" />
 
     <fragment
         android:id="@+id/navigation_processes"
-        android:name="com.shizuku.runner.plus.ui.fragment.ProcessesFragment"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.ProcessesFragment"
         android:label="@string/title_processes"
         tools:layout="@layout/fragment_processes" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.shizuku.runner.plus.ui.fragment.SettingsFragment"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>

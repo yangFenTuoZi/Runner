@@ -27,31 +27,30 @@
     <LinearLayout
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="130dp"
+        android:orientation="vertical">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/allow"
-            android:layout_width="0dp"
-            android:layout_height="55dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:text="@string/allow_once"
             android:textColor="@color/material_dynamic_primary30"
             app:backgroundTint="@color/material_dynamic_primary90"
             app:rippleColor="@color/material_dynamic_primary70"
-            app:shapeAppearance="@style/LeftButtonStyle" />
+            app:shapeAppearance="@style/TopButtonStyle" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/refuse"
-            android:layout_width="0dp"
-            android:layout_height="55dp"
-            android:layout_marginStart="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:text="@string/refuse"
             android:textColor="@color/material_dynamic_primary30"
             app:backgroundTint="@color/material_dynamic_primary90"
             app:rippleColor="@color/material_dynamic_primary70"
-            app:shapeAppearance="@style/RightButtonStyle" />
+            app:shapeAppearance="@style/BottomButtonStyle" />
     </LinearLayout>
 
 </LinearLayout>

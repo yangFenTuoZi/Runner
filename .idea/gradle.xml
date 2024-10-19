@@ -14,8 +14,8 @@
             <option value="$PROJECT_DIR$/hiddenapi" />
             <option value="$PROJECT_DIR$/hiddenapi/bridge" />
             <option value="$PROJECT_DIR$/hiddenapi/stubs" />
+            <option value="$PROJECT_DIR$/info" />
             <option value="$PROJECT_DIR$/server" />
-            <option value="$PROJECT_DIR$/shell" />
             <option value="$PROJECT_DIR$/tools" />
           </set>
         </option>

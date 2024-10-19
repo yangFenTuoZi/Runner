@@ -3,11 +3,12 @@ plugins {
 }
 
 android {
-    namespace 'com.shizuku.runner.plus.tools'
-    compileSdk 34
+    namespace "${project.properties.applicationId}.tools"
+    compileSdk project.properties.compileSdkVersion.toInteger()
 
     defaultConfig {
-        minSdk 26
+        minSdk project.properties.minSdkVersion.toInteger()
+        targetSdk project.properties.targetSdkVersion.toInteger()
     }
 
     buildTypes {

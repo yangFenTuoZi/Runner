@@ -37,7 +37,7 @@
             android:summary="@string/settings_import_data_summary"
             android:title="@string/settings_import_data" />
 
-        <SwitchPreference
+        <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_settings_black_24dp"
             android:key="backup_settings"
@@ -56,7 +56,7 @@
 
             <intent
                 android:action="android.intent.action.MAIN"
-                android:targetClass="com.shizuku.runner.plus.ui.activity.FileMangerActivity"
+                android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
                 android:targetPackage="com.shizuku.runner.plus">
 
                 <extra
@@ -74,7 +74,7 @@
 
             <intent
                 android:action="android.intent.action.MAIN"
-                android:targetClass="com.shizuku.runner.plus.ui.activity.FileMangerActivity"
+                android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
                 android:targetPackage="com.shizuku.runner.plus">
 
                 <extra

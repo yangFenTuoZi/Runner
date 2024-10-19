@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LeftButtonStyle">
+    <style name="TopButtonStyle">
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
         <item name="cornerFamilyTopRight">rounded</item>
         <item name="cornerFamilyBottomRight">rounded</item>
         <item name="cornerSizeTopLeft">17dp</item>
-        <item name="cornerSizeBottomLeft">17dp</item>
-        <item name="cornerSizeTopRight">3dp</item>
+        <item name="cornerSizeBottomLeft">3dp</item>
+        <item name="cornerSizeTopRight">17dp</item>
         <item name="cornerSizeBottomRight">3dp</item>
     </style>
-    <style name="RightButtonStyle">
+    <style name="BottomButtonStyle">
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
         <item name="cornerFamilyTopRight">rounded</item>
         <item name="cornerFamilyBottomRight">rounded</item>
         <item name="cornerSizeTopLeft">3dp</item>
-        <item name="cornerSizeBottomLeft">3dp</item>
-        <item name="cornerSizeTopRight">17dp</item>
+        <item name="cornerSizeBottomLeft">17dp</item>
+        <item name="cornerSizeTopRight">3dp</item>
         <item name="cornerSizeBottomRight">17dp</item>
     </style>
 

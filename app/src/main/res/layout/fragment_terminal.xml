@@ -4,10 +4,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context=".ui.fragment.TerminalFragment">
-
-    <com.shizuku.runner.plus.terminal.TerminalView
-        android:id="@+id/terminal_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    tools:context="yangFenTuoZi.runner.plus.ui.fragment.TerminalFragment">
 </androidx.constraintlayout.widget.ConstraintLayout>

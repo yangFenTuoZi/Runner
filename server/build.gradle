@@ -3,8 +3,8 @@ plugins {
 }
 
 android {
-    namespace 'com.shizuku.runner.plus.server'
-    compileSdk 34
+    namespace "${project.properties.applicationId}.server"
+    compileSdk project.properties.compileSdkVersion.toInteger()
 
     defaultConfig {
         minSdk project.properties.minSdkVersion.toInteger()
@@ -38,5 +38,6 @@ android {
 
 dependencies {
     implementation project(":tools")
+    implementation project(":info")
     compileOnly(project ":hiddenapi:stubs")
 }

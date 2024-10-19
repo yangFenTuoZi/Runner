@@ -2,15 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
 }
 android {
-    namespace 'com.shizuku.runner.plus'
+    namespace project.properties.applicationId
     compileSdk project.properties.compileSdkVersion.toInteger()
 
     defaultConfig {
-        applicationId "com.shizuku.runner.plus"
+        applicationId project.properties.applicationId
         minSdk project.properties.minSdkVersion.toInteger()
         targetSdk project.properties.targetSdkVersion.toInteger()
-        versionCode 2
-        versionName "1.0.0(Preview2)"
+        versionCode project.properties.versionCode.toInteger()
+        versionName project.properties.versionName
         ndk {
             abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         }
@@ -62,8 +62,8 @@ dependencies {
     implementation libs.com.alibaba.fastjson
     implementation project(":tools")
     implementation project(":server")
+    implementation project(":info")
     implementation libs.coordinatorlayout
-    implementation project(':shell')
     compileOnly(project ":hiddenapi:stubs")
 }
 

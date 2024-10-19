@@ -1,11 +1,4 @@
 #!/system/bin/sh
-if [ "$1" = "k_a" ]; then
-    IFS=$'\n'
-    for i in $(ps -A | grep RUNNER-bash); do
-        kill -9 $(echo $i|awk '{print $2')
-    done
-    exit
-fi
 export PREFIX=/data/local/tmp/runner/usr
 export HOME=$PREFIX/home
 export TMPDIR=$PREFIX/tmp
