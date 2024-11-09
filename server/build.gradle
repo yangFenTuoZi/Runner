@@ -39,5 +39,6 @@ android {
 dependencies {
     implementation project(":tools")
     implementation project(":info")
+    implementation libs.annotation.jvm
     compileOnly(project ":hiddenapi:stubs")
 }

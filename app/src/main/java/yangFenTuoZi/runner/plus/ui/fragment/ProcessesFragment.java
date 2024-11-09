@@ -22,7 +22,7 @@ import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 
 import rikka.core.util.ResourceUtils;
 
-public class ProcessesFragment extends Fragment {
+public class ProcessesFragment extends BaseFragment {
 
     private FragmentProcessesBinding binding;
     private ListView listView;
@@ -41,7 +41,7 @@ public class ProcessesFragment extends Fragment {
                 } catch (NullPointerException ignored) {
                 }
             } else {
-                Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
                 return;
             }
             if (((MainActivity) requireContext()).isDialogShow)
@@ -52,13 +52,13 @@ public class ProcessesFragment extends Fragment {
                     .setPositiveButton(R.string.yes, ((dialog, which) -> new Thread(() -> {
                         if (App.pingServer()) {
                             try {
-                                String[] strings = App.iService.exec("busybox ps -A -o pid,args|grep RUNNER-bash:|grep -v grep").split("\n");
+                                String[] strings = App.iService.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep").split("\n");
                                 int[] data = new int[strings.length];
                                 int i = 0;
                                 for (String proc : strings) {
                                     if (!proc.isEmpty()) {
                                         String[] pI = proc.replaceAll(" +", " ").trim().split(" ");
-                                        if (pI[2].matches("^RUNNER-bash:.*")) {
+                                        if (pI[2].matches("^RUNNER-proc:.*")) {
                                             data[i] = Integer.parseInt(pI[0]);
                                             i++;
                                         }
@@ -70,7 +70,7 @@ public class ProcessesFragment extends Fragment {
                             }
                             initList();
                         } else {
-                            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show());
+                            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show());
                         }
                     }).start()))
                     .setOnDismissListener(dialog -> ((MainActivity) requireContext()).isDialogShow = false)
@@ -83,14 +83,14 @@ public class ProcessesFragment extends Fragment {
         new Thread(() -> {
             if (App.pingServer()) {
                 try {
-                    String[] strings = App.iService.exec("busybox ps -A -o pid,args|grep RUNNER-bash:|grep -v grep").split("\n");
+                    String[] strings = App.iService.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep").split("\n");
                     int[] data = new int[strings.length];
                     String[] data_name = new String[strings.length];
                     int i = 0;
                     for (String proc : strings) {
                         if (!proc.isEmpty()) {
                             String[] pI = proc.replaceAll(" +", " ").trim().split(" ");
-                            if (pI[2].matches("^RUNNER-bash:.*")) {
+                            if (pI[2].matches("^RUNNER-proc:.*")) {
                                 data[i] = Integer.parseInt(pI[0]);
                                 data_name[i] = pI[2].split(":", 2)[1];
                                 i++;
@@ -102,7 +102,7 @@ public class ProcessesFragment extends Fragment {
                     throw new RuntimeException(e);
                 }
             } else {
-                requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show());
+                requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
@@ -117,12 +117,5 @@ public class ProcessesFragment extends Fragment {
     public void onStart() {
         super.onStart();
         initList();
-        Window window = requireActivity().getWindow();
-        window.setStatusBarColor(Color.TRANSPARENT);
-        if (ResourceUtils.isNightMode(getResources().getConfiguration())) {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        } else {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
     }
 }

@@ -24,5 +24,4 @@
         app:menu="@menu/bottom_nav_menu"
         tools:ignore="VisualLintBottomNav" />
 
-
 </LinearLayout>

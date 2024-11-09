@@ -23,7 +23,7 @@ public class invokeCli {
                 System.exit(1);
             }
             DexClassLoader classLoader = new DexClassLoader(dexPath, null, null, ClassLoader.getSystemClassLoader());
-            Class<?> cls = classLoader.loadClass("com.shizuku.runner.plus.cli.Main");
+            Class<?> cls = classLoader.loadClass("yangFenTuoZi.runner.plus.cli.Main");
             cls.getDeclaredMethod("main", String[].class)
                     .invoke(null, (Object) args);
         } catch (ClassNotFoundException tr) {

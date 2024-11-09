@@ -16,14 +16,14 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class App extends Application {
     public static IService iService;
-    public static IBinder binder;
     private static final List<OnServiceConnectListener> mConnectListeners;
     private static final List<OnServiceDisconnectListener> mDisconnectListeners;
-    private Thread t1;
-    private boolean stopListen = false;
+    private static Timer timer, timer2;
 
     static {
         mConnectListeners = new ArrayList<>();
@@ -34,48 +34,71 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         DynamicColors.applyToActivitiesIfAvailable(this);
-        t1 = new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                while (!pingServer() && !stopListen) {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (pingServer())
+                    return;
+                try {
                     Socket socket = new Socket("localhost", Server.PORT);
-                    new Thread(() -> {
-                        stopListen = true;
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ignored) {
-                        }
-                        stopListen = false;
-                    }).start();
                     OutputStream out = socket.getOutputStream();
                     out.write("sendBinderToApp\n".getBytes());
                     out.close();
                     socket.close();
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
             }
-        });
-        t1.start();
+        }, 0L, 1000L);
     }
 
     @Override
     public void onTerminate() {
-        t1.interrupt();
         super.onTerminate();
+        if (timer2 != null)
+            timer2.cancel();
+        if (timer != null)
+            timer.cancel();
     }
 
     public static boolean pingServer() {
-        return binder != null && binder.pingBinder();
+        return iService != null && iService.asBinder().pingBinder();
     }
 
     public static void onServerReceive(IBinder binder) {
-        App.binder = binder;
         App.iService = IService.Stub.asInterface(binder);
+        if (timer2 != null)
+            timer2.cancel();
+        if (timer != null)
+            timer.cancel();
         if (App.pingServer()) {
+            timer2 = new Timer();
+            timer2.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (!pingServer()) {
+                        onServerReceive(null);
+                    }
+                }
+            }, 0L, 1000L);
             for (OnServiceConnectListener listener : mConnectListeners) {
                 listener.onServiceConnect(iService);
             }
         } else {
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        Socket socket = new Socket("localhost", Server.PORT);
+                        OutputStream out = socket.getOutputStream();
+                        out.write("sendBinderToApp\n".getBytes());
+                        out.close();
+                        socket.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }, 0L, 1000L);
             for (OnServiceDisconnectListener listener : mDisconnectListeners) {
                 listener.onServiceDisconnect();
             }

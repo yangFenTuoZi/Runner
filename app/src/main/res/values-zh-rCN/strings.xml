@@ -28,9 +28,7 @@
     <string name="home_shizuku_is_not_authorized">未授权</string>
 
     <string name="home_service_is_running">服务运行中</string>
-    <string name="home_service_is_not_running">服务终止</string>
-    <string name="home_service_is_disconnected">服务断连</string>
-    <string name="home_service_is_connected">服务连接成功</string>
+    <string name="home_service_is_not_running">服务没有运行</string>
 
     <string name="home_copy_command">已复制到剪切板:</string>
 

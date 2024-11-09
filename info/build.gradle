@@ -47,6 +47,7 @@ android.libraryVariants.all {
                         public static final int VERSION_CODE = ${project.properties.versionCode};
                         public static final String VERSION_NAME = "${project.properties.versionName}";
                         public static final String CLI_UUID = "$uuid";
+                        public static final boolean ENABLE_LOGGER = ${project.properties.enableLogger};
                     }
                     """
             )

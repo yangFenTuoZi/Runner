@@ -10,8 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textview.MaterialTextView;
+
 import yangFenTuoZi.runner.plus.R;
 
 import java.util.Arrays;
@@ -19,7 +20,7 @@ import java.util.Arrays;
 public class RequestPermissionDialog extends MaterialAlertDialogBuilder {
 
     TextView t;
-    MaterialButton allow, refuse;
+    MaterialTextView allow, refuse;
     AlertDialog alertDialog;
     IBinder binder;
     String[] packageNames;
@@ -44,18 +45,18 @@ public class RequestPermissionDialog extends MaterialAlertDialogBuilder {
     @Override
     public AlertDialog show() {
         super.show();
-        t = alertDialog.findViewById(R.id.request_text);
+        t = alertDialog.findViewById(android.R.id.title);
         if (t != null) {
             t.setText(Html.fromHtml(mActivity.getString(R.string.grant_description, Arrays.toString(packageNames)), 0));
         }
-        allow = alertDialog.findViewById(R.id.allow);
-        refuse = alertDialog.findViewById(R.id.refuse);
+        allow = alertDialog.findViewById(android.R.id.button1);
+        refuse = alertDialog.findViewById(android.R.id.button3);
         allow.setOnClickListener(v -> {
-            reply(true, binder, mActivity.getApplicationContext());
+            reply(true, binder);
             alertDialog.cancel();
         });
         refuse.setOnClickListener(v -> {
-            reply(false, binder, mActivity.getApplicationContext());
+            reply(false, binder);
             alertDialog.cancel();
         });
         return alertDialog;

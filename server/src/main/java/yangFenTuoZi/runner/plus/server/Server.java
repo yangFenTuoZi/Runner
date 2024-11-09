@@ -2,9 +2,12 @@ package yangFenTuoZi.runner.plus.server;
 
 import android.annotation.SuppressLint;
 import android.app.IActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
+import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.ddm.DdmHandleAppName;
 import android.os.Build;
 import android.os.IBinder;
@@ -32,13 +35,15 @@ import java.util.TimerTask;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import yangFenTuoZi.runner.plus.cli.CmdInfo;
 import yangFenTuoZi.runner.plus.info.Info;
 
 public class Server {
     public static final String TAG = "runner_server";
     public static final String DATA_PATH = "/data/local/tmp/runner";
     public static final String USR_PATH = DATA_PATH + "/usr";
-    public static final String APP_PACKAGE_NAME = "com.shizuku.runner.plus";
+    public static final String LOG_PATH = DATA_PATH + "/logs";
+    public static final String DB_NAME = DATA_PATH + "/database.db";
     public static final int PORT = 13432;
     public static final String ACTION_SERVER_RUNNING = "runner.plus.intent.action.SERVER_RUNNING";
     public static final String ACTION_SERVER_STOPPED = "runner.plus.intent.action.SERVER_STOPPED";
@@ -48,6 +53,9 @@ public class Server {
     public Logger Log;
     public boolean isStop = false;
     public String appPath;
+    public FakeContext mContext = FakeContext.get();
+    public Context appContext;
+    public SQLiteDatabase database;
 
     public static void main(String[] args) {
         DdmHandleAppName.setAppName("runner_server", Os.getuid());
@@ -59,11 +67,17 @@ public class Server {
         new Server(args);
     }
 
+    @SuppressLint("WrongConstant")
     private Server(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (!isStop)
                 onStop();
         }));
+        try {
+            appContext = mContext.createPackageContext(Info.APPLICATION_ID, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("Unable to get appContext!\n" + e.getMessage());
+        }
         try {
             onStart(args);
         } catch (Throwable e) {
@@ -72,7 +86,7 @@ public class Server {
     }
 
     public void onStart(String[] args) {
-        Log = new Logger(TAG, new File(DATA_PATH, "logs"));
+        Log = new Logger(TAG, new File(LOG_PATH));
         if (args.length != 0 && args[0].equals("restart")) {
             Log.i("Server Restart.");
         } else {
@@ -95,7 +109,7 @@ public class Server {
             serverSocket = new ServerSocket(PORT);
             Log.i("Socket server start.");
         } catch (Exception e) {
-            Log.e("Unable to create socket server, it is possible that the previous server was not terminated!");
+            Log.w("Unable to create socket server, it is possible that the previous server was not terminated!");
             Log.i("Try to stop the previous server.");
             try {
                 Socket socket = new Socket("localhost", PORT);
@@ -116,6 +130,22 @@ public class Server {
                 exit(1);
             }
         }
+
+        File db_file = new File(DB_NAME);
+        boolean db_exists = db_file.exists();
+        database = SQLiteDatabase.openOrCreateDatabase(db_file, null);
+        if (!db_exists)
+            database.execSQL("""
+            CREATE TABLE cmds(
+                id          INT     PRIMARY KEY     NOT NULL,
+                name        TEXT                    NOT NULL,
+                command     TEXT                    NOT NULL,
+                keepAlive   INTEGER                 NOT NULL,
+                useChid     INTEGER                 NOT NULL,
+                ids         TEXT                    NOT NULL
+            );
+            """);
+
         while (!isStop) {
             Socket socket;
             try {
@@ -129,7 +159,7 @@ public class Server {
                 var in = socket.getInputStream();
                 byte[] buffer = new byte[1024];
                 int len;
-                while((len = in.read(buffer)) != -1) {
+                while ((len = in.read(buffer)) != -1) {
                     bos.write(buffer, 0, len);
                 }
                 bos.close();
@@ -371,17 +401,17 @@ public class Server {
         }
     }
 
-    @SuppressLint("WrongConstant")
     public boolean sendBinderToAppByStickyBroadcast() {
         try {
             BinderContainer binderContainer = new BinderContainer(createBinder());
 
-            Intent intent = new Intent(Server.ACTION_SERVER_RUNNING)
+            @SuppressLint("WrongConstant") Intent intent = new Intent(Server.ACTION_SERVER_RUNNING)
                     .setPackage(Info.APPLICATION_ID)
                     .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                     .putExtra("binder", binderContainer);
 
-            activityManager = IActivityManager.Stub.asInterface(ServiceManager.getService("activity"));
+            if (activityManager == null || !activityManager.asBinder().pingBinder())
+                activityManager = IActivityManager.Stub.asInterface(ServiceManager.getService("activity"));
             activityManager.broadcastIntent(null, intent, null, null, 0, null, null,
                     null, -1, null, true, false, 0);
         } catch (Throwable e) {
@@ -441,19 +471,9 @@ public class Server {
         }
     }
 
-    @SuppressLint("WrongConstant")
     public void onStop() {
-        try {
-            Intent intent = new Intent(Server.ACTION_SERVER_STOPPED)
-                    .setPackage(Info.APPLICATION_ID)
-                    .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            activityManager = IActivityManager.Stub.asInterface(ServiceManager.getService("activity"));
-            activityManager.broadcastIntent(null, intent, null, null, 0, null, null,
-                    null, -1, null, true, false, 0);
-        } catch (Throwable e) {
-            Log.e("Unable to broadcast 'server stopped'!\n" + e);
-        }
         isStop = true;
+        database.close();
         Log.i("Server Stop.\n");
         Log.close();
     }
@@ -468,30 +488,46 @@ public class Server {
         return new IService.Stub() {
 
             @Override
-            public int getuid() throws RemoteException {
-                return Os.getuid();
+            public CmdInfo[] getAllCmds() {
+                return CmdInfo.getAll(database);
             }
 
             @Override
-            public int execX(String cmd, String name, int port) throws RemoteException {
+            public CmdInfo getCmdByID(int id) {
+                return CmdInfo.query(database, id);
+            }
+
+            @Override
+            public void delete(int id) {
+                Log.i("Delete a cmd, its id: " + id);
+                CmdInfo.delete(database, id);
+            }
+
+            @Override
+            public void edit(CmdInfo cmdInfo) {
+                if (CmdInfo.query(database, cmdInfo.id) == null) {
+                    Log.i("Create, content: %s", cmdInfo.toString());
+                    cmdInfo.insert(database);
+                } else {
+                    Log.i("Edit, content: %s", cmdInfo.toString());
+                    cmdInfo.update(database);
+                }
+            }
+
+            @Override
+            public int execX(String cmd, String name, int port) {
                 try {
                     Process p = Runtime.getRuntime().exec(USR_PATH + "/bin/bash");
                     OutputStream out = p.getOutputStream();
                     out.write(("exec 8<>/dev/tcp/127.0.0.1/" + port + "\n").getBytes());
                     out.flush();
-                    out.write(("exec -a RUNNER-bash:" + name + " " + USR_PATH + "/bin/bash >&8 2>&1\n").getBytes());
+                    out.write(("exec -a \"RUNNER-proc:" + name.replaceAll(" ", "") + "\" \"" + USR_PATH + "/bin/bash\" >&8 2>&1\n").getBytes());
                     out.flush();
                     out.write("echo $$\n".getBytes());
                     out.flush();
                     out.write((". " + USR_PATH + "/etc/profile\n").getBytes());
                     out.flush();
                     out.write((cmd + "\n").getBytes());
-                    out.flush();
-                    out.write("exit\n".getBytes());
-                    out.flush();
-                    out.write("exec 8>&-\n".getBytes());
-                    out.flush();
-                    out.write("exit\n".getBytes());
                     out.flush();
                     out.close();
                     p.waitFor();
@@ -503,7 +539,7 @@ public class Server {
             }
 
             @Override
-            public String exec(String cmd) throws RemoteException {
+            public String exec(String cmd) {
                 try {
                     Process process = Runtime.getRuntime().exec(USR_PATH + "/bin/bash");
                     OutputStream out = process.getOutputStream();

@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+import yangFenTuoZi.runner.plus.info.Info;
+
 public class Logger {
     private static final String VERBOSE = "V";
     private static final String DEBUG = "D";
@@ -22,6 +24,8 @@ public class Logger {
     private File logDir;
 
     public Logger(String TAG, File logDir) {
+        if (!Info.ENABLE_LOGGER)
+            return;
         lastLogDate = LocalDate.now();
         try {
             if (logDir.isFile())
@@ -80,6 +84,8 @@ public class Logger {
     }
 
     private void writeLog(String priority, String message) {
+        if (!Info.ENABLE_LOGGER)
+            return;
         try {
             switch (priority) {
                 case VERBOSE -> android.util.Log.v(TAG, message);
@@ -106,6 +112,8 @@ public class Logger {
     }
 
     public void printf(String message) {
+        if (!Info.ENABLE_LOGGER)
+            return;
         try {
             LocalDate date = LocalDate.now();
             if (!Objects.equals(lastLogDate.format(DateTimeFormatter.ofPattern("dd")), date.format(DateTimeFormatter.ofPattern("dd")))) {
@@ -124,6 +132,8 @@ public class Logger {
     }
 
     public void close() {
+        if (!Info.ENABLE_LOGGER)
+            return;
         try {
             if (fileWriter != null) {
                 fileWriter.close();
@@ -136,10 +146,14 @@ public class Logger {
     }
 
     public boolean isClose() {
+        if (!Info.ENABLE_LOGGER)
+            return true;
         return fileWriter == null;
     }
 
     private void changeLogFile(File file) throws IOException {
+        if (!Info.ENABLE_LOGGER)
+            return;
         if (fileWriter != null)
             close();
         if (!file.exists())

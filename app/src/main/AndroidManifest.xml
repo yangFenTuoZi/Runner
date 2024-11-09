@@ -17,12 +17,6 @@
         android:theme="@style/Theme.Material3.DynamicColors.Light.Rikka"
         tools:targetApi="34">
         <activity
-            android:name=".ui.activity.PackActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activity.FileMangerActivity"
-            android:exported="true" />
-        <activity
             android:name=".ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
@@ -31,6 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.activity.PackActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.FileMangerActivity"
+            android:exported="true" />
 
         <activity
             android:name=".ui.activity.RequestBinderActivity"

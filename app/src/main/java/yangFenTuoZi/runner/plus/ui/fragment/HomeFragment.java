@@ -7,9 +7,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +25,13 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
+
+import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.adapters.CmdAdapter;
+import yangFenTuoZi.runner.plus.cli.CmdInfo;
+import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
+import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
+import yangFenTuoZi.runner.plus.server.IService;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 import yangFenTuoZi.runner.plus.ui.activity.PackActivity;
 import yangFenTuoZi.runner.plus.R;
@@ -32,16 +39,25 @@ import yangFenTuoZi.runner.plus.databinding.FragmentHomeBinding;
 import yangFenTuoZi.runner.plus.ui.dialog.StartServerDialog;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import rikka.core.util.ResourceUtils;
 
 public class HomeFragment extends BaseFragment {
     private FragmentHomeBinding binding;
-    private SharedPreferences sp;
+    private OnServiceConnectListener onServiceConnectListener = new OnServiceConnectListener() {
+        @Override
+        public void onServiceConnect(IService iService) {
+            requireActivity().runOnUiThread(() -> initList());
+        }
+    };
+    private OnServiceDisconnectListener onServiceDisconnectListener = new OnServiceDisconnectListener() {
+        @Override
+        public void onServiceDisconnect() {
+            requireActivity().runOnUiThread(() -> listView.setAdapter(null));
+        }
+    };
     public ListView listView;
 
     public FragmentHomeBinding getBinding() {
@@ -50,11 +66,11 @@ public class HomeFragment extends BaseFragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        App.addOnServiceConnectListener(onServiceConnectListener);
+        App.addOnServiceDisconnectListener(onServiceDisconnectListener);
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         listView = binding.list;
-        sp = requireContext().getSharedPreferences("data", 0);
-        initList();
         ((MainActivity) requireContext()).setHomeFragment(this);
         setupToolbar(binding.toolbar, null, R.string.app_name, R.menu.menu_home);
         binding.toolbar.setOnMenuItemClickListener(item -> {
@@ -124,24 +140,31 @@ public class HomeFragment extends BaseFragment {
 
     //初始化列表
     public void initList() {
-        String[] s;
-        int[] data;
-        if (sp.getString("data", "").isEmpty()) {
-            data = new int[1];
-            data[0] = 1;
-        } else {
-            s = sp.getString("data", "").split(",");
-            data = new int[s.length + 1];
-            for (int i = 0; i < s.length; i++)
-                data[i] = Integer.parseInt(s[i]);
-            data[s.length] = data[s.length - 1] + 1;
+        if (!App.pingServer()) {
+            Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+            return;
         }
-        listView.setAdapter(new CmdAdapter(requireContext(), data, this));
+        try {
+            CmdInfo[] cmdInfos = App.iService.getAllCmds();
+            int[] data = new int[cmdInfos.length + 1];
+            int max = -1;
+            for (int i = 0; i < cmdInfos.length; i++) {
+                data[i] = cmdInfos[i].id;
+                if (cmdInfos[i].id > max)
+                    max = cmdInfos[i].id;
+            }
+            data[cmdInfos.length] = max + 1;
+            Log.d("dsfdsfdsfds", Arrays.toString(data));
+            listView.setAdapter(new CmdAdapter(requireContext(), data, this, cmdInfos));
+        } catch (RemoteException ignored) {
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        App.removeOnServiceConnectListener(onServiceConnectListener);
+        App.removeOnServiceDisconnectListener(onServiceDisconnectListener);
         binding = null;
     }
 
@@ -149,13 +172,6 @@ public class HomeFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
 
-        new Thread(() -> {
-            try {
-                Thread.sleep(100);
-                sendSomethingToServerBySocket("sendBinderToApp");
-            } catch (Exception ignored) {
-            }
-        }).start();
         MainActivity mainActivity = (MainActivity) requireActivity();
         mainActivity.isHome = true;
         if (mainActivity.serviceState) {
@@ -163,14 +179,8 @@ public class HomeFragment extends BaseFragment {
         } else {
             binding.toolbar.setSubtitle(R.string.home_service_is_not_running);
         }
-        initList();
-        Window window = requireActivity().getWindow();
-        window.setStatusBarColor(Color.TRANSPARENT);
-        if (ResourceUtils.isNightMode(getResources().getConfiguration())) {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        } else {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        if (App.pingServer())
+            initList();
     }
 
     @Override
@@ -183,15 +193,30 @@ public class HomeFragment extends BaseFragment {
     @SuppressLint("WrongConstant")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        SharedPreferences sharedPreferences = requireContext().getSharedPreferences(String.valueOf(item.getGroupId()), 0);
         switch (item.getItemId()) {
             case CmdAdapter.long_click_copy_name:
-                ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", sharedPreferences.getString("name", "")));
-                Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + sharedPreferences.getString("name", ""), Toast.LENGTH_SHORT).show();
+                if (!App.pingServer()) {
+                    Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    return super.onContextItemSelected(item);
+                }
+                try {
+                    String name = App.iService.getCmdByID(item.getGroupId()).name;
+                    ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", name));
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show();
+                } catch (RemoteException ignored) {
+                }
                 return true;
             case CmdAdapter.long_click_copy_command:
-                ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", sharedPreferences.getString("command", "")));
-                Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + sharedPreferences.getString("command", ""), Toast.LENGTH_SHORT).show();
+                if (!App.pingServer()) {
+                    Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    return super.onContextItemSelected(item);
+                }
+                try {
+                    String command = App.iService.getCmdByID(item.getGroupId()).command;
+                    ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
+                } catch (RemoteException ignored) {
+                }
                 return true;
             case CmdAdapter.long_click_new:
 
@@ -202,13 +227,14 @@ public class HomeFragment extends BaseFragment {
                 requireContext().startActivity(intent);
                 return true;
             case CmdAdapter.long_click_del:
-                List<String> list = Arrays.asList(sp.getString("data", "").split(","));
-                if (list.contains(String.valueOf(item.getGroupId()))) {
-                    List<String> arrayList = new ArrayList<>(list);
-                    arrayList.remove(String.valueOf(item.getGroupId()));
-                    sp.edit().putString("data", String.join(",", arrayList)).apply();
+                if (!App.pingServer()) {
+                    Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    return super.onContextItemSelected(item);
                 }
-                requireContext().deleteSharedPreferences(String.valueOf(item.getGroupId()));
+                try {
+                    App.iService.delete(item.getGroupId());
+                } catch (RemoteException ignored) {
+                }
                 listView.setAdapter(null);
                 initList();
                 return true;

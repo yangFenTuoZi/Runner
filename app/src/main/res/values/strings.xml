@@ -35,8 +35,6 @@
 
     <string name="home_service_is_running">Service is Running</string>
     <string name="home_service_is_not_running">Service is not Running</string>
-    <string name="home_service_is_connected">Service is connected</string>
-    <string name="home_service_is_disconnected">Service is disconnected</string>
 
     <string name="home_copy_command">Copied to clipboard:</string>
 

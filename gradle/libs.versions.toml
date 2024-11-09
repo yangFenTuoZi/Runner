@@ -9,9 +9,7 @@ navigationUi = "2.6.0"
 preference = "1.2.0"
 activity = "1.8.2"
 coordinatorlayout = "1.2.0"
-junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+annotationJvm = "1.9.0"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -34,9 +32,7 @@ rikkax-recyclerview = { module = "dev.rikka.rikkax.recyclerview:recyclerview-ktx
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
 rikkax-widget-mainswitchbar = { module = "dev.rikka.rikkax.widget:mainswitchbar", version = "1.0.2" }
 coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

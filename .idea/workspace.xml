@@ -21,7 +21,7 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_pack.xml">
@@ -36,7 +36,7 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_edit.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml">
@@ -110,77 +110,48 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="换行符改为LF">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ShizukuShellLoader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/info/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/info/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/info/proguard-rules.pro" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/info/src/main/AndroidManifest.xml" afterDir="false" />
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="改包名">
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/color/grant_permissions_button_ripple_color_selector.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/grant_permissions_buttons_bottom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/grant_permissions_buttons_top.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/FakeContext.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Workarounds.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/assets/tools.dex" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/assets/usr/common/etc/profile" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/assets/usr/common/etc/profile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/App.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/Utils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/adapters/ProcessAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/ProcessAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceConnectListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/receiver/OnServiceConnectListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/OnServiceDisconnectListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/receiver/OnServiceDisconnectListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/receiver/ServerReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/receiver/ServerReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/terminal/TerminalView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/BaseActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/BaseActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/FileMangerActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/FileMangerActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/PackActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/PackActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestBinderActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/RequestBinderActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/activity/RequestPermissionActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/RequestPermissionActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/ExecDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/ExecDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/RequestPermissionDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/RequestPermissionDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/dialog/StartServerDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/StartServerDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/BaseFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/BaseFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/ProcessesFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/ProcessesFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/SettingsFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/SettingsFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/fragment/TerminalFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/TerminalFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/widget/TerminalTextView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shizuku/runner/plus/ui/widget/TextViewX.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_file_manger.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_file_manger.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_pack.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_pack.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_exec.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/RequestBinderActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/RequestBinderActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/ExecDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/ExecDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/RequestPermissionDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/RequestPermissionDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/BaseFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/BaseFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/ProcessesFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/ProcessesFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/SettingsFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/SettingsFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/TerminalFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/TerminalFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/list_divider.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/list_divider.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_edit.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_edit.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_processes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_processes.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_terminal.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_terminal.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/terminal.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/navigation/mobile_navigation.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/navigation/mobile_navigation.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/item_cmd.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_cmd.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/info/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/server/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/IApp.aidl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/cli/cmdInfo.aidl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/com/shizuku/runner/plus/server/IService.aidl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/cli/cmdInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/cmdInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/BinderContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/BinderContainer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Logger.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Logger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/shizuku/runner/plus/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell/proguard-rules.pro" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell/src/main/AndroidManifest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/tools/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/Tools.java" beforeDir="false" afterPath="$PROJECT_DIR$/tools/src/main/java/yangFenTuoZi/runner/plus/tools/Tools.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/getAppPath.java" beforeDir="false" afterPath="$PROJECT_DIR$/tools/src/main/java/yangFenTuoZi/runner/plus/tools/getAppPath.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/src/main/java/com/shizuku/runner/plus/tools/invokeCli.java" beforeDir="false" afterPath="$PROJECT_DIR$/tools/src/main/java/yangFenTuoZi/runner/plus/tools/invokeCli.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/cli/IApp.aidl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/cli/cmdInfo.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/cli/cmdInfo.aidl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/server/IService.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/server/IService.aidl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/cmdInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/cmdInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Logger.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Logger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/src/main/java/yangFenTuoZi/runner/plus/tools/invokeCli.java" beforeDir="false" afterPath="$PROJECT_DIR$/tools/src/main/java/yangFenTuoZi/runner/plus/tools/invokeCli.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -190,7 +161,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=0eba2c03)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=1eb91cb8)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -315,9 +286,9 @@
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_directory_selection&quot;: &quot;C:/Users/Administrator/AndroidStudioProjects/Runner/getAppPath/src/main/java/com/shizuku/runner/plus/getAppPath&quot;,
+    &quot;last_directory_selection&quot;: &quot;C:/Users/Administrator/AndroidStudioProjects/Runner/app/src/main/res/drawable&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/Administrator/AndroidStudioProjects/Runner/server/src/main/aidl/yangFenTuoZi/runner&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Dependencies&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
@@ -361,11 +332,11 @@
       <recent name="com.shizuku.runner.plus" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="yangFenTuoZi.runner.plus.server" />
       <recent name="com.shizuku.runner.plus.cli" />
       <recent name="com.shizuku.runner.plus.receiver" />
       <recent name="com.shizuku.runner.plus.tools" />
       <recent name="com.shizuku.runner.plus.getAppPath" />
-      <recent name="com.shizuku.runner.plus.ui.widget" />
     </key>
   </component>
   <component name="RunManager" selected="Android App.app">
@@ -381,7 +352,7 @@
       <option name="CLEAR_APP_STORAGE" value="false" />
       <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
       <option name="ACTIVITY_EXTRA_FLAGS" value="" />
-      <option name="MODE" value="default_activity" />
+      <option name="MODE" value="do_nothing" />
       <option name="RESTORE_ENABLED" value="false" />
       <option name="RESTORE_FILE" value="" />
       <option name="CLEAR_LOGCAT" value="false" />
@@ -658,7 +629,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728301387612</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="改包名">
+      <option name="closed" value="true" />
+      <created>1729313239648</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1729313239648</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -692,6 +671,7 @@
     <MESSAGE value="优化cli" />
     <MESSAGE value="cli实现list命令&#10;支持app内置激活&#10;改进判断server连接状态方法&#10;Application内实时监听服务socket端口" />
     <MESSAGE value="换行符改为LF" />
-    <option name="LAST_COMMIT_MESSAGE" value="换行符改为LF" />
+    <MESSAGE value="改包名" />
+    <option name="LAST_COMMIT_MESSAGE" value="改包名" />
   </component>
 </project>

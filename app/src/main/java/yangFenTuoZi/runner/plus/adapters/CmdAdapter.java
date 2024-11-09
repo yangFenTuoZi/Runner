@@ -3,7 +3,7 @@ package yangFenTuoZi.runner.plus.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,9 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import yangFenTuoZi.runner.plus.App;
+import yangFenTuoZi.runner.plus.cli.CmdInfo;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 import yangFenTuoZi.runner.plus.ui.dialog.ExecDialog;
 import yangFenTuoZi.runner.plus.R;
@@ -25,15 +27,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 
 public class CmdAdapter extends BaseAdapter {
     private final int[] data;
+    private final CmdInfo[] cmdInfos;
     private final Context mContext;
     private final HomeFragment home;
     public final static int long_click_copy_name = 0;
@@ -42,12 +41,13 @@ public class CmdAdapter extends BaseAdapter {
     public final static int long_click_pack = 3;
     public final static int long_click_del = 4;
 
-    public CmdAdapter(Context mContext, int[] data, HomeFragment home) {
+    public CmdAdapter(Context mContext, int[] data, HomeFragment home, CmdInfo[] cmdInfos) {
 
         //设置adapter需要接收两个参数：上下文、int数组
         super();
         this.mContext = mContext;
         this.data = data;
+        this.cmdInfos = cmdInfos;
         this.home = home;
     }
 
@@ -71,7 +71,6 @@ public class CmdAdapter extends BaseAdapter {
     //此函数定义每一个item的显示
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
-        SharedPreferences b = mContext.getSharedPreferences(String.valueOf(data[position]), 0);
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_cmd, null);
             holder = new ViewHolder();
@@ -80,7 +79,6 @@ public class CmdAdapter extends BaseAdapter {
             holder.list_run = convertView.findViewById(R.id.list_run);
             holder.list_add = convertView.findViewById(R.id.list_add);
             holder.item_button = convertView.findViewById(R.id.item_button);
-            holder.item_button_add = convertView.findViewById(R.id.item_button_add);
             holder.layout = convertView.findViewById(R.id.item_root);
             convertView.setTag(holder);
             convertView.setOnKeyListener((view, i, keyEvent) -> false);
@@ -91,14 +89,20 @@ public class CmdAdapter extends BaseAdapter {
         }
 
         //获得用户对于这个格子的设置
-        init(holder, b, data[position]);
+        if (position < cmdInfos.length)
+            init(holder, cmdInfos[position], data[position]);
+        else {
+            CmdInfo info = new CmdInfo();
+            info.id = data[position];
+            init(holder, info, data[position]);
+        }
         return convertView;
     }
 
     //判断是否为空
-    static boolean[] isEmpty(SharedPreferences b) {
-        boolean exist_c = b.getString("command", null) == null || b.getString("command", "").isEmpty();
-        boolean exist_n = b.getString("name", null) == null || b.getString("name", "").isEmpty();
+    static boolean[] isEmpty(CmdInfo info) {
+        boolean exist_c = info.command == null || info.command.isEmpty();
+        boolean exist_n = info.name == null || info.name.isEmpty();
         return new boolean[]{exist_c && exist_n, exist_n, exist_c};
     }
 
@@ -108,13 +112,12 @@ public class CmdAdapter extends BaseAdapter {
         LinearLayout list_run;
         LinearLayout list_add;
         MaterialButton item_button;
-        MaterialButton item_button_add;
         MaterialCardView layout;
     }
 
-    void init(ViewHolder holder, SharedPreferences b, int id) {
+    void init(ViewHolder holder, CmdInfo info, int id) {
 
-        boolean[] empty = isEmpty(b);
+        boolean[] empty = isEmpty(info);
 
         //这个点击事件是点击编辑命令
         @SuppressLint("WrongConstant") View.OnClickListener voc = view -> {
@@ -128,45 +131,41 @@ public class CmdAdapter extends BaseAdapter {
             final TextInputEditText command = v.findViewById(R.id.dialog_command);
             final TextInputEditText ids = v.findViewById(R.id.dialog_ids);
 
-            chid.setChecked(b.getBoolean("chid", false));
+            chid.setChecked(info.useChid);
             chid.setOnClickListener(view1 -> view2.setVisibility(chid.isChecked() ? View.VISIBLE : View.GONE));
-            keep_in_alive.setChecked(b.getBoolean("keep_in_alive", false));
-            view2.setVisibility(b.getBoolean("chid", false) ? View.VISIBLE : View.GONE);
-            name.setText(b.getString("name", null));
-            command.setText(b.getString("command", null));
+            keep_in_alive.setChecked(info.keepAlive);
+            view2.setVisibility(info.useChid ? View.VISIBLE : View.GONE);
+            name.setText(info.name);
+            command.setText(info.command);
 
-            ids.setText(b.getString("ids", null));
+            ids.setText(info.ids);
             name.requestFocus();
             name.postDelayed(() -> ((InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(name, 0), 200);
             ((MainActivity) mContext).isDialogShow = true;
             new MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.dialog_edit)).setView(v).setPositiveButton(mContext.getString(R.string.dialog_finish), (dialog, which) -> {
-                b.edit().putString("command", Objects.requireNonNull(command.getText()).toString())
-                        .putString("name", Objects.requireNonNull(name.getText()).toString())
-                        .putBoolean("keep_in_alive", keep_in_alive.isChecked())
-                        .putBoolean("chid", chid.isChecked())
-                        .putString("ids", chid.isChecked() ? Objects.requireNonNull(ids.getText()).toString() : null)
-                        .apply();
-                if (empty[0] && !isEmpty(b)[0]) {
-                    SharedPreferences sp = mContext.getSharedPreferences("data", 0);
-                    sp.edit().putString("data", sp.getString("data", "").isEmpty()
-                            ? String.valueOf(id)
-                            : sp.getString("data", "") + "," + id
-                    ).apply();
-                    init(holder, b, id);
-                    home.initList();
-                } else if (!empty[0] && isEmpty(b)[0]) {
-                    SharedPreferences sp = mContext.getSharedPreferences("data", 0);
-                    List<String> list = Arrays.asList(sp.getString("data", "").split(","));
-                    if (list.contains(String.valueOf(id))) {
-                        List<String> arrayList = new ArrayList<>(list);
-                        arrayList.remove(String.valueOf(id));
-                        sp.edit().putString("data", String.join(",", arrayList)).apply();
+                if (!App.pingServer()) {
+                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                CmdInfo new_cmdInfo = new CmdInfo();
+                new_cmdInfo.id = id;
+                new_cmdInfo.command = Objects.requireNonNull(command.getText()).toString();
+                new_cmdInfo.name = Objects.requireNonNull(name.getText()).toString();
+                new_cmdInfo.keepAlive = keep_in_alive.isChecked();
+                new_cmdInfo.useChid = chid.isChecked();
+                new_cmdInfo.ids = chid.isChecked() ? Objects.requireNonNull(ids.getText()).toString() : null;
+                try {
+                    App.iService.edit(new_cmdInfo);
+                } catch (RemoteException ignored) {
+                }
+                if (!empty[0] && isEmpty(new_cmdInfo)[0]) {
+                    try {
+                        App.iService.delete(id);
+                    } catch (RemoteException ignored) {
                     }
-                    mContext.deleteSharedPreferences(String.valueOf(id));
-                    home.listView.setAdapter(null);
-                    home.initList();
-                } else
-                    init(holder, b, id);
+                }
+                home.listView.setAdapter(null);
+                home.initList();
             }).setOnDismissListener(dialog -> ((MainActivity) mContext).isDialogShow = false).show();
         };
 
@@ -180,29 +179,33 @@ public class CmdAdapter extends BaseAdapter {
                 return;
 
             if (App.pingServer()) {
-                Intent intent = new Intent()
-                        .putExtra("name", b.getString("name", ""))
-                        .putExtra("command", b.getString("command", ""))
-                        .putExtra("keep_in_alive", b.getBoolean("keep_in_alive", false));
-                if (b.getBoolean("chid", false)) {
-                    intent.putExtra("chid", b.getBoolean("chid", false))
-                            .putExtra("ids", b.getString("ids", ""));
+                try {
+                    CmdInfo cmdInfo = App.iService.getCmdByID(id);
+                    Intent intent = new Intent()
+                            .putExtra("id", cmdInfo.id)
+                            .putExtra("command", cmdInfo.command)
+                            .putExtra("name", cmdInfo.name)
+                            .putExtra("keep_in_alive", cmdInfo.keepAlive);
+                    if (cmdInfo.useChid) {
+                        intent.putExtra("chid", true)
+                                .putExtra("ids", cmdInfo.ids);
+                    }
+                    ((MainActivity) mContext).isDialogShow = true;
+                    new ExecDialog((MainActivity) mContext, intent).show();
+                } catch (RemoteException ignored) {
                 }
-                ((MainActivity) mContext).isDialogShow = true;
-                new ExecDialog((MainActivity) mContext, intent).show();
             } else
-                Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
         });
 
         //点击编辑
-        holder.item_button_add.setOnClickListener(voc);
         holder.layout.setOnClickListener(voc);
 
-        holder.text_name.setText(empty[1] ? "" : b.getString("name", ""));
-        holder.text_command.setText(empty[2] ? "" : b.getString("command", ""));
+        holder.text_name.setText(empty[1] ? "" : info.name);
+        holder.text_command.setText(empty[2] ? "" : info.command);
 
         //如果不为空则设置长按菜单
-        if (!isEmpty(b)[0] || new File(mContext.getApplicationInfo().dataDir + "/shared_prefs/" + id + ".xml").exists())
+        if (!isEmpty(info)[0])
             holder.layout.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
                 menu.setHeaderTitle("选择操作");
                 menu.add(id, long_click_copy_name, 0, mContext.getString(R.string.long_click_copy_name));

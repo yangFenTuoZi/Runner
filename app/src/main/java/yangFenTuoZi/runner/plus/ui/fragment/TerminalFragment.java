@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import yangFenTuoZi.runner.plus.databinding.FragmentTerminalBinding;
 
-public class TerminalFragment extends Fragment {
+public class TerminalFragment extends BaseFragment {
 
     private FragmentTerminalBinding binding;
     private Context mContext;
@@ -36,8 +36,5 @@ public class TerminalFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Window window = requireActivity().getWindow();
-        window.setStatusBarColor(Color.BLACK);
-        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 }

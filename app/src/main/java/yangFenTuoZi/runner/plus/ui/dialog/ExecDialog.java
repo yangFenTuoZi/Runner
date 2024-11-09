@@ -11,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.adapters.ProcessAdapter;
+import yangFenTuoZi.runner.plus.server.Server;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 import yangFenTuoZi.runner.plus.R;
 
@@ -86,14 +88,19 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
                                         BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                                         String inline;
                                         boolean pid_ = false;
-                                        while ((inline = br.readLine()) != null && !ExecDialog.this.br) {
+                                        while ((inline = br.readLine()) != null) {
                                             String finalInline = inline;
                                             if (pid_) {
                                                 mContext.runOnUiThread(() -> t2.append(finalInline + "\n"));
                                             } else {
-                                                mContext.runOnUiThread(() -> t1.append(mContext.getString(R.string.exec_pid, Integer.parseInt(finalInline))));
-                                                pid_ = true;
-                                                pid = Integer.parseInt(inline);
+                                                try {
+                                                    int p = Integer.parseInt(finalInline);
+                                                    mContext.runOnUiThread(() -> t1.append(mContext.getString(R.string.exec_pid, p) + "\n"));
+                                                    pid_ = true;
+                                                    pid = p;
+                                                } catch (Exception e) {
+                                                    mContext.runOnUiThread(() -> t2.append(finalInline + "\n"));
+                                                }
                                             }
                                         }
                                         br.close();
@@ -113,8 +120,7 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
                             while (true) {
                                 if (!App.pingServer()) {
                                     mContext.runOnUiThread(() -> {
-                                        Toast.makeText(mContext, R.string.home_service_is_disconnected, Toast.LENGTH_SHORT).show();
-                                        t1.append("\n");
+                                        Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
                                         t1.append(mContext.getString(R.string.exec_return, -1, mContext.getString(R.string.exec_other_error)));
                                         alertDialog.setTitle(mContext.getString(R.string.exec_finish));
                                         br2 = true;
@@ -131,7 +137,6 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
                     h2.start();
                     int exitValue = App.iService.execX(cmd, intent.getStringExtra("name"), port);
                     mContext.runOnUiThread(() -> {
-                        t1.append("\n");
                         t1.append(mContext.getString(R.string.exec_return, exitValue, mContext.getString(switch (exitValue) {
                             case 0 -> R.string.exec_normal;
                             case 127 -> R.string.exec_command_not_found;
@@ -159,15 +164,15 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
             try {
                 serverSocket.close();
                 if (!intent.getBooleanExtra("keep_in_alive", false) && !br2) {
-                        new Thread(() -> {
-                            try {
-                                if (ProcessAdapter.killPID(pid)) {
-                                    mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
-                                } else
-                                    mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());
-                            } catch (Exception ignored) {
-                            }
-                        }).start();
+                    new Thread(() -> {
+                        try {
+                            if (ProcessAdapter.killPID(pid)) {
+                                mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
+                            } else
+                                mContext.runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());
+                        } catch (Exception ignored) {
+                        }
+                    }).start();
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

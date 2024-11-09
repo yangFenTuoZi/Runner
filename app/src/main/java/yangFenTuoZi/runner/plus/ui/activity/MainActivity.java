@@ -27,7 +27,10 @@ import yangFenTuoZi.runner.plus.tools.getAppPath;
 import yangFenTuoZi.runner.plus.tools.invokeCli;
 import yangFenTuoZi.runner.plus.ui.fragment.HomeFragment;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +57,7 @@ public class MainActivity extends BaseActivity {
         public void onServiceConnect(IService iService) {
             serviceState = true;
             if (isHome)
-                toolbar.setSubtitle(R.string.home_service_is_running);
+                runOnUiThread(() -> toolbar.setSubtitle(R.string.home_service_is_running));
         }
     };
     private final OnServiceDisconnectListener onServiceDisconnectListener = new OnServiceDisconnectListener() {
@@ -62,7 +65,7 @@ public class MainActivity extends BaseActivity {
         public void onServiceDisconnect() {
             serviceState = false;
             if (isHome)
-                toolbar.setSubtitle(R.string.home_service_is_not_running);
+                runOnUiThread(() -> toolbar.setSubtitle(R.string.home_service_is_not_running));
         }
     };
 
@@ -110,11 +113,14 @@ public class MainActivity extends BaseActivity {
                         exit 255
                     fi
                     
-                    if [ "$1" == "in_app" ] && ! [ -z "$2" ]; then
+                    if [ "$1" == "in_app" ] && [ ! -z "$2" ]; then
                         APP_PATH="$2"
                     else
+                        GET_APP_PATH_DEX="/data/local/tmp/tools.dex"
+                        # copy tool.dex
+                        tail +48 <"$0" > $GET_APP_PATH_DEX
+                    
                         # get app path
-                        GET_APP_PATH_DEX="$(dirname "$0")/tools.dex"
                         if [ ! -f "$GET_APP_PATH_DEX" ]; then
                         log E "Cannot find $GET_APP_PATH_DEX." >&2
                         exit 1
@@ -125,6 +131,7 @@ public class MainActivity extends BaseActivity {
                             log E "Cannot find the app APK." >&2
                             exit 1
                         fi
+                        rm $GET_APP_PATH_DEX
                     fi
                     
                     # start server
@@ -150,6 +157,19 @@ public class MainActivity extends BaseActivity {
             fileWriter.write(starter_content);
             fileWriter.flush();
             fileWriter.close();
+            tools = assetManager.open("tools.dex");
+            BufferedInputStream in;
+            BufferedOutputStream out;
+            in = new BufferedInputStream(tools);
+            out = new BufferedOutputStream(new FileOutputStream(starter, true));
+            int len;
+            byte[] b = new byte[1024];
+            while ((len = in.read(b)) != -1) {
+                out.write(b, 0, len);
+            }
+            in.close();
+            out.close();
+            tools.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

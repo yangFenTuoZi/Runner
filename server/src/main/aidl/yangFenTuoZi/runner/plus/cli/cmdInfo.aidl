@@ -1,2 +1,2 @@
 package yangFenTuoZi.runner.plus.cli;
-parcelable cmdInfo;
+parcelable CmdInfo;

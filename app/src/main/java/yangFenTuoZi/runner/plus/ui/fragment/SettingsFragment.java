@@ -35,7 +35,7 @@ import java.util.Objects;
 import rikka.core.util.ResourceUtils;
 import rikka.preference.SimpleMenuPreference;
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends BaseFragment {
 
     private FragmentSettingsBinding binding;
 
@@ -177,13 +177,6 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Window window = requireActivity().getWindow();
-        window.setStatusBarColor(Color.TRANSPARENT);
-        if (ResourceUtils.isNightMode(getResources().getConfiguration())) {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        } else {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
     }
 
 }

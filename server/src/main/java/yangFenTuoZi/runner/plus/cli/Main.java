@@ -15,7 +15,7 @@ import android.os.ServiceManager;
 import android.system.Os;
 
 import yangFenTuoZi.runner.plus.info.Info;
-import yangFenTuoZi.runner.plus.server.BuildConfig;
+import yangFenTuoZi.runner.plus.server.IService;
 import yangFenTuoZi.runner.plus.server.Server;
 
 import org.json.JSONArray;
@@ -64,25 +64,21 @@ public class Main {
                 case ARG_LIST: {
                     a(new BinderReceiver() {
                         @Override
-                        public void onBinderReceived(IBinder serverBinder, IBinder appBinder) {
-                            if (appBinder == null || ! appBinder.pingBinder()) {
-                                System.err.println("App binder is not alive");
+                        public void onBinderReceived(IBinder serverBinder) {
+                            if (serverBinder == null || ! serverBinder.pingBinder()) {
+                                System.err.println("Binder is not alive");
                                 System.exit(1);
                             } else {
                                 try {
-                                    JSONObject json = new JSONObject();
-                                    cmdInfo[] cmdInfos = IApp.Stub.asInterface(appBinder).getAllCmds();
+                                    CmdInfo[] cmdInfos = IService.Stub.asInterface(serverBinder).getAllCmds();
                                     JSONArray jsons = new JSONArray();
-                                    int i = 0;
-                                    for (cmdInfo cmdInfo : cmdInfos) {
+                                    for (CmdInfo cmdInfo : cmdInfos) {
                                         try {
                                             jsons.put(getJsonObject(cmdInfo));
                                         } catch (Exception ignored) {
                                         }
-                                        i++;
                                     }
-                                    json.put("cmdInfo", jsons);
-                                    System.out.println(json.toString(4));
+                                    System.out.println(jsons.toString(4));
                                 } catch (RemoteException e) {
                                     System.err.println("Unable to invoke getAllCmds()");
                                 } catch (JSONException ignored) {
@@ -104,7 +100,7 @@ public class Main {
         }
     }
 
-    private static JSONObject getJsonObject(cmdInfo cmdInfo) throws JSONException {
+    private static JSONObject getJsonObject(CmdInfo cmdInfo) throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", cmdInfo.id);
         jsonObject.put("name", cmdInfo.name);
@@ -140,7 +136,7 @@ public class Main {
     }
 
     interface BinderReceiver {
-        default void onBinderReceived(IBinder serverBinder, IBinder appBinder) {
+        default void onBinderReceived(IBinder serverBinder) {
         }
     }
 
@@ -153,9 +149,8 @@ public class Main {
                 @Override
                 protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
                     if (code == 1) {
-                        IBinder[] binders = new IBinder[2];
-                        data.readBinderArray(binders);
-                        handler.post(() -> binderReceiver.onBinderReceived(binders[1], binders[0]));
+                        IBinder binder = data.readStrongBinder();
+                        handler.post(() -> binderReceiver.onBinderReceived(binder));
                         return true;
                     } else if (code == 2) {
                         System.err.println("The user denied the request!");
