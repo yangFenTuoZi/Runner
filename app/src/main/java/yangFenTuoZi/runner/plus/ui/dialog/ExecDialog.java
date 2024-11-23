@@ -14,7 +14,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.adapters.ProcessAdapter;
-import yangFenTuoZi.runner.plus.server.Server;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 import yangFenTuoZi.runner.plus.R;
 
@@ -77,7 +76,7 @@ public class ExecDialog extends MaterialAlertDialogBuilder {
             h1 = new Thread(() -> {
                 try {
                     port = getUsablePort(8400);
-                    if (port == -1) h1.interrupt();
+                    if (port == -1) return;
                     h2 = new Thread(() -> {
                         try {
                             serverSocket = new ServerSocket(port);

@@ -1,7 +1,7 @@
 [versions]
-agp = "8.7.0"
-alibabaFastjson = "2.0.28"
+agp = "8.7.2"
 appcompat = "1.6.1"
+jcommander = "1.82"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 navigationFragment = "2.6.0"
@@ -13,7 +13,7 @@ annotationJvm = "1.9.0"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-com-alibaba-fastjson = { module = "com.alibaba:fastjson", version.ref = "alibabaFastjson" }
+jcommander = { module = "com.beust:jcommander", version.ref = "jcommander" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }

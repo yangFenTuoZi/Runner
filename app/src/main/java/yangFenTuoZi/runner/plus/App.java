@@ -1,12 +1,16 @@
 package yangFenTuoZi.runner.plus;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.material.color.DynamicColors;
 
+import rikka.core.util.ResourceUtils;
+import yangFenTuoZi.runner.plus.info.Info;
 import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
 import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
 import yangFenTuoZi.runner.plus.server.IService;
@@ -24,6 +28,8 @@ public class App extends Application {
     private static final List<OnServiceConnectListener> mConnectListeners;
     private static final List<OnServiceDisconnectListener> mDisconnectListeners;
     private static Timer timer, timer2;
+
+    public short isDark = -1;
 
     static {
         mConnectListeners = new ArrayList<>();
@@ -50,6 +56,16 @@ public class App extends Application {
                 }
             }
         }, 0L, 1000L);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(Info.APPLICATION_ID + "_preferences", 0);
+        String dark_theme = sharedPreferences.getString("dark_theme", "MODE_NIGHT_FOLLOW_SYSTEM");
+        isDark = switch (dark_theme) {
+            case "MODE_NIGHT_FOLLOW_SYSTEM" ->
+                    ResourceUtils.isNightMode(getResources().getConfiguration()) ? (short) 1 : (short) 0;
+            case "MODE_NIGHT_YES" -> 1;
+            default -> 0;
+        };
+        setTheme(isDark == 1 ? R.style.Theme : R.style.Theme_Light);
     }
 
     @Override
@@ -67,6 +83,7 @@ public class App extends Application {
 
     public static void onServerReceive(IBinder binder) {
         App.iService = IService.Stub.asInterface(binder);
+        Log.i("App", pingServer() ? "Server Connect" : "Server Disconnect");
         if (timer2 != null)
             timer2.cancel();
         if (timer != null)

@@ -160,4 +160,8 @@ public class Logger {
             file.createNewFile();
         fileWriter = new FileWriter(file, true);
     }
+
+    public static String getStackTraceString(Throwable tr) {
+        return Log.getStackTraceString(tr);
+    }
 }

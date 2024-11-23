@@ -29,6 +29,16 @@
           <theme>@style/Theme.Runner</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_about.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_add.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_choose_start_server.xml">
         <config>
           <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
@@ -54,6 +64,16 @@
           <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/empty_processes.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_authorization.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml">
         <config>
           <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
@@ -66,12 +86,17 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_settings.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_terminal.xml">
         <config>
           <theme>@style/Theme.Material3.DynamicColors.Light.Rikka</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/item_authorization.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/item_cmd.xml">
@@ -86,7 +111,12 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/menu/bottom_nav_menu.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/menu/menu_authorization.xml">
+        <config>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/menu/menu_home.xml">
@@ -96,7 +126,7 @@
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/navigation/mobile_navigation.xml">
         <config>
-          <theme>@style/Theme.Runner</theme>
+          <theme>@style/Theme.Material3.DynamicColors.DayNight</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml">
@@ -110,48 +140,77 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="改包名">
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/color/grant_permissions_button_ripple_color_selector.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/grant_permissions_buttons_bottom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/grant_permissions_buttons_top.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/FakeContext.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Workarounds.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+    <list default="true" id="97be271a-c13d-4714-8254-10b80d4c6fa5" name="更改" comment="提升targetSDK为35(编译后状态栏默认为沉浸状态，降低回34恢复正常，我暂时不知道是啥原因)&#10;cmd储存位置移动至server的data目录&#10;更改使用SQLite存储(目前有bug，无法在app内创建cmd)&#10;优化监听iService方法&#10;不再使用IApp.aidl获取App内cmd信息&#10;支持禁用Logger(由gradle.properties控制，编译好的apk更改yangFenTuoZi.runner.plus.info.Info内的ENABLE_LOGGER也可以控制)&#10;去除Server.java中的部分冗余代码&#10;cli权限申请弹窗完全更改为shizuku样式">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/google/android/material/appbar/SubtitleCollapsingToolbarLayout.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/google/android/material/internal/SubtitleCollapsingTextHelper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/BlurBehindDialogBuilder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/AuthorizationFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_apps_24dp.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_round.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_about.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_add.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/empty_processes.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_authorization.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_authorization.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/values-sw600dp/integer.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/values/attrs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/values/integer.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/values/theme.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/DatabaseHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/navEditor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/navEditor.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/proguard-rules.pro" beforeDir="false" afterPath="$PROJECT_DIR$/app/proguard-rules.pro" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ShizukuShellLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ShizukuShellLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/Utils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/CmdAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/CmdAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/ProcessAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/adapters/ProcessAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/receiver/OnServiceConnectListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/receiver/OnServiceConnectListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/receiver/OnServiceDisconnectListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/receiver/OnServiceDisconnectListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/BaseActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/BaseActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/MainActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/RequestBinderActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/RequestBinderActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/activity/RequestPermissionActivity.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/ExecDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/ExecDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/RequestPermissionDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/RequestPermissionDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/dialog/RequestPermissionDialog.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/BaseFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/BaseFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/HomeFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/ProcessesFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/ProcessesFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/SettingsFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/SettingsFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/TerminalFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/yangFenTuoZi/runner/plus/ui/fragment/TerminalFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/list_divider.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/list_divider.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_edit.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_edit.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_choose_start_server.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_choose_start_server.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_request_permission.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/item_cmd.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_cmd.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_processes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_processes.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/bottom_nav_menu.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/menu/bottom_nav_menu.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/menu_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_home.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/navigation/mobile_navigation.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/navigation/mobile_navigation.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-zh-rCN/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/preference_setting.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/info/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/info/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/proguard-rules.pro" beforeDir="false" afterPath="$PROJECT_DIR$/info/proguard-rules.pro" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/server/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/cli/IApp.aidl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/cli/cmdInfo.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/cli/cmdInfo.aidl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/proguard-rules.pro" beforeDir="false" afterPath="$PROJECT_DIR$/server/proguard-rules.pro" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/server/IService.aidl" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/aidl/yangFenTuoZi/runner/plus/server/IService.aidl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/cmdInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/cli/cmdInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/FakeContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/FakeContext.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Logger.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Logger.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/src/main/java/yangFenTuoZi/runner/plus/tools/invokeCli.java" beforeDir="false" afterPath="$PROJECT_DIR$/tools/src/main/java/yangFenTuoZi/runner/plus/tools/invokeCli.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Workarounds.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/yangFenTuoZi/runner/plus/server/Workarounds.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/tools/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/proguard-rules.pro" beforeDir="false" afterPath="$PROJECT_DIR$/tools/proguard-rules.pro" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -161,7 +220,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=1eb91cb8)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=Default, isTemplate=false, identifier=serial=192.168.1.2:5555;connection=e44a89f4)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -214,12 +273,15 @@
         <option value="valueResourceFile" />
         <option value="Kotlin Class" />
         <option value="Interface" />
+        <option value="resourceFile" />
+        <option value="layoutResourceFile_vertical" />
         <option value="Class" />
+        <option value="layoutResourceFile" />
       </list>
     </option>
   </component>
   <component name="GenerateSignedApkSettings">
-    <option name="KEY_STORE_PATH" value="C:\Users\zeyu\AndroidStudioProjects\RunnerDeveloper.jks" />
+    <option name="KEY_STORE_PATH" value="C:\Users\Administrator\AndroidStudioProjects\RunnerDeveloper.jks" />
     <option name="KEY_ALIAS" value="RunnerDeveloper" />
     <option name="REMEMBER_PASSWORDS" value="true" />
     <option name="BUILD_TARGET_KEY" value="apk" />
@@ -258,69 +320,72 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.getAppPath.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.libtermexec.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.server.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.term.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.tools.executor&quot;: &quot;Run&quot;,
-    &quot;ApkExportedModule&quot;: &quot;Runner.app&quot;,
-    &quot;ExportApk.ApkPathForRunner.app&quot;: &quot;C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\app&quot;,
-    &quot;ExportApk.ApkPathForRunner.getAppPath&quot;: &quot;C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\getAppPath&quot;,
-    &quot;Gradle.Runner [copyDexToAssets].executor&quot;: &quot;Run&quot;,
-    &quot;Notification.DisplayName-DoNotAsk-Execution&quot;: &quot;外部进程执行失败&quot;,
-    &quot;Notification.DoNotAsk-Execution&quot;: &quot;true&quot;,
-    &quot;ResourceManagerPrefKey.ResourceType&quot;: &quot;DRAWABLE&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_directory_selection&quot;: &quot;C:/Users/Administrator/AndroidStudioProjects/Runner/app/src/main/res/drawable&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Administrator/AndroidStudioProjects/Runner/server/src/main/aidl/yangFenTuoZi/runner&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android App.app.executor": "Run",
+    "Android App.getAppPath.executor": "Run",
+    "Android App.libtermexec.executor": "Run",
+    "Android App.server.executor": "Run",
+    "Android App.term.executor": "Run",
+    "Android App.tools.executor": "Run",
+    "ApkExportedModule": "Runner.app",
+    "ExportApk.ApkPathForRunner.app": "C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\app",
+    "ExportApk.ApkPathForRunner.getAppPath": "C:\\Users\\Administrator\\AndroidStudioProjects\\Runner\\getAppPath",
+    "Gradle.Runner [copyDexToAssets].executor": "Run",
+    "Notification.DisplayName-DoNotAsk-Execution": "外部进程执行失败",
+    "Notification.DoNotAsk-Execution": "true",
+    "ResourceManagerPrefKey.ResourceType": "DRAWABLE",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.advertisement.text.has.clang-format": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "deletionFromPopupRequiresConfirmation": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_directory_selection": "C:/Users/Administrator/AndroidStudioProjects/Runner/app/src/main/res/values",
+    "last_opened_file_path": "C:/Users/Administrator/AndroidStudioProjects/Runner/app/src/main/res/values-w600dp",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.settings.project.statistic.project.settings"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;ExportApk.BuildVariants&quot;: [
-      &quot;debug&quot;
+  "keyToStringList": {
+    "ExportApk.BuildVariants": [
+      "release"
     ],
-    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
-      &quot;GitIgnore&quot;
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "GitIgnore"
     ]
   }
-}</component>
+}]]></component>
   <component name="PsdUISettings">
     <option name="MODULES_LIST_MINIMIZE" value="true" />
     <option name="MODULE_TAB" value="Signing Configs" />
     <option name="LAST_EDITED_SIGNING_CONFIG" value="debug" />
   </component>
   <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="rikka.material.preference" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\res\values-w600dp" />
+      <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\res\values" />
+      <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\java" />
       <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\res\menu" />
       <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\aidl" />
-      <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\res\drawable" />
-      <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\java\com\shizuku\runner\plus" />
-      <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\java\com\shizuku\runner\plus\ui" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\res\values-sw600dp" />
       <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\server\src\main\aidl\yangFenTuoZi\runner" />
       <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\server\src\main\aidl\com\shizuku\runner\plus\cli" />
       <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\aidl\com\shizuku\runner\plus" />
       <recent name="C:\Users\Administrator\AndroidStudioProjects\Runner\app\src\main\aidl\com\shizuku\runner\plus\server" />
-      <recent name="C:\Users\zeyu\AndroidStudioProjects\Runner\app\src\main\res\drawable" />
     </key>
     <key name="android.template.-49260667">
       <recent name="com.shizuku.runner.plus" />
@@ -637,7 +702,15 @@
       <option name="project" value="LOCAL" />
       <updated>1729313239648</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="提升targetSDK为35(编译后状态栏默认为沉浸状态，降低回34恢复正常，我暂时不知道是啥原因)&#10;cmd储存位置移动至server的data目录&#10;更改使用SQLite存储(目前有bug，无法在app内创建cmd)&#10;优化监听iService方法&#10;不再使用IApp.aidl获取App内cmd信息&#10;支持禁用Logger(由gradle.properties控制，编译好的apk更改yangFenTuoZi.runner.plus.info.Info内的ENABLE_LOGGER也可以控制)&#10;去除Server.java中的部分冗余代码&#10;cli权限申请弹窗完全更改为shizuku样式">
+      <option name="closed" value="true" />
+      <created>1731142410070</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1731142410070</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -672,6 +745,7 @@
     <MESSAGE value="cli实现list命令&#10;支持app内置激活&#10;改进判断server连接状态方法&#10;Application内实时监听服务socket端口" />
     <MESSAGE value="换行符改为LF" />
     <MESSAGE value="改包名" />
-    <option name="LAST_COMMIT_MESSAGE" value="改包名" />
+    <MESSAGE value="提升targetSDK为35(编译后状态栏默认为沉浸状态，降低回34恢复正常，我暂时不知道是啥原因)&#10;cmd储存位置移动至server的data目录&#10;更改使用SQLite存储(目前有bug，无法在app内创建cmd)&#10;优化监听iService方法&#10;不再使用IApp.aidl获取App内cmd信息&#10;支持禁用Logger(由gradle.properties控制，编译好的apk更改yangFenTuoZi.runner.plus.info.Info内的ENABLE_LOGGER也可以控制)&#10;去除Server.java中的部分冗余代码&#10;cli权限申请弹窗完全更改为shizuku样式" />
+    <option name="LAST_COMMIT_MESSAGE" value="提升targetSDK为35(编译后状态栏默认为沉浸状态，降低回34恢复正常，我暂时不知道是啥原因)&#10;cmd储存位置移动至server的data目录&#10;更改使用SQLite存储(目前有bug，无法在app内创建cmd)&#10;优化监听iService方法&#10;不再使用IApp.aidl获取App内cmd信息&#10;支持禁用Logger(由gradle.properties控制，编译好的apk更改yangFenTuoZi.runner.plus.info.Info内的ENABLE_LOGGER也可以控制)&#10;去除Server.java中的部分冗余代码&#10;cli权限申请弹窗完全更改为shizuku样式" />
   </component>
 </project>

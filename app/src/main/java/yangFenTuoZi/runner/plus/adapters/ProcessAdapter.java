@@ -4,19 +4,23 @@ import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.server.IService;
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 import yangFenTuoZi.runner.plus.ui.fragment.ProcessesFragment;
 
-public class ProcessAdapter extends BaseAdapter {
+public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ViewHolder> {
     private final int[] data;
     private final String[] data_name;
     private final MainActivity mContext;
@@ -32,18 +36,52 @@ public class ProcessAdapter extends BaseAdapter {
     }
 
     //获取长度
-    public int getCount() {
+    @Override
+    public int getItemCount() {
+        int i = getRealItemCount();
+        return i == 0 ? 1 : i;
+    }
+
+    public int getRealItemCount() {
         int i = 0;
         for (int x : data)
             if (x != 0) i++;
-        mContext.findViewById(R.id.proc_mask).setVisibility(i == 0 ? View.VISIBLE : View.GONE);
         return i;
     }
 
-    //固定的写法
+    public boolean isEmpty() {
+        return getRealItemCount() == 0;
+    }
+
+    @NonNull
     @Override
-    public Object getItem(int position) {
-        return null;
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view;
+        boolean emptyPage = isEmpty();
+        if (emptyPage) {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.empty_processes, parent, false);
+            view.getRootView().setOnClickListener(v -> {
+                SwipeRefreshLayout refreshLayout = processesFragment.getBinding().swipeRefreshLayout;
+                if (!refreshLayout.isRefreshing()) {
+                    refreshLayout.setRefreshing(true);
+                    processesFragment.onRefreshListener.onRefresh();
+                }
+            });
+        } else {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_process, parent, false);
+        }
+        ViewHolder holder = new ViewHolder(view, emptyPage);
+        view.setTag(holder);
+        view.setOnKeyListener((v, i, keyEvent) -> false);
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        if (!isEmpty())
+            init(holder, data[position], data_name[position]);
     }
 
     //固定的写法
@@ -53,31 +91,36 @@ public class ProcessAdapter extends BaseAdapter {
     }
 
     //此函数定义每一个item的显示
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-        if (convertView == null) {
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_process, null);
-            holder = new ViewHolder();
-            holder.text_name = convertView.findViewById(R.id.item_proc_name);
-            holder.text_pid = convertView.findViewById(R.id.item_proc_pid);
-            holder.button_kill = convertView.findViewById(R.id.item_proc_kill);
-            convertView.setTag(holder);
-            convertView.setOnKeyListener((view, i, keyEvent) -> false);
-        } else {
+//    public View getView(int position, View convertView, ViewGroup parent) {
+//        ViewHolder holder;
+//        if (convertView == null) {
+//            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_process, null);
+//            holder = new ViewHolder();
+//            convertView.setTag(holder);
+//            convertView.setOnKeyListener((view, i, keyEvent) -> false);
+//        } else {
+//
+//            //对于已经加载过的item就直接使用，不需要再次加载了，这就是ViewHolder的作用
+//            holder = (ViewHolder) convertView.getTag();
+//        }
+//
+//        //获得用户对于这个格子的设置
+//        init(holder, data[position], data_name[position]);
+//        return convertView;
+//    }
 
-            //对于已经加载过的item就直接使用，不需要再次加载了，这就是ViewHolder的作用
-            holder = (ViewHolder) convertView.getTag();
-        }
-
-        //获得用户对于这个格子的设置
-        init(holder, data[position], data_name[position]);
-        return convertView;
-    }
-
-    static class ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView text_name;
         TextView text_pid;
         MaterialButton button_kill;
+
+        public ViewHolder(View view, boolean emptyPage) {
+            super(view);
+            if (emptyPage) return;
+            text_name = view.findViewById(R.id.item_proc_name);
+            text_pid = view.findViewById(R.id.item_proc_pid);
+            button_kill = view.findViewById(R.id.item_proc_kill);
+        }
     }
 
     //判断进程是否噶了
@@ -116,7 +159,8 @@ public class ProcessAdapter extends BaseAdapter {
                 IService iService = App.iService;
                 StringBuilder cmd = new StringBuilder();
                 for (int pid : PIDs) {
-                    cmd.append("kill -9 ").append(pid).append("\n");
+                    if (pid != 0)
+                        cmd.append("kill -9 ").append(pid).append("\n");
                 }
                 iService.exec(cmd.toString());
             } catch (RemoteException e) {

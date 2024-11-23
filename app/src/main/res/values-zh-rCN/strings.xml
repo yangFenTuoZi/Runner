@@ -3,6 +3,7 @@
     <string name="title_home">主页</string>
     <string name="title_terminal">终端</string>
     <string name="title_processes">进程</string>
+    <string name="title_authorization">授权</string>
     <string name="title_settings">设置</string>
 
     <string name="dialog_edit">编辑</string>
@@ -27,7 +28,7 @@
     <string name="home_shizuku_has_been_authorized">已授权</string>
     <string name="home_shizuku_is_not_authorized">未授权</string>
 
-    <string name="home_service_is_running">服务运行中</string>
+    <string name="home_service_version">服务版本: %s (%d)</string>
     <string name="home_service_is_not_running">服务没有运行</string>
 
     <string name="home_copy_command">已复制到剪切板:</string>
@@ -98,4 +99,7 @@
     <string name="choose_start_server">选择启动方式</string>
     <string name="start">启动</string>
     <string name="exec_start_server_command">使用Root/Shell/ADB用户执行</string>
+    <string name="about_view_source_code"><![CDATA[在 %1$s 查看源码]]></string>
+
+    <string name="menu_add">添加</string>
 </resources>

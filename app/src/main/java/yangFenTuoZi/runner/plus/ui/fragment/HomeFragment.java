@@ -3,62 +3,64 @@ package yangFenTuoZi.runner.plus.ui.fragment;
 import static yangFenTuoZi.runner.plus.ui.activity.MainActivity.sendSomethingToServerBySocket;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
-import android.util.Log;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.text.HtmlCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 
+import rikka.material.app.LocaleDelegate;
 import yangFenTuoZi.runner.plus.App;
+import yangFenTuoZi.runner.plus.BuildConfig;
 import yangFenTuoZi.runner.plus.adapters.CmdAdapter;
 import yangFenTuoZi.runner.plus.cli.CmdInfo;
+import yangFenTuoZi.runner.plus.databinding.DialogAboutBinding;
+import yangFenTuoZi.runner.plus.databinding.DialogChooseStartServerBinding;
 import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
 import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
-import yangFenTuoZi.runner.plus.server.IService;
-import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 import yangFenTuoZi.runner.plus.ui.activity.PackActivity;
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.databinding.FragmentHomeBinding;
+import yangFenTuoZi.runner.plus.ui.dialog.BlurBehindDialogBuilder;
 import yangFenTuoZi.runner.plus.ui.dialog.StartServerDialog;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import rikka.core.util.ResourceUtils;
 
 public class HomeFragment extends BaseFragment {
     private FragmentHomeBinding binding;
-    private OnServiceConnectListener onServiceConnectListener = new OnServiceConnectListener() {
-        @Override
-        public void onServiceConnect(IService iService) {
-            requireActivity().runOnUiThread(() -> initList());
+    private final OnServiceConnectListener onServiceConnectListener = iService -> runOnUiThread(() -> {
+        initList();
+        try {
+            String[] ver = iService.version();
+            binding.toolbarLayout.setSubtitle(getString(R.string.home_service_version, ver[0], Integer.parseInt(ver[1])));
+        } catch (Exception ignored) {
         }
-    };
-    private OnServiceDisconnectListener onServiceDisconnectListener = new OnServiceDisconnectListener() {
-        @Override
-        public void onServiceDisconnect() {
-            requireActivity().runOnUiThread(() -> listView.setAdapter(null));
-        }
-    };
-    public ListView listView;
+    });
+    private final OnServiceDisconnectListener onServiceDisconnectListener = () -> runOnUiThread(() -> {
+        binding.recyclerView.setAdapter(null);
+        binding.toolbarLayout.setSubtitle(getString(R.string.home_service_is_not_running));
+    });
 
     public FragmentHomeBinding getBinding() {
         return binding;
@@ -66,28 +68,35 @@ public class HomeFragment extends BaseFragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        App.addOnServiceConnectListener(onServiceConnectListener);
-        App.addOnServiceDisconnectListener(onServiceDisconnectListener);
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        listView = binding.list;
-        ((MainActivity) requireContext()).setHomeFragment(this);
-        setupToolbar(binding.toolbar, null, R.string.app_name, R.menu.menu_home);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> new Handler().postDelayed(() -> {
+            initList();
+            binding.swipeRefreshLayout.setRefreshing(false);
+        },1000));
+
+        setupToolbar(binding.toolbar, binding.clickView, R.string.app_name, R.menu.menu_home);
+        binding.toolbar.setNavigationIcon(null);
+        binding.toolbar.setOnClickListener(v -> showAbout());
+        binding.clickView.setOnClickListener(v -> showAbout());
+        binding.appBar.setLiftable(true);
         binding.toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.menu_start_server) {
                 AtomicInteger a = new AtomicInteger();
-                @SuppressLint("WrongConstant") AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
+                DialogChooseStartServerBinding startServerBinding = DialogChooseStartServerBinding.inflate(LayoutInflater.from(mContext));
+                new MaterialAlertDialogBuilder(mContext)
                         .setTitle(R.string.choose_start_server)
-                        .setView(R.layout.dialog_choose_start_server)
+                        .setView(startServerBinding.getRoot())
                         .setNegativeButton(R.string.start, (dialog, which) -> {
                             if (a.get() == 2) {
-                                String command = "sh " + requireActivity().getExternalFilesDir("") + "/server_starter.sh";
-                                AlertDialog alertDialog1 = new MaterialAlertDialogBuilder(requireContext())
+                                String command = "sh " + mContext.getExternalFilesDir("") + "/server_starter.sh";
+                                @SuppressLint("WrongConstant") AlertDialog alertDialog1 = new MaterialAlertDialogBuilder(mContext)
                                         .setTitle(R.string.exec_start_server_command)
                                         .setMessage(command)
                                         .setNegativeButton(R.string.long_click_copy_command, (dialog1, which1) -> {
-                                            ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
-                                            Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
+                                            ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
+                                            Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
                                         })
                                         .show();
                                 try {
@@ -101,30 +110,30 @@ public class HomeFragment extends BaseFragment {
                                 } catch (Exception ignored) {
                                 }
                             } else
-                                new StartServerDialog(requireActivity(), a.get()).show();
+                                new StartServerDialog(mContext, a.get()).show();
                         })
                         .show();
-                alertDialog.findViewById(R.id.root).setOnClickListener(v -> {
+                startServerBinding.root.setOnClickListener(v -> {
                     if (((MaterialRadioButton) v).isChecked())
                         a.set(0);
                 });
-                alertDialog.findViewById(R.id.shizuku).setOnClickListener(v -> {
+                startServerBinding.shizuku.setOnClickListener(v -> {
                     if (((MaterialRadioButton) v).isChecked())
                         a.set(1);
                 });
-                alertDialog.findViewById(R.id.adb).setOnClickListener(v -> {
+                startServerBinding.adb.setOnClickListener(v -> {
                     if (((MaterialRadioButton) v).isChecked())
                         a.set(2);
                 });
             } else if (item.getItemId() == R.id.menu_stop_server) {
-                new MaterialAlertDialogBuilder(requireContext())
+                new MaterialAlertDialogBuilder(mContext)
                         .setTitle(R.string.warning)
                         .setMessage(R.string.confirm_stop_server)
                         .setNegativeButton(R.string.yes, (dialog, which) -> new Thread(() -> {
                             try {
                                 sendSomethingToServerBySocket("stopServer");
                             } catch (Exception e) {
-                                requireActivity().runOnUiThread(() -> new MaterialAlertDialogBuilder(requireContext())
+                                runOnUiThread(() -> new MaterialAlertDialogBuilder(mContext)
                                         .setTitle(R.string.error)
                                         .setMessage(getString(R.string.can_not_stop_server) + "\n" + e.getMessage())
                                         .show());
@@ -135,13 +144,20 @@ public class HomeFragment extends BaseFragment {
             }
             return true;
         });
+
+        App.addOnServiceConnectListener(onServiceConnectListener);
+        App.addOnServiceDisconnectListener(onServiceDisconnectListener);
+        if (App.pingServer())
+            onServiceConnectListener.onServiceConnect(App.iService);
+        else
+            onServiceDisconnectListener.onServiceDisconnect();
         return root;
     }
 
     //初始化列表
     public void initList() {
         if (!App.pingServer()) {
-            Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
             return;
         }
         try {
@@ -154,9 +170,8 @@ public class HomeFragment extends BaseFragment {
                     max = cmdInfos[i].id;
             }
             data[cmdInfos.length] = max + 1;
-            Log.d("dsfdsfdsfds", Arrays.toString(data));
-            listView.setAdapter(new CmdAdapter(requireContext(), data, this, cmdInfos));
-        } catch (RemoteException ignored) {
+            binding.recyclerView.setAdapter(new CmdAdapter(mContext, data, this, cmdInfos));
+        } catch (Exception ignored) {
         }
     }
 
@@ -172,21 +187,17 @@ public class HomeFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
 
-        MainActivity mainActivity = (MainActivity) requireActivity();
-        mainActivity.isHome = true;
-        if (mainActivity.serviceState) {
-            binding.toolbar.setSubtitle(R.string.home_service_is_running);
+        if (App.pingServer()) {
+            try {
+                String[] ver = App.iService.version();
+                binding.toolbar.setSubtitle(getString(R.string.home_service_version, ver[0], Integer.parseInt(ver[1])));
+            } catch (Exception ignored) {
+            }
         } else {
-            binding.toolbar.setSubtitle(R.string.home_service_is_not_running);
+            binding.toolbar.setSubtitle(getString(R.string.home_service_is_not_running));
         }
         if (App.pingServer())
             initList();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        ((MainActivity) requireActivity()).isHome = false;
     }
 
     //菜单选择事件
@@ -196,25 +207,25 @@ public class HomeFragment extends BaseFragment {
         switch (item.getItemId()) {
             case CmdAdapter.long_click_copy_name:
                 if (!App.pingServer()) {
-                    Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
                     return super.onContextItemSelected(item);
                 }
                 try {
                     String name = App.iService.getCmdByID(item.getGroupId()).name;
-                    ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", name));
-                    Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show();
+                    ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", name));
+                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show();
                 } catch (RemoteException ignored) {
                 }
                 return true;
             case CmdAdapter.long_click_copy_command:
                 if (!App.pingServer()) {
-                    Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
                     return super.onContextItemSelected(item);
                 }
                 try {
                     String command = App.iService.getCmdByID(item.getGroupId()).command;
-                    ((ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
-                    Toast.makeText(requireContext(), requireContext().getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
+                    ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
+                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
                 } catch (RemoteException ignored) {
                 }
                 return true;
@@ -224,22 +235,42 @@ public class HomeFragment extends BaseFragment {
             case CmdAdapter.long_click_pack:
                 Intent intent = new Intent(getContext(), PackActivity.class);
                 intent.putExtra("id", item.getGroupId());
-                requireContext().startActivity(intent);
+                startActivity(intent);
                 return true;
             case CmdAdapter.long_click_del:
                 if (!App.pingServer()) {
-                    Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
                     return super.onContextItemSelected(item);
                 }
                 try {
                     App.iService.delete(item.getGroupId());
                 } catch (RemoteException ignored) {
                 }
-                listView.setAdapter(null);
+                binding.recyclerView.setAdapter(null);
                 initList();
                 return true;
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    public static class AboutDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+            DialogAboutBinding binding = DialogAboutBinding.inflate(getLayoutInflater(), null, false);
+            binding.designAboutTitle.setText(R.string.app_name);
+            binding.designAboutInfo.setMovementMethod(LinkMovementMethod.getInstance());
+            binding.designAboutInfo.setText(HtmlCompat.fromHtml(getString(
+                    R.string.about_view_source_code,
+                    "<b><a href=\"https://github.com/yangFenTuoZi/Runner\">GitHub</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
+            binding.designAboutVersion.setText(String.format(LocaleDelegate.getDefaultLocale(), "%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
+            return new BlurBehindDialogBuilder(requireContext())
+                    .setView(binding.getRoot()).create();
+        }
+    }
+
+    private void showAbout() {
+        new AboutDialog().show(getChildFragmentManager(), "about");
     }
 }

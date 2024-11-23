@@ -3,12 +3,15 @@ package yangFenTuoZi.runner.plus.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.RemoteException;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.BaseAdapter;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -27,13 +30,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.Objects;
 
 
-public class CmdAdapter extends BaseAdapter {
+public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
     private final int[] data;
     private final CmdInfo[] cmdInfos;
-    private final Context mContext;
+    private final MainActivity mContext;
     private final HomeFragment home;
     public final static int long_click_copy_name = 0;
     public final static int long_click_copy_command = 1;
@@ -41,7 +47,7 @@ public class CmdAdapter extends BaseAdapter {
     public final static int long_click_pack = 3;
     public final static int long_click_del = 4;
 
-    public CmdAdapter(Context mContext, int[] data, HomeFragment home, CmdInfo[] cmdInfos) {
+    public CmdAdapter(MainActivity mContext, int[] data, HomeFragment home, CmdInfo[] cmdInfos) {
 
         //设置adapter需要接收两个参数：上下文、int数组
         super();
@@ -51,44 +57,19 @@ public class CmdAdapter extends BaseAdapter {
         this.home = home;
     }
 
-    //固定的写法
-    public int getCount() {
-        return data.length;
-    }
-
-    //固定的写法
+    @NonNull
     @Override
-    public Object getItem(int position) {
-        return null;
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_cmd, parent, false);
+        ViewHolder holder = new ViewHolder(view);
+        view.setTag(holder);
+        view.setOnKeyListener((v, i, keyEvent) -> false);
+        return new ViewHolder(view);
     }
 
-    //固定的写法
     @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    //此函数定义每一个item的显示
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-        if (convertView == null) {
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_cmd, null);
-            holder = new ViewHolder();
-            holder.text_name = convertView.findViewById(R.id.item_name);
-            holder.text_command = convertView.findViewById(R.id.item_command);
-            holder.list_run = convertView.findViewById(R.id.list_run);
-            holder.list_add = convertView.findViewById(R.id.list_add);
-            holder.item_button = convertView.findViewById(R.id.item_button);
-            holder.layout = convertView.findViewById(R.id.item_root);
-            convertView.setTag(holder);
-            convertView.setOnKeyListener((view, i, keyEvent) -> false);
-        } else {
-
-            //对于已经加载过的item就直接使用，不需要再次加载了，这就是ViewHolder的作用
-            holder = (ViewHolder) convertView.getTag();
-        }
-
-        //获得用户对于这个格子的设置
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (position < cmdInfos.length)
             init(holder, cmdInfos[position], data[position]);
         else {
@@ -96,7 +77,11 @@ public class CmdAdapter extends BaseAdapter {
             info.id = data[position];
             init(holder, info, data[position]);
         }
-        return convertView;
+    }
+
+    @Override
+    public int getItemCount() {
+        return data.length;
     }
 
     //判断是否为空
@@ -106,13 +91,23 @@ public class CmdAdapter extends BaseAdapter {
         return new boolean[]{exist_c && exist_n, exist_n, exist_c};
     }
 
-    static class ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView text_name;
         TextView text_command;
         LinearLayout list_run;
         LinearLayout list_add;
         MaterialButton item_button;
         MaterialCardView layout;
+
+        public ViewHolder(@NonNull View view) {
+            super(view);
+            text_name = view.findViewById(R.id.item_name);
+            text_command = view.findViewById(R.id.item_command);
+            list_run = view.findViewById(R.id.list_run);
+            list_add = view.findViewById(R.id.list_add);
+            item_button = view.findViewById(R.id.item_button);
+            layout = view.findViewById(R.id.item_root);
+        }
     }
 
     void init(ViewHolder holder, CmdInfo info, int id) {
@@ -121,7 +116,7 @@ public class CmdAdapter extends BaseAdapter {
 
         //这个点击事件是点击编辑命令
         @SuppressLint("WrongConstant") View.OnClickListener voc = view -> {
-            if (((MainActivity) mContext).isDialogShow)
+            if (mContext.isDialogShow)
                 return;
             View v = View.inflate(mContext, R.layout.dialog_edit, null);
             final MaterialSwitch chid = v.findViewById(R.id.dialog_chid);
@@ -141,7 +136,7 @@ public class CmdAdapter extends BaseAdapter {
             ids.setText(info.ids);
             name.requestFocus();
             name.postDelayed(() -> ((InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(name, 0), 200);
-            ((MainActivity) mContext).isDialogShow = true;
+            mContext.isDialogShow = true;
             new MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.dialog_edit)).setView(v).setPositiveButton(mContext.getString(R.string.dialog_finish), (dialog, which) -> {
                 if (!App.pingServer()) {
                     Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
@@ -164,9 +159,9 @@ public class CmdAdapter extends BaseAdapter {
                     } catch (RemoteException ignored) {
                     }
                 }
-                home.listView.setAdapter(null);
+                home.getBinding().recyclerView.setAdapter(null);
                 home.initList();
-            }).setOnDismissListener(dialog -> ((MainActivity) mContext).isDialogShow = false).show();
+            }).setOnDismissListener(dialog -> mContext.isDialogShow = false).show();
         };
 
         //如果用户还没设置命令内容，则显示加号，否则显示运行符号
@@ -175,7 +170,7 @@ public class CmdAdapter extends BaseAdapter {
 
         //如果用户还没设置命令内容，则点击时将编辑命令，否则点击将运行命令
         holder.item_button.setOnClickListener(view -> {
-            if (((MainActivity) mContext).isDialogShow)
+            if (mContext.isDialogShow)
                 return;
 
             if (App.pingServer()) {
@@ -190,8 +185,8 @@ public class CmdAdapter extends BaseAdapter {
                         intent.putExtra("chid", true)
                                 .putExtra("ids", cmdInfo.ids);
                     }
-                    ((MainActivity) mContext).isDialogShow = true;
-                    new ExecDialog((MainActivity) mContext, intent).show();
+                    mContext.isDialogShow = true;
+                    new ExecDialog(mContext, intent).show();
                 } catch (RemoteException ignored) {
                 }
             } else
@@ -201,18 +196,23 @@ public class CmdAdapter extends BaseAdapter {
         //点击编辑
         holder.layout.setOnClickListener(voc);
 
-        holder.text_name.setText(empty[1] ? "" : info.name);
-        holder.text_command.setText(empty[2] ? "" : info.command);
+        holder.text_name.setText(empty[1] ? getItalicText("__NAME__") : info.name);
+        holder.text_command.setText(empty[2] ? getItalicText("__COMMAND__") : info.command);
 
         //如果不为空则设置长按菜单
         if (!isEmpty(info)[0])
             holder.layout.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
-                menu.setHeaderTitle("选择操作");
                 menu.add(id, long_click_copy_name, 0, mContext.getString(R.string.long_click_copy_name));
                 menu.add(id, long_click_copy_command, 0, mContext.getString(R.string.long_click_copy_command));
                 menu.add(id, long_click_new, 0, mContext.getString(R.string.long_click_new));
                 menu.add(id, long_click_pack, 0, mContext.getString(R.string.long_click_pack));
                 menu.add(id, long_click_del, 0, mContext.getString(R.string.long_click_del));
             });
+    }
+
+    public CharSequence getItalicText(String text) {
+        SpannableStringBuilder builder = new SpannableStringBuilder(text);
+        builder.setSpan(new StyleSpan(Typeface.ITALIC), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return builder;
     }
 }

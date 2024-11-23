@@ -24,6 +24,12 @@
         tools:layout="@layout/fragment_processes" />
 
     <fragment
+        android:id="@+id/navigation_authorization"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.AuthorizationFragment"
+        android:label="@string/title_authorization"
+        tools:layout="@layout/fragment_authorization" />
+
+    <fragment
         android:id="@+id/navigation_settings"
         android:name="yangFenTuoZi.runner.plus.ui.fragment.SettingsFragment"
         android:label="@string/title_settings"

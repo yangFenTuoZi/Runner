@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="App">
 
         <rikka.preference.SimpleMenuPreference
@@ -57,7 +56,7 @@
             <intent
                 android:action="android.intent.action.MAIN"
                 android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
-                android:targetPackage="com.shizuku.runner.plus">
+                android:targetPackage="yangFenTuoZi.runner.plus">
 
                 <extra
                     android:name="exec"
@@ -75,7 +74,7 @@
             <intent
                 android:action="android.intent.action.MAIN"
                 android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
-                android:targetPackage="com.shizuku.runner.plus">
+                android:targetPackage="yangFenTuoZi.runner.plus">
 
                 <extra
                     android:name="exec"

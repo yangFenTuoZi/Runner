@@ -6,13 +6,9 @@ import androidx.annotation.NonNull;
 import android.content.AttributionSource;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Process;
 import android.system.Os;
-
-import java.io.File;
 
 public final class FakeContext extends ContextWrapper {
     public static String PACKAGE_NAME = Os.getuid() == 0 ? "root" : "com.android.shell";

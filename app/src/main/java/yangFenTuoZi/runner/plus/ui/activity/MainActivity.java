@@ -1,31 +1,21 @@
 package yangFenTuoZi.runner.plus.ui.activity;
 
 import android.content.res.AssetManager;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.TypedValue;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import yangFenTuoZi.runner.plus.App;
 
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.databinding.ActivityMainBinding;
-import yangFenTuoZi.runner.plus.databinding.FragmentHomeBinding;
 import yangFenTuoZi.runner.plus.info.Info;
-import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
-import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
-import yangFenTuoZi.runner.plus.server.IService;
 import yangFenTuoZi.runner.plus.server.Server;
 import yangFenTuoZi.runner.plus.tools.getAppPath;
 import yangFenTuoZi.runner.plus.tools.invokeCli;
-import yangFenTuoZi.runner.plus.ui.fragment.HomeFragment;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -40,46 +30,14 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
-import rikka.core.util.ResourceUtils;
-
 
 public class MainActivity extends BaseActivity {
 
-    private Toolbar toolbar;
-    private int m;
-    private Thread t;
-    public boolean isHome;
     public boolean isDialogShow = false;
-    public boolean serviceState = false;
-    public App app;
-    private final OnServiceConnectListener onServiceConnectListener = new OnServiceConnectListener() {
-        @Override
-        public void onServiceConnect(IService iService) {
-            serviceState = true;
-            if (isHome)
-                runOnUiThread(() -> toolbar.setSubtitle(R.string.home_service_is_running));
-        }
-    };
-    private final OnServiceDisconnectListener onServiceDisconnectListener = new OnServiceDisconnectListener() {
-        @Override
-        public void onServiceDisconnect() {
-            serviceState = false;
-            if (isHome)
-                runOnUiThread(() -> toolbar.setSubtitle(R.string.home_service_is_not_running));
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        app = (App) getApplication();
-        App.addOnServiceConnectListener(onServiceConnectListener);
-        App.addOnServiceDisconnectListener(onServiceDisconnectListener);
-        if (App.pingServer())
-            onServiceConnectListener.onServiceConnect(App.iService);
-        else
-            onServiceDisconnectListener.onServiceDisconnect();
 
         AssetManager assetManager = getAssets();
         InputStream tools;
@@ -91,9 +49,7 @@ public class MainActivity extends BaseActivity {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("警告!")
                     .setMessage("请先构建一次 tools 模块\n构建过一次后再构建 app !")
-                    .setNegativeButton("退出", (dialog, which) -> {
-                        finish();
-                    })
+                    .setNegativeButton("退出", (dialog, which) -> finish())
                     .setCancelable(false)
                     .show();
         }
@@ -184,7 +140,7 @@ public class MainActivity extends BaseActivity {
                         exit 1
                     fi
                     
-                    if [ $(getprop ro.build.version.sdk) -ge 34 ]; then
+                    if [ $(get prop ro.build.version.sdk) -ge 34 ]; then
                       if [ -w $DEX ]; then
                         echo "On Android 14+, app_process cannot load writable dex."
                         echo "Attempting to remove the write permission..."
@@ -218,22 +174,6 @@ public class MainActivity extends BaseActivity {
         Fragment fragment = Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main));
         NavController navController = ((NavHostFragment) fragment).getNavController();
         NavigationUI.setupWithNavController(binding.navView, navController);
-
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
-        int color;
-        if (ResourceUtils.isNightMode(getResources().getConfiguration())) {
-            color = ColorUtils.blendARGB(typedValue.data, Color.BLACK, 0.8f);
-        } else {
-            color = ColorUtils.blendARGB(typedValue.data, Color.WHITE, 0.9f);
-        }
-        binding.navView.setBackgroundColor(color);
-        getWindow().setNavigationBarColor(color);
-    }
-
-    public void setHomeFragment(HomeFragment homeFragment) {
-        FragmentHomeBinding homeBinding = homeFragment.getBinding();
-        toolbar = homeBinding.toolbar;
     }
 
     public static void sendSomethingToServerBySocket(String msg) throws IOException {
@@ -247,17 +187,11 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onStop() {
-        if (t != null) {
-            t.interrupt();
-            t = null;
-        }
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
-        App.removeOnServiceConnectListener(onServiceConnectListener);
-        App.removeOnServiceDisconnectListener(onServiceDisconnectListener);
         super.onDestroy();
     }
 }

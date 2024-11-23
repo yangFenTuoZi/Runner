@@ -53,4 +53,13 @@
         <item name="android:background">@drawable/grant_permissions_buttons_bottom</item>
         <item name="android:layout_marginTop">2dp</item>
     </style>
+
+    <!-- SubtitleCollapsingToolbarLayout styles -->
+    <style name="Widget.Design.SubtitleCollapsingToolbar" parent="Widget.Design.CollapsingToolbar" />
+
+    <style name="TextAppearance.Design.SubtitleCollapsingToolbar.ExpandedTitle" parent="TextAppearance.Design.CollapsingToolbar.Expanded" />
+
+    <style name="TextAppearance.Design.SubtitleCollapsingToolbar.ExpandedSubtitle" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
 </resources>

@@ -1,53 +1,60 @@
 package yangFenTuoZi.runner.plus.ui.fragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.util.Objects;
+
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.adapters.ProcessAdapter;
 import yangFenTuoZi.runner.plus.databinding.FragmentProcessesBinding;
-import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
-
-import rikka.core.util.ResourceUtils;
 
 public class ProcessesFragment extends BaseFragment {
 
     private FragmentProcessesBinding binding;
-    private ListView listView;
+    public SwipeRefreshLayout.OnRefreshListener onRefreshListener = () -> new Handler().postDelayed(() -> {
+        initList();
+        binding.swipeRefreshLayout.setRefreshing(false);
+    },1000);
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProcessesBinding.inflate(inflater, container, false);
-        listView = binding.procList;
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        binding.swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
+
+        setupToolbar(binding.toolbar, binding.clickView, R.string.title_processes);
+        binding.toolbar.setNavigationIcon(null);
+        binding.appBar.setLiftable(true);
         binding.procKillAll.setOnClickListener(v -> {
             if (App.pingServer()) {
                 try {
-                    if (listView.getAdapter().getCount() == 0) {
-                        Toast.makeText(requireContext(), R.string.process_there_are_no_running_processes, Toast.LENGTH_SHORT).show();
+                    if (Objects.requireNonNull(binding.recyclerView.getAdapter()).getItemCount() == 0) {
+                        Toast.makeText(mContext, R.string.process_there_are_no_running_processes, Toast.LENGTH_SHORT).show();
                         return;
                     }
                 } catch (NullPointerException ignored) {
                 }
             } else {
-                Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (((MainActivity) requireContext()).isDialogShow)
+            if (mContext.isDialogShow)
                 return;
-            ((MainActivity) requireContext()).isDialogShow = true;
-            new MaterialAlertDialogBuilder(requireContext())
+            mContext.isDialogShow = true;
+            new MaterialAlertDialogBuilder(mContext)
                     .setTitle(R.string.process_kill_all_processes)
                     .setPositiveButton(R.string.yes, ((dialog, which) -> new Thread(() -> {
                         if (App.pingServer()) {
@@ -70,10 +77,10 @@ public class ProcessesFragment extends BaseFragment {
                             }
                             initList();
                         } else {
-                            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show());
                         }
                     }).start()))
-                    .setOnDismissListener(dialog -> ((MainActivity) requireContext()).isDialogShow = false)
+                    .setOnDismissListener(dialog -> mContext.isDialogShow = false)
                     .show();
         });
         return binding.getRoot();
@@ -97,12 +104,12 @@ public class ProcessesFragment extends BaseFragment {
                             }
                         }
                     }
-                    requireActivity().runOnUiThread(() -> listView.setAdapter(new ProcessAdapter((MainActivity) requireContext(), data, data_name, this)));
+                    runOnUiThread(() -> binding.recyclerView.setAdapter(new ProcessAdapter(mContext, data, data_name, this)));
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
                 }
             } else {
-                requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
@@ -117,5 +124,9 @@ public class ProcessesFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         initList();
+    }
+
+    public FragmentProcessesBinding getBinding() {
+        return binding;
     }
 }

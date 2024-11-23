@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="15dp"
-    android:paddingStart="30dp"
-    android:paddingEnd="30dp"
+    android:paddingStart="25dp"
+    android:paddingEnd="0dp"
     android:orientation="vertical">
 
     <com.google.android.material.radiobutton.MaterialRadioButton

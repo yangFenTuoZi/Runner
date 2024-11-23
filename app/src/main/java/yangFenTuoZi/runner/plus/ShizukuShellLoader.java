@@ -16,6 +16,8 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import yangFenTuoZi.runner.plus.info.Info;
 import yangFenTuoZi.runner.plus.server.Server;
 
@@ -32,7 +34,7 @@ public class ShizukuShellLoader {
     private static final Binder receiverBinder = new Binder() {
 
         @Override
-        protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+        protected boolean onTransact(int code, @NonNull Parcel data, Parcel reply, int flags) throws RemoteException {
             if (code == 1) {
                 IBinder binder = data.readStrongBinder();
 

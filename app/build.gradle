@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
 }
+
 android {
     namespace project.properties.applicationId
     compileSdk project.properties.compileSdkVersion.toInteger()
@@ -59,7 +60,6 @@ dependencies {
     implementation libs.preference
     implementation libs.activity
     implementation libs.constraintlayout
-    implementation libs.com.alibaba.fastjson
     implementation project(":tools")
     implementation project(":server")
     implementation project(":info")

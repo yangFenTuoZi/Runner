@@ -1,12 +1,15 @@
 package yangFenTuoZi.runner.plus.server;
 
+import static yangFenTuoZi.runner.plus.server.DatabaseHelper.TABLE_NAME;
+import static yangFenTuoZi.runner.plus.server.Logger.getStackTraceString;
+
 import android.annotation.SuppressLint;
 import android.app.IActivityManager;
-import android.content.Context;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
-import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.ddm.DdmHandleAppName;
 import android.os.Build;
@@ -20,6 +23,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -28,6 +32,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Timer;
@@ -43,7 +50,6 @@ public class Server {
     public static final String DATA_PATH = "/data/local/tmp/runner";
     public static final String USR_PATH = DATA_PATH + "/usr";
     public static final String LOG_PATH = DATA_PATH + "/logs";
-    public static final String DB_NAME = DATA_PATH + "/database.db";
     public static final int PORT = 13432;
     public static final String ACTION_SERVER_RUNNING = "runner.plus.intent.action.SERVER_RUNNING";
     public static final String ACTION_SERVER_STOPPED = "runner.plus.intent.action.SERVER_STOPPED";
@@ -54,8 +60,8 @@ public class Server {
     public boolean isStop = false;
     public String appPath;
     public FakeContext mContext = FakeContext.get();
-    public Context appContext;
     public SQLiteDatabase database;
+    public DatabaseHelper databaseHelper;
 
     public static void main(String[] args) {
         DdmHandleAppName.setAppName("runner_server", Os.getuid());
@@ -74,14 +80,9 @@ public class Server {
                 onStop();
         }));
         try {
-            appContext = mContext.createPackageContext(Info.APPLICATION_ID, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e("Unable to get appContext!\n" + e.getMessage());
-        }
-        try {
             onStart(args);
         } catch (Throwable e) {
-            Log.e(e.toString());
+            Log.e(getStackTraceString(e));
         }
     }
 
@@ -98,7 +99,7 @@ public class Server {
         try {
             appPath = getAppPath();
         } catch (Throwable e) {
-            Log.e("Unable to get app file path!\n" + e.getMessage());
+            Log.e("Unable to get app file path!\n" + getStackTraceString(e));
             exit(1);
         }
 
@@ -114,11 +115,11 @@ public class Server {
             try {
                 Socket socket = new Socket("localhost", PORT);
                 OutputStream out = socket.getOutputStream();
-                out.write("stopServer\n".getBytes());
+                out.write("stopServer".getBytes());
                 out.close();
                 socket.close();
             } catch (IOException ioE) {
-                Log.e("Unable to stop the previous server, may be that other apps are occupying the port!");
+                Log.e("Unable to stop the previous server!\n" + getStackTraceString(ioE));
                 exit(1);
             }
             try {
@@ -126,32 +127,20 @@ public class Server {
                 serverSocket = new ServerSocket(PORT);
                 Log.i("Socket server start.");
             } catch (Exception e1) {
-                Log.e("Still can't create socket server!");
+                Log.e("Still can't create socket server!\n" + getStackTraceString(e));
                 exit(1);
             }
         }
 
-        File db_file = new File(DB_NAME);
-        boolean db_exists = db_file.exists();
-        database = SQLiteDatabase.openOrCreateDatabase(db_file, null);
-        if (!db_exists)
-            database.execSQL("""
-            CREATE TABLE cmds(
-                id          INT     PRIMARY KEY     NOT NULL,
-                name        TEXT                    NOT NULL,
-                command     TEXT                    NOT NULL,
-                keepAlive   INTEGER                 NOT NULL,
-                useChid     INTEGER                 NOT NULL,
-                ids         TEXT                    NOT NULL
-            );
-            """);
+        databaseHelper = new DatabaseHelper(mContext);
+        database = databaseHelper.getWritableDatabase();
 
         while (!isStop) {
             Socket socket;
             try {
                 socket = serverSocket.accept();
             } catch (IOException e) {
-                Log.e(e.toString());
+                Log.e(getStackTraceString(e));
                 continue;
             }
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -166,7 +155,7 @@ public class Server {
                 in.close();
                 socket.close();
             } catch (IOException e) {
-                Log.e("Unable to read socket reply.\n" + e.toString());
+                Log.e("Unable to read socket reply.\n" + getStackTraceString(e));
             }
             String[] msg = bos.toString().split("\n");
             String action = msg[0];
@@ -185,7 +174,7 @@ public class Server {
                         serverSocket.close();
                         Log.i("Socket server stop.");
                     } catch (IOException e) {
-                        Log.e("Unable to stop the socket server!\n" + e.toString());
+                        Log.e("Unable to stop the socket server!\n" + getStackTraceString(e));
                     }
                     exit(0);
                     break;
@@ -384,7 +373,7 @@ public class Server {
                         in.close();
                         out.close();
                     } catch (IOException e) {
-                        Log.e("Unable to unzip file: %s\n %s", zipEntry.getName(), e.toString());
+                        Log.e("Unable to unzip file: %s\n %s", zipEntry.getName(), getStackTraceString(e));
                     }
                 }
             }
@@ -415,7 +404,7 @@ public class Server {
             activityManager.broadcastIntent(null, intent, null, null, 0, null, null,
                     null, -1, null, true, false, 0);
         } catch (Throwable e) {
-            Log.e(e.toString());
+            Log.e(getStackTraceString(e));
             return false;
         }
         return true;
@@ -473,7 +462,8 @@ public class Server {
 
     public void onStop() {
         isStop = true;
-        database.close();
+        if (database != null) database.close();
+        if (databaseHelper != null) databaseHelper.close();
         Log.i("Server Stop.\n");
         Log.close();
     }
@@ -486,31 +476,35 @@ public class Server {
     private IBinder createBinder() {
         //生成binder
         return new IService.Stub() {
+            @Override
+            public String[] version() {
+                return new String[]{Info.VERSION_NAME, String.valueOf(Info.VERSION_CODE)};
+            }
 
             @Override
             public CmdInfo[] getAllCmds() {
-                return CmdInfo.getAll(database);
+                return Server.this.getAll();
             }
 
             @Override
             public CmdInfo getCmdByID(int id) {
-                return CmdInfo.query(database, id);
+                return Server.this.query(id);
             }
 
             @Override
             public void delete(int id) {
-                Log.i("Delete a cmd, its id: " + id);
-                CmdInfo.delete(database, id);
+                Log.i("Delete by id: " + id);
+                Server.this.delete(id);
             }
 
             @Override
             public void edit(CmdInfo cmdInfo) {
-                if (CmdInfo.query(database, cmdInfo.id) == null) {
-                    Log.i("Create, content: %s", cmdInfo.toString());
-                    cmdInfo.insert(database);
+                if (Server.this.query(cmdInfo.id) == null) {
+                    Log.i("Create %s", cmdInfo.toString());
+                    Server.this.insert(cmdInfo);
                 } else {
-                    Log.i("Edit, content: %s", cmdInfo.toString());
-                    cmdInfo.update(database);
+                    Log.i("Edit %s", cmdInfo.toString());
+                    Server.this.update(cmdInfo);
                 }
             }
 
@@ -533,7 +527,7 @@ public class Server {
                     p.waitFor();
                     return p.exitValue();
                 } catch (Exception e) {
-                    Log.e(e.toString());
+                    Log.e(getStackTraceString(e));
                     return -1;
                 }
             }
@@ -561,10 +555,190 @@ public class Server {
                     process.waitFor();
                     return sb.toString();
                 } catch (Exception e) {
-                    Log.e(e.toString());
+                    Log.e(getStackTraceString(e));
                     return null;
                 }
             }
+
+            @Override
+            public String readDatabase(int port) {
+                try {
+                    File DB_file = new File(DatabaseHelper.DB_NAME);
+                    Socket socket = new Socket("localhost", port);
+                    BufferedInputStream in = new BufferedInputStream(new FileInputStream(DB_file));
+                    BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
+                    int len;
+                    byte[] b = new byte[1024];
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    while ((len = in.read(b)) != -1) {
+                        out.write(b, 0, len);
+                        bos.write(b, 0, len);
+                    }
+                    in.close();
+                    out.close();
+                    return getSHA256(bos.toByteArray());
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+
+            @Override
+            public boolean writeDatabase(int port, String sha256) {
+                try {
+                    File DB_file = new File(DatabaseHelper.DB_NAME);
+                    File DB_file_ = new File(DatabaseHelper.DB_NAME + "_");
+                    Socket socket = new Socket("localhost", port);
+                    BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
+                    BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(DB_file_));
+                    int len;
+                    byte[] b = new byte[1024];
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    while ((len = in.read(b)) != -1) {
+                        out.write(b, 0, len);
+                        bos.write(b, 0, len);
+                    }
+                    in.close();
+                    out.close();
+                    String _sha256 = getSHA256(bos.toByteArray());
+                    if (_sha256 == null) return true;
+                    if (sha256.toLowerCase().replaceAll(" ", "").equals(_sha256.toLowerCase().replaceAll(" ", ""))) {
+                        DB_file.delete();
+                        DB_file_.renameTo(DB_file);
+                    }
+                    return true;
+                } catch (IOException e) {
+                    return false;
+                }
+            }
         };
+    }
+
+    public static String getSHA256(byte[] bytes) {
+        MessageDigest messageDigest;
+        String encodeStr;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(bytes);
+            encodeStr = byte2Hex(messageDigest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+        return encodeStr;
+    }
+
+    private static String byte2Hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        String temp;
+        for (byte aByte : bytes) {
+            temp = Integer.toHexString(aByte & 0xFF);
+            if (temp.length() == 1) {
+                sb.append("0");
+            }
+            sb.append(temp);
+        }
+        return sb.toString();
+    }
+
+    public void insert(CmdInfo cmdInfo) {
+        ContentValues values = new ContentValues();
+        values.put("id", cmdInfo.id);
+        values.put("name", new String(Base64.getEncoder().encode(cmdInfo.name.getBytes())));
+        values.put("command", new String(Base64.getEncoder().encode(cmdInfo.command.getBytes())));
+        values.put("keepAlive", cmdInfo.keepAlive ? 1 : 0);
+        values.put("useChid", cmdInfo.useChid ? 1 : 0);
+        values.put("ids", cmdInfo.ids);
+        database.insert(TABLE_NAME, null, values);
+    }
+
+    public void update(CmdInfo cmdInfo) {
+        ContentValues values = new ContentValues();
+        values.put("id", cmdInfo.id);
+        values.put("name", new String(Base64.getEncoder().encode(cmdInfo.name.getBytes())));
+        values.put("command", new String(Base64.getEncoder().encode(cmdInfo.command.getBytes())));
+        values.put("keepAlive", cmdInfo.keepAlive ? 1 : 0);
+        values.put("useChid", cmdInfo.useChid ? 1 : 0);
+        values.put("ids", cmdInfo.ids);
+        database.update(TABLE_NAME, values, "id=?", new String[]{String.valueOf(cmdInfo.id)});
+    }
+
+    public CmdInfo query(int id) {
+        return query(String.valueOf(id));
+    }
+
+    public CmdInfo[] query(int[] ids) {
+        String[] args = new String[ids.length];
+        for (int i = 0; i < ids.length; i++) {
+            args[i] = String.valueOf(ids[i]);
+        }
+        return query(args);
+    }
+
+    public CmdInfo query(String id) {
+        CmdInfo[] cmdInfos = query(new String[]{id});
+        return cmdInfos.length == 0 ? null : cmdInfos[0];
+    }
+
+    @SuppressLint({"Range", "Recycle"})
+    public CmdInfo[] query(String[] ids) {
+        Cursor cursor = database.query(TABLE_NAME, null, "id=?", ids, null, null, null);
+        CmdInfo[] result = new CmdInfo[cursor.getCount()];
+        if (cursor.moveToFirst()) {
+            for (int i = 0; i < cursor.getCount(); i++) {
+                cursor.move(i);
+                CmdInfo cmdInfo = new CmdInfo();
+                cmdInfo.id = cursor.getInt(cursor.getColumnIndex("id"));
+                cmdInfo.name = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("name")).getBytes()));
+                cmdInfo.command = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("command")).getBytes()));
+                cmdInfo.keepAlive = cursor.getInt(cursor.getColumnIndex("keepAlive")) == 1;
+                cmdInfo.useChid = cursor.getInt(cursor.getColumnIndex("useChid")) == 1;
+                cmdInfo.ids = cursor.getString(cursor.getColumnIndex("ids"));
+                result[i] = cmdInfo;
+            }
+        }
+        return result;
+    }
+
+    @SuppressLint("Range")
+    public CmdInfo[] getAll() {
+        Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
+        CmdInfo[] result = new CmdInfo[cursor.getCount()];
+        int i = 0;
+        while (cursor.moveToNext()) {
+            CmdInfo cmdInfo = new CmdInfo();
+            cmdInfo.id = cursor.getInt(cursor.getColumnIndex("id"));
+            cmdInfo.name = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("name")).getBytes()));
+            cmdInfo.command = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("command")).getBytes()));
+            cmdInfo.keepAlive = cursor.getInt(cursor.getColumnIndex("keepAlive")) == 1;
+            cmdInfo.useChid = cursor.getInt(cursor.getColumnIndex("useChid")) == 1;
+            cmdInfo.ids = cursor.getString(cursor.getColumnIndex("ids"));
+            result[i] = cmdInfo;
+            i++;
+        }
+        cursor.close();
+        return result;
+    }
+
+    public void delete(CmdInfo cmdInfo) {
+        delete(cmdInfo.id);
+    }
+
+    public void delete(int id) {
+        delete(String.valueOf(id));
+    }
+
+    public void delete(int[] ids) {
+        String[] args = new String[ids.length];
+        for (int i = 0; i < ids.length; i++) {
+            args[i] = String.valueOf(ids[i]);
+        }
+        delete(args);
+    }
+
+    public void delete(String id) {
+        delete(new String[]{id});
+    }
+
+    public void delete(String[] ids) {
+        database.delete(TABLE_NAME, "id=?", ids);
     }
 }

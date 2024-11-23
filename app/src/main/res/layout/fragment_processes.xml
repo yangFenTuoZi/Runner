@@ -1,58 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+app:consumeSystemWindowsInsets="@integer/internal_fragment_insets"
+app:edgeToEdge="true"
+app:fitsSystemWindowsInsets="@integer/internal_fragment_insets">
+
+<com.google.android.material.appbar.AppBarLayout
+    android:id="@+id/app_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fitsSystemWindows="false"
+    app:fitsSystemWindowsInsets="@integer/internal_fragment_top_insets">
+
+    <com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
+        android:id="@+id/toolbar_layout"
+        style="?attr/collapsingToolbarLayoutLargeStyle"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
+        app:layout_scrollFlags="scroll|exitUntilCollapsed"
+        app:titleCollapseMode="scale">
+
+        <View
+            android:id="@+id/click_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="0dp"
+            android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
+            app:layout_collapseMode="pin" />
+    </com.google.android.material.appbar.SubtitleCollapsingToolbarLayout>
+
+</com.google.android.material.appbar.AppBarLayout>
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="yangFenTuoZi.runner.plus.ui.fragment.ProcessesFragment">
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <LinearLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/proc_mask"
+        <rikka.widget.borderview.BorderRecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center">
-            <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_no_24dp" />
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="25dp">
 
-            <TextView
-                android:layout_marginTop="5dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text="@string/process_there_are_no_running_processes"/>
-        </LinearLayout>
+        </rikka.widget.borderview.BorderRecyclerView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>
 
-        <ListView
-            android:id="@+id/proc_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginBottom="25dp"
-            android:divider="@null" />
-    </LinearLayout>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="bottom|end">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom|end">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/proc_kill_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_marginBottom="16dp"
-            app:srcCompat="@drawable/ic_close_24dp" />
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/proc_kill_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="16dp"
+        app:srcCompat="@drawable/ic_close_24dp" />
+</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

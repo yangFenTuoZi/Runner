@@ -14,8 +14,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.DynamicColors.Light.Rikka"
-        tools:targetApi="34">
+        android:theme="@style/Theme.Material3.DynamicColors.DayNight"
+        tools:targetApi="35">
         <activity
             android:name=".ui.activity.MainActivity"
             android:exported="true">
@@ -36,20 +36,13 @@
             android:name=".ui.activity.RequestBinderActivity"
             android:directBootAware="true"
             android:excludeFromRecents="true"
-            android:theme="@android:style/Theme.Translucent"
+            android:theme="@style/GrantPermissions"
             android:exported="true">
             <intent-filter>
                 <action android:name="runner.plus.intent.action.REQUEST_BINDER" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".ui.activity.RequestPermissionActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:theme="@style/GrantPermissions">
         </activity>
 
         <receiver
