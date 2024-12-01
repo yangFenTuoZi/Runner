@@ -23,6 +23,11 @@ public class PackActivity extends BaseActivity {
         binding = ActivityPackBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.appBar.setLiftable(true);
+        setupToolbar(binding.toolbar, null, R.string.long_click_pack);
+        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

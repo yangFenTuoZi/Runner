@@ -25,12 +25,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.activity.PackActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.activity.FileMangerActivity"
             android:exported="true" />
+
+        <activity
+            android:name=".ui.activity.CrashReportActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.activity.RequestBinderActivity"

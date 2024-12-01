@@ -92,10 +92,11 @@
     <string name="allow_once">允许本次</string>
     <string name="refuse">拒绝</string>
     <string name="grant_description">要允许<![CDATA[<b>%s</b>]]>访问用户空间CLI吗?</string>
-    <string name="warning">警告!</string>
-    <string name="error">错误!</string>
+    <string name="warning">警告</string>
+    <string name="error">错误</string>
+    <string name="app_crashed">App崩溃</string>
     <string name="confirm_stop_server">确认停止服务?</string>
-    <string name="can_not_stop_server">无法停止服务!</string>
+    <string name="can_not_stop_server">无法停止服务</string>
     <string name="choose_start_server">选择启动方式</string>
     <string name="start">启动</string>
     <string name="exec_start_server_command">使用Root/Shell/ADB用户执行</string>

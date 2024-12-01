@@ -21,8 +21,8 @@ package yangFenTuoZi.runner.plus.ui.dialog;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.Build;
+import android.os.SystemProperties;
 import android.view.SurfaceControl;
 import android.view.View;
 import android.view.Window;
@@ -32,21 +32,17 @@ import android.view.animation.DecelerateInterpolator;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+import yangFenTuoZi.runner.plus.ui.activity.BaseActivity;
+
 @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
-public class BlurBehindDialogBuilder extends MaterialAlertDialogBuilder {
-    private static final boolean supportBlur = getSystemProperty("ro.surface_flinger.supports_background_blur", false) && !getSystemProperty("persist.sys.sf.disable_blurs", false);
+public class BlurBehindDialogBuilder extends BaseDialogBuilder {
+    private static final boolean supportBlur = SystemProperties.getBoolean("ro.surface_flinger.supports_background_blur", false) && !SystemProperties.getBoolean("persist.sys.sf.disable_blurs", false);
 
-    public BlurBehindDialogBuilder(@NonNull Context context) {
+    public BlurBehindDialogBuilder(@NonNull BaseActivity context) throws DialogShowException {
         super(context);
-    }
-
-    public BlurBehindDialogBuilder(@NonNull Context context, int overrideThemeResId) {
-        super(context, overrideThemeResId);
     }
 
     @NonNull
@@ -110,10 +106,10 @@ public class BlurBehindDialogBuilder extends MaterialAlertDialogBuilder {
                                 setBackgroundBlurRadius.invoke(transaction, surfaceControl, (int) animatedValue);
                             }
                             transaction.apply();
-                        } catch (Throwable t) {
+                        } catch (Throwable ignored) {
                         }
                     });
-                } catch (Throwable t) {
+                } catch (Throwable ignored) {
                 }
                 view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                     @Override
@@ -128,16 +124,5 @@ public class BlurBehindDialogBuilder extends MaterialAlertDialogBuilder {
                 animator.start();
             }
         }
-    }
-
-    public static boolean getSystemProperty(String key, boolean defaultValue) {
-        boolean value = defaultValue;
-        try {
-            Class<?> c = Class.forName("android.os.SystemProperties");
-            Method get = c.getMethod("getBoolean", String.class, boolean.class);
-            value = (boolean) get.invoke(c, key, defaultValue);
-        } catch (Exception e) {
-        }
-        return value;
     }
 }

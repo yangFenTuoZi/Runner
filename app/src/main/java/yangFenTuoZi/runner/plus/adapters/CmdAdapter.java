@@ -22,7 +22,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.cli.CmdInfo;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
-import yangFenTuoZi.runner.plus.ui.dialog.ExecDialog;
+import yangFenTuoZi.runner.plus.ui.dialog.BaseDialogBuilder;
+import yangFenTuoZi.runner.plus.ui.dialog.ExecDialogBuilder;
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.ui.fragment.HomeFragment;
 
@@ -185,9 +186,8 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
                         intent.putExtra("chid", true)
                                 .putExtra("ids", cmdInfo.ids);
                     }
-                    mContext.isDialogShow = true;
-                    new ExecDialog(mContext, intent).show();
-                } catch (RemoteException ignored) {
+                    new ExecDialogBuilder(mContext, intent).show();
+                } catch (RemoteException | BaseDialogBuilder.DialogShowException ignored) {
                 }
             } else
                 Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();

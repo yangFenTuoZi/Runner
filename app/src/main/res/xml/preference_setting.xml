@@ -6,7 +6,7 @@
             android:defaultValue="MODE_NIGHT_FOLLOW_SYSTEM"
             android:entries="@array/theme_texts"
             android:entryValues="@array/theme_values"
-            android:icon="@drawable/ic_dark_mode_24dp"
+            android:icon="@drawable/ic_dark_mode_24"
             android:key="dark_theme"
             android:summary="%s"
             android:title="@string/dark_theme" />
@@ -15,7 +15,7 @@
             android:defaultValue="CHANNEL_STABLE"
             android:entries="@array/update_channel_texts"
             android:entryValues="@array/update_channel_values"
-            android:icon="@drawable/ic_merge_type_24dp"
+            android:icon="@drawable/ic_merge_type_24"
             android:key="update_channel"
             android:summary="%s"
             android:title="@string/settings_update_channel" />
@@ -24,21 +24,21 @@
 
         <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_backup_restore_24dp"
+            android:icon="@drawable/ic_backup_restore_24"
             android:key="export_data"
             android:summary="@string/settings_export_data_summary"
             android:title="@string/settings_export_data" />
 
         <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_restore_24dp"
+            android:icon="@drawable/ic_restore_24"
             android:key="import_data"
             android:summary="@string/settings_import_data_summary"
             android:title="@string/settings_import_data" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
-            android:icon="@drawable/ic_settings_black_24dp"
+            android:icon="@drawable/ic_settings_black_24"
             android:key="backup_settings"
             android:summary="@string/settings_backup_settings_summary"
             android:title="@string/settings_backup_settings" />
@@ -46,9 +46,9 @@
 
     <PreferenceCategory android:title="@string/settings_shortcut_commands_and_terminals">
 
-        <PreferenceScreen
+        <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_file_24dp"
+            android:icon="@drawable/ic_file_24"
             android:key="exec_files_manager"
             android:summary="@string/settings_exec_files_manager_summary"
             android:title="@string/settings_exec_files_manager">
@@ -62,11 +62,11 @@
                     android:name="exec"
                     android:value="true" />
             </intent>
-        </PreferenceScreen>
+        </Preference>
 
-        <PreferenceScreen
+        <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_file_24dp"
+            android:icon="@drawable/ic_file_24"
             android:key="lib_files_manager"
             android:summary="@string/settings_lib_file_manager_summary"
             android:title="@string/settings_lib_file_manager">
@@ -80,11 +80,11 @@
                     android:name="exec"
                     android:value="false" />
             </intent>
-        </PreferenceScreen>
+        </Preference>
 
-        <PreferenceScreen
+        <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_configs_24dp"
+            android:icon="@drawable/ic_configs_24"
             android:key="env_configs"
             android:summary="@string/settings_env_manager_summary"
             android:title="@string/settings_env_manager" />
@@ -94,12 +94,12 @@
 
         <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_info_24dp"
+            android:icon="@drawable/ic_info_24"
             android:key="ver"
             android:title="@string/settings_ver" />
         <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_help_24dp"
+            android:icon="@drawable/ic_help_24"
             android:key="help"
             android:title="@string/settings_help" />
     </PreferenceCategory>

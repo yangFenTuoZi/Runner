@@ -1,45 +1,54 @@
 package yangFenTuoZi.runner.plus;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
-import android.content.SharedPreferences;
+import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.material.color.DynamicColors;
+import com.google.android.material.color.DynamicColorsOptions;
 
-import rikka.core.util.ResourceUtils;
-import yangFenTuoZi.runner.plus.info.Info;
 import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
 import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
 import yangFenTuoZi.runner.plus.server.IService;
+import yangFenTuoZi.runner.plus.server.Logger;
 import yangFenTuoZi.runner.plus.server.Server;
+import yangFenTuoZi.runner.plus.ui.activity.CrashReportActivity;
+import yangFenTuoZi.runner.plus.utils.ThemeUtils;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class App extends Application {
+public class App extends Application implements Thread.UncaughtExceptionHandler {
     public static IService iService;
     private static final List<OnServiceConnectListener> mConnectListeners;
     private static final List<OnServiceDisconnectListener> mDisconnectListeners;
     private static Timer timer, timer2;
 
-    public short isDark = -1;
+    private final DynamicColorsOptions mDynamicColorsOptions = new DynamicColorsOptions.Builder().build();
+    private final List<Activity> activities = new LinkedList<>();
+    public int isDark = -1;
 
     static {
-        mConnectListeners = new ArrayList<>();
-        mDisconnectListeners = new ArrayList<>();
+        mConnectListeners = new LinkedList<>();
+        mDisconnectListeners = new LinkedList<>();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        DynamicColors.applyToActivitiesIfAvailable(this);
+        Thread.setDefaultUncaughtExceptionHandler(this);
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -57,15 +66,28 @@ public class App extends Application {
             }
         }, 0L, 1000L);
 
-        SharedPreferences sharedPreferences = getSharedPreferences(Info.APPLICATION_ID + "_preferences", 0);
-        String dark_theme = sharedPreferences.getString("dark_theme", "MODE_NIGHT_FOLLOW_SYSTEM");
-        isDark = switch (dark_theme) {
-            case "MODE_NIGHT_FOLLOW_SYSTEM" ->
-                    ResourceUtils.isNightMode(getResources().getConfiguration()) ? (short) 1 : (short) 0;
-            case "MODE_NIGHT_YES" -> 1;
-            default -> 0;
-        };
-        setTheme(isDark == 1 ? R.style.Theme : R.style.Theme_Light);
+        boolean isDark = ThemeUtils.isDark(this);
+        this.isDark = isDark ? 1 : 0;
+        setTheme(ThemeUtils.getTheme(isDark));
+        DynamicColors.applyToActivitiesIfAvailable(this, mDynamicColorsOptions);
+    }
+
+    public void addActivity(Activity activity) {
+        activities.add(activity);
+    }
+
+    public void removeActivity(Activity activity) {
+        activities.remove(activity);
+    }
+
+    public void finishApp() {
+        for (Activity activity : activities)
+            activity.finish();
+        activities.clear();
+    }
+
+    public DynamicColorsOptions getDynamicColorsOptions() {
+        return mDynamicColorsOptions;
     }
 
     @Override
@@ -136,5 +158,36 @@ public class App extends Application {
 
     public static void removeOnServiceDisconnectListener(@NonNull OnServiceDisconnectListener onServiceDisconnectListener) {
         mDisconnectListeners.remove(onServiceDisconnectListener);
+    }
+
+    @SuppressLint("WrongConstant")
+    private void crashHandler(@NonNull Thread t, @NonNull Throwable e) {
+
+        String fileName = "runnerCrash-" + System.currentTimeMillis() + ".log";
+        File file;
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            File dir = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            file = new File(dir, fileName);
+        } else {
+            file = getExternalFilesDir(fileName);
+        }
+        assert file != null;
+
+        startActivity(new Intent(this, CrashReportActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK )
+                .putExtra("crash_info", Logger.getStackTraceString(e))
+                .putExtra("crash_file", file.getAbsolutePath()));
+    }
+
+    @Override
+    public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
+        new Thread(() -> {
+            Looper.prepare();
+            crashHandler(t, e);
+            Looper.loop();
+        }).start();
     }
 }

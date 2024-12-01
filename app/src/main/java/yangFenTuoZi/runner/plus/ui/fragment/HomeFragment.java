@@ -1,9 +1,10 @@
 package yangFenTuoZi.runner.plus.ui.fragment;
 
+import static yangFenTuoZi.runner.plus.App.iService;
 import static yangFenTuoZi.runner.plus.ui.activity.MainActivity.sendSomethingToServerBySocket;
+import static yangFenTuoZi.runner.plus.utils.ExceptionUtils.throwableToDialog;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -20,10 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.HtmlCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -41,8 +40,9 @@ import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
 import yangFenTuoZi.runner.plus.ui.activity.PackActivity;
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.databinding.FragmentHomeBinding;
+import yangFenTuoZi.runner.plus.ui.dialog.BaseDialogBuilder;
 import yangFenTuoZi.runner.plus.ui.dialog.BlurBehindDialogBuilder;
-import yangFenTuoZi.runner.plus.ui.dialog.StartServerDialog;
+import yangFenTuoZi.runner.plus.ui.dialog.StartServerDialogBuilder;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,13 +53,17 @@ public class HomeFragment extends BaseFragment {
         initList();
         try {
             String[] ver = iService.version();
-            binding.toolbarLayout.setSubtitle(getString(R.string.home_service_version, ver[0], Integer.parseInt(ver[1])));
+            String string = getString(R.string.home_service_version, ver[0], Integer.parseInt(ver[1]));
+            binding.toolbarLayout.setSubtitle(string);
+            binding.toolbar.setSubtitle(string);
         } catch (Exception ignored) {
         }
     });
     private final OnServiceDisconnectListener onServiceDisconnectListener = () -> runOnUiThread(() -> {
         binding.recyclerView.setAdapter(null);
-        binding.toolbarLayout.setSubtitle(getString(R.string.home_service_is_not_running));
+        String string = getString(R.string.home_service_is_not_running);
+        binding.toolbarLayout.setSubtitle(string);
+        binding.toolbar.setSubtitle(string);
     });
 
     public FragmentHomeBinding getBinding() {
@@ -74,7 +78,7 @@ public class HomeFragment extends BaseFragment {
         binding.swipeRefreshLayout.setOnRefreshListener(() -> new Handler().postDelayed(() -> {
             initList();
             binding.swipeRefreshLayout.setRefreshing(false);
-        },1000));
+        }, 1000));
 
         setupToolbar(binding.toolbar, binding.clickView, R.string.app_name, R.menu.menu_home);
         binding.toolbar.setNavigationIcon(null);
@@ -103,14 +107,20 @@ public class HomeFragment extends BaseFragment {
                                     Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
                                     mAlert.setAccessible(true);
                                     Object mAlertController = mAlert.get(alertDialog1);
+                                    assert mAlertController != null;
                                     Field mMessage = mAlertController.getClass().getDeclaredField("mMessageView");
                                     mMessage.setAccessible(true);
                                     TextView mMessageView = (TextView) mMessage.get(mAlertController);
+                                    assert mMessageView != null;
                                     mMessageView.setTextIsSelectable(true);
                                 } catch (Exception ignored) {
                                 }
-                            } else
-                                new StartServerDialog(mContext, a.get()).show();
+                            } else {
+                                try {
+                                    new StartServerDialogBuilder(mContext, a.get()).show();
+                                } catch (BaseDialogBuilder.DialogShowException ignored) {
+                                }
+                            }
                         })
                         .show();
                 startServerBinding.root.setOnClickListener(v -> {
@@ -133,10 +143,7 @@ public class HomeFragment extends BaseFragment {
                             try {
                                 sendSomethingToServerBySocket("stopServer");
                             } catch (Exception e) {
-                                runOnUiThread(() -> new MaterialAlertDialogBuilder(mContext)
-                                        .setTitle(R.string.error)
-                                        .setMessage(getString(R.string.can_not_stop_server) + "\n" + e.getMessage())
-                                        .show());
+                                throwableToDialog(mContext, e);
                             }
                         }).start())
                         .show();
@@ -148,7 +155,7 @@ public class HomeFragment extends BaseFragment {
         App.addOnServiceConnectListener(onServiceConnectListener);
         App.addOnServiceDisconnectListener(onServiceDisconnectListener);
         if (App.pingServer())
-            onServiceConnectListener.onServiceConnect(App.iService);
+            onServiceConnectListener.onServiceConnect(iService);
         else
             onServiceDisconnectListener.onServiceDisconnect();
         return root;
@@ -161,7 +168,7 @@ public class HomeFragment extends BaseFragment {
             return;
         }
         try {
-            CmdInfo[] cmdInfos = App.iService.getAllCmds();
+            CmdInfo[] cmdInfos = iService.getAllCmds();
             int[] data = new int[cmdInfos.length + 1];
             int max = -1;
             for (int i = 0; i < cmdInfos.length; i++) {
@@ -171,7 +178,8 @@ public class HomeFragment extends BaseFragment {
             }
             data[cmdInfos.length] = max + 1;
             binding.recyclerView.setAdapter(new CmdAdapter(mContext, data, this, cmdInfos));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            throwableToDialog(mContext, e);
         }
     }
 
@@ -187,17 +195,8 @@ public class HomeFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
 
-        if (App.pingServer()) {
-            try {
-                String[] ver = App.iService.version();
-                binding.toolbar.setSubtitle(getString(R.string.home_service_version, ver[0], Integer.parseInt(ver[1])));
-            } catch (Exception ignored) {
-            }
-        } else {
-            binding.toolbar.setSubtitle(getString(R.string.home_service_is_not_running));
-        }
-        if (App.pingServer())
-            initList();
+        if (App.pingServer()) onServiceConnectListener.onServiceConnect(iService);
+        else onServiceDisconnectListener.onServiceDisconnect();
     }
 
     //菜单选择事件
@@ -211,10 +210,11 @@ public class HomeFragment extends BaseFragment {
                     return super.onContextItemSelected(item);
                 }
                 try {
-                    String name = App.iService.getCmdByID(item.getGroupId()).name;
+                    String name = iService.getCmdByID(item.getGroupId()).name;
                     ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", name));
                     Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show();
-                } catch (RemoteException ignored) {
+                } catch (RemoteException e) {
+                    throwableToDialog(mContext, e);
                 }
                 return true;
             case CmdAdapter.long_click_copy_command:
@@ -223,10 +223,11 @@ public class HomeFragment extends BaseFragment {
                     return super.onContextItemSelected(item);
                 }
                 try {
-                    String command = App.iService.getCmdByID(item.getGroupId()).command;
+                    String command = iService.getCmdByID(item.getGroupId()).command;
                     ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
                     Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
-                } catch (RemoteException ignored) {
+                } catch (RemoteException e) {
+                    throwableToDialog(mContext, e);
                 }
                 return true;
             case CmdAdapter.long_click_new:
@@ -243,8 +244,9 @@ public class HomeFragment extends BaseFragment {
                     return super.onContextItemSelected(item);
                 }
                 try {
-                    App.iService.delete(item.getGroupId());
-                } catch (RemoteException ignored) {
+                    iService.delete(item.getGroupId());
+                } catch (RemoteException e) {
+                    throwableToDialog(mContext, e);
                 }
                 binding.recyclerView.setAdapter(null);
                 initList();
@@ -254,23 +256,18 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    public static class AboutDialog extends DialogFragment {
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-            DialogAboutBinding binding = DialogAboutBinding.inflate(getLayoutInflater(), null, false);
-            binding.designAboutTitle.setText(R.string.app_name);
-            binding.designAboutInfo.setMovementMethod(LinkMovementMethod.getInstance());
-            binding.designAboutInfo.setText(HtmlCompat.fromHtml(getString(
-                    R.string.about_view_source_code,
-                    "<b><a href=\"https://github.com/yangFenTuoZi/Runner\">GitHub</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
-            binding.designAboutVersion.setText(String.format(LocaleDelegate.getDefaultLocale(), "%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
-            return new BlurBehindDialogBuilder(requireContext())
-                    .setView(binding.getRoot()).create();
-        }
-    }
-
     private void showAbout() {
-        new AboutDialog().show(getChildFragmentManager(), "about");
+        DialogAboutBinding binding = DialogAboutBinding.inflate(getLayoutInflater(), null, false);
+        binding.designAboutTitle.setText(R.string.app_name);
+        binding.designAboutInfo.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.designAboutInfo.setText(HtmlCompat.fromHtml(getString(
+                R.string.about_view_source_code,
+                "<b><a href=\"https://github.com/yangFenTuoZi/Runner\">GitHub</a></b>"), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        binding.designAboutVersion.setText(String.format(LocaleDelegate.getDefaultLocale(), "%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
+        try {
+            new BlurBehindDialogBuilder(mContext)
+                    .setView(binding.getRoot()).show();
+        } catch (BaseDialogBuilder.DialogShowException ignored) {
+        }
     }
 }

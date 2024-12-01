@@ -3,26 +3,26 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home_black_24dp"
+        android:icon="@drawable/ic_home_black_24"
         android:title="@string/title_home" />
 
     <item
         android:id="@+id/navigation_terminal"
-        android:icon="@drawable/ic_terminal_black_24dp"
+        android:icon="@drawable/ic_terminal_black_24"
         android:title="@string/title_terminal" />
 
     <item
         android:id="@+id/navigation_processes"
-        android:icon="@drawable/ic_processes_24dp"
+        android:icon="@drawable/ic_processes_24"
         android:title="@string/title_processes" />
 
     <item
         android:id="@+id/navigation_authorization"
-        android:icon="@drawable/ic_apps_24dp"
+        android:icon="@drawable/ic_apps_24"
         android:title="@string/title_authorization" />
 
     <item
         android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_settings_black_24dp"
+        android:icon="@drawable/ic_settings_black_24"
         android:title="@string/title_settings" />
 </menu>

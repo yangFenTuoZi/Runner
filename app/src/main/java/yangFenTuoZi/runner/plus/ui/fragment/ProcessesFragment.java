@@ -1,5 +1,7 @@
 package yangFenTuoZi.runner.plus.ui.fragment;
 
+import static yangFenTuoZi.runner.plus.utils.ExceptionUtils.throwableToDialog;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -73,7 +75,7 @@ public class ProcessesFragment extends BaseFragment {
                                 }
                                 ProcessAdapter.killPIDs(data);
                             } catch (RemoteException e) {
-                                throw new RuntimeException(e);
+                                throwableToDialog(mContext, e);
                             }
                             initList();
                         } else {
@@ -106,7 +108,7 @@ public class ProcessesFragment extends BaseFragment {
                     }
                     runOnUiThread(() -> binding.recyclerView.setAdapter(new ProcessAdapter(mContext, data, data_name, this)));
                 } catch (RemoteException e) {
-                    throw new RuntimeException(e);
+                    throwableToDialog(mContext, e);
                 }
             } else {
                 runOnUiThread(() -> Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show());

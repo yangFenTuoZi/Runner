@@ -99,10 +99,11 @@
     <string name="refuse">Refuse</string>
     <string name="grant_description">Do you want to allow <![CDATA[<b>%s</b>]]> to access the userspace cli?</string>
 
-    <string name="warning">Warning!</string>
-    <string name="error">Error!</string>
+    <string name="warning">Warning</string>
+    <string name="error">Error</string>
+    <string name="app_crashed">App crashed</string>
     <string name="confirm_stop_server">Confirm to stop server?</string>
-    <string name="can_not_stop_server">Cannot stop server!</string>
+    <string name="can_not_stop_server">Cannot stop server</string>
     <string name="choose_start_server">Select a startup method</string>
     <string name="start">Start</string>
     

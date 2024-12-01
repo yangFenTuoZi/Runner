@@ -72,6 +72,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/fab_margin"
             android:layout_marginBottom="16dp"
-            app:srcCompat="@drawable/ic_add_24dp" />
+            app:srcCompat="@drawable/ic_add_24" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -12,10 +12,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.databinding.ActivityMainBinding;
-import yangFenTuoZi.runner.plus.info.Info;
 import yangFenTuoZi.runner.plus.server.Server;
-import yangFenTuoZi.runner.plus.tools.getAppPath;
-import yangFenTuoZi.runner.plus.tools.invokeCli;
+import yangFenTuoZi.runner.plus.tools.GetAppPath;
+import yangFenTuoZi.runner.plus.tools.CLIMain;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,8 +31,6 @@ import java.util.Objects;
 
 
 public class MainActivity extends BaseActivity {
-
-    public boolean isDialogShow = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +79,7 @@ public class MainActivity extends BaseActivity {
                         exit 1
                         fi
                         log I "Get app path"
-                        APP_PATH="$(app_process -Djava.class.path="$GET_APP_PATH_DEX" /system/bin %s %s)"
+                        APP_PATH="$(app_process -Djava.class.path="$GET_APP_PATH_DEX" /system/bin %s)"
                         if [ ! $? -eq 0 ] || [ ! -f "$APP_PATH" ]; then
                             log E "Cannot find the app APK." >&2
                             exit 1
@@ -93,17 +90,17 @@ public class MainActivity extends BaseActivity {
                     # start server
                     log I "Start server"
                     export appPath_file="/data/local/tmp/runner/appPath"
-                    app_process -Djava.class.path="$APP_PATH" /system/bin --nice-name=runner_server %4$s
+                    app_process -Djava.class.path="$APP_PATH" /system/bin --nice-name=runner_server %3$s
                     exitValue=$?
                     while [ $exitValue -eq 10 ]; do
                         appPath=$(cat $appPath_file)
                         [ -f $appPath_file ] && rm $appPath_file
-                        app_process -Djava.class.path="$appPath" /system/bin --nice-name=runner_server %4$s restart
+                        app_process -Djava.class.path="$appPath" /system/bin --nice-name=runner_server %3$s restart
                         exitValue=$?
                     done
                     [ -f $appPath_file ] && rm $appPath_file
                     exit $exitValue
-                    """, "+%H:%M:%S", getAppPath.class.getName(), Info.APPLICATION_ID, Server.class.getName());
+                    """, "+%H:%M:%S", GetAppPath.class.getName(), Server.class.getName());
             File starter = new File(getExternalFilesDir(""), "server_starter.sh");
             if (starter.exists()) {
                 starter.delete();
@@ -140,7 +137,8 @@ public class MainActivity extends BaseActivity {
                         exit 1
                     fi
                     
-                    if [ $(get prop ro.build.version.sdk) -ge 34 ]; then
+                    uid=$(id -u)
+                    if [ $(get prop ro.build.version.sdk) -ge 34 ] && [ ! $uid -eq 0 ] && [ ! $uid -eq 2000 ]; then
                       if [ -w $DEX ]; then
                         echo "On Android 14+, app_process cannot load writable dex."
                         echo "Attempting to remove the write permission..."
@@ -153,9 +151,8 @@ public class MainActivity extends BaseActivity {
                       fi
                     fi
                     
-                    export APP_PACKAGE_NAME="%s"
                     app_process -Djava.class.path="$DEX" /system/bin %s "$@"
-                    """, Info.APPLICATION_ID, invokeCli.class.getName());
+                    """, CLIMain.class.getName());
             File cli = new File(getExternalFilesDir(""), "runner_cli");
             if (cli.exists()) {
                 cli.delete();
@@ -174,6 +171,8 @@ public class MainActivity extends BaseActivity {
         Fragment fragment = Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main));
         NavController navController = ((NavHostFragment) fragment).getNavController();
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        var badge = binding.navView;
     }
 
     public static void sendSomethingToServerBySocket(String msg) throws IOException {
@@ -183,15 +182,5 @@ public class MainActivity extends BaseActivity {
         out.write(msg.getBytes());
         out.close();
         socket.close();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 }

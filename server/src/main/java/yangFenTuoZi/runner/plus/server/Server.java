@@ -256,7 +256,7 @@ public class Server {
         try {
             app = new ZipFile(appPath);
         } catch (IOException e) {
-            Log.e("Read app file error!\n" + e);
+            Log.e("Read app file error!\n" + getStackTraceString(e));
         }
 
         if (!PREFIX.exists())
@@ -324,7 +324,7 @@ public class Server {
             try {
                 bufferedReader = new BufferedReader(new InputStreamReader(app.getInputStream(app.getEntry("assets/usr/ver.txt"))));
             } catch (IOException e) {
-                Log.e("Unable to read 'ver.txt' in the app file!\n" + e);
+                Log.e("Unable to read 'ver.txt' in the app file!\n" + getStackTraceString(e));
                 return;
             }
             sb = new StringBuilder();

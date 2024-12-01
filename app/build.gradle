@@ -60,10 +60,12 @@ dependencies {
     implementation libs.preference
     implementation libs.activity
     implementation libs.constraintlayout
+    implementation libs.coordinatorlayout
+
     implementation project(":tools")
     implementation project(":server")
     implementation project(":info")
-    implementation libs.coordinatorlayout
+
     compileOnly(project ":hiddenapi:stubs")
 }
 

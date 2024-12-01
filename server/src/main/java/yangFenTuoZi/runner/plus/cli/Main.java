@@ -16,11 +16,6 @@ import android.system.Os;
 
 import androidx.annotation.NonNull;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.converters.IntegerConverter;
-import com.beust.jcommander.converters.StringConverter;
-
 import yangFenTuoZi.runner.plus.info.Info;
 import yangFenTuoZi.runner.plus.server.IService;
 import yangFenTuoZi.runner.plus.server.Server;
@@ -30,188 +25,315 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Main {
-    @Parameter(names = {"-l", "--list"}, description = "list all cmds")
-    private boolean list;
 
-    @Parameter(names = {"-sr", "--showR"}, description = "show all running cmds")
-    private boolean showProc;
+//    @Parameter(names = {"-l", "--list"}, description = "list all cmds")
+//    private boolean list;
+//
+//    @Parameter(names = {"-sr", "--showR"}, description = "show all running cmds")
+//    private boolean showProc;
+//
+//    @Parameter(names = {"-c", "--exec"}, description = "exec command", converter = StringConverter.class)
+//    private String exec = null;
+//
+//    @Parameter(names = {"-r", "--run"}, description = "run a cmd by id", converter = IntegerConverter.class)
+//    private int run = -1;
+//
+//    @Parameter(names = {"-e", "--edit"}, description = "edit a cmd by id", converter = StringConverter.class)
+//    private String edit = null;
+//
+//    @Parameter(names = {"-k", "--kill"}, description = "kill a process", converter = IntegerConverter.class)
+//    private int kill = -1;
+//
+//    @Parameter(names = {"-s", "--stop"}, description = "stop server")
+//    private boolean stopServer;
+//
+//    @Parameter(names = "--help")
+//    private boolean help;
+//
+//    @Parameter(names = "--version", description = "show version")
+//    private boolean v;
 
-    @Parameter(names = {"-c", "--exec"}, description = "exec command", converter = StringConverter.class)
-    private String exec = null;
-
-    @Parameter(names = {"-r", "--run"}, description = "run a cmd by id", converter = IntegerConverter.class)
-    private int run = -1;
-
-    @Parameter(names = {"-e", "--edit"}, description = "edit a cmd by id", converter = StringConverter.class)
-    private String edit = null;
-
-    @Parameter(names = {"-k", "--kill"}, description = "kill a process", converter = IntegerConverter.class)
-    private int kill = -1;
-
-    @Parameter(names = {"-s", "--stop"}, description = "stop server")
-    private boolean stopServer;
-
-    @Parameter(names = "--help")
-    private boolean help;
-
-    @Parameter(names = "--version", description = "show version")
-    private boolean v;
     public static final String selfName = "runner_cli";
     private static Handler handler;
 
-    public static void main(String... argv) {
-        Main main = new Main();
-        JCommander commander = JCommander.newBuilder()
-                .addObject(main)
-                .build();
-        commander.parse(argv);
-        main.run(commander);
+    public static void main(String[] argv) {
+        if (argv.length == 0) {
+            help();
+            System.exit(1);
+        }
+
+        switch (argv[0]) {
+            case "--list", "-l": {
+                waitForBinder(new BinderReceiver() {
+                    @Override
+                    public void onBinderReceived(IBinder serverBinder) {
+                        BinderReceiver.super.onBinderReceived(serverBinder);
+                        try {
+                            CmdInfo[] cmdInfos = IService.Stub.asInterface(serverBinder).getAllCmds();
+                            JSONArray jsons = new JSONArray();
+                            for (CmdInfo cmdInfo : cmdInfos) {
+                                try {
+                                    jsons.put(getJsonObject(cmdInfo));
+                                } catch (Exception ignored) {
+                                }
+                            }
+                            System.out.println(jsons.toString(4));
+                        } catch (RemoteException e) {
+                            System.err.println("Unable to call server");
+                            e.printStackTrace(System.err);
+                            System.exit(1);
+                        } catch (JSONException ignored) {
+                        }
+                        System.exit(0);
+                    }
+                });
+                break;
+            }
+
+            case "-sr", "--showR": {
+                break;
+            }
+
+            case "-c", "--command": {
+                if (argv.length == 1) {
+                    help();
+                    System.exit(1);
+                }
+                waitForBinder(new BinderReceiver() {
+                    @Override
+                    public void onBinderReceived(IBinder serverBinder) {
+                        BinderReceiver.super.onBinderReceived(serverBinder);
+                        try {
+                            IService iService = IService.Stub.asInterface(serverBinder);
+                            int port = getUsablePort(8400);
+                            if (port == -1) {
+                                System.err.println("No usable port, maybe the app doesn't have 'INTERNET' perm");
+                                System.exit(255);
+                            }
+                            new Thread(() -> {
+                                try {
+                                    ServerSocket serverSocket = new ServerSocket(port);
+                                    Socket socket = serverSocket.accept();
+                                    try {
+                                        System.out.print("PID: ");
+                                        var in = socket.getInputStream();
+                                        byte[] buffer = new byte[1024];
+                                        int len;
+                                        while ((len = in.read(buffer)) != -1) {
+                                            System.out.write(buffer, 0, len);
+                                        }
+                                        in.close();
+                                        socket.close();
+                                    } catch (Exception ignored) {
+                                    }
+                                    serverSocket.close();
+                                } catch (Exception e) {
+                                    e.printStackTrace(System.err);
+                                }
+                            }).start();
+                            System.exit(iService.execX(arraysToArgv(argv, 1, argv.length - 1), "CLI-TMP", port));
+                        } catch (RemoteException e) {
+                            System.err.println("Unable to call server");
+                            e.printStackTrace(System.err);
+                            System.exit(255);
+                        }
+                    }
+                });
+                break;
+            }
+
+            case "-r", "--run": {
+                if (argv.length == 1) {
+                    help();
+                    System.exit(1);
+                }
+                waitForBinder(new BinderReceiver() {
+                    @Override
+                    public void onBinderReceived(IBinder serverBinder) {
+                        BinderReceiver.super.onBinderReceived(serverBinder);
+                        try {
+                            IService iService = IService.Stub.asInterface(serverBinder);
+                            CmdInfo cmdInfo = iService.getCmdByID(Integer.parseInt(argv[1]));
+                            if (cmdInfo == null) {
+                                System.err.println("Unable to get this cmd");
+                                System.exit(255);
+                            }
+                            assert cmdInfo != null;
+                            int port = getUsablePort(8400);
+                            if (port == -1) {
+                                System.err.println("No usable port, maybe the app doesn't have 'INTERNET' perm");
+                                System.exit(1);
+                            }
+                            new Thread(() -> {
+                                try {
+                                    ServerSocket serverSocket = new ServerSocket(port);
+                                    Socket socket = serverSocket.accept();
+                                    try {
+                                        System.out.print("PID: ");
+                                        var in = socket.getInputStream();
+                                        byte[] buffer = new byte[1024];
+                                        int len;
+                                        while ((len = in.read(buffer)) != -1) {
+                                            System.out.write(buffer, 0, len);
+                                        }
+                                        in.close();
+                                        socket.close();
+                                    } catch (Exception ignored) {
+                                    }
+                                    serverSocket.close();
+                                } catch (Exception e) {
+                                    e.printStackTrace(System.err);
+                                }
+                            }).start();
+                            System.exit(iService.execX(cmdInfo.command, cmdInfo.name, port));
+                        } catch (RemoteException e) {
+                            System.err.println("Unable to call server");
+                            e.printStackTrace(System.err);
+                            System.exit(255);
+                        }
+                    }
+                });
+                break;
+            }
+
+            case "-d", "--delete": {
+                if (argv.length == 1) {
+                    help();
+                    System.exit(1);
+                }
+                waitForBinder(new BinderReceiver() {
+                    @Override
+                    public void onBinderReceived(IBinder serverBinder) {
+                        BinderReceiver.super.onBinderReceived(serverBinder);
+                        try {
+                            IService iService = IService.Stub.asInterface(serverBinder);
+                            int id = Integer.parseInt(argv[1]);
+                            iService.delete(id);
+                            System.exit(iService.getCmdByID(id) == null ? 0 : 1);
+                        } catch (RemoteException e) {
+                            System.err.println("Unable to call server");
+                            e.printStackTrace(System.err);
+                            System.exit(255);
+                        }
+                    }
+                });
+                break;
+            }
+
+            case "-e", "--edit": {
+                break;
+            }
+
+            case "-k", "--kill": {
+                if (argv.length == 1) {
+                    help();
+                    System.exit(1);
+                }
+                waitForBinder(new BinderReceiver() {
+                    @Override
+                    public void onBinderReceived(IBinder serverBinder) {
+                        BinderReceiver.super.onBinderReceived(serverBinder);
+                        try {
+                            IService iService = IService.Stub.asInterface(serverBinder);
+                            int port = getUsablePort(8400);
+                            if (port == -1) {
+                                System.err.println("No usable port, maybe the app doesn't have 'INTERNET' perm");
+                                System.exit(255);
+                            }
+                            new Thread(() -> {
+                                try {
+                                    ServerSocket serverSocket = new ServerSocket(port);
+                                    Socket socket = serverSocket.accept();
+                                    try {
+                                        System.out.print("PID: ");
+                                        var in = socket.getInputStream();
+                                        byte[] buffer = new byte[1024];
+                                        int len;
+                                        while ((len = in.read(buffer)) != -1) {
+                                            System.out.write(buffer, 0, len);
+                                        }
+                                        in.close();
+                                        socket.close();
+                                    } catch (Exception ignored) {
+                                    }
+                                    serverSocket.close();
+                                } catch (Exception e) {
+                                    e.printStackTrace(System.err);
+                                }
+                            }).start();
+                            System.exit(iService.execX("kill -9 " + arraysToArgv(argv, 1, argv.length - 1), "CLI-TMP", port));
+                        } catch (RemoteException e) {
+                            System.err.println("Unable to call server");
+                            e.printStackTrace(System.err);
+                            System.exit(255);
+                        }
+                    }
+                });
+                break;
+            }
+
+            case "-s", "--stop": {
+                waitForBinder(new BinderReceiver() {
+                    @Override
+                    public void onBinderReceived(IBinder serverBinder) {
+                        BinderReceiver.super.onBinderReceived(serverBinder);
+                        try {
+                            Socket socket = new Socket("localhost", Server.PORT);
+                            OutputStream out = socket.getOutputStream();
+                            out.write("stopServer".getBytes());
+                            out.flush();
+                            out.close();
+                            socket.close();
+                        } catch (Exception e) {
+                            e.printStackTrace(System.err);
+                            System.exit(1);
+                        }
+                        System.exit(0);
+                    }
+                });
+                break;
+            }
+
+            case "-v", "--version": {
+                System.out.print("version-name: ");
+                System.out.println(Info.VERSION_NAME);
+                System.out.print("version-code: ");
+                System.out.println(Info.VERSION_CODE);
+                System.exit(0);
+                break;
+            }
+
+            case "--help", "-h": {
+                help();
+                System.exit(0);
+                break;
+            }
+
+            default: {
+                help();
+                System.exit(1);
+            }
+        }
     }
 
-    private void run(JCommander commander) {
-        if (help) {
-            commander.setProgramName(selfName);
-            commander.usage();
-            return;
+    private static void help() {
+
+    }
+
+    private static String arraysToArgv(String[] arrays, int start, int end) {
+        StringBuilder b = new StringBuilder();
+        for (int i = start; ; i++) {
+            b.append("\"").append(arrays[i].replaceAll("\"", "\\\"")).append("\"");
+            if (i == end)
+                break;
+            b.append(" ");
         }
-        if (list) {
-            waitForBinder(new BinderReceiver() {
-                @Override
-                public void onBinderReceived(IBinder serverBinder) {
-                    BinderReceiver.super.onBinderReceived(serverBinder);
-                    try {
-                        CmdInfo[] cmdInfos = IService.Stub.asInterface(serverBinder).getAllCmds();
-                        JSONArray jsons = new JSONArray();
-                        for (CmdInfo cmdInfo : cmdInfos) {
-                            try {
-                                jsons.put(getJsonObject(cmdInfo));
-                            } catch (Exception ignored) {
-                            }
-                        }
-                        System.out.println(jsons.toString(4));
-                    } catch (RemoteException e) {
-                        System.err.println("Unable to call server");
-                        System.exit(1);
-                    } catch (JSONException ignored) {
-                    }
-                    System.exit(0);
-                }
-            });
-            return;
-        }
-        if (exec != null) {
-            waitForBinder(new BinderReceiver() {
-                @Override
-                public void onBinderReceived(IBinder serverBinder) {
-                    BinderReceiver.super.onBinderReceived(serverBinder);
-                    try {
-                        IService iService = IService.Stub.asInterface(serverBinder);
-                        int port = getUsablePort(8400);
-                        if (port == -1) {
-                            System.err.println("No usable port, maybe the app doesn't have 'INTERNET' perm");
-                            System.exit(1);
-                        }
-                        new Thread(() -> {
-                            try {
-                                ServerSocket serverSocket = new ServerSocket(port);
-                                Socket socket = serverSocket.accept();
-                                try {
-                                    System.out.print("PID: ");
-                                    var in = socket.getInputStream();
-                                    byte[] buffer = new byte[1024];
-                                    int len;
-                                    while ((len = in.read(buffer)) != -1) {
-                                        System.out.write(buffer, 0, len);
-                                    }
-                                    in.close();
-                                    socket.close();
-                                } catch (Exception ignored) {
-                                }
-                                serverSocket.close();
-                            } catch (Exception e) {
-                                e.printStackTrace(System.err);
-                            }
-                        }).start();
-                        iService.execX(exec, "CLI-TMP", port);
-                    } catch (RemoteException e) {
-                        System.err.println("Unable to call server");
-                        System.exit(1);
-                    }
-                    System.exit(0);
-                }
-            });
-            return;
-        }
-        if (run != -1) {
-            waitForBinder(new BinderReceiver() {
-                @Override
-                public void onBinderReceived(IBinder serverBinder) {
-                    BinderReceiver.super.onBinderReceived(serverBinder);
-                    try {
-                        IService iService = IService.Stub.asInterface(serverBinder);
-                        CmdInfo cmdInfo = iService.getCmdByID(run);
-                        if (cmdInfo == null) {
-                            System.err.println("Unable to get this cmd");
-                            System.exit(1);
-                        }
-                        assert cmdInfo != null;
-                        int port = getUsablePort(8400);
-                        if (port == -1) {
-                            System.err.println("No usable port, maybe the app doesn't have 'INTERNET' perm");
-                            System.exit(1);
-                        }
-                        new Thread(() -> {
-                            try {
-                                ServerSocket serverSocket = new ServerSocket(port);
-                                Socket socket = serverSocket.accept();
-                                try {
-                                    System.out.print("PID: ");
-                                    var in = socket.getInputStream();
-                                    byte[] buffer = new byte[1024];
-                                    int len;
-                                    while ((len = in.read(buffer)) != -1) {
-                                        System.out.write(buffer, 0, len);
-                                    }
-                                    in.close();
-                                    socket.close();
-                                } catch (Exception ignored) {
-                                }
-                                serverSocket.close();
-                            } catch (Exception e) {
-                                e.printStackTrace(System.err);
-                            }
-                        }).start();
-                        System.exit(iService.execX(cmdInfo.command, cmdInfo.name, port));
-                    } catch (RemoteException e) {
-                        System.err.println("Unable to call server");
-                        System.exit(1);
-                    }
-                    System.exit(0);
-                }
-            });
-            return;
-        }
-        if (kill != -1) {
-            waitForBinder(new BinderReceiver() {
-                @Override
-                public void onBinderReceived(IBinder serverBinder) {
-                    BinderReceiver.super.onBinderReceived(serverBinder);
-                    try {
-                        IService iService = IService.Stub.asInterface(serverBinder);
-                        System.out.print(iService.exec("kill \""+kill+"\""));
-                    } catch (RemoteException e) {
-                        System.err.println("Unable to call server");
-                        System.exit(1);
-                    }
-                    System.exit(0);
-                }
-            });
-            return;
-        }
+        return String.valueOf(b);
     }
 
     private static JSONObject getJsonObject(CmdInfo cmdInfo) throws JSONException {

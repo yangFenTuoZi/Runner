@@ -2,7 +2,7 @@ package yangFenTuoZi.runner.plus.ui.fragment;
 
 import static android.app.Activity.RESULT_OK;
 
-import static yangFenTuoZi.runner.plus.server.Logger.getStackTraceString;
+import static yangFenTuoZi.runner.plus.utils.ExceptionUtils.throwableToDialog;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,21 +16,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import rikka.core.util.ResourceUtils;
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.Utils;
 import yangFenTuoZi.runner.plus.databinding.FragmentSettingsBinding;
 
 import yangFenTuoZi.runner.plus.info.Info;
@@ -44,13 +40,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Base64;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPOutputStream;
 
 import rikka.preference.SimpleMenuPreference;
 import rikka.recyclerview.RecyclerViewKt;
-import yangFenTuoZi.runner.plus.ui.dialog.ExecDialog;
+import yangFenTuoZi.runner.plus.ui.dialog.ExecDialogBuilder;
+import yangFenTuoZi.runner.plus.utils.ThemeUtils;
+import yangFenTuoZi.runner.plus.utils.UpdateUtils;
 
 public class SettingsFragment extends BaseFragment {
 
@@ -90,11 +87,12 @@ public class SettingsFragment extends BaseFragment {
                             json.put("APP_PACKAGE_NAME", Info.APPLICATION_ID);
                             json.put("APP_VERSION_NAME", Info.VERSION_NAME);
                             json.put("APP_VERSION_CODE", String.valueOf(Info.VERSION_CODE));
-                        } catch (JSONException ignored) {
+                        } catch (JSONException e) {
+                            throwableToDialog(mContext, e);
                         }
                         try {
                             AtomicBoolean br = new AtomicBoolean(false);
-                            int port = ExecDialog.getUsablePort(8400);
+                            int port = ExecDialogBuilder.getUsablePort(8400);
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
                             ByteArrayOutputStream bos1 = new ByteArrayOutputStream();
                             GZIPOutputStream gzip = new GZIPOutputStream(bos);
@@ -113,7 +111,8 @@ public class SettingsFragment extends BaseFragment {
                                     bos1.close();
                                     in.close();
                                     socket.close();
-                                } catch (IOException ignored) {
+                                } catch (IOException e) {
+                                    throwableToDialog(mContext, e);
                                 }
                                 br.set(true);
                             }).start();
@@ -123,7 +122,8 @@ public class SettingsFragment extends BaseFragment {
                             if (_sha256 != null && sha256.toLowerCase().replaceAll(" ", "").equals(_sha256.toLowerCase().replaceAll(" ", ""))) {
                                 json.put("APP_DATABASE", new String(Base64.getEncoder().encode(bos.toByteArray())));
                             }
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            throwableToDialog(mContext, e);
                         }
                         try {
                             ParcelFileDescriptor pfd = mContext.getContentResolver().openFileDescriptor(uri, "w");
@@ -132,10 +132,7 @@ public class SettingsFragment extends BaseFragment {
                             fileOutputStream.close();
                             pfd.close();
                         } catch (IOException e) {
-                            runOnUiThread(() -> new MaterialAlertDialogBuilder(mContext)
-                                    .setTitle("Write error!")
-                                    .setMessage(getStackTraceString(e))
-                                    .show());
+                            throwableToDialog(mContext, e);
                         }
                     }).start();
                 }
@@ -170,15 +167,10 @@ public class SettingsFragment extends BaseFragment {
             SimpleMenuPreference dark_theme = findPreference("dark_theme");
             if (dark_theme != null) {
                 dark_theme.setOnPreferenceChangeListener((preference, newValue) -> {
-                    short oldIsDark = mContext.mApp.isDark;
-                    mContext.mApp.isDark = switch ((String) newValue) {
-                        case "MODE_NIGHT_FOLLOW_SYSTEM" ->
-                                ResourceUtils.isNightMode(getResources().getConfiguration()) ? (short) 1 : (short) 0;
-                        case "MODE_NIGHT_YES" -> 1;
-                        default -> 0;
-                    };
+                    int oldIsDark = mContext.mApp.isDark;
+                    mContext.mApp.isDark = ThemeUtils.isDark(mContext) ? 1 : 0;
                     if (oldIsDark != mContext.mApp.isDark) {
-                        mContext.mApp.setTheme(mContext.mApp.isDark == 1 ? R.style.Theme : R.style.Theme_Light);
+                        mContext.mApp.setTheme(ThemeUtils.getTheme(mContext.mApp.isDark == 1));
                         mContext.recreate();
                     }
                     return true;
@@ -192,7 +184,7 @@ public class SettingsFragment extends BaseFragment {
                     if (mContext.isDialogShow)
                         return true;
                     try {
-                        Utils.UpdateUtils.UpdateInfo updateInfo = Utils.UpdateUtils.Update(
+                        UpdateUtils.UpdateInfo updateInfo = UpdateUtils.Update(
                                 ((SimpleMenuPreference) findPreference("update_channel"))
                                         .getValue().equals(getResources().getStringArray(R.array.update_channel_values)[1]));
                         if (updateInfo.version_code > Info.VERSION_CODE) {
@@ -210,13 +202,13 @@ public class SettingsFragment extends BaseFragment {
                         } else {
                             Toast.makeText(mContext, R.string.settings_latest_version, Toast.LENGTH_SHORT).show();
                         }
-                    } catch (Utils.UpdateUtils.UpdateException e) {
+                    } catch (UpdateUtils.UpdateException e) {
                         Toast.makeText(mContext, switch (e.getWhat()) {
-                            case Utils.UpdateUtils.UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER ->
+                            case UpdateUtils.UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER ->
                                     R.string.settings_can_not_connect_update_server;
-                            case Utils.UpdateUtils.UpdateException.WHAT_CAN_NOT_PARSE_JSON ->
+                            case UpdateUtils.UpdateException.WHAT_CAN_NOT_PARSE_JSON ->
                                     R.string.settings_can_not_parse_json;
-                            case Utils.UpdateUtils.UpdateException.WHAT_JSON_FORMAT_ERROR ->
+                            case UpdateUtils.UpdateException.WHAT_JSON_FORMAT_ERROR ->
                                     R.string.settings_json_format_error;
                             default -> R.string.settings_error;
                         }, Toast.LENGTH_SHORT).show();
@@ -272,7 +264,6 @@ public class SettingsFragment extends BaseFragment {
         public RecyclerView onCreateRecyclerView(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, Bundle savedInstanceState) {
             RecyclerView recyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState);
             RecyclerViewKt.fixEdgeEffect(recyclerView, false, true);
-//            recyclerView.getBorderViewDelegate().setBorderVisibilityChangedListener((top, oldTop, bottom, oldBottom) -> mParentFragment.binding.appBar.setLifted(!top));
             var fragment = getParentFragment();
             if (fragment instanceof SettingsFragment settingsFragment) {
                 View.OnClickListener l = v -> {
