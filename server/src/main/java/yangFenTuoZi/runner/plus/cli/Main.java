@@ -16,10 +16,6 @@ import android.system.Os;
 
 import androidx.annotation.NonNull;
 
-import yangFenTuoZi.runner.plus.info.Info;
-import yangFenTuoZi.runner.plus.server.IService;
-import yangFenTuoZi.runner.plus.server.Server;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +24,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import yangFenTuoZi.runner.plus.info.Info;
+import yangFenTuoZi.runner.plus.server.IService;
+import yangFenTuoZi.runner.plus.server.Server;
 
 public class Main {
 
@@ -74,7 +74,7 @@ public class Main {
                     public void onBinderReceived(IBinder serverBinder) {
                         BinderReceiver.super.onBinderReceived(serverBinder);
                         try {
-                            CmdInfo[] cmdInfos = IService.Stub.asInterface(serverBinder).getAllCmds();
+                            CmdInfo[] cmdInfos = IService.Stub.asInterface(serverBinder).getAll();
                             JSONArray jsons = new JSONArray();
                             for (CmdInfo cmdInfo : cmdInfos) {
                                 try {
@@ -158,7 +158,7 @@ public class Main {
                         BinderReceiver.super.onBinderReceived(serverBinder);
                         try {
                             IService iService = IService.Stub.asInterface(serverBinder);
-                            CmdInfo cmdInfo = iService.getCmdByID(Integer.parseInt(argv[1]));
+                            CmdInfo cmdInfo = iService.query(Integer.parseInt(argv[1]));
                             if (cmdInfo == null) {
                                 System.err.println("Unable to get this cmd");
                                 System.exit(255);
@@ -214,7 +214,7 @@ public class Main {
                             IService iService = IService.Stub.asInterface(serverBinder);
                             int id = Integer.parseInt(argv[1]);
                             iService.delete(id);
-                            System.exit(iService.getCmdByID(id) == null ? 0 : 1);
+                            System.exit(iService.query(id) == null ? 0 : 1);
                         } catch (RemoteException e) {
                             System.err.println("Unable to call server");
                             e.printStackTrace(System.err);
@@ -338,7 +338,7 @@ public class Main {
 
     private static JSONObject getJsonObject(CmdInfo cmdInfo) throws JSONException {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", cmdInfo.id);
+        jsonObject.put("id", cmdInfo.rowid);
         jsonObject.put("name", cmdInfo.name);
         jsonObject.put("command", cmdInfo.command);
         jsonObject.put("keepAlive", cmdInfo.keepAlive);

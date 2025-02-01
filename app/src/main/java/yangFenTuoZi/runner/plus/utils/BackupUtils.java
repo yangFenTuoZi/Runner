@@ -86,7 +86,7 @@ public class BackupUtils {
                 }
                 br.set(true);
             }).start();
-            if (!App.iService.writeDatabase(port, Server.getSHA256(data.getBytes()))) {
+            if (!App.iService.restoreData(port, Server.getSHA256(data.getBytes()))) {
                 RestoreException exception = new RestoreException();
                 exception.setWhat(RestoreException.WHAT_DATA_ERROR);
                 throw exception;

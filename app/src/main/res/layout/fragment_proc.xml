@@ -70,7 +70,7 @@ app:fitsSystemWindowsInsets="@integer/internal_fragment_insets">
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_close_24" />
 </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

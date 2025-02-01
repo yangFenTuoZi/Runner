@@ -1,6 +1,5 @@
 package yangFenTuoZi.runner.plus.ui.dialog;
 
-import android.content.Intent;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -10,12 +9,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import yangFenTuoZi.runner.plus.App;
-import yangFenTuoZi.runner.plus.adapters.ProcessAdapter;
-import yangFenTuoZi.runner.plus.databinding.DialogExecBinding;
-import yangFenTuoZi.runner.plus.ui.activity.BaseActivity;
-import yangFenTuoZi.runner.plus.R;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,24 +16,31 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
 
+import yangFenTuoZi.runner.plus.App;
+import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.adapters.ProcAdapter;
+import yangFenTuoZi.runner.plus.cli.CmdInfo;
+import yangFenTuoZi.runner.plus.databinding.DialogExecBinding;
+import yangFenTuoZi.runner.plus.ui.activity.BaseActivity;
+
 public class ExecDialogBuilder extends BaseDialogBuilder {
 
     int pid, port;
-    Intent intent;
+    CmdInfo cmdInfo;
     Thread h1, h2;
     boolean br = false, br2 = false;
     ServerSocket serverSocket;
     BaseActivity mContext;
     DialogExecBinding binding;
 
-    public ExecDialogBuilder(@NonNull BaseActivity context, Intent intent) throws DialogShowException {
+    public ExecDialogBuilder(@NonNull BaseActivity context, CmdInfo cmdInfo) throws DialogShowException {
         super(context);
         mContext = context;
         binding = DialogExecBinding.inflate(LayoutInflater.from(mContext));
         setView(binding.getRoot());
         setTitle(getString(R.string.exec_running));
         setOnDismissListener(dialog -> onDestroy());
-        this.intent = intent;
+        this.cmdInfo = cmdInfo;
     }
 
     @Override
@@ -54,10 +54,10 @@ public class ExecDialogBuilder extends BaseDialogBuilder {
         });
         //子线程执行命令，否则UI线程执行就会导致UI卡住动不了
         String cmd;
-        if (intent.getBooleanExtra("chid", false))
-            cmd = "chid " + intent.getStringExtra("ids") + " " + intent.getStringExtra("command");
+        if (cmdInfo.useChid)
+            cmd = "chid " + cmdInfo.ids + " " + cmdInfo.command;
         else
-            cmd = intent.getStringExtra("command");
+            cmd = cmdInfo.command;
         if (App.pingServer()) {
             h1 = new Thread(() -> {
                 try {
@@ -120,7 +120,7 @@ public class ExecDialogBuilder extends BaseDialogBuilder {
                         }
                     }).start();
                     h2.start();
-                    int exitValue = App.iService.execX(cmd, intent.getStringExtra("name"), port);
+                    int exitValue = App.iService.execX(cmd, cmdInfo.name, port);
                     runOnUiThread(() -> {
                         binding.execTitle.append(getString(R.string.exec_return, exitValue, getString(switch (exitValue) {
                             case 0 -> R.string.exec_normal;
@@ -148,10 +148,10 @@ public class ExecDialogBuilder extends BaseDialogBuilder {
         if (App.pingServer()) {
             try {
                 serverSocket.close();
-                if (!intent.getBooleanExtra("keep_in_alive", false) && !br2) {
+                if (!cmdInfo.keepAlive && !br2) {
                     new Thread(() -> {
                         try {
-                            if (ProcessAdapter.killPID(pid)) {
+                            if (ProcAdapter.killPID(pid)) {
                                 runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
                             } else
                                 runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());

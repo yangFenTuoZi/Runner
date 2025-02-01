@@ -8,19 +8,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import yangFenTuoZi.runner.plus.App;
-import yangFenTuoZi.runner.plus.ShizukuShellLoader;
-import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
-
-import yangFenTuoZi.runner.plus.ui.activity.BaseActivity;
-import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
-import yangFenTuoZi.runner.plus.R;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+
+import yangFenTuoZi.runner.plus.App;
+import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.ShizukuShellLoader;
+import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
+import yangFenTuoZi.runner.plus.ui.activity.BaseActivity;
+import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 
 public class StartServerDialogBuilder extends BaseDialogBuilder {
 
@@ -79,13 +78,13 @@ public class StartServerDialogBuilder extends BaseDialogBuilder {
             try {
                 Process p = Runtime.getRuntime().exec("sh");
                 OutputStream out = p.getOutputStream();
-                out.write((shell + " 2>&1\n").getBytes());
-                out.flush();
-                out.write(("sh " + mContext.getExternalFilesDir("") + "/server_starter.sh in_app \"" + mContext.getApplicationInfo().sourceDir + "\"\n").getBytes());
-                out.flush();
-                out.write("exit\n".getBytes());
-                out.flush();
-                out.write("exit\n".getBytes());
+                out.write(String.format("""
+                        %s 2>&1
+                        exitValue=$?
+                        [ $exitValue -eq 0 ] || exit $exitValue
+                        unset exitValue
+                        sh %s/server_starter.sh in_app "%s"
+                        """, shell, mContext.getExternalFilesDir(""), mContext.getApplicationInfo().sourceDir).getBytes());
                 out.flush();
                 out.close();
                 try {

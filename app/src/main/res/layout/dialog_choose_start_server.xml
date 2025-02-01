@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:text="Root"
         android:checked="true"
+        android:layout_marginTop="7dp"
         tools:ignore="HardcodedText" />
 
     <com.google.android.material.radiobutton.MaterialRadioButton
@@ -21,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Shizuku"
+        android:layout_marginTop="7dp"
         tools:ignore="HardcodedText" />
 
     <com.google.android.material.radiobutton.MaterialRadioButton
@@ -28,6 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ADB(shell)"
+        android:layout_marginTop="7dp"
         tools:ignore="HardcodedText" />
 
 </RadioGroup>

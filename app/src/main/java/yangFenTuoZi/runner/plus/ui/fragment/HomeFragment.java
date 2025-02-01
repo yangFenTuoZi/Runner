@@ -17,38 +17,42 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.HtmlCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 
+import java.lang.reflect.Field;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import rikka.material.app.LocaleDelegate;
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.BuildConfig;
+import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.adapters.CmdAdapter;
 import yangFenTuoZi.runner.plus.cli.CmdInfo;
 import yangFenTuoZi.runner.plus.databinding.DialogAboutBinding;
 import yangFenTuoZi.runner.plus.databinding.DialogChooseStartServerBinding;
+import yangFenTuoZi.runner.plus.databinding.DialogEditBinding;
+import yangFenTuoZi.runner.plus.databinding.FragmentHomeBinding;
 import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
 import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
 import yangFenTuoZi.runner.plus.ui.activity.PackActivity;
-import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.databinding.FragmentHomeBinding;
 import yangFenTuoZi.runner.plus.ui.dialog.BaseDialogBuilder;
 import yangFenTuoZi.runner.plus.ui.dialog.BlurBehindDialogBuilder;
 import yangFenTuoZi.runner.plus.ui.dialog.StartServerDialogBuilder;
 
-import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class HomeFragment extends BaseFragment {
     private FragmentHomeBinding binding;
+    private CmdAdapter adapter;
     private final OnServiceConnectListener onServiceConnectListener = iService -> runOnUiThread(() -> {
         initList();
         try {
@@ -60,7 +64,8 @@ public class HomeFragment extends BaseFragment {
         }
     });
     private final OnServiceDisconnectListener onServiceDisconnectListener = () -> runOnUiThread(() -> {
-        binding.recyclerView.setAdapter(null);
+        if (adapter != null) adapter.close();
+        binding.recyclerView.setAdapter(adapter = null);
         String string = getString(R.string.home_service_is_not_running);
         binding.toolbarLayout.setSubtitle(string);
         binding.toolbar.setSubtitle(string);
@@ -74,7 +79,7 @@ public class HomeFragment extends BaseFragment {
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        binding.recyclerView.setLayoutManager(new GridLayoutManager(mContext, 2));
         binding.swipeRefreshLayout.setOnRefreshListener(() -> new Handler().postDelayed(() -> {
             initList();
             binding.swipeRefreshLayout.setRefreshing(false);
@@ -151,6 +156,32 @@ public class HomeFragment extends BaseFragment {
             }
             return true;
         });
+        binding.add.setOnClickListener(view -> {
+
+            if (mContext.isDialogShow)
+                return;
+            DialogEditBinding binding = DialogEditBinding.inflate(LayoutInflater.from(mContext));
+
+            binding.dialogUidGid.setVisibility(View.GONE);
+            binding.dialogChid.setOnCheckedChangeListener((buttonView, isChecked) -> binding.dialogUidGid.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+
+            binding.dialogName.requestFocus();
+            binding.dialogName.postDelayed(() -> ((InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(binding.dialogName, 0), 200);
+            mContext.isDialogShow = true;
+            new MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.dialog_edit)).setView(binding.getRoot()).setPositiveButton(mContext.getString(R.string.dialog_finish), (dialog, which) -> {
+                if (!App.pingServer()) {
+                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                CmdInfo info = new CmdInfo();
+                info.command = String.valueOf(binding.dialogCommand.getText());
+                info.name = String.valueOf(binding.dialogName.getText());
+                info.keepAlive = binding.dialogKeepItAlive.isChecked();
+                info.useChid = binding.dialogChid.isChecked();
+                info.ids = binding.dialogChid.isChecked() ? Objects.requireNonNull(binding.dialogIds.getText()).toString() : null;
+                adapter.add(info);
+            }).setOnDismissListener(dialog -> mContext.isDialogShow = false).show();
+        });
 
         App.addOnServiceConnectListener(onServiceConnectListener);
         App.addOnServiceDisconnectListener(onServiceDisconnectListener);
@@ -168,16 +199,13 @@ public class HomeFragment extends BaseFragment {
             return;
         }
         try {
-            CmdInfo[] cmdInfos = iService.getAllCmds();
-            int[] data = new int[cmdInfos.length + 1];
-            int max = -1;
-            for (int i = 0; i < cmdInfos.length; i++) {
-                data[i] = cmdInfos[i].id;
-                if (cmdInfos[i].id > max)
-                    max = cmdInfos[i].id;
+            App.iService.closeCursor();
+            int count = iService.count();
+            if (adapter == null) {
+                adapter = new CmdAdapter(mContext, count);
+                binding.recyclerView.setAdapter(adapter);
             }
-            data[cmdInfos.length] = max + 1;
-            binding.recyclerView.setAdapter(new CmdAdapter(mContext, data, this, cmdInfos));
+            else adapter.updateData(count);
         } catch (Exception e) {
             throwableToDialog(mContext, e);
         }
@@ -194,7 +222,6 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-
         if (App.pingServer()) onServiceConnectListener.onServiceConnect(iService);
         else onServiceDisconnectListener.onServiceDisconnect();
     }
@@ -210,7 +237,7 @@ public class HomeFragment extends BaseFragment {
                     return super.onContextItemSelected(item);
                 }
                 try {
-                    String name = iService.getCmdByID(item.getGroupId()).name;
+                    String name = iService.query(item.getGroupId()).name;
                     ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", name));
                     Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show();
                 } catch (RemoteException e) {
@@ -223,7 +250,7 @@ public class HomeFragment extends BaseFragment {
                     return super.onContextItemSelected(item);
                 }
                 try {
-                    String command = iService.getCmdByID(item.getGroupId()).command;
+                    String command = iService.query(item.getGroupId()).command;
                     ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
                     Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
                 } catch (RemoteException e) {
@@ -243,13 +270,7 @@ public class HomeFragment extends BaseFragment {
                     Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
                     return super.onContextItemSelected(item);
                 }
-                try {
-                    iService.delete(item.getGroupId());
-                } catch (RemoteException e) {
-                    throwableToDialog(mContext, e);
-                }
-                binding.recyclerView.setAdapter(null);
-                initList();
+                adapter.remove(item.getGroupId());
                 return true;
             default:
                 return super.onContextItemSelected(item);

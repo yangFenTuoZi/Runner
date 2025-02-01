@@ -5,7 +5,6 @@ import static yangFenTuoZi.runner.plus.server.Logger.getStackTraceString;
 
 import android.annotation.SuppressLint;
 import android.app.IActivityManager;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
@@ -34,7 +33,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Timer;
@@ -294,13 +292,13 @@ public class Server {
         if (app == null)
             return;
         if (!ver.exists()) {
-            releaseFiles(app);
+            unzipFiles(app);
         } else {
             BufferedReader bufferedReader;
             try {
                 bufferedReader = new BufferedReader(new FileReader(ver));
             } catch (FileNotFoundException e) {
-                releaseFiles(app);
+                unzipFiles(app);
                 return;
             }
             StringBuilder sb = new StringBuilder();
@@ -317,7 +315,7 @@ public class Server {
             try {
                 local_verCode = Integer.parseInt(sb.toString().replaceAll("\n", ""));
             } catch (NumberFormatException e) {
-                releaseFiles(app);
+                unzipFiles(app);
                 return;
             }
 
@@ -339,12 +337,12 @@ public class Server {
             int app_verCode = Integer.parseInt(sb.toString().replaceAll("\n", ""));
 
             if (app_verCode > local_verCode)
-                releaseFiles(app);
+                unzipFiles(app);
         }
     }
 
-    private void releaseFiles(ZipFile app) {
-        Log.i("Release term files.");
+    private void unzipFiles(ZipFile app) {
+        Log.i("Unzip term files.");
         Enumeration<? extends ZipEntry> entries = app.entries();
         while (entries.hasMoreElements()) {
             ZipEntry zipEntry = entries.nextElement();
@@ -482,30 +480,46 @@ public class Server {
             }
 
             @Override
-            public CmdInfo[] getAllCmds() {
-                return Server.this.getAll();
+            public void openCursor() {
+                Server.this.openCursor();
             }
 
             @Override
-            public CmdInfo getCmdByID(int id) {
+            public void closeCursor() {
+                Server.this.closeCursor();
+            }
+
+            @Override
+            public int count() {
+                return Server.this.count();
+            }
+
+            @Override
+            public CmdInfo query(int id) {
                 return Server.this.query(id);
             }
 
             @Override
             public void delete(int id) {
                 Log.i("Delete by id: " + id);
-                Server.this.delete(id);
+                Server.this.delete(new String[]{String.valueOf(id)});
             }
 
             @Override
-            public void edit(CmdInfo cmdInfo) {
-                if (Server.this.query(cmdInfo.id) == null) {
-                    Log.i("Create %s", cmdInfo.toString());
-                    Server.this.insert(cmdInfo);
-                } else {
-                    Log.i("Edit %s", cmdInfo.toString());
-                    Server.this.update(cmdInfo);
-                }
+            public void update(CmdInfo cmdInfo) {
+                Log.i("Edit %s", cmdInfo.toString());
+                Server.this.update(cmdInfo);
+            }
+
+            @Override
+            public void insert(CmdInfo cmdInfo) {
+                Log.i("Create %s", cmdInfo.toString());
+                Server.this.insert(cmdInfo);
+            }
+
+            @Override
+            public CmdInfo[] getAll() {
+                return Server.this.getAll();
             }
 
             @Override
@@ -561,7 +575,7 @@ public class Server {
             }
 
             @Override
-            public String readDatabase(int port) {
+            public String backupData(int port) {
                 try {
                     File DB_file = new File(DatabaseHelper.DB_NAME);
                     Socket socket = new Socket("localhost", port);
@@ -583,7 +597,7 @@ public class Server {
             }
 
             @Override
-            public boolean writeDatabase(int port, String sha256) {
+            public boolean restoreData(int port, String sha256) {
                 try {
                     File DB_file = new File(DatabaseHelper.DB_NAME);
                     File DB_file_ = new File(DatabaseHelper.DB_NAME + "_");
@@ -619,126 +633,74 @@ public class Server {
         try {
             messageDigest = MessageDigest.getInstance("SHA-256");
             messageDigest.update(bytes);
-            encodeStr = byte2Hex(messageDigest.digest());
+            StringBuilder sb = new StringBuilder();
+            String temp;
+            for (byte aByte : messageDigest.digest()) {
+                temp = Integer.toHexString(aByte & 0xFF);
+                if (temp.length() == 1) {
+                    sb.append("0");
+                }
+                sb.append(temp);
+            }
+            encodeStr = sb.toString();
         } catch (NoSuchAlgorithmException e) {
             return null;
         }
         return encodeStr;
     }
 
-    private static String byte2Hex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        String temp;
-        for (byte aByte : bytes) {
-            temp = Integer.toHexString(aByte & 0xFF);
-            if (temp.length() == 1) {
-                sb.append("0");
-            }
-            sb.append(temp);
+    private Cursor cursor;
+
+    public void openCursor() {
+        closeCursor();
+        cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
+    }
+
+    private void closeCursor() {
+        if (cursor != null) {
+            cursor.close();
+            cursor = null;
         }
-        return sb.toString();
     }
 
     public void insert(CmdInfo cmdInfo) {
-        ContentValues values = new ContentValues();
-        values.put("id", cmdInfo.id);
-        values.put("name", new String(Base64.getEncoder().encode(cmdInfo.name.getBytes())));
-        values.put("command", new String(Base64.getEncoder().encode(cmdInfo.command.getBytes())));
-        values.put("keepAlive", cmdInfo.keepAlive ? 1 : 0);
-        values.put("useChid", cmdInfo.useChid ? 1 : 0);
-        values.put("ids", cmdInfo.ids);
-        database.insert(TABLE_NAME, null, values);
+        database.insert(TABLE_NAME, null, cmdInfo.toContentValues());
+        if (cursor != null) openCursor();
     }
 
     public void update(CmdInfo cmdInfo) {
-        ContentValues values = new ContentValues();
-        values.put("id", cmdInfo.id);
-        values.put("name", new String(Base64.getEncoder().encode(cmdInfo.name.getBytes())));
-        values.put("command", new String(Base64.getEncoder().encode(cmdInfo.command.getBytes())));
-        values.put("keepAlive", cmdInfo.keepAlive ? 1 : 0);
-        values.put("useChid", cmdInfo.useChid ? 1 : 0);
-        values.put("ids", cmdInfo.ids);
-        database.update(TABLE_NAME, values, "id=?", new String[]{String.valueOf(cmdInfo.id)});
-    }
-
-    public CmdInfo query(int id) {
-        return query(String.valueOf(id));
-    }
-
-    public CmdInfo[] query(int[] ids) {
-        String[] args = new String[ids.length];
-        for (int i = 0; i < ids.length; i++) {
-            args[i] = String.valueOf(ids[i]);
-        }
-        return query(args);
-    }
-
-    public CmdInfo query(String id) {
-        CmdInfo[] cmdInfos = query(new String[]{id});
-        return cmdInfos.length == 0 ? null : cmdInfos[0];
+        database.update(TABLE_NAME, cmdInfo.toContentValues(), "rowid=?", new String[]{String.valueOf(cmdInfo.rowid)});
+        if (cursor != null) openCursor();
     }
 
     @SuppressLint({"Range", "Recycle"})
-    public CmdInfo[] query(String[] ids) {
-        Cursor cursor = database.query(TABLE_NAME, null, "id=?", ids, null, null, null);
-        CmdInfo[] result = new CmdInfo[cursor.getCount()];
-        if (cursor.moveToFirst()) {
-            for (int i = 0; i < cursor.getCount(); i++) {
-                cursor.move(i);
-                CmdInfo cmdInfo = new CmdInfo();
-                cmdInfo.id = cursor.getInt(cursor.getColumnIndex("id"));
-                cmdInfo.name = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("name")).getBytes()));
-                cmdInfo.command = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("command")).getBytes()));
-                cmdInfo.keepAlive = cursor.getInt(cursor.getColumnIndex("keepAlive")) == 1;
-                cmdInfo.useChid = cursor.getInt(cursor.getColumnIndex("useChid")) == 1;
-                cmdInfo.ids = cursor.getString(cursor.getColumnIndex("ids"));
-                result[i] = cmdInfo;
-            }
-        }
-        return result;
+    public CmdInfo query(int position) {
+        if (cursor == null) openCursor();
+        if (cursor.moveToPosition(position)) return new CmdInfo(cursor);
+        else return new CmdInfo();
     }
 
     @SuppressLint("Range")
     public CmdInfo[] getAll() {
-        Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
+        if (cursor == null) openCursor();
+        cursor.moveToFirst();
         CmdInfo[] result = new CmdInfo[cursor.getCount()];
         int i = 0;
         while (cursor.moveToNext()) {
-            CmdInfo cmdInfo = new CmdInfo();
-            cmdInfo.id = cursor.getInt(cursor.getColumnIndex("id"));
-            cmdInfo.name = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("name")).getBytes()));
-            cmdInfo.command = new String(Base64.getDecoder().decode(cursor.getString(cursor.getColumnIndex("command")).getBytes()));
-            cmdInfo.keepAlive = cursor.getInt(cursor.getColumnIndex("keepAlive")) == 1;
-            cmdInfo.useChid = cursor.getInt(cursor.getColumnIndex("useChid")) == 1;
-            cmdInfo.ids = cursor.getString(cursor.getColumnIndex("ids"));
-            result[i] = cmdInfo;
+            result[i] = new CmdInfo(cursor);
             i++;
         }
-        cursor.close();
+        closeCursor();
         return result;
     }
 
-    public void delete(CmdInfo cmdInfo) {
-        delete(cmdInfo.id);
-    }
-
-    public void delete(int id) {
-        delete(String.valueOf(id));
-    }
-
-    public void delete(int[] ids) {
-        String[] args = new String[ids.length];
-        for (int i = 0; i < ids.length; i++) {
-            args[i] = String.valueOf(ids[i]);
-        }
-        delete(args);
-    }
-
-    public void delete(String id) {
-        delete(new String[]{id});
+    public int count() {
+        if (cursor == null) openCursor();
+        return cursor.getCount();
     }
 
     public void delete(String[] ids) {
-        database.delete(TABLE_NAME, "id=?", ids);
+        database.delete(TABLE_NAME, "rowid=?", ids);
+        if (cursor != null) openCursor();
     }
 }

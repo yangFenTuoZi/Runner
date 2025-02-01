@@ -20,12 +20,12 @@ import java.util.Objects;
 
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.adapters.ProcessAdapter;
-import yangFenTuoZi.runner.plus.databinding.FragmentProcessesBinding;
+import yangFenTuoZi.runner.plus.adapters.ProcAdapter;
+import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding;
 
-public class ProcessesFragment extends BaseFragment {
+public class ProcFragment extends BaseFragment {
 
-    private FragmentProcessesBinding binding;
+    private FragmentProcBinding binding;
     public SwipeRefreshLayout.OnRefreshListener onRefreshListener = () -> new Handler().postDelayed(() -> {
         initList();
         binding.swipeRefreshLayout.setRefreshing(false);
@@ -33,7 +33,7 @@ public class ProcessesFragment extends BaseFragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentProcessesBinding.inflate(inflater, container, false);
+        binding = FragmentProcBinding.inflate(inflater, container, false);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         binding.swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
 
@@ -73,7 +73,7 @@ public class ProcessesFragment extends BaseFragment {
                                         }
                                     }
                                 }
-                                ProcessAdapter.killPIDs(data);
+                                ProcAdapter.killPIDs(data);
                             } catch (RemoteException e) {
                                 throwableToDialog(mContext, e);
                             }
@@ -106,7 +106,7 @@ public class ProcessesFragment extends BaseFragment {
                             }
                         }
                     }
-                    runOnUiThread(() -> binding.recyclerView.setAdapter(new ProcessAdapter(mContext, data, data_name, this)));
+                    runOnUiThread(() -> binding.recyclerView.setAdapter(new ProcAdapter(mContext, data, data_name, this)));
                 } catch (RemoteException e) {
                     throwableToDialog(mContext, e);
                 }
@@ -128,7 +128,7 @@ public class ProcessesFragment extends BaseFragment {
         initList();
     }
 
-    public FragmentProcessesBinding getBinding() {
+    public FragmentProcBinding getBinding() {
         return binding;
     }
 }

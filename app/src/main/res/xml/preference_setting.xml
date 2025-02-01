@@ -53,15 +53,15 @@
             android:summary="@string/settings_exec_files_manager_summary"
             android:title="@string/settings_exec_files_manager">
 
-            <intent
-                android:action="android.intent.action.MAIN"
+            <cmdInfo
+                android:action="android.cmdInfo.action.MAIN"
                 android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
                 android:targetPackage="yangFenTuoZi.runner.plus">
 
                 <extra
                     android:name="exec"
                     android:value="true" />
-            </intent>
+            </cmdInfo>
         </Preference>
 
         <Preference
@@ -71,15 +71,15 @@
             android:summary="@string/settings_lib_file_manager_summary"
             android:title="@string/settings_lib_file_manager">
 
-            <intent
-                android:action="android.intent.action.MAIN"
+            <cmdInfo
+                android:action="android.cmdInfo.action.MAIN"
                 android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
                 android:targetPackage="yangFenTuoZi.runner.plus">
 
                 <extra
                     android:name="exec"
                     android:value="false" />
-            </intent>
+            </cmdInfo>
         </Preference>
 
         <Preference

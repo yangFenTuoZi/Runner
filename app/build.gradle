@@ -35,11 +35,7 @@ android {
         buildConfig true
         aidl true
     }
-    packaging {
-        jniLibs {
-            useLegacyPackaging true
-        }
-    }
+    packaging.jniLibs.useLegacyPackaging true
 }
 
 dependencies {
@@ -61,6 +57,7 @@ dependencies {
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.coordinatorlayout
+    implementation(libs.expandablerecyclerview)
 
     implementation project(":tools")
     implementation project(":server")

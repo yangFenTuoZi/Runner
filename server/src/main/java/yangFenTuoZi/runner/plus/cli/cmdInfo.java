@@ -1,5 +1,8 @@
 package yangFenTuoZi.runner.plus.cli;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -8,9 +11,11 @@ import androidx.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Base64;
+
 public class CmdInfo implements Parcelable {
 
-    public int id;
+    public int rowid;
     public String name;
     public String command;
     public boolean keepAlive;
@@ -18,6 +23,16 @@ public class CmdInfo implements Parcelable {
     public String ids;
 
     public CmdInfo() {
+    }
+
+    @SuppressLint("Range")
+    public CmdInfo(Cursor cursor) {
+        if (cursor == null) return;
+        name = decBase64(cursor.getString(cursor.getColumnIndex("name")));
+        command = decBase64(cursor.getString(cursor.getColumnIndex("command")));
+        keepAlive = cursor.getInt(cursor.getColumnIndex("keepAlive")) == 1;
+        useChid = cursor.getInt(cursor.getColumnIndex("useChid")) == 1;
+        ids = cursor.getString(cursor.getColumnIndex("ids"));
     }
 
     public CmdInfo(JSONObject jsonObject) {
@@ -33,7 +48,7 @@ public class CmdInfo implements Parcelable {
 
     public CmdInfo(Parcel source) {
         super();
-        id = source.readInt();
+        rowid = source.readInt();
         name = source.readString();
         command = source.readString();
         keepAlive = source.readInt() == 1;
@@ -43,7 +58,7 @@ public class CmdInfo implements Parcelable {
 
     public void importFromJSON(JSONObject jsonObject) {
         try {
-            id = jsonObject.getInt("id");
+            rowid = jsonObject.getInt("rowid");
             name = jsonObject.getString("name");
             command = jsonObject.getString("command");
             keepAlive = jsonObject.getBoolean("keepAlive");
@@ -58,7 +73,7 @@ public class CmdInfo implements Parcelable {
     }
 
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeInt(rowid);
         dest.writeString(name);
         dest.writeString(command);
         dest.writeInt(keepAlive ? 1 : 0);
@@ -80,7 +95,7 @@ public class CmdInfo implements Parcelable {
     public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("id", id);
+            jsonObject.put("rowid", rowid);
             jsonObject.put("name", name);
             jsonObject.put("command", command);
             jsonObject.put("keepAlive", keepAlive);
@@ -108,5 +123,27 @@ public class CmdInfo implements Parcelable {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    @NonNull
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues();
+        values.put("rowid", rowid);
+        values.put("name", encBase64(name));
+        values.put("command", encBase64(command));
+        values.put("keepAlive", keepAlive ? 1 : 0);
+        values.put("useChid", useChid ? 1 : 0);
+        values.put("ids", ids);
+        return values;
+    }
+
+    private String encBase64(String text) {
+        return new String(Base64.getEncoder().encode(text.getBytes()));
+//        return text;
+    }
+
+    private String decBase64(String text) {
+        return new String(Base64.getDecoder().decode(text.getBytes()));
+//        return text;
     }
 }

@@ -19,15 +19,15 @@
 
     <fragment
         android:id="@+id/navigation_processes"
-        android:name="yangFenTuoZi.runner.plus.ui.fragment.ProcessesFragment"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.ProcFragment"
         android:label="@string/title_processes"
-        tools:layout="@layout/fragment_processes" />
+        tools:layout="@layout/fragment_proc" />
 
     <fragment
         android:id="@+id/navigation_authorization"
-        android:name="yangFenTuoZi.runner.plus.ui.fragment.AuthorizationFragment"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.AuthFragment"
         android:label="@string/title_authorization"
-        tools:layout="@layout/fragment_authorization" />
+        tools:layout="@layout/fragment_auth" />
 
     <fragment
         android:id="@+id/navigation_settings"

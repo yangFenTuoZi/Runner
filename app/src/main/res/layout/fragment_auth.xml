@@ -50,14 +50,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <rikka.widget.borderview.BorderRecyclerView
+            <pokercc.android.expandablerecyclerview.ExpandableRecyclerView
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="25dp">
 
-            </rikka.widget.borderview.BorderRecyclerView>
+            </pokercc.android.expandablerecyclerview.ExpandableRecyclerView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/fab_margin"
             app:srcCompat="@drawable/ic_add_24" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

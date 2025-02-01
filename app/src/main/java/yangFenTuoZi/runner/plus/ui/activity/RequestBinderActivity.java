@@ -1,7 +1,6 @@
 package yangFenTuoZi.runner.plus.ui.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -15,16 +14,25 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.databinding.DialogRequestPermissionBinding;
 import yangFenTuoZi.runner.plus.server.Logger;
 import yangFenTuoZi.runner.plus.server.Server;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RequestBinderActivity extends AppCompatActivity {
     @Override
@@ -44,12 +52,45 @@ public class RequestBinderActivity extends AppCompatActivity {
         if (binder1 == null)
             finish();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("data", 0);
-        Set<String> allow_apps = new HashSet<>(sharedPreferences.getStringSet("allow_apps", new HashSet<>()));
-        if (uid == 0 || allow_apps.contains(String.valueOf(uid))) {
+        File file = new File(getFilesDir(), "apps.json");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            InputStream in = new FileInputStream(file);
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                bos.write(buffer, 0, len);
+            }
+            bos.close();
+            in.close();
+        } catch (Exception ignored) {
+        }
+
+        JSONArray allow_apps;
+        try {
+            allow_apps = new JSONArray(bos.toString());
+        } catch (JSONException e) {
+            allow_apps = new JSONArray();
+        }
+        if (uid == 0) {
             reply(true, binder, binder1);
             finish();
         } else {
+            boolean allow = false;
+            
+            for (int i = 0; i < allow_apps.length(); i++) {
+                try {
+                    JSONObject packageInfo = allow_apps.getJSONObject(i);
+                    if (packageInfo.getInt("uid") == uid || packageInfo.getBoolean("allow"))
+                        allow = true;
+                } catch (JSONException ignored) {
+                }
+            }
+            if (allow) {
+                reply(true, binder, binder1);
+                finish();
+            }
+
             String[] packageNames = intent.getStringArrayExtra("packageNames");
             DialogRequestPermissionBinding binding = DialogRequestPermissionBinding.inflate(LayoutInflater.from(this));
             AlertDialog alertDialog = new MaterialAlertDialogBuilder(this)
@@ -59,15 +100,40 @@ public class RequestBinderActivity extends AppCompatActivity {
 
             TextView t = binding.title;
             t.setText(Html.fromHtml(getString(R.string.grant_description, Arrays.toString(packageNames)), 0));
+            JSONArray finalAllow_apps = allow_apps;
             binding.button1.setOnClickListener(v -> {
-                allow_apps.add(String.valueOf(uid));
-                sharedPreferences.edit()
-                        .putStringSet("allow_apps", allow_apps)
-                        .apply();
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("uid", uid);
+                    jsonObject.put("allow", true);
+                } catch (JSONException ignored) {
+                }
+
+                finalAllow_apps.put(jsonObject);
+                try {
+                    OutputStream out = new FileOutputStream(file);
+                    out.write(finalAllow_apps.toString().getBytes());
+                    out.close();
+                } catch (IOException ignored) {
+                }
                 reply(true, binder, binder1);
                 alertDialog.cancel();
             });
             binding.button3.setOnClickListener(v -> {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("uid", uid);
+                    jsonObject.put("allow", false);
+                } catch (JSONException ignored) {
+                }
+
+                finalAllow_apps.put(jsonObject);
+                try {
+                    OutputStream out = new FileOutputStream(file);
+                    out.write(finalAllow_apps.toString().getBytes());
+                    out.close();
+                } catch (IOException ignored) {
+                }
                 reply(false, binder, binder1);
                 alertDialog.cancel();
             });
@@ -99,7 +165,7 @@ public class RequestBinderActivity extends AppCompatActivity {
             }
             b.set(true);
         }).start();
-        while (!App.pingServer() && b.get());
+        while (!App.pingServer() && b.get()) ;
         return App.pingServer() ? App.iService.asBinder() : null;
     }
 }

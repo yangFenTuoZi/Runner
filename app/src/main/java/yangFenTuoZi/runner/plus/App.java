@@ -14,14 +14,6 @@ import androidx.annotation.NonNull;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 
-import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
-import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
-import yangFenTuoZi.runner.plus.server.IService;
-import yangFenTuoZi.runner.plus.server.Logger;
-import yangFenTuoZi.runner.plus.server.Server;
-import yangFenTuoZi.runner.plus.ui.activity.CrashReportActivity;
-import yangFenTuoZi.runner.plus.utils.ThemeUtils;
-
 import java.io.File;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -29,6 +21,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
+import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
+import yangFenTuoZi.runner.plus.server.IService;
+import yangFenTuoZi.runner.plus.server.Logger;
+import yangFenTuoZi.runner.plus.server.Server;
+import yangFenTuoZi.runner.plus.ui.activity.CrashReportActivity;
+import yangFenTuoZi.runner.plus.utils.ThemeUtils;
 
 public class App extends Application implements Thread.UncaughtExceptionHandler {
     public static IService iService;
@@ -48,7 +48,6 @@ public class App extends Application implements Thread.UncaughtExceptionHandler 
     @Override
     public void onCreate() {
         super.onCreate();
-        Thread.setDefaultUncaughtExceptionHandler(this);
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -70,6 +69,7 @@ public class App extends Application implements Thread.UncaughtExceptionHandler 
         this.isDark = isDark ? 1 : 0;
         setTheme(ThemeUtils.getTheme(isDark));
         DynamicColors.applyToActivitiesIfAvailable(this, mDynamicColorsOptions);
+        Thread.setDefaultUncaughtExceptionHandler(this);
     }
 
     public void addActivity(Activity activity) {
@@ -177,7 +177,7 @@ public class App extends Application implements Thread.UncaughtExceptionHandler 
         assert file != null;
 
         startActivity(new Intent(this, CrashReportActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK )
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .putExtra("crash_info", Logger.getStackTraceString(e))
                 .putExtra("crash_file", file.getAbsolutePath()));
     }

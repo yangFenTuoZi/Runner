@@ -15,23 +15,23 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import yangFenTuoZi.runner.plus.App;
-import yangFenTuoZi.runner.plus.server.IService;
 import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.server.IService;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
-import yangFenTuoZi.runner.plus.ui.fragment.ProcessesFragment;
+import yangFenTuoZi.runner.plus.ui.fragment.ProcFragment;
 
-public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ViewHolder> {
+public class ProcAdapter extends RecyclerView.Adapter<ProcAdapter.ViewHolder> {
     private final int[] data;
     private final String[] data_name;
     private final MainActivity mContext;
-    private final ProcessesFragment processesFragment;
+    private final ProcFragment procFragment;
 
-    public ProcessAdapter(MainActivity mContext, int[] data, String[] data_name, ProcessesFragment processesFragment) {
+    public ProcAdapter(MainActivity mContext, int[] data, String[] data_name, ProcFragment procFragment) {
         //设置adapter需要接收两个参数：上下文、int数组
         super();
         this.mContext = mContext;
         this.data = data;
-        this.processesFragment = processesFragment;
+        this.procFragment = procFragment;
         this.data_name = data_name;
     }
 
@@ -62,15 +62,15 @@ public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ViewHold
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.empty_processes, parent, false);
             view.getRootView().setOnClickListener(v -> {
-                SwipeRefreshLayout refreshLayout = processesFragment.getBinding().swipeRefreshLayout;
+                SwipeRefreshLayout refreshLayout = procFragment.getBinding().swipeRefreshLayout;
                 if (!refreshLayout.isRefreshing()) {
                     refreshLayout.setRefreshing(true);
-                    processesFragment.onRefreshListener.onRefresh();
+                    procFragment.onRefreshListener.onRefresh();
                 }
             });
         } else {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_process, parent, false);
+                    .inflate(R.layout.item_proc, parent, false);
         }
         ViewHolder holder = new ViewHolder(view, emptyPage);
         view.setTag(holder);
@@ -113,6 +113,7 @@ public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ViewHold
         TextView text_name;
         TextView text_pid;
         MaterialButton button_kill;
+
 
         public ViewHolder(View view, boolean emptyPage) {
             super(view);
@@ -181,7 +182,7 @@ public class ProcessAdapter extends RecyclerView.Adapter<ProcessAdapter.ViewHold
             //杀死进程
             if (killPID(pid)) {
                 mContext.runOnUiThread(() -> {
-                    processesFragment.initList();
+                    procFragment.initList();
                     Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show();
                 });
             } else

@@ -1,16 +1,21 @@
 package yangFenTuoZi.runner.plus.server;
 import yangFenTuoZi.runner.plus.cli.CmdInfo;
+import android.os.IBinder;
 
 interface IService {
     String[] version();
     int execX(String cmd, String name,int port);
     String exec(String cmd);
 
-    CmdInfo[] getAllCmds();
-    CmdInfo getCmdByID(int id);
+    void openCursor();
+    void closeCursor();
+    int count();
+    CmdInfo query(int id);
     void delete(int id);
-    void edit(in CmdInfo cmdInfo);
+    void update(in CmdInfo cmdInfo);
+    void insert(in CmdInfo cmdInfo);
+    CmdInfo[] getAll();
 
-    String readDatabase(int port);
-    boolean writeDatabase(int port, String sha256);
+    String backupData(int port);
+    boolean restoreData(int port, String sha256);
 }

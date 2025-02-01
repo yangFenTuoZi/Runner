@@ -1,7 +1,6 @@
 package yangFenTuoZi.runner.plus.ui.activity;
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -14,7 +13,6 @@ import yangFenTuoZi.runner.plus.databinding.ActivityPackBinding;
 
 public class PackActivity extends BaseActivity {
     private ActivityPackBinding binding;
-    private SharedPreferences sp;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -40,10 +38,10 @@ public class PackActivity extends BaseActivity {
             finish();
         }
 
-        sp = getSharedPreferences(String.valueOf(id), 0);
-        binding.packName.setText(sp.getString("name", ""));
-        binding.packPackageName.setText("runner.app." + sp.getString("name", ""));
+        binding.packName.setText(getIntent().getStringExtra("name"));
+        binding.packPackageName.setText("runner.app." + getIntent().getStringExtra("name"));
         binding.packVersionName.setText("1.0");
         binding.packVersionCode.setText("1");
     }
+
 }

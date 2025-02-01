@@ -20,11 +20,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS cmds(
-                id          int         primary key     not null,
                 name        nvarchar,
                 command     nvarchar,
-                keepAlive   int                         not null,
-                useChid     int                         not null,
+                keepAlive   int         not null,
+                useChid     int         not null,
                 ids         nvarchar
             );
             """);

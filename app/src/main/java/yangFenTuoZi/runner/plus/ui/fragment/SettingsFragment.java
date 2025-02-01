@@ -1,7 +1,6 @@
 package yangFenTuoZi.runner.plus.ui.fragment;
 
 import static android.app.Activity.RESULT_OK;
-
 import static yangFenTuoZi.runner.plus.utils.ExceptionUtils.throwableToDialog;
 
 import android.content.Context;
@@ -25,14 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import yangFenTuoZi.runner.plus.App;
-import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.databinding.FragmentSettingsBinding;
-
-import yangFenTuoZi.runner.plus.info.Info;
-import yangFenTuoZi.runner.plus.server.Server;
-import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -45,6 +36,12 @@ import java.util.zip.GZIPOutputStream;
 
 import rikka.preference.SimpleMenuPreference;
 import rikka.recyclerview.RecyclerViewKt;
+import yangFenTuoZi.runner.plus.App;
+import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.databinding.FragmentSettingsBinding;
+import yangFenTuoZi.runner.plus.info.Info;
+import yangFenTuoZi.runner.plus.server.Server;
+import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
 import yangFenTuoZi.runner.plus.ui.dialog.ExecDialogBuilder;
 import yangFenTuoZi.runner.plus.utils.ThemeUtils;
 import yangFenTuoZi.runner.plus.utils.UpdateUtils;
@@ -116,7 +113,7 @@ public class SettingsFragment extends BaseFragment {
                                 }
                                 br.set(true);
                             }).start();
-                            String sha256 = App.iService.readDatabase(port);
+                            String sha256 = App.iService.backupData(port);
                             while (!br.get()) ;
                             String _sha256 = Server.getSHA256(bos1.toByteArray());
                             if (_sha256 != null && sha256.toLowerCase().replaceAll(" ", "").equals(_sha256.toLowerCase().replaceAll(" ", ""))) {
