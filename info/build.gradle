@@ -25,7 +25,7 @@ android {
 
 dependencies {
 }
-android.libraryVariants.all {
+android.libraryVariants.configureEach {
     String variantCapped = name.substring(0, 1).toUpperCase() + name.substring(1)
     var variantLowered = name
 

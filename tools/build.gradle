@@ -75,5 +75,5 @@ android {
 
 dependencies {
     implementation(project ":info")
-    compileOnly(project ":hiddenapi:stubs")
+    compileOnly libs.hidden.stub
 }

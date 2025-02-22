@@ -25,7 +25,6 @@ import java.util.TimerTask;
 import yangFenTuoZi.runner.plus.receiver.OnServiceConnectListener;
 import yangFenTuoZi.runner.plus.receiver.OnServiceDisconnectListener;
 import yangFenTuoZi.runner.plus.server.IService;
-import yangFenTuoZi.runner.plus.server.Logger;
 import yangFenTuoZi.runner.plus.server.Server;
 import yangFenTuoZi.runner.plus.ui.activity.CrashReportActivity;
 import yangFenTuoZi.runner.plus.utils.ThemeUtils;
@@ -178,7 +177,7 @@ public class App extends Application implements Thread.UncaughtExceptionHandler 
 
         startActivity(new Intent(this, CrashReportActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .putExtra("crash_info", Logger.getStackTraceString(e))
+                .putExtra("crash_info", Log.getStackTraceString(e))
                 .putExtra("crash_file", file.getAbsolutePath()));
     }
 

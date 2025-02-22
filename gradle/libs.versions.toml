@@ -10,6 +10,8 @@ preference = "1.2.0"
 activity = "1.8.2"
 coordinatorlayout = "1.2.0"
 annotationJvm = "1.9.0"
+hidden-api = "4.3.3"
+servertemplate = "1.0.0-alpha.2"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -33,6 +35,9 @@ rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", vers
 rikkax-widget-mainswitchbar = { module = "dev.rikka.rikkax.widget:mainswitchbar", version = "1.0.2" }
 coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
 annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
+
+hidden-stub = { group = "dev.rikka.hidden", name = "stub", version.ref = "hidden-api" }
+servertemplate = { module = "com.github.yangFenTuoZi:ServerTemplate", version.ref = "servertemplate" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

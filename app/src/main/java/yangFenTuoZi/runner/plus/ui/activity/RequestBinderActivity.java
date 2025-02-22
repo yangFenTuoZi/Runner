@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
 import yangFenTuoZi.runner.plus.databinding.DialogRequestPermissionBinding;
-import yangFenTuoZi.runner.plus.server.Logger;
 import yangFenTuoZi.runner.plus.server.Server;
 
 public class RequestBinderActivity extends AppCompatActivity {
@@ -148,7 +147,7 @@ public class RequestBinderActivity extends AppCompatActivity {
                 data.writeStrongBinder(binder1);
             binder.transact(allow ? 1 : 2, data, null, IBinder.FLAG_ONEWAY);
         } catch (Throwable e) {
-            Log.d(getClass().getSimpleName(), Logger.getStackTraceString(e));
+            Log.d(getClass().getSimpleName(), Log.getStackTraceString(e));
         } finally {
             data.recycle();
         }

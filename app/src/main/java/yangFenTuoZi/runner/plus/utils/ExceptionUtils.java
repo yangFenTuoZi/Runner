@@ -1,5 +1,7 @@
 package yangFenTuoZi.runner.plus.utils;
 
+import static android.util.Log.getStackTraceString;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
@@ -7,7 +9,6 @@ import android.os.Looper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.server.Logger;
 
 public class ExceptionUtils {
 
@@ -27,9 +28,5 @@ public class ExceptionUtils {
                 .setTitle(R.string.error)
                 .setMessage(errorMsg)
                 .show();
-    }
-
-    public static String getStackTraceString(Throwable tr) {
-        return Logger.getStackTraceString(tr);
     }
 }

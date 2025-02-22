@@ -59,11 +59,12 @@ dependencies {
     implementation libs.coordinatorlayout
     implementation(libs.expandablerecyclerview)
 
-    implementation project(":tools")
     implementation project(":server")
     implementation project(":info")
+    implementation libs.servertemplate
+    implementation project(':tools')
 
-    compileOnly(project ":hiddenapi:stubs")
+    compileOnly libs.hidden.stub
 }
 
 configurations.all {

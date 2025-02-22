@@ -1,6 +1,7 @@
 package yangFenTuoZi.runner.plus.ui.fragment;
 
 import static android.app.Activity.RESULT_OK;
+import static yangFenTuoZi.runner.plus.server.Server.getSHA256;
 import static yangFenTuoZi.runner.plus.utils.ExceptionUtils.throwableToDialog;
 
 import android.content.Context;
@@ -115,7 +116,7 @@ public class SettingsFragment extends BaseFragment {
                             }).start();
                             String sha256 = App.iService.backupData(port);
                             while (!br.get()) ;
-                            String _sha256 = Server.getSHA256(bos1.toByteArray());
+                            String _sha256 = getSHA256(bos1.toByteArray());
                             if (_sha256 != null && sha256.toLowerCase().replaceAll(" ", "").equals(_sha256.toLowerCase().replaceAll(" ", ""))) {
                                 json.put("APP_DATABASE", new String(Base64.getEncoder().encode(bos.toByteArray())));
                             }

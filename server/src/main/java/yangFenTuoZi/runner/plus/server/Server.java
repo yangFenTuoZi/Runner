@@ -1,21 +1,16 @@
 package yangFenTuoZi.runner.plus.server;
 
 import static yangFenTuoZi.runner.plus.server.DatabaseHelper.TABLE_NAME;
-import static yangFenTuoZi.runner.plus.server.Logger.getStackTraceString;
+import static yangFenTuoZi.server.Logger.getStackTraceString;
 
 import android.annotation.SuppressLint;
-import android.app.IActivityManager;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.IPackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.ddm.DdmHandleAppName;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ServiceManager;
-import android.system.Os;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -42,8 +37,10 @@ import java.util.zip.ZipFile;
 
 import yangFenTuoZi.runner.plus.cli.CmdInfo;
 import yangFenTuoZi.runner.plus.info.Info;
+import yangFenTuoZi.server.Logger;
+import yangFenTuoZi.server.ServerTemplate;
 
-public class Server {
+public class Server extends ServerTemplate {
     public static final String TAG = "runner_server";
     public static final String DATA_PATH = "/data/local/tmp/runner";
     public static final String USR_PATH = DATA_PATH + "/usr";
@@ -52,139 +49,124 @@ public class Server {
     public static final String ACTION_SERVER_RUNNING = "runner.plus.intent.action.SERVER_RUNNING";
     public static final String ACTION_SERVER_STOPPED = "runner.plus.intent.action.SERVER_STOPPED";
     public static final String ACTION_REQUEST_BINDER = "runner.plus.intent.action.REQUEST_BINDER";
-    private IPackageManager packageManager;
-    private IActivityManager activityManager;
     public Logger Log;
     public boolean isStop = false;
     public String appPath;
-    public FakeContext mContext = FakeContext.get();
     public SQLiteDatabase database;
     public DatabaseHelper databaseHelper;
 
     public static void main(String[] args) {
-        DdmHandleAppName.setAppName("runner_server", Os.getuid());
-        int uid = Os.getuid();
-        if (uid != 2000 && uid != 0) {
-            System.err.printf("Insufficient permission! Need to be launched by root or shell, but your uid is %d.\n", uid);
-            System.exit(255);
-        }
-        new Server(args);
+        Args.Builder builder = new Args.Builder();
+        builder.serverName = TAG;
+        builder.logDir = new File(LOG_PATH);
+        builder.enableLogger = Info.ENABLE_LOGGER;
+        builder.uids = new int[]{0, 2000};
+        new Server(builder.build());
     }
 
-    @SuppressLint("WrongConstant")
-    private Server(String[] args) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (!isStop)
-                onStop();
-        }));
-        try {
-            onStart(args);
-        } catch (Throwable e) {
-            Log.e(getStackTraceString(e));
-        }
+    private Server(Args args) {
+        super(args);
     }
 
-    public void onStart(String[] args) {
-        Log = new Logger(TAG, new File(LOG_PATH));
-        if (args.length != 0 && args[0].equals("restart")) {
-            Log.i("Server Restart.");
-        } else {
-            Log.i("Server Start.");
-        }
-
-        packageManager = IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log = getLogger();
 
         try {
             appPath = getAppPath();
         } catch (Throwable e) {
             Log.e("Unable to get app file path!\n" + getStackTraceString(e));
-            exit(1);
+            finish(1);
         }
 
         init();
         listenAppChange();
-        ServerSocket serverSocket = null;
-        try {
-            serverSocket = new ServerSocket(PORT);
-            Log.i("Socket server start.");
-        } catch (Exception e) {
-            Log.w("Unable to create socket server, it is possible that the previous server was not terminated!");
-            Log.i("Try to stop the previous server.");
+
+        new Thread(() -> {
+            ServerSocket serverSocket = null;
             try {
-                Socket socket = new Socket("localhost", PORT);
-                OutputStream out = socket.getOutputStream();
-                out.write("stopServer".getBytes());
-                out.close();
-                socket.close();
-            } catch (IOException ioE) {
-                Log.e("Unable to stop the previous server!\n" + getStackTraceString(ioE));
-                exit(1);
-            }
-            try {
-                Thread.sleep(1000);
                 serverSocket = new ServerSocket(PORT);
                 Log.i("Socket server start.");
-            } catch (Exception e1) {
-                Log.e("Still can't create socket server!\n" + getStackTraceString(e));
-                exit(1);
+            } catch (Exception e) {
+                Log.w("Unable to create socket server, it is possible that the previous server was not terminated!");
+                Log.i("Try to stop the previous server.");
+                try {
+                    Socket socket = new Socket("localhost", PORT);
+                    OutputStream out = socket.getOutputStream();
+                    out.write("stopServer".getBytes());
+                    out.close();
+                    socket.close();
+                } catch (IOException ioE) {
+                    Log.e("Unable to stop the previous server!\n" + getStackTraceString(ioE));
+                    finish(1);
+                }
+                try {
+                    Thread.sleep(1000);
+                    serverSocket = new ServerSocket(PORT);
+                    Log.i("Socket server start.");
+                } catch (Exception e1) {
+                    Log.e("Still can't create socket server!\n" + getStackTraceString(e));
+                    finish(1);
+                }
             }
-        }
 
-        databaseHelper = new DatabaseHelper(mContext);
-        database = databaseHelper.getWritableDatabase();
+            databaseHelper = new DatabaseHelper(this);
+            database = databaseHelper.getWritableDatabase();
 
-        while (!isStop) {
-            Socket socket;
-            try {
-                socket = serverSocket.accept();
-            } catch (IOException e) {
-                Log.e(getStackTraceString(e));
-                continue;
-            }
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            try {
-                var in = socket.getInputStream();
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = in.read(buffer)) != -1) {
-                    bos.write(buffer, 0, len);
+            while (!isStop) {
+                Socket socket;
+                try {
+                    socket = serverSocket.accept();
+                } catch (IOException e) {
+                    Log.e(getStackTraceString(e));
+                    continue;
                 }
-                bos.close();
-                in.close();
-                socket.close();
-            } catch (IOException e) {
-                Log.e("Unable to read socket reply.\n" + getStackTraceString(e));
-            }
-            String[] msg = bos.toString().split("\n");
-            String action = msg[0];
-            switch (action) {
-                case "sendBinderToApp": {
-                    if (sendBinderToAppByStickyBroadcast()) {
-                        Log.i("Send binder by broadcast.");
-                    } else {
-                        Log.e("Failed to send binder by broadcast!");
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                try {
+                    var in = socket.getInputStream();
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = in.read(buffer)) != -1) {
+                        bos.write(buffer, 0, len);
                     }
-                    break;
+                    bos.close();
+                    in.close();
+                    socket.close();
+                } catch (IOException e) {
+                    Log.e("Unable to read socket reply.\n" + getStackTraceString(e));
                 }
-                case "stopServer": {
-                    isStop = true;
-                    try {
-                        serverSocket.close();
-                        Log.i("Socket server stop.");
-                    } catch (IOException e) {
-                        Log.e("Unable to stop the socket server!\n" + getStackTraceString(e));
+                String[] msg = bos.toString().split("\n");
+                String action = msg[0];
+                switch (action) {
+                    case "sendBinderToApp": {
+                        if (sendBinderToAppByStickyBroadcast()) {
+                            Log.i("Send binder by broadcast.");
+                        } else {
+                            Log.e("Failed to send binder by broadcast!");
+                        }
+                        break;
                     }
-                    exit(0);
-                    break;
-                }
-                default: {
-                    if (action != null && !action.isEmpty()) {
-                        Log.w("Unsupported action: " + action);
+                    case "stopServer": {
+                        isStop = true;
+                        try {
+                            serverSocket.close();
+                            Log.i("Socket server stop.");
+                        } catch (IOException e) {
+                            Log.e("Unable to stop the socket server!\n" + getStackTraceString(e));
+                        }
+                        finish(0);
+                        break;
                     }
-                    break;
+                    default: {
+                        if (!action.isEmpty()) {
+                            Log.w("Unsupported action: " + action);
+                        }
+                        break;
+                    }
                 }
             }
-        }
+        }).start();
     }
 
     private void listenAppChange() {
@@ -214,7 +196,7 @@ public class Server {
                 appPath = getAppPath();
                 if (appPath == null || appPath.isEmpty()) {
                     Log.w("App is uninstalled!");
-                    exit(1);
+                    finish(1);
                 } else {
                     try {
                         String file = System.getenv("appPath_file");
@@ -229,11 +211,11 @@ public class Server {
                         }
                     } catch (Exception ignored) {
                     }
-                    exit(10);
+                    finish(10);
                 }
             } catch (Exception e) {
                 Log.w("App is uninstalled!");
-                exit(1);
+                finish(1);
             }
         }).start();
     }
@@ -241,9 +223,9 @@ public class Server {
     private String getAppPath() throws RemoteException {
         ApplicationInfo applicationInfo;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            applicationInfo = packageManager.getApplicationInfo(Info.APPLICATION_ID, 0L, 0);
+            applicationInfo = mPackageManager.getApplicationInfo(Info.APPLICATION_ID, 0L, 0);
         } else {
-            applicationInfo = packageManager.getApplicationInfo(Info.APPLICATION_ID, 0, 0);
+            applicationInfo = mPackageManager.getApplicationInfo(Info.APPLICATION_ID, 0, 0);
         }
         return applicationInfo.sourceDir;
     }
@@ -397,10 +379,7 @@ public class Server {
                     .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                     .putExtra("binder", binderContainer);
 
-            if (activityManager == null || !activityManager.asBinder().pingBinder())
-                activityManager = IActivityManager.Stub.asInterface(ServiceManager.getService("activity"));
-            activityManager.broadcastIntent(null, intent, null, null, 0, null, null,
-                    null, -1, null, true, false, 0);
+            sendBroadcast(intent);
         } catch (Throwable e) {
             Log.e(getStackTraceString(e));
             return false;
@@ -458,17 +437,12 @@ public class Server {
         }
     }
 
+    @Override
     public void onStop() {
+        super.onStop();
         isStop = true;
         if (database != null) database.close();
         if (databaseHelper != null) databaseHelper.close();
-        Log.i("Server Stop.\n");
-        Log.close();
-    }
-
-    public void exit(int status) {
-        onStop();
-        System.exit(status);
     }
 
     private IBinder createBinder() {
