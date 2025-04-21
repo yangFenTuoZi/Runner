@@ -25,12 +25,12 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.cli.CmdInfo;
+import yangFenTuoZi.runner.plus.Runner;
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder;
 import yangFenTuoZi.runner.plus.databinding.DialogEditBinding;
+import yangFenTuoZi.runner.plus.service.CommandInfo;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
-import yangFenTuoZi.runner.plus.ui.dialog.BaseDialogBuilder;
 import yangFenTuoZi.runner.plus.ui.dialog.ExecDialogBuilder;
 import yangFenTuoZi.runner.plus.utils.ExceptionUtils;
 
@@ -58,7 +58,7 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
         notifyDataSetChanged();
 
         try {
-            App.iService.closeCursor();
+            Runner.service.closeCursor();
         } catch (RemoteException e) {
             ExceptionUtils.throwableToDialog(mContext, e);
         }
@@ -81,7 +81,7 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
         // 异步加载数据
         executorService.execute(() -> {
             try {
-                CmdInfo info = App.iService.query(holder.position());
+                CommandInfo info = Runner.service.query(holder.position());
                 mContext.runOnUiThread(() -> init(holder, info)); // 回到主线程更新 UI
             } catch (RemoteException e) {
                 ExceptionUtils.throwableToDialog(mContext, e);
@@ -95,7 +95,7 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
     }
 
     //判断是否为空
-    static boolean[] isEmpty(CmdInfo info) {
+    static boolean[] isEmpty(CommandInfo info) {
         boolean exist_c = info.command == null || info.command.isEmpty();
         boolean exist_n = info.name == null || info.name.isEmpty();
         return new boolean[]{exist_c && exist_n, exist_n, exist_c};
@@ -103,7 +103,7 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
 
     public void remove(int position) {
         try {
-            App.iService.delete(position + 1);
+            Runner.service.delete(position + 1);
             count--;
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount() - position);
@@ -112,10 +112,10 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
         }
     }
 
-    public void add(CmdInfo info) {
+    public void add(CommandInfo info) {
         try {
             info.rowid = count++;
-            App.iService.insert(info);
+            Runner.service.insert(info);
             notifyItemChanged(count);
         } catch (RemoteException e) {
             ExceptionUtils.throwableToDialog(mContext, e);
@@ -141,7 +141,7 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
         }
     }
 
-    void init(ViewHolder holder, CmdInfo info) {
+    void init(ViewHolder holder, CommandInfo info) {
 
         boolean[] empty = isEmpty(info);
 
@@ -150,13 +150,13 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
             if (mContext.isDialogShow)
                 return;
 
-            if (App.pingServer()) {
+            if (Runner.pingServer()) {
                 try {
                     new ExecDialogBuilder(mContext, info).show();
                 } catch (BaseDialogBuilder.DialogShowException ignored) {
                 }
             } else
-                Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show();
         });
 
         //点击编辑
@@ -180,8 +180,8 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
                     .setTitle(mContext.getString(R.string.dialog_edit))
                     .setView(binding.getRoot())
                     .setPositiveButton(mContext.getString(R.string.dialog_finish), (dialog, which) -> {
-                        if (!App.pingServer()) {
-                            Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                        if (!Runner.pingServer()) {
+                            Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show();
                             return;
                         }
                         info.rowid = holder.position();
@@ -191,7 +191,7 @@ public class CmdAdapter extends RecyclerView.Adapter<CmdAdapter.ViewHolder> {
                         info.useChid = binding.dialogChid.isChecked();
                         info.ids = binding.dialogChid.isChecked() ? Objects.requireNonNull(binding.dialogIds.getText()).toString() : null;
                         try {
-                            App.iService.update(info);
+                            Runner.service.update(info);
                         } catch (RemoteException ignored) {
                         }
                         if (!empty[0] && isEmpty(info)[0])

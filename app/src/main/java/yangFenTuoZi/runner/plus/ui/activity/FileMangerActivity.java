@@ -7,6 +7,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.base.BaseActivity;
 
 public class FileMangerActivity extends BaseActivity {
 

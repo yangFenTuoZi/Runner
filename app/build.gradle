@@ -1,17 +1,17 @@
 plugins {
-    alias(libs.plugins.android.application)
+    id("com.android.application")
 }
 
 android {
-    namespace project.properties.applicationId
-    compileSdk project.properties.compileSdkVersion.toInteger()
+    namespace "yangFenTuoZi.runner.plus"
+    compileSdk rootProject.ext.compileSdk
 
     defaultConfig {
-        applicationId project.properties.applicationId
-        minSdk project.properties.minSdkVersion.toInteger()
-        targetSdk project.properties.targetSdkVersion.toInteger()
-        versionCode project.properties.versionCode.toInteger()
-        versionName project.properties.versionName
+        applicationId "yangFenTuoZi.runner.plus"
+        minSdk rootProject.ext.minSdk
+        targetSdk rootProject.ext.targetSdk
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
         ndk {
             abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         }
@@ -35,39 +35,46 @@ android {
         buildConfig true
         aidl true
     }
-    packaging.jniLibs.useLegacyPackaging true
+//    packaging.jniLibs.useLegacyPackaging true
 }
 
 dependencies {
-    implementation libs.rikkax.appcompat
-    implementation libs.rikkax.core
-    implementation libs.rikkax.insets
-    implementation libs.rikkax.material
-    implementation libs.rikkax.material.preference
-    implementation libs.rikkax.preference
-    implementation libs.rikkax.recyclerview
-    implementation libs.rikkax.widget.borderview
-    implementation libs.rikkax.widget.mainswitchbar
-    implementation libs.rikkax.layoutinflater
-    implementation libs.material
-    implementation libs.navigation.fragment
-    implementation libs.navigation.ui
-    implementation libs.appcompat
-    implementation libs.preference
-    implementation libs.activity
-    implementation libs.constraintlayout
-    implementation libs.coordinatorlayout
-    implementation(libs.expandablerecyclerview)
+    // RikkaX
+    implementation("dev.rikka.rikkax.appcompat:appcompat:1.6.1")
+    implementation("dev.rikka.rikkax.core:core:1.4.1")
+    implementation("dev.rikka.rikkax.insets:insets:1.3.0")
+    implementation("dev.rikka.rikkax.material:material:2.7.2")
+    implementation("dev.rikka.rikkax.material:material-preference:2.0.0")
+    implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.3.2")
+    implementation("dev.rikka.rikkax.recyclerview:recyclerview-adapter:1.3.0")
+    implementation("dev.rikka.rikkax.widget:borderview:1.1.0")
+    implementation("dev.rikka.rikkax.widget:mainswitchbar:1.0.2")
+    implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.3.0")
+    implementation("dev.rikka.rikkax.lifecycle:lifecycle-resource-livedata:1.0.1")
+    implementation("dev.rikka.rikkax.lifecycle:lifecycle-shared-viewmodel:1.0.1")
+    implementation("dev.rikka.rikkax.lifecycle:lifecycle-viewmodel-lazy:2.0.0")
+    implementation("dev.rikka.rikkax.html:html-ktx:1.1.2")
 
-    implementation project(":server")
-    implementation project(":info")
-    implementation libs.servertemplate
-    implementation project(':tools')
+    // AndroidX
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.navigation:navigation-fragment:2.8.9")
+    implementation("androidx.navigation:navigation-ui:2.8.9")
+//    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.preference:preference:1.2.1")
+//    implementation("androidx.activity:activity:1.10.1")
+//    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+//    implementation("androidx.coordinatorlayout:coordinatorlayout:1.3.0")
 
-    compileOnly libs.hidden.stub
+    // Shizuku
+    var shizukuVersion = "13.1.5"
+    implementation("dev.rikka.shizuku:api:$shizukuVersion")
+    implementation("dev.rikka.shizuku:provider:$shizukuVersion")
+
+    // Hidden API
+    compileOnly("dev.rikka.hidden:stub:4.3.3")
+    implementation("dev.rikka.hidden:compat:4.3.3")
 }
 
-configurations.all {
-    exclude group: "org.jetbrains", module: "annotations"
-    exclude group: "androidx.appcompat", module: "appcompat"
+configurations.configureEach {
+    exclude group: 'androidx.appcompat', module: 'appcompat'
 }

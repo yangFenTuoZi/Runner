@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.android.library)
+    id("com.android.library")
 }
 
 android {
@@ -37,8 +37,4 @@ android {
 }
 
 dependencies {
-    implementation project(":info")
-    implementation libs.annotation.jvm
-    implementation libs.servertemplate
-    compileOnly libs.hidden.stub
 }

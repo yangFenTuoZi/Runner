@@ -3,7 +3,6 @@
     <string name="title_home">主页</string>
     <string name="title_terminal">终端</string>
     <string name="title_processes">进程</string>
-    <string name="title_authorization">授权</string>
     <string name="title_settings">设置</string>
 
     <string name="dialog_edit">编辑</string>
@@ -12,32 +11,35 @@
     <string name="dialog_command">命令</string>
     <string name="dialog_chid">降低权限</string>
     <string name="dialog_keep_it_alive">保活</string>
-
+    <string name="dialog_ids" translatable="false">UID[,GID[,Groups...]]</string>
     <string name="dialog_cancel">取消</string>
+    <string name="dialog_kill">杀死</string>
+    <string name="dialog_kill_this_process">杀死这个进程吗?</string>
+
     <string name="exec_running">执行中…</string>
     <string name="exec_finish">结束</string>
     <string name="exec_return">返回值: %d(%s)</string>
+    <string name="exec_pid" translatable="false">PID: %d</string>
     <string name="exec_normal">正常</string>
     <string name="exec_command_not_found">找不到命令</string>
     <string name="exec_segmentation_error">分段错误</string>
     <string name="exec_ctrl_c_error">使用了Ctrl+C</string>
     <string name="exec_other_error">其他错误</string>
 
-    <string name="home_shizuku_is_running">正在运行</string>
-    <string name="home_shizuku_is_not_running">没有运行</string>
-    <string name="home_shizuku_has_been_authorized">已授权</string>
-    <string name="home_shizuku_is_not_authorized">未授权</string>
-
-    <string name="home_service_version">服务版本: %s (%d)</string>
-    <string name="home_service_is_not_running">服务没有运行</string>
+    <string name="home_status_service_is_running">服务正在运行</string>
+    <string name="home_status_service_not_running">服务未运行</string>
+    <string name="home_status_service_version">版本 %1$d</string>
+    <string name="home_status_shizuku_is_running">Shizuku 正在运行</string>
+    <string name="home_status_shizuku_not_running">Shizuku 未运行</string>
+    <string name="home_status_shizuku_version">版本 %2$s, %1$s</string>
 
     <string name="home_copy_command">已复制到剪切板:</string>
 
-    <string name="long_click_pack">打包成APK</string>
-    <string name="long_click_del">删除</string>
     <string name="long_click_copy_name">复制名字</string>
     <string name="long_click_copy_command">复制命令</string>
     <string name="long_click_new">在下方新建</string>
+    <string name="long_click_pack">打包成APK</string>
+    <string name="long_click_del">删除</string>
 
     <string name="pack_name">名称</string>
     <string name="pack_packageName">包名</string>
@@ -45,11 +47,8 @@
     <string name="pack_versionCode">版本号</string>
     <string name="pack_pinToAShortcutTile">固定到快捷磁贴</string>
 
-    <string name="dialog_kill">杀死</string>
-    <string name="dialog_kill_this_process">杀死这个进程吗?</string>
-
-    <string name="process_failed_to_kill_the_process">杀死进程失败</string>
     <string name="process_the_killing_process_succeeded">成功杀死进程</string>
+    <string name="process_failed_to_kill_the_process">杀死进程失败</string>
     <string name="process_there_are_no_running_processes">没有正在运行的进程</string>
     <string name="process_kill_all_processes">杀死所有进程?</string>
 
@@ -77,21 +76,19 @@
     <string name="settings_is_not_app_data">不是此APP的数据</string>
     <string name="settings_data_error">数据错误</string>
     <string name="settings_decode_error">解密数据失败</string>
+    <string name="settings_backup_settings">备份设置项</string>
+    <string name="settings_backup_settings_summary">将设置项备份(例如夜间模式、语言设置等)</string>
     <string name="settings_check_update">更新</string>
     <string name="settings_can_not_connect_update_server">无法连接更新服务</string>
     <string name="settings_can_not_parse_json">无法解析JSON</string>
-    <string name="settings_backup_settings">备份设置项</string>
-    <string name="settings_backup_settings_summary">将设置项备份(例如夜间模式、语言设置等)</string>
     <string name="settings_json_format_error">JSON格式错误</string>
+    <string name="settings_error" translatable="false">Error</string>
     <string name="settings_check_update_msg">本地版本名: %s\n本地版本号: %d\n新版本名: %s\n新版本号: %d\n更新信息: %s</string>
-
-    <string name="yes">是</string>
     <string name="settings_latest_version">已是最新版本</string>
+
     <string name="menu_stop_server">停止服务</string>
-    <string name="menu_start_server">启动服务</string>
-    <string name="allow_once">允许本次</string>
-    <string name="refuse">拒绝</string>
-    <string name="grant_description">要允许<![CDATA[<b>%s</b>]]>访问用户空间CLI吗?</string>
+    <string name="about">关于</string>
+
     <string name="warning">警告</string>
     <string name="error">错误</string>
     <string name="app_crashed">App崩溃</string>
@@ -99,8 +96,16 @@
     <string name="can_not_stop_server">无法停止服务</string>
     <string name="choose_start_server">选择启动方式</string>
     <string name="start">启动</string>
+
     <string name="exec_start_server_command">使用Root/Shell/ADB用户执行</string>
     <string name="about_view_source_code"><![CDATA[在 %1$s 查看源码]]></string>
 
     <string name="menu_add">添加</string>
+    <string name="grant_shizuku_permission">授予 Shizuku 权限</string>
+    <string name="grant_shizuku_permission_summary">您还未授予 Shizuku 权限，所以无法启动用户服务</string>
+    <string name="grant">授权</string>
+    <string name="install">安装</string>
+    <string name="reinstall">重新安装</string>
+    <string name="remove">移除</string>
+    <string name="term_ext_summary">1</string>
 </resources>

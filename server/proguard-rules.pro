@@ -1,3 +1,3 @@
 -dontobfuscate
--keep class yangFenTuoZi.runner.plus.server.**
+-keep class yangFenTuoZi.runner.plus.service.**
 -keep class yangFenTuoZi.runner.plus.cli.**

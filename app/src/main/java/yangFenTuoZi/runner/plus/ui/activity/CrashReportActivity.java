@@ -9,11 +9,13 @@ import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.base.BaseActivity;
 import yangFenTuoZi.runner.plus.databinding.ActivityCrashReportBinding;
 import yangFenTuoZi.runner.plus.utils.ExceptionUtils;
 
@@ -28,9 +30,10 @@ public class CrashReportActivity extends BaseActivity {
         setContentView(binding.getRoot());
 
         binding.appBar.setLiftable(true);
-        setupToolbar(binding.toolbar, null, R.string.app_crashed);
-        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24);
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        setSupportActionBar(binding.toolbar);
+        ActionBar actionBar;
+        if ((actionBar = getSupportActionBar()) != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
         String crashFile = getIntent().getStringExtra("crash_file"), crashInfo = getIntent().getStringExtra("crash_info");
 

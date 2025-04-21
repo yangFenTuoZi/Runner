@@ -16,24 +16,25 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Objects;
 
-import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.Runner;
 import yangFenTuoZi.runner.plus.adapters.ProcAdapter;
-import yangFenTuoZi.runner.plus.cli.CmdInfo;
+import yangFenTuoZi.runner.plus.base.BaseActivity;
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder;
 import yangFenTuoZi.runner.plus.databinding.DialogExecBinding;
-import yangFenTuoZi.runner.plus.ui.activity.BaseActivity;
+import yangFenTuoZi.runner.plus.service.CommandInfo;
 
 public class ExecDialogBuilder extends BaseDialogBuilder {
 
     int pid, port;
-    CmdInfo cmdInfo;
+    CommandInfo cmdInfo;
     Thread h1, h2;
     boolean br = false, br2 = false;
     ServerSocket serverSocket;
     BaseActivity mContext;
     DialogExecBinding binding;
 
-    public ExecDialogBuilder(@NonNull BaseActivity context, CmdInfo cmdInfo) throws DialogShowException {
+    public ExecDialogBuilder(@NonNull BaseActivity context, CommandInfo cmdInfo) throws DialogShowException {
         super(context);
         mContext = context;
         binding = DialogExecBinding.inflate(LayoutInflater.from(mContext));
@@ -58,7 +59,7 @@ public class ExecDialogBuilder extends BaseDialogBuilder {
             cmd = "chid " + cmdInfo.ids + " " + cmdInfo.command;
         else
             cmd = cmdInfo.command;
-        if (App.pingServer()) {
+        if (Runner.pingServer()) {
             h1 = new Thread(() -> {
                 try {
                     port = getUsablePort(8400);
@@ -103,9 +104,9 @@ public class ExecDialogBuilder extends BaseDialogBuilder {
                     new Thread(() -> {
                         try {
                             while (true) {
-                                if (!App.pingServer()) {
+                                if (!Runner.pingServer()) {
                                     runOnUiThread(() -> {
-                                        Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show();
                                         binding.execTitle.append(getString(R.string.exec_return, -1, getString(R.string.exec_other_error)));
                                         getAlertDialog().setTitle(getString(R.string.exec_finish));
                                         br2 = true;
@@ -120,7 +121,7 @@ public class ExecDialogBuilder extends BaseDialogBuilder {
                         }
                     }).start();
                     h2.start();
-                    int exitValue = App.iService.execX(cmd, cmdInfo.name, port);
+                    int exitValue = Runner.service.execX(cmd, cmdInfo.name, port);
                     runOnUiThread(() -> {
                         binding.execTitle.append(getString(R.string.exec_return, exitValue, getString(switch (exitValue) {
                             case 0 -> R.string.exec_normal;
@@ -145,7 +146,7 @@ public class ExecDialogBuilder extends BaseDialogBuilder {
         br = true;
         h2.interrupt();
         h1.interrupt();
-        if (App.pingServer()) {
+        if (Runner.pingServer()) {
             try {
                 serverSocket.close();
                 if (!cmdInfo.keepAlive && !br2) {

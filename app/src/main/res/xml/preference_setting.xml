@@ -38,7 +38,7 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
-            android:icon="@drawable/ic_settings_black_24"
+            android:icon="@drawable/ic_settings_outline_24"
             android:key="backup_settings"
             android:summary="@string/settings_backup_settings_summary"
             android:title="@string/settings_backup_settings" />
@@ -48,20 +48,20 @@
 
         <Preference
             android:defaultValue="false"
-            android:icon="@drawable/ic_file_24"
+            android:icon="@drawable/ic_settings_applications_outline_24"
             android:key="exec_files_manager"
             android:summary="@string/settings_exec_files_manager_summary"
             android:title="@string/settings_exec_files_manager">
 
-            <cmdInfo
-                android:action="android.cmdInfo.action.MAIN"
+            <intent
+                android:action="android.intent.action.MAIN"
                 android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
                 android:targetPackage="yangFenTuoZi.runner.plus">
 
                 <extra
                     android:name="exec"
                     android:value="true" />
-            </cmdInfo>
+            </intent>
         </Preference>
 
         <Preference
@@ -71,15 +71,15 @@
             android:summary="@string/settings_lib_file_manager_summary"
             android:title="@string/settings_lib_file_manager">
 
-            <cmdInfo
-                android:action="android.cmdInfo.action.MAIN"
+            <intent
+                android:action="android.intent.action.MAIN"
                 android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
                 android:targetPackage="yangFenTuoZi.runner.plus">
 
                 <extra
                     android:name="exec"
                     android:value="false" />
-            </cmdInfo>
+            </intent>-->
         </Preference>
 
         <Preference

@@ -26,8 +26,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import yangFenTuoZi.runner.plus.info.Info;
-import yangFenTuoZi.runner.plus.server.IService;
-import yangFenTuoZi.runner.plus.server.Server;
+import yangFenTuoZi.runner.plus.service.IService;
+import yangFenTuoZi.runner.plus.service.Server;
 
 public class Main {
 

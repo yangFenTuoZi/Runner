@@ -1,54 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    app:consumeSystemWindowsInsets="@integer/internal_fragment_insets"
-    app:edgeToEdge="true"
-    app:fitsSystemWindowsInsets="@integer/internal_fragment_insets">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="false"
-        app:fitsSystemWindowsInsets="@integer/internal_fragment_top_insets">
-
-        <com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
-            android:id="@+id/toolbar_layout"
-            style="?attr/collapsingToolbarLayoutLargeStyle"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleCollapseMode="scale">
-
-            <View
-                android:id="@+id/click_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:elevation="0dp"
-                android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
-                app:layout_collapseMode="pin" />
-        </com.google.android.material.appbar.SubtitleCollapsingToolbarLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:orientation="vertical">
+
+        <rikka.widget.borderview.BorderRecyclerView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rd_activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/rd_activity_horizontal_margin"
+            android:clipToPadding="false"
+            android:paddingStart="@dimen/home_padding"
+            android:paddingEnd="@dimen/home_padding"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical"
+            app:borderBottomVisibility="never"
+            app:borderTopDrawable="@null"
+            app:borderTopVisibility="whenTop"
+            app:fitsSystemWindowsInsets="bottom|top"
+            app:layoutManager="@string/main_layout_manager"
+            app:spanCount="2" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <rikka.widget.borderview.BorderRecyclerView
                 android:id="@+id/recycler_view"
@@ -56,24 +40,16 @@
                 android:layout_height="match_parent"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                tools:listitem="@layout/item_cmd">
-
-            </rikka.widget.borderview.BorderRecyclerView>
+                tools:listitem="@layout/item_cmd" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom|end">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_marginBottom="@dimen/fab_margin"
-            android:contentDescription="@string/menu_add"
-            app:srcCompat="@drawable/ic_add_24" />
-    </LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/menu_add"
+        app:srcCompat="@drawable/ic_add_24" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

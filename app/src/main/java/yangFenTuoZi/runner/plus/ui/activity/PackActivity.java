@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import yangFenTuoZi.runner.plus.R;
+import yangFenTuoZi.runner.plus.base.BaseActivity;
 import yangFenTuoZi.runner.plus.databinding.ActivityPackBinding;
 
 public class PackActivity extends BaseActivity {
@@ -22,9 +24,10 @@ public class PackActivity extends BaseActivity {
         setContentView(binding.getRoot());
 
         binding.appBar.setLiftable(true);
-        setupToolbar(binding.toolbar, null, R.string.long_click_pack);
-        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24);
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        setSupportActionBar(binding.toolbar);
+        ActionBar actionBar;
+        if ((actionBar = getSupportActionBar()) != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

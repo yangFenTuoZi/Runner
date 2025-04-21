@@ -6,8 +6,8 @@ import android.content.SharedPreferences;
 import androidx.annotation.StyleRes;
 
 import rikka.core.util.ResourceUtils;
+import yangFenTuoZi.runner.plus.BuildConfig;
 import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.info.Info;
 
 public class ThemeUtils {
 
@@ -22,7 +22,7 @@ public class ThemeUtils {
     }
 
     public static boolean isDark(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Info.APPLICATION_ID + "_preferences", 0);
+        SharedPreferences sharedPreferences = context.getSharedPreferences(BuildConfig.APPLICATION_ID + "_preferences", 0);
         String dark_theme = sharedPreferences.getString("dark_theme", "MODE_NIGHT_FOLLOW_SYSTEM");
         return switch (dark_theme) {
             case "MODE_NIGHT_FOLLOW_SYSTEM" ->

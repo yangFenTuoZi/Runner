@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="?homeCardStyle"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@android:id/icon"
+            style="@style/CardIcon"
+            android:duplicateParentState="true"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_terminal_24" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/home_icon_padding"
+            android:duplicateParentState="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@android:id/text1"
+                style="@style/CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="true"
+                android:lineSpacingExtra="2dp"
+                tools:text="Terminal extension is installed" />
+
+            <TextView
+                android:id="@android:id/text2"
+                style="@style/CardSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="true"
+                tools:text="version 1.0 (1)" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@android:id/text1"
+        style="@style/CardContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/term_ext_summary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@android:id/button1"
+            style="@style/CardButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/install"
+            app:icon="@drawable/ic_add_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@android:id/button2"
+            style="@style/CardButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/remove"
+            app:icon="@drawable/ic_delete_outline_24" />
+</LinearLayout>

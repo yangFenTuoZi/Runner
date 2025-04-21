@@ -14,11 +14,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import yangFenTuoZi.runner.plus.App;
 import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.server.IService;
+import yangFenTuoZi.runner.plus.Runner;
+import yangFenTuoZi.runner.plus.service.IService;
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity;
-import yangFenTuoZi.runner.plus.ui.fragment.ProcFragment;
+import yangFenTuoZi.runner.plus.ui.fragment.proc.ProcFragment;
 
 public class ProcAdapter extends RecyclerView.Adapter<ProcAdapter.ViewHolder> {
     private final int[] data;
@@ -141,9 +141,9 @@ public class ProcAdapter extends RecyclerView.Adapter<ProcAdapter.ViewHolder> {
 
     //噶进程，顺便判断死没死透
     public static boolean killPID(int pid) {
-        if (App.pingServer()) {
+        if (Runner.pingServer()) {
             try {
-                IService iService = App.iService;
+                IService iService = Runner.service;
                 iService.exec("kill -9 " + pid);
                 return isDied(String.valueOf(pid), iService.exec("busybox ps -A -o pid,ppid|grep " + pid).split("\n"));
             } catch (RemoteException e) {
@@ -155,9 +155,9 @@ public class ProcAdapter extends RecyclerView.Adapter<ProcAdapter.ViewHolder> {
 
     //噶进程，顺便判断死没死透
     public static void killPIDs(int[] PIDs) {
-        if (App.pingServer()) {
+        if (Runner.pingServer()) {
             try {
-                IService iService = App.iService;
+                IService iService = Runner.service;
                 StringBuilder cmd = new StringBuilder();
                 for (int pid : PIDs) {
                     if (pid != 0)

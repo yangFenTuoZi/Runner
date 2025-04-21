@@ -22,7 +22,6 @@ package yangFenTuoZi.runner.plus.ui.dialog;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.os.SystemProperties;
 import android.view.SurfaceControl;
 import android.view.View;
 import android.view.Window;
@@ -35,11 +34,27 @@ import androidx.appcompat.app.AlertDialog;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import yangFenTuoZi.runner.plus.ui.activity.BaseActivity;
+import yangFenTuoZi.runner.plus.base.BaseActivity;
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder;
 
-@SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
 public class BlurBehindDialogBuilder extends BaseDialogBuilder {
-    private static final boolean supportBlur = SystemProperties.getBoolean("ro.surface_flinger.supports_background_blur", false) && !SystemProperties.getBoolean("persist.sys.sf.disable_blurs", false);
+    // private static final boolean supportBlur = SystemProperties.getBoolean("ro.surface_flinger.supports_background_blur", false) && !SystemProperties.getBoolean("persist.sys.sf.disable_blurs", false);
+
+    private static boolean getSystemPropertyBoolean(String key) {
+        try {
+            Class<?> SystemProperties = Class.forName("android.os.SystemProperties");
+            Method getBoolean = SystemProperties.getMethod("getBoolean", String.class, boolean.class);
+            Boolean result = (Boolean) getBoolean.invoke(null, key, false);
+            if (result == null) result = false;
+            return result;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static final boolean supportBlur =
+            getSystemPropertyBoolean("ro.surface_flinger.supports_background_blur") &&
+                    !getSystemPropertyBoolean("persist.sys.sf.disable_blurs");
 
     public BlurBehindDialogBuilder(@NonNull BaseActivity context) throws DialogShowException {
         super(context);
