@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
                 android:lineSpacingExtra="2dp"
-                tools:text="Terminal extension is installed" />
+                android:text="@string/term_ext_title_installed" />
 
             <TextView
                 android:id="@android:id/text2"
@@ -40,13 +40,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
-                tools:text="version 1.0 (1)" />
+                tools:text="Version: 1.0 (1)\nABI: arm64-v8a" />
 
         </LinearLayout>
     </LinearLayout>
 
     <TextView
-        android:id="@android:id/text1"
         style="@style/CardContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -55,19 +54,19 @@
         android:layout_marginBottom="24dp"
         android:text="@string/term_ext_summary" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@android:id/button1"
-            style="@style/CardButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/install"
-            app:icon="@drawable/ic_add_24" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@android:id/button1"
+        style="@style/CardButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reinstall"
+        app:icon="@drawable/ic_add_24" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@android:id/button2"
-            style="@style/CardButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/remove"
-            app:icon="@drawable/ic_delete_outline_24" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@android:id/button2"
+        style="@style/CardButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/remove"
+        app:icon="@drawable/ic_delete_outline_24" />
 </LinearLayout>

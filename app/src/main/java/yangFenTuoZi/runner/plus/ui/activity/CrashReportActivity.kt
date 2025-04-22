@@ -1,83 +1,77 @@
-package yangFenTuoZi.runner.plus.ui.activity;
+package yangFenTuoZi.runner.plus.ui.activity
 
-import android.graphics.Typeface;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.SystemProperties;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.StyleSpan;
-import android.widget.TextView;
+import android.graphics.Typeface
+import android.os.Build
+import android.os.Bundle
+import android.os.SystemProperties
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StyleSpan
+import yangFenTuoZi.runner.plus.base.BaseActivity
+import yangFenTuoZi.runner.plus.databinding.ActivityCrashReportBinding
+import yangFenTuoZi.runner.plus.utils.ExceptionUtils.toErrorDialog
+import java.io.FileOutputStream
+import java.io.IOException
 
-import androidx.appcompat.app.ActionBar;
+class CrashReportActivity : BaseActivity() {
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
+    private lateinit var binding: ActivityCrashReportBinding
 
-import yangFenTuoZi.runner.plus.base.BaseActivity;
-import yangFenTuoZi.runner.plus.databinding.ActivityCrashReportBinding;
-import yangFenTuoZi.runner.plus.utils.ExceptionUtils;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityCrashReportBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-public class CrashReportActivity extends BaseActivity {
+        binding.appBar.setLiftable(true)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+        }
 
-    private ActivityCrashReportBinding binding;
+        val crashFile = intent.getStringExtra("crash_file")
+        val crashInfo = intent.getStringExtra("crash_info")
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityCrashReportBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        binding.crashFile.text = crashFile
 
-        binding.appBar.setLiftable(true);
-        setSupportActionBar(binding.toolbar);
-        ActionBar actionBar;
-        if ((actionBar = getSupportActionBar()) != null)
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        val crashInfoTextView = binding.crashInfo.apply {
+            append(getBoldText("VERSION.RELEASE: "))
+            append(Build.VERSION.RELEASE)
+            append("\n")
 
-        String crashFile = getIntent().getStringExtra("crash_file"), crashInfo = getIntent().getStringExtra("crash_info");
+            append(getBoldText("VERSION.SDK_INT: "))
+            append(Build.VERSION.SDK_INT.toString())
+            append("\n")
 
-        binding.crashFile.setText(crashFile);
+            append(getBoldText("BUILD_TYPE: "))
+            append(Build.TYPE)
+            append("\n")
 
-        TextView crashInfoTextView = binding.crashInfo;
-        crashInfoTextView.append(getBoldText("VERSION.RELEASE: "));
-        crashInfoTextView.append(Build.VERSION.RELEASE);
-        crashInfoTextView.append("\n");
+            append(getBoldText("CPU_ABI: "))
+            append(SystemProperties.get("ro.product.cpu.abi"))
+            append("\n")
 
-        crashInfoTextView.append(getBoldText("VERSION.SDK_INT: "));
-        crashInfoTextView.append(String.valueOf(Build.VERSION.SDK_INT));
-        crashInfoTextView.append("\n");
-
-        crashInfoTextView.append(getBoldText("BUILD_TYPE: "));
-        crashInfoTextView.append(Build.TYPE);
-        crashInfoTextView.append("\n");
-
-        crashInfoTextView.append(getBoldText("CPU_ABI: "));
-        crashInfoTextView.append(SystemProperties.get("ro.product.cpu.abi"));
-        crashInfoTextView.append("\n");
-
-        crashInfoTextView.append(getBoldText("CPU_SUPPORTED_ABIS: "));
-        crashInfoTextView.append(Arrays.toString(Build.SUPPORTED_ABIS));
-        crashInfoTextView.append("\n\n" + crashInfo);
+            append(getBoldText("CPU_SUPPORTED_ABIS: "))
+            append(Build.SUPPORTED_ABIS.contentToString())
+            append("\n\n$crashInfo")
+        }
 
         try {
-            FileOutputStream out = new FileOutputStream(crashFile);
-            out.write(crashInfoTextView.getText().toString().getBytes());
-            out.close();
-        } catch (IOException e) {
-            ExceptionUtils.throwableToDialog(this, e);
+            FileOutputStream(crashFile).use { out ->
+                out.write(crashInfoTextView.text.toString().toByteArray())
+            }
+        } catch (e: IOException) {
+            e.toErrorDialog(this)
         }
     }
 
-    private CharSequence getBoldText(String text) {
-        SpannableString span = new SpannableString(text);
-        span.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return span;
+    private fun getBoldText(text: String): CharSequence {
+        return SpannableString(text).apply {
+            setSpan(StyleSpan(Typeface.BOLD), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mApp.finishApp();
+    override fun onDestroy() {
+        super.onDestroy()
+        mApp.finishApp()
     }
 }

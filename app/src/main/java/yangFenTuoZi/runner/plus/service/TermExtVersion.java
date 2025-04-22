@@ -19,11 +19,17 @@ public class TermExtVersion implements Parcelable {
         this.abi = abi;
     }
 
-    public TermExtVersion(InputStream in) throws IOException, NumberFormatException {
+    public TermExtVersion(InputStream in) throws IOException {
+        int versionCode1;
         Properties buildProp = new Properties();
         buildProp.load(in);
         versionName = buildProp.getProperty("version.name");
-        versionCode = Integer.parseInt(buildProp.getProperty("version.code"));
+        try {
+            versionCode1 = Integer.parseInt(buildProp.getProperty("version.code"));
+        } catch (NumberFormatException e) {
+            versionCode1 = -1;
+        }
+        versionCode = versionCode1;
         abi = buildProp.getProperty("build.abi");
     }
 

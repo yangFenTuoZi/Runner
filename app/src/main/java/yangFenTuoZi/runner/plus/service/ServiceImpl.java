@@ -225,7 +225,7 @@ public class ServiceImpl extends IService.Stub {
                 throw new RemoteException(getStackTraceString(e));
             }
         }
-        return result;
+        return result == null ? new TermExtVersion("", -1, "") : result;
     }
 
     public static void rmRF(File file) {

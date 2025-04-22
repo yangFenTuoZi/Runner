@@ -1,69 +1,62 @@
-package yangFenTuoZi.runner.plus.base;
+package yangFenTuoZi.runner.plus.base
 
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.view.Window;
+import android.content.res.Resources
+import android.graphics.Color
+import android.os.Bundle
+import com.google.android.material.color.DynamicColors
+import rikka.material.app.MaterialActivity
+import yangFenTuoZi.runner.plus.App
+import yangFenTuoZi.runner.plus.utils.ThemeUtils
 
-import androidx.annotation.NonNull;
+open class BaseActivity : MaterialActivity() {
 
-import com.google.android.material.color.DynamicColors;
+    var isDialogShow: Boolean = false
 
-import rikka.material.app.MaterialActivity;
-import yangFenTuoZi.runner.plus.App;
-import yangFenTuoZi.runner.plus.utils.ThemeUtils;
+    var isDark: Int = -1
+    lateinit var mApp: App
 
-public class BaseActivity extends MaterialActivity {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        mApp = application as App
+        mApp.addActivity(this)
 
-    public boolean isDialogShow = false;
-
-    public int isDark = -1;
-    public App mApp;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        mApp = (App) getApplication();
-        mApp.addActivity(this);
-        //设置主题
-        if (mApp.isDark != -1) {
-            isDark = mApp.isDark;
+        // 设置主题
+        isDark = if (mApp.isDark != -1) {
+            mApp.isDark
         } else {
-            isDark = ThemeUtils.isDark(this) ? 1 : 0;
-            mApp.isDark = isDark;
+            val dark = if (ThemeUtils.isDark(this)) 1 else 0
+            mApp.isDark = dark
+            dark
         }
-        setTheme(ThemeUtils.getTheme(isDark == 1));
-        DynamicColors.applyToActivityIfAvailable(this, mApp.getDynamicColorsOptions());
-        super.onCreate(savedInstanceState);
+        setTheme(ThemeUtils.getTheme(isDark == 1))
+        DynamicColors.applyToActivityIfAvailable(this, mApp.dynamicColorsOptions)
+        super.onCreate(savedInstanceState)
     }
 
-    @Override
-    protected void onDestroy() {
-        mApp.removeActivity(this);
-        super.onDestroy();
+    override fun onDestroy() {
+        mApp.removeActivity(this)
+        super.onDestroy()
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mApp.isDark == -1)
-            mApp.isDark = isDark;
+    override fun onStart() {
+        super.onStart()
+        if (mApp.isDark == -1) {
+            mApp.isDark = isDark
+        }
         if (mApp.isDark != isDark) {
-            recreate();
+            recreate()
         }
     }
 
-    @Override
-    public void onApplyUserThemeResource(@NonNull Resources.Theme theme, boolean isDecorView) {
-        theme.applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true);
+    override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
+        theme.applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true)
     }
 
-    @Override
-    public void onApplyTranslucentSystemBars() {
-        super.onApplyTranslucentSystemBars();
+    override fun onApplyTranslucentSystemBars() {
+        super.onApplyTranslucentSystemBars()
 
-        //设置状态栏导航栏透明
-        Window window = getWindow();
-        window.setStatusBarColor(Color.TRANSPARENT);
-        window.setNavigationBarColor(Color.TRANSPARENT);
+        // 设置状态栏导航栏透明
+        val window = window
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
     }
 }

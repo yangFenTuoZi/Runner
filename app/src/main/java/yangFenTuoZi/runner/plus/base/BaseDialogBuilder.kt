@@ -1,62 +1,50 @@
-package yangFenTuoZi.runner.plus.base;
+package yangFenTuoZi.runner.plus.base
 
-import android.content.DialogInterface;
+import android.content.DialogInterface
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
+open class BaseDialogBuilder(context: BaseActivity) : MaterialAlertDialogBuilder(context) {
+    class DialogShowException : Exception()
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+    private val mBaseActivity: BaseActivity = context
+    private var mAlertDialog: AlertDialog? = null
+    private var mOnDismissListener: DialogInterface.OnDismissListener? = null
 
-public class BaseDialogBuilder extends MaterialAlertDialogBuilder {
-    private final BaseActivity mBaseActivity;
-    private AlertDialog mAlertDialog;
-    private DialogInterface.OnDismissListener mOnDismissListener;
-
-    public static class DialogShowException extends Exception {
+    init {
+        if (mBaseActivity.isDialogShow) throw DialogShowException()
+        mBaseActivity.isDialogShow = true
+        super.setOnDismissListener { dialogInterface ->
+            mBaseActivity.isDialogShow = false
+            mOnDismissListener?.onDismiss(dialogInterface)
+        }
     }
 
-    public BaseDialogBuilder(@NonNull BaseActivity context) throws DialogShowException {
-        super(context);
-        mBaseActivity = context;
-        if (mBaseActivity.isDialogShow) throw new DialogShowException();
-        mBaseActivity.isDialogShow = true;
-        super.setOnDismissListener(dialogInterface -> {
-            mBaseActivity.isDialogShow = false;
-            if (mOnDismissListener != null)
-                mOnDismissListener.onDismiss(dialogInterface);
-        });
+    fun getAlertDialog(): AlertDialog? = mAlertDialog
+
+    
+    override fun create(): AlertDialog {
+        return super.create().also { mAlertDialog = it }
     }
 
-    public AlertDialog getAlertDialog() {
-        return mAlertDialog;
+    
+    override fun setOnDismissListener(onDismissListener: DialogInterface.OnDismissListener?): MaterialAlertDialogBuilder {
+        mOnDismissListener = onDismissListener
+        return this
     }
 
-    @NonNull
-    @Override
-    public AlertDialog create() {
-        return mAlertDialog = super.create();
+    fun runOnUiThread(action: Runnable) {
+        mBaseActivity.runOnUiThread(action)
     }
 
-    @NonNull
-    @Override
-    public MaterialAlertDialogBuilder setOnDismissListener(@Nullable DialogInterface.OnDismissListener onDismissListener) {
-        mOnDismissListener = onDismissListener;
-        return this;
+    
+    fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
+        return mBaseActivity.getString(resId, *formatArgs)
     }
 
-    public void runOnUiThread(Runnable action) {
-        mBaseActivity.runOnUiThread(action);
-    }
-
-    @NonNull
-    public final String getString(@StringRes int resId, Object... formatArgs) {
-        return mBaseActivity.getString(resId, formatArgs);
-    }
-
-    @NonNull
-    public final String getString(@StringRes int resId) {
-        return mBaseActivity.getString(resId);
+    
+    fun getString(@StringRes resId: Int): String {
+        return mBaseActivity.getString(resId)
     }
 }

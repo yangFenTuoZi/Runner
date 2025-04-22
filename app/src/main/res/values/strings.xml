@@ -108,5 +108,8 @@
     <string name="install">Install</string>
     <string name="reinstall">Reinstall</string>
     <string name="remove">Remove</string>
-    <string name="term_ext_summary">1</string>
+    <string name="term_ext_summary">Provide external extension commands</string>
+    <string name="term_ext_title">Terminal Extension</string>
+    <string name="term_ext_title_installed">Terminal Extension (Installed)</string>
+    <string name="term_ext_version">Version: %s (%d)\nABI: %s</string>
 </resources>

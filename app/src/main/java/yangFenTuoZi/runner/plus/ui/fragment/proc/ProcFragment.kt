@@ -1,141 +1,180 @@
-package yangFenTuoZi.runner.plus.ui.fragment.proc;
+package yangFenTuoZi.runner.plus.ui.fragment.proc
 
-import static yangFenTuoZi.runner.plus.utils.ExceptionUtils.throwableToDialog;
+import android.content.DialogInterface
+import android.os.Bundle
+import android.os.Handler
+import android.os.RemoteException
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import rikka.recyclerview.fixEdgeEffect
+import yangFenTuoZi.runner.plus.R
+import yangFenTuoZi.runner.plus.Runner
+import yangFenTuoZi.runner.plus.adapters.ProcAdapter
+import yangFenTuoZi.runner.plus.base.BaseFragment
+import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding
+import yangFenTuoZi.runner.plus.utils.ExceptionUtils.toErrorDialog
 
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.RemoteException;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
+class ProcFragment : BaseFragment() {
+    var binding: FragmentProcBinding? = null
+        private set
+    private var recyclerView: RecyclerView? = null
+    var onRefreshListener: OnRefreshListener = OnRefreshListener {
+        Handler().postDelayed(Runnable {
+            initList()
+            binding!!.swipeRefreshLayout.isRefreshing = false
+        }, 1000)
+    }
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentProcBinding.inflate(inflater, container, false)
+        recyclerView = binding!!.recyclerView
+        recyclerView!!.setLayoutManager(LinearLayoutManager(mContext))
+        recyclerView!!.fixEdgeEffect(false, true)
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+        binding!!.swipeRefreshLayout.setOnRefreshListener(onRefreshListener)
 
-import java.util.Objects;
-
-import rikka.recyclerview.RecyclerViewKt;
-import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.Runner;
-import yangFenTuoZi.runner.plus.adapters.ProcAdapter;
-import yangFenTuoZi.runner.plus.base.BaseFragment;
-import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding;
-
-public class ProcFragment extends BaseFragment {
-
-    private FragmentProcBinding binding;
-    private RecyclerView recyclerView;
-    public SwipeRefreshLayout.OnRefreshListener onRefreshListener = () -> new Handler().postDelayed(() -> {
-        initList();
-        binding.swipeRefreshLayout.setRefreshing(false);
-    },1000);
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentProcBinding.inflate(inflater, container, false);
-        recyclerView = binding.recyclerView;
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        RecyclerViewKt.fixEdgeEffect(recyclerView, false, true);
-
-        binding.swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
-
-        binding.procKillAll.setOnClickListener(v -> {
+        binding!!.procKillAll.setOnClickListener { v ->
             if (Runner.pingServer()) {
                 try {
-                    if (Objects.requireNonNull(binding.recyclerView.getAdapter()).getItemCount() == 0) {
-                        Toast.makeText(mContext, R.string.process_there_are_no_running_processes, Toast.LENGTH_SHORT).show();
-                        return;
+                    if (binding!!.recyclerView.adapter
+                            ?.itemCount == 0
+                    ) {
+                        Toast.makeText(
+                            mContext,
+                            R.string.process_there_are_no_running_processes,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setOnClickListener
                     }
-                } catch (NullPointerException ignored) {
+                } catch (_: NullPointerException) {
                 }
             } else {
-                Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show();
-                return;
+                Toast.makeText(
+                    mContext,
+                    R.string.home_status_service_not_running,
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
             }
-            if (mContext.isDialogShow)
-                return;
-            mContext.isDialogShow = true;
-            new MaterialAlertDialogBuilder(mContext)
-                    .setTitle(R.string.process_kill_all_processes)
-                    .setPositiveButton(android.R.string.ok, ((dialog, which) -> new Thread(() -> {
-                        if (Runner.pingServer()) {
-                            try {
-                                String[] strings = Runner.service.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep").split("\n");
-                                int[] data = new int[strings.length];
-                                int i = 0;
-                                for (String proc : strings) {
-                                    if (!proc.isEmpty()) {
-                                        String[] pI = proc.replaceAll(" +", " ").trim().split(" ");
-                                        if (pI[2].matches("^RUNNER-proc:.*")) {
-                                            data[i] = Integer.parseInt(pI[0]);
-                                            i++;
+            if (mContext.isDialogShow) return@setOnClickListener
+            mContext.isDialogShow = true
+            MaterialAlertDialogBuilder(mContext)
+                .setTitle(R.string.process_kill_all_processes)
+                .setPositiveButton(
+                    android.R.string.ok,
+                    (DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+                        Thread(
+                            Runnable {
+                                if (Runner.pingServer()) {
+                                    try {
+                                        val strings =
+                                            Runner.service.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")
+                                                .split("\n".toRegex())
+                                                .dropLastWhile { it.isEmpty() }.toTypedArray()
+                                        val data = IntArray(strings.size)
+                                        var i = 0
+                                        for (proc in strings) {
+                                            if (!proc.isEmpty()) {
+                                                val pI = proc.replace(" +".toRegex(), " ")
+                                                    .trim { it <= ' ' }.split(" ".toRegex())
+                                                    .dropLastWhile { it.isEmpty() }.toTypedArray()
+                                                if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
+                                                    data[i] = pI[0].toInt()
+                                                    i++
+                                                }
+                                            }
                                         }
+                                        ProcAdapter.killPIDs(data)
+                                    } catch (e: RemoteException) {
+                                        e.toErrorDialog(mContext)
                                     }
+                                    initList()
+                                } else {
+                                    runOnUiThread(Runnable {
+                                        Toast.makeText(
+                                            mContext,
+                                            R.string.home_status_service_not_running,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    })
                                 }
-                                ProcAdapter.killPIDs(data);
-                            } catch (RemoteException e) {
-                                throwableToDialog(mContext, e);
-                            }
-                            initList();
-                        } else {
-                            runOnUiThread(() -> Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show());
-                        }
-                    }).start()))
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setOnDismissListener(dialog -> mContext.isDialogShow = false)
-                    .show();
-        });
-        return binding.getRoot();
+                            }).start()
+                    })
+                )
+                .setNegativeButton(android.R.string.cancel, null)
+                .setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? ->
+                    mContext.isDialogShow = false
+                })
+                .show()
+        }
+        return binding!!.getRoot()
     }
 
-    public void initList() {
-        new Thread(() -> {
+    fun initList() {
+        Thread(Runnable {
             if (Runner.pingServer()) {
                 try {
-                    String[] strings = Runner.service.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep").split("\n");
-                    int[] data = new int[strings.length];
-                    String[] data_name = new String[strings.length];
-                    int i = 0;
-                    for (String proc : strings) {
+                    val strings =
+                        Runner.service.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")
+                            .split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    val data = IntArray(strings.size)
+                    val dataName = arrayOfNulls<String>(strings.size)
+                    var i = 0
+                    for (proc in strings) {
                         if (!proc.isEmpty()) {
-                            String[] pI = proc.replaceAll(" +", " ").trim().split(" ");
-                            if (pI[2].matches("^RUNNER-proc:.*")) {
-                                data[i] = Integer.parseInt(pI[0]);
-                                data_name[i] = pI[2].split(":", 2)[1];
-                                i++;
+                            val pI = proc.replace(" +".toRegex(), " ").trim { it <= ' ' }
+                                .split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                            if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
+                                data[i] = pI[0].toInt()
+                                dataName[i] =
+                                    pI[2].split(":".toRegex(), limit = 2).toTypedArray()[1]
+                                i++
                             }
                         }
                     }
-                    runOnUiThread(() -> binding.recyclerView.setAdapter(new ProcAdapter(mContext, data, data_name, this)));
-                } catch (RemoteException e) {
-                    throwableToDialog(mContext, e);
+                    runOnUiThread(Runnable {
+                        binding!!.recyclerView.setAdapter(
+                            ProcAdapter(
+                                mContext,
+                                data,
+                                dataName,
+                                this
+                            )
+                        )
+                    })
+                } catch (e: RemoteException) {
+                    e.toErrorDialog(mContext)
                 }
             } else {
-                runOnUiThread(() -> Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show());
+                runOnUiThread(Runnable {
+                    Toast.makeText(
+                        mContext,
+                        R.string.home_status_service_not_running,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                })
             }
-        }).start();
+        }).start()
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        View.OnClickListener l = v -> recyclerView.smoothScrollToPosition(0);
-        getToolbar().setOnClickListener(l);
-        initList();
-    }
-
-    public FragmentProcBinding getBinding() {
-        return binding;
+    override fun onStart() {
+        super.onStart()
+        val l = View.OnClickListener { v: View? -> recyclerView!!.smoothScrollToPosition(0) }
+        getToolbar().setOnClickListener(l)
+        initList()
     }
 }

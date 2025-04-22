@@ -1,24 +1,28 @@
-package yangFenTuoZi.runner.plus.ui.fragment.home;
+package yangFenTuoZi.runner.plus.ui.fragment.home
 
-import android.view.View;
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import rikka.recyclerview.BaseViewHolder
+import yangFenTuoZi.runner.plus.Runner
+import yangFenTuoZi.runner.plus.databinding.HomeItemContainerBinding
+import yangFenTuoZi.runner.plus.databinding.HomeShizukuPermRequestBinding
 
-import rikka.recyclerview.BaseViewHolder;
-import yangFenTuoZi.runner.plus.Runner;
-import yangFenTuoZi.runner.plus.databinding.HomeItemContainerBinding;
-import yangFenTuoZi.runner.plus.databinding.HomeShizukuPermRequestBinding;
+class GrantShizukuPermViewHolder(binding: HomeShizukuPermRequestBinding, root: View) :
+    BaseViewHolder<Any?>(root) {
+    init {
+        binding.button1.setOnClickListener { v ->
+            Runner.requestPermission()
+        }
+    }
 
-public class GrantShizukuPermViewHolder extends BaseViewHolder<Object> {
-
-    public static final Creator<Object> CREATOR = (inflater, parent) -> {
-        HomeItemContainerBinding outer = HomeItemContainerBinding.inflate(inflater, parent, false);
-        HomeShizukuPermRequestBinding inner = HomeShizukuPermRequestBinding.inflate(inflater, outer.getRoot(), true);
-        return new GrantShizukuPermViewHolder(inner, outer.getRoot());
-    };
-
-    public GrantShizukuPermViewHolder(HomeShizukuPermRequestBinding binding, View root) {
-        super(root);
-        binding.button1.setOnClickListener(v -> {
-            Runner.requestPermission();
-        });
+    companion object {
+        val CREATOR: Creator<Any?> = Creator { inflater: LayoutInflater?, parent: ViewGroup? ->
+            val outer = HomeItemContainerBinding.inflate(
+                inflater!!, parent, false
+            )
+            val inner = HomeShizukuPermRequestBinding.inflate(inflater, outer.getRoot(), true)
+            GrantShizukuPermViewHolder(inner, outer.getRoot())
+        }
     }
 }

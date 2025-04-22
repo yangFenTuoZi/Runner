@@ -1,182 +1,213 @@
-package yangFenTuoZi.runner.plus.ui.dialog;
+package yangFenTuoZi.runner.plus.ui.dialog
 
-import android.os.RemoteException;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.widget.Toast;
+import android.content.DialogInterface
+import android.os.RemoteException
+import android.util.Log
+import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import yangFenTuoZi.runner.plus.R
+import yangFenTuoZi.runner.plus.Runner
+import yangFenTuoZi.runner.plus.adapters.ProcAdapter
+import yangFenTuoZi.runner.plus.base.BaseActivity
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
+import yangFenTuoZi.runner.plus.databinding.DialogExecBinding
+import yangFenTuoZi.runner.plus.service.CommandInfo
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.ServerSocket
+import java.net.Socket
+import java.util.Objects
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialogBuilder(context) {
+    var pid: Int = 0
+    var port: Int = 0
+    var cmdInfo: CommandInfo
+    var h1: Thread? = null
+    var h2: Thread? = null
+    var br: Boolean = false
+    var br2: Boolean = false
+    var serverSocket: ServerSocket? = null
+    var mContext: BaseActivity? = context
+    var binding: DialogExecBinding = DialogExecBinding.inflate(LayoutInflater.from(mContext))
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Objects;
-
-import yangFenTuoZi.runner.plus.R;
-import yangFenTuoZi.runner.plus.Runner;
-import yangFenTuoZi.runner.plus.adapters.ProcAdapter;
-import yangFenTuoZi.runner.plus.base.BaseActivity;
-import yangFenTuoZi.runner.plus.base.BaseDialogBuilder;
-import yangFenTuoZi.runner.plus.databinding.DialogExecBinding;
-import yangFenTuoZi.runner.plus.service.CommandInfo;
-
-public class ExecDialogBuilder extends BaseDialogBuilder {
-
-    int pid, port;
-    CommandInfo cmdInfo;
-    Thread h1, h2;
-    boolean br = false, br2 = false;
-    ServerSocket serverSocket;
-    BaseActivity mContext;
-    DialogExecBinding binding;
-
-    public ExecDialogBuilder(@NonNull BaseActivity context, CommandInfo cmdInfo) throws DialogShowException {
-        super(context);
-        mContext = context;
-        binding = DialogExecBinding.inflate(LayoutInflater.from(mContext));
-        setView(binding.getRoot());
-        setTitle(getString(R.string.exec_running));
-        setOnDismissListener(dialog -> onDestroy());
-        this.cmdInfo = cmdInfo;
+    init {
+        setView(binding.getRoot())
+        setTitle(getString(R.string.exec_running))
+        setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? -> onDestroy() })
+        this.cmdInfo = cmdInfo
     }
 
-    @Override
-    public AlertDialog show() {
-        super.show();
-        binding.execMsg.requestFocus();
-        binding.execMsg.setOnKeyListener((view, i, keyEvent) -> {
-            if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN)
-                getAlertDialog().cancel();
-            return false;
-        });
+    override fun show(): AlertDialog? {
+        super.show()
+        binding.execMsg.requestFocus()
+        binding.execMsg.setOnKeyListener { view, i, keyEvent ->
+            if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) getAlertDialog()!!.cancel()
+            false
+        }
         //子线程执行命令，否则UI线程执行就会导致UI卡住动不了
-        String cmd;
-        if (cmdInfo.useChid)
-            cmd = "chid " + cmdInfo.ids + " " + cmdInfo.command;
-        else
-            cmd = cmdInfo.command;
+        val cmd = if (cmdInfo.useChid) "chid " + cmdInfo.ids + " " + cmdInfo.command
+        else cmdInfo.command
         if (Runner.pingServer()) {
-            h1 = new Thread(() -> {
+            h1 = Thread(Runnable {
                 try {
-                    port = getUsablePort(8400);
-                    if (port == -1) return;
-                    h2 = new Thread(() -> {
+                    port = getUsablePort(8400)
+                    if (port == -1) return@Runnable
+                    h2 = Thread(Runnable {
                         try {
-                            serverSocket = new ServerSocket(port);
+                            serverSocket = ServerSocket(port)
                             while (!br) {
-                                Socket socket = serverSocket.accept();
-                                Thread thread = new Thread(() -> {
+                                val socket = serverSocket!!.accept()
+                                val thread = Thread(Runnable {
                                     try {
-                                        BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                                        String inline;
-                                        boolean pid_ = false;
-                                        while ((inline = br.readLine()) != null) {
-                                            String finalInline = inline;
-                                            if (pid_) {
-                                                runOnUiThread(() -> binding.execMsg.append(finalInline + "\n"));
+                                        val br =
+                                            BufferedReader(InputStreamReader(socket.getInputStream()))
+                                        var inline: String
+                                        var pid1 = false
+                                        while ((br.readLine().also { inline = it }) != null) {
+                                            val finalInline = inline
+                                            if (pid1) {
+                                                runOnUiThread(Runnable {
+                                                    binding.execMsg.append(
+                                                        finalInline + "\n"
+                                                    )
+                                                })
                                             } else {
                                                 try {
-                                                    int p = Integer.parseInt(finalInline);
-                                                    runOnUiThread(() -> binding.execTitle.append(getString(R.string.exec_pid, p) + "\n"));
-                                                    pid_ = true;
-                                                    pid = p;
-                                                } catch (Exception e) {
-                                                    runOnUiThread(() -> binding.execMsg.append(finalInline + "\n"));
+                                                    val p = finalInline.toInt()
+                                                    runOnUiThread(Runnable {
+                                                        binding.execTitle.append(
+                                                            getString(R.string.exec_pid, p) + "\n"
+                                                        )
+                                                    })
+                                                    pid1 = true
+                                                    pid = p
+                                                } catch (_: Exception) {
+                                                    runOnUiThread(Runnable {
+                                                        binding.execMsg.append(
+                                                            finalInline + "\n"
+                                                        )
+                                                    })
                                                 }
                                             }
                                         }
-                                        br.close();
-                                        socket.close();
-                                    } catch (Exception ignored) {
+                                        br.close()
+                                        socket.close()
+                                    } catch (_: Exception) {
                                     }
-                                });
-                                thread.start();
+                                })
+                                thread.start()
                             }
-                            serverSocket.close();
-                        } catch (Exception e) {
-                            Log.e(getClass().getName(), Objects.requireNonNull(e.getMessage()));
+                            serverSocket!!.close()
+                        } catch (e: Exception) {
+                            Log.e(javaClass.getName(), Objects.requireNonNull<String?>(e.message))
                         }
-                    });
-                    new Thread(() -> {
+                    })
+                    Thread(Runnable {
                         try {
                             while (true) {
                                 if (!Runner.pingServer()) {
-                                    runOnUiThread(() -> {
-                                        Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show();
-                                        binding.execTitle.append(getString(R.string.exec_return, -1, getString(R.string.exec_other_error)));
-                                        getAlertDialog().setTitle(getString(R.string.exec_finish));
-                                        br2 = true;
-                                    });
-                                    onDestroy();
-                                    break;
+                                    runOnUiThread(Runnable {
+                                        Toast.makeText(
+                                            mContext,
+                                            R.string.home_status_service_not_running,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        binding.execTitle.append(
+                                            getString(
+                                                R.string.exec_return,
+                                                -1,
+                                                getString(R.string.exec_other_error)
+                                            )
+                                        )
+                                        getAlertDialog()!!.setTitle(getString(R.string.exec_finish))
+                                        br2 = true
+                                    })
+                                    onDestroy()
+                                    break
                                 }
-                                if (br) break;
-                                wait(100);
+                                if (br) break
+                                (this as Object).wait(100)
                             }
-                        } catch (Exception ignored) {
+                        } catch (_: Exception) {
                         }
-                    }).start();
-                    h2.start();
-                    int exitValue = Runner.service.execX(cmd, cmdInfo.name, port);
-                    runOnUiThread(() -> {
-                        binding.execTitle.append(getString(R.string.exec_return, exitValue, getString(switch (exitValue) {
-                            case 0 -> R.string.exec_normal;
-                            case 127 -> R.string.exec_command_not_found;
-                            case 130 -> R.string.exec_ctrl_c_error;
-                            case 139 -> R.string.exec_segmentation_error;
-                            default -> R.string.exec_other_error;
-                        })));
-                        getAlertDialog().setTitle(getString(R.string.exec_finish));
-                    });
-                    br = true;
-                    br2 = true;
-                } catch (RemoteException ignored) {
+                    }).start()
+                    h2!!.start()
+                    val exitValue = Runner.service.execX(cmd, cmdInfo.name, port)
+                    runOnUiThread(Runnable {
+                        binding.execTitle.append(
+                            getString(
+                                R.string.exec_return, exitValue, getString(
+                                    when (exitValue) {
+                                        0 -> R.string.exec_normal
+                                        127 -> R.string.exec_command_not_found
+                                        130 -> R.string.exec_ctrl_c_error
+                                        139 -> R.string.exec_segmentation_error
+                                        else -> R.string.exec_other_error
+                                    }
+                                )
+                            )
+                        )
+                        getAlertDialog()!!.setTitle(getString(R.string.exec_finish))
+                    })
+                    br = true
+                    br2 = true
+                } catch (_: RemoteException) {
                 }
-            });
-            h1.start();
+            })
+            h1!!.start()
         }
-        return getAlertDialog();
+        return getAlertDialog()
     }
 
-    public void onDestroy() {
-        br = true;
-        h2.interrupt();
-        h1.interrupt();
+    fun onDestroy() {
+        br = true
+        h2!!.interrupt()
+        h1!!.interrupt()
         if (Runner.pingServer()) {
             try {
-                serverSocket.close();
+                serverSocket!!.close()
                 if (!cmdInfo.keepAlive && !br2) {
-                    new Thread(() -> {
+                    Thread(Runnable {
                         try {
                             if (ProcAdapter.killPID(pid)) {
-                                runOnUiThread(() -> Toast.makeText(mContext, R.string.process_the_killing_process_succeeded, Toast.LENGTH_SHORT).show());
-                            } else
-                                runOnUiThread(() -> Toast.makeText(mContext, R.string.process_failed_to_kill_the_process, Toast.LENGTH_SHORT).show());
-                        } catch (Exception ignored) {
+                                runOnUiThread(Runnable {
+                                    Toast.makeText(
+                                        mContext,
+                                        R.string.process_the_killing_process_succeeded,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                })
+                            } else runOnUiThread(Runnable {
+                                Toast.makeText(
+                                    mContext,
+                                    R.string.process_failed_to_kill_the_process,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            })
+                        } catch (_: Exception) {
                         }
-                    }).start();
+                    }).start()
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (e: Exception) {
+                throw RuntimeException(e)
             }
         }
     }
 
-    public static int getUsablePort(int port) {
-        boolean flag = false;
-        try {
-            Socket socket = new Socket("localhost", port);
-            flag = true;
-            socket.close();
-        } catch (IOException ignored) {
+    companion object {
+        fun getUsablePort(port: Int): Int {
+            var flag = false
+            try {
+                val socket = Socket("localhost", port)
+                flag = true
+                socket.close()
+            } catch (_: IOException) {
+            }
+            if (!flag && port == 65536) return -1
+            return if (flag) getUsablePort(port + 1) else port
         }
-        if (!flag && port == 65536)
-            return -1;
-        return flag ? getUsablePort(port + 1) : port;
     }
-
 }

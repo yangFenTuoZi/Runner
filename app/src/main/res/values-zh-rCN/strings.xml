@@ -107,5 +107,8 @@
     <string name="install">安装</string>
     <string name="reinstall">重新安装</string>
     <string name="remove">移除</string>
-    <string name="term_ext_summary">1</string>
+    <string name="term_ext_summary">提供外部扩展命令</string>
+    <string name="term_ext_title">终端扩展包</string>
+    <string name="term_ext_title_installed">终端扩展包 (已安装)</string>
+    <string name="term_ext_version">版本: %s (%d)\nABI: %s</string>
 </resources>
