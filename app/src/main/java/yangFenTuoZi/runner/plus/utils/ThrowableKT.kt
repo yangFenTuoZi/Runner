@@ -3,14 +3,18 @@ package yangFenTuoZi.runner.plus.utils
 import android.app.Activity
 import android.content.Context
 import android.os.Looper
-import android.util.Log.getStackTraceString
+import android.util.Log
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import yangFenTuoZi.runner.plus.R
 
-object ExceptionUtils {
+object ThrowableKT {
+
+    fun Throwable.getStackTraceString() : String {
+        return Log.getStackTraceString(this)
+    }
 
     fun Throwable.toErrorDialog(context: Activity) {
-        getStackTraceString(this).toErrorDialog(context)
+        getStackTraceString().toErrorDialog(context)
     }
 
     fun CharSequence.toErrorDialog(context: Activity) {

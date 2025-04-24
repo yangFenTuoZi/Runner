@@ -24,45 +24,22 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
 ) : RecyclerView.Adapter<ProcAdapter.ViewHolder?>() {
     //获取长度
     override fun getItemCount(): Int {
-        val i = this.realItemCount
-        return if (i == 0) 1 else i
+        var i = 0
+        for (x in data) if (x != 0) i++
+        return i
     }
 
-    val realItemCount: Int
-        get() {
-            var i = 0
-            for (x in data) if (x != 0) i++
-            return i
-        }
-
-    val isEmpty: Boolean
-        get() = this.realItemCount == 0
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view: View
-        val emptyPage = this.isEmpty
-        if (emptyPage) {
-            view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.empty_processes, parent, false)
-            view.getRootView().setOnClickListener(View.OnClickListener { v: View? ->
-                val refreshLayout = procFragment.binding!!.swipeRefreshLayout
-                if (!refreshLayout.isRefreshing) {
-                    refreshLayout.isRefreshing = true
-                    procFragment.onRefreshListener.onRefresh()
-                }
-            })
-        } else {
-            view = LayoutInflater.from(parent.context)
+        val view: View = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_proc, parent, false)
-        }
-        val holder = ViewHolder(view, emptyPage)
+        val holder = ViewHolder(view)
         view.tag = holder
         view.setOnKeyListener(View.OnKeyListener { v: View?, i: Int, keyEvent: KeyEvent? -> false })
         return holder
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (!this.isEmpty) init(holder, data[position], data_name[position])
+        init(holder, data[position], data_name[position])
     }
 
     //固定的写法
@@ -88,15 +65,13 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
     //        init(holder, data[position], data_name[position]);
     //        return convertView;
     //    }
-    class ViewHolder(view: View, emptyPage: Boolean) : RecyclerView.ViewHolder(view) {
-        var text_name: TextView
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        var text_name: TextView = view.findViewById<TextView?>(R.id.item_proc_name)
         var text_pid: TextView
         var button_kill: MaterialButton
 
 
         init {
-            if (emptyPage) true
-            text_name = view.findViewById<TextView?>(R.id.item_proc_name)
             text_pid = view.findViewById<TextView?>(R.id.item_proc_pid)
             button_kill = view.findViewById<MaterialButton?>(R.id.item_proc_kill)
         }
@@ -156,11 +131,10 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
         fun killPID(pid: Int): Boolean {
             if (Runner.pingServer()) {
                 try {
-                    val iService = Runner.service
-                    iService.exec("kill -9 $pid")
+                    Runner.service?.exec("kill -9 $pid")
                     return isDied(
                         pid.toString(),
-                        iService.exec("busybox ps -A -o pid,ppid|grep $pid").split("\n".toRegex())
+                        Runner.service?.exec("busybox ps -A -o pid,ppid|grep $pid")!!.split("\n".toRegex())
                             .dropLastWhile { it.isEmpty() }.toTypedArray()
                     )
                 } catch (e: RemoteException) {
@@ -174,12 +148,11 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
         fun killPIDs(PIDs: IntArray) {
             if (Runner.pingServer()) {
                 try {
-                    val iService = Runner.service
                     val cmd = StringBuilder()
                     for (pid in PIDs) {
                         if (pid != 0) cmd.append("kill -9 ").append(pid).append("\n")
                     }
-                    iService.exec(cmd.toString())
+                    Runner.service?.exec(cmd.toString())
                 } catch (e: RemoteException) {
                     throw RuntimeException(e)
                 }

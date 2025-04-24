@@ -9,7 +9,7 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import yangFenTuoZi.runner.plus.base.BaseActivity
 import yangFenTuoZi.runner.plus.databinding.ActivityCrashReportBinding
-import yangFenTuoZi.runner.plus.utils.ExceptionUtils.toErrorDialog
+import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
 import java.io.FileOutputStream
 import java.io.IOException
 

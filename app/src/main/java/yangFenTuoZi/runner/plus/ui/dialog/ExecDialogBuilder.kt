@@ -135,7 +135,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                         }
                     }).start()
                     h2!!.start()
-                    val exitValue = Runner.service.execX(cmd, cmdInfo.name, port)
+                    val exitValue = Runner.service?.execX(cmd, cmdInfo.name, port)
                     runOnUiThread(Runnable {
                         binding.execTitle.append(
                             getString(

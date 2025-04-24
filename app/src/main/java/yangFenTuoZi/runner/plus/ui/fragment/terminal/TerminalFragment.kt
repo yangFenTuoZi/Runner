@@ -1,35 +1,31 @@
-package yangFenTuoZi.runner.plus.ui.fragment.terminal;
+package yangFenTuoZi.runner.plus.ui.fragment.terminal
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import yangFenTuoZi.runner.plus.base.BaseFragment
+import yangFenTuoZi.runner.plus.databinding.FragmentTerminalBinding
 
-import androidx.annotation.NonNull;
+class TerminalFragment : BaseFragment() {
+    private var binding: FragmentTerminalBinding? = null
 
-import yangFenTuoZi.runner.plus.base.BaseFragment;
-import yangFenTuoZi.runner.plus.databinding.FragmentTerminalBinding;
-
-public class TerminalFragment extends BaseFragment {
-
-    private FragmentTerminalBinding binding;
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentTerminalBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        return root;
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentTerminalBinding.inflate(inflater, container, false)
+        val root: View? = binding!!.getRoot()
+        return root
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    override fun onStart() {
+        super.onStart()
     }
 }

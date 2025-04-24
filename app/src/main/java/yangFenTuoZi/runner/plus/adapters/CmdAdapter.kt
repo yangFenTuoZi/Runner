@@ -29,7 +29,7 @@ import yangFenTuoZi.runner.plus.databinding.DialogEditBinding
 import yangFenTuoZi.runner.plus.service.CommandInfo
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
 import yangFenTuoZi.runner.plus.ui.dialog.ExecDialogBuilder
-import yangFenTuoZi.runner.plus.utils.ExceptionUtils.toErrorDialog
+import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
 import java.lang.String
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -37,6 +37,7 @@ import kotlin.BooleanArray
 import kotlin.CharSequence
 import kotlin.Int
 import kotlin.booleanArrayOf
+import kotlin.let
 import kotlin.toString
 
 class CmdAdapter(private val mContext: MainActivity, count: Int) :
@@ -54,7 +55,7 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
         notifyDataSetChanged()
 
         try {
-            Runner.service.closeCursor()
+            Runner.service?.closeCursor()
         } catch (e: RemoteException) {
             e.toErrorDialog(mContext)
         }
@@ -74,8 +75,8 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
 
         executorService.execute(Runnable {
             try {
-                val info = Runner.service.query(holder.position())
-                mContext.runOnUiThread(Runnable { init(holder, info) }) // 回到主线程更新 UI
+                val info = Runner.service?.query(holder.position())
+                mContext.runOnUiThread(Runnable { info?.let { init(holder, it) } }) // 回到主线程更新 UI
             } catch (e: RemoteException) {
                 e.toErrorDialog(mContext)
             }
@@ -88,7 +89,7 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
 
     fun remove(position: Int) {
         try {
-            Runner.service.delete(position + 1)
+            Runner.service?.delete(position + 1)
             count--
             notifyItemRemoved(position)
             notifyItemRangeChanged(position, itemCount - position)
@@ -100,7 +101,7 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
     fun add(info: CommandInfo) {
         try {
             info.rowid = count++
-            Runner.service.insert(info)
+            Runner.service?.insert(info)
             notifyItemChanged(count)
         } catch (e: RemoteException) {
             e.toErrorDialog(mContext)
@@ -108,9 +109,9 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var text_name: TextView = view.findViewById<TextView?>(R.id.item_name)
-        var text_command: TextView = view.findViewById<TextView?>(R.id.item_command)
-        var item_button: MaterialButton = view.findViewById<MaterialButton?>(R.id.item_button)
+        var textName: TextView = view.findViewById<TextView?>(R.id.item_name)
+        var textCommand: TextView = view.findViewById<TextView?>(R.id.item_command)
+        var itemButton: MaterialButton = view.findViewById<MaterialButton?>(R.id.item_button)
         var layout: MaterialCardView = view.findViewById<MaterialCardView?>(R.id.item_root)
 
         fun position(): Int {
@@ -122,7 +123,7 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
         val empty = isEmpty(info)
 
         //如果用户还没设置命令内容，则点击时将编辑命令，否则点击将运行命令
-        holder.item_button.setOnClickListener(View.OnClickListener { view: View? ->
+        holder.itemButton.setOnClickListener(View.OnClickListener { view: View? ->
             if (mContext.isDialogShow) return@OnClickListener
             if (Runner.pingServer()) {
                 try {
@@ -182,7 +183,7 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
                             if (binding.dialogChid.isChecked) binding.dialogIds.getText()
                                 .toString() else null
                         try {
-                            Runner.service.update(info)
+                            Runner.service?.update(info)
                         } catch (_: RemoteException) {
                         }
                         if (!empty[0] && isEmpty(info)[0]) remove(holder.position())
@@ -195,39 +196,39 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
                 }).show()
         })
 
-        holder.text_name.text = if (empty[1]) getItalicText("__NAME__") else info.name
-        holder.text_command.text = if (empty[2]) getItalicText("__CMD__") else info.command
+        holder.textName.text = if (empty[1]) getItalicText("__NAME__") else info.name
+        holder.textCommand.text = if (empty[2]) getItalicText("__CMD__") else info.command
 
 
         //如果不为空则设置长按菜单
         holder.layout.setOnCreateContextMenuListener(OnCreateContextMenuListener { menu: ContextMenu?, v: View?, menuInfo: ContextMenuInfo? ->
             menu!!.add(
                 holder.position(),
-                long_click_copy_name,
+                LONG_CLICK_COPY_NAME,
                 0,
                 mContext.getString(R.string.long_click_copy_name)
             )
             menu.add(
                 holder.position(),
-                long_click_copy_command,
+                LONG_CLICK_COPY_COMMAND,
                 0,
                 mContext.getString(R.string.long_click_copy_command)
             )
             menu.add(
                 holder.position(),
-                long_click_new,
+                LONG_CLICK_NEW,
                 0,
                 mContext.getString(R.string.long_click_new)
             )
             menu.add(
                 holder.position(),
-                long_click_pack,
+                LONG_CLICK_PACK,
                 0,
                 mContext.getString(R.string.long_click_pack)
             )
             menu.add(
                 holder.position(),
-                long_click_del,
+                LONG_CLICK_DEL,
                 0,
                 mContext.getString(R.string.long_click_del)
             )
@@ -250,17 +251,17 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
     }
 
     companion object {
-        const val long_click_copy_name: Int = 0
-        const val long_click_copy_command: Int = 1
-        const val long_click_new: Int = 2
-        const val long_click_pack: Int = 3
-        const val long_click_del: Int = 4
+        const val LONG_CLICK_COPY_NAME: Int = 0
+        const val LONG_CLICK_COPY_COMMAND: Int = 1
+        const val LONG_CLICK_NEW: Int = 2
+        const val LONG_CLICK_PACK: Int = 3
+        const val LONG_CLICK_DEL: Int = 4
 
         //判断是否为空
         fun isEmpty(info: CommandInfo): BooleanArray {
-            val exist_c = info.command == null || info.command.isEmpty()
-            val exist_n = info.name == null || info.name.isEmpty()
-            return booleanArrayOf(exist_c && exist_n, exist_n, exist_c)
+            val existC = info.command == null || info.command.isEmpty()
+            val existN = info.name == null || info.name.isEmpty()
+            return booleanArrayOf(existC && existN, existN, existC)
         }
     }
 }

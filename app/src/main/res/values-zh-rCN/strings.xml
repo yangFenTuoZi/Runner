@@ -49,7 +49,6 @@
 
     <string name="process_the_killing_process_succeeded">成功杀死进程</string>
     <string name="process_failed_to_kill_the_process">杀死进程失败</string>
-    <string name="process_there_are_no_running_processes">没有正在运行的进程</string>
     <string name="process_kill_all_processes">杀死所有进程?</string>
 
     <string name="settings_update_channel">更新渠道</string>

@@ -1,123 +1,132 @@
-package yangFenTuoZi.runner.plus;
+package yangFenTuoZi.runner.plus
+
+import android.content.ComponentName
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.IBinder
+import android.os.RemoteException
+import rikka.shizuku.Shizuku
+import rikka.shizuku.Shizuku.OnBinderDeadListener
+import rikka.shizuku.Shizuku.OnBinderReceivedListener
+import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
+import rikka.shizuku.Shizuku.UserServiceArgs
+import yangFenTuoZi.runner.plus.service.IService
+import yangFenTuoZi.runner.plus.service.ServiceImpl
 
 
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.os.IBinder;
-import android.os.RemoteException;
+object Runner {
+    var service: IService? = null
+    var binder: IBinder? = null
+    var shizukuPermission: Boolean = false
+    var shizukuStatus: Boolean = false
+    var shizukuUid: Int = 0
+    var shizukuApiVersion: Int = 0
+    var shizukuPatchVersion: Int = 0
+    var serviceVersion: Int = 0
 
-import java.lang.reflect.Field;
+    private val userServiceArgs: UserServiceArgs = UserServiceArgs(
+        ComponentName(
+            BuildConfig.APPLICATION_ID,
+            ServiceImpl::class.java.getName()
+        )
+    )
+        .daemon(true)
+        .processNameSuffix("runner_server")
+        .debuggable(BuildConfig.DEBUG)
+        .version(BuildConfig.VERSION_CODE)
 
-import rikka.shizuku.Shizuku;
-import yangFenTuoZi.runner.plus.service.IService;
-import yangFenTuoZi.runner.plus.service.ServiceImpl;
-
-public class Runner {
-
-    public static IService service;
-    public static IBinder binder;
-    public static boolean shizukuPermission = false;
-    public static boolean shizukuStatus = false;
-    public static int shizukuUid;
-    public static int shizukuApiVersion;
-    public static int shizukuPatchVersion;
-    public static int serviceVersion;
-
-    private static final Shizuku.UserServiceArgs userServiceArgs =
-            new Shizuku.UserServiceArgs(new ComponentName(BuildConfig.APPLICATION_ID, ServiceImpl.class.getName()))
-                    .daemon(true)
-                    .processNameSuffix("runner_server")
-                    .debuggable(BuildConfig.DEBUG)
-                    .version(BuildConfig.VERSION_CODE);
-
-    private static final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+    private val serviceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             if (iBinder != null && iBinder.pingBinder()) {
-                service = IService.Stub.asInterface(binder = iBinder);
-                try {
-                    serviceVersion = service.version();
-                } catch (RemoteException e) {
-                    serviceVersion = -1;
+                service = IService.Stub.asInterface(iBinder.also { binder = it })
+                serviceVersion = try {
+                    service!!.version()
+                } catch (_: RemoteException) {
+                    -1
                 }
             }
         }
 
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            binder = null;
-            service = null;
-            serviceVersion = -1;
+        override fun onServiceDisconnected(componentName: ComponentName?) {
+            binder = null
+            service = null
+            serviceVersion = -1
         }
-    };
+    }
 
-    private static final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener = (requestCode, grantResult) -> {
-        if (requestCode != 7890) return;
-        shizukuPermission = grantResult == PackageManager.PERMISSION_GRANTED;
-        shizukuStatus = Shizuku.pingBinder();
-        tryBindService();
-    };
+    private val onRequestPermissionResultListener =
+        OnRequestPermissionResultListener { requestCode: Int, grantResult: Int ->
+            if (requestCode != 7890) return@OnRequestPermissionResultListener
+            shizukuPermission = grantResult == PackageManager.PERMISSION_GRANTED
+            shizukuStatus = Shizuku.pingBinder()
+            tryBindService()
+        }
 
-    private static final Shizuku.OnBinderReceivedListener onBinderReceivedListener = () -> {
-        shizukuStatus = true;
-        shizukuUid = Shizuku.getUid();
-        shizukuApiVersion = Shizuku.getVersion();
+    private val onBinderReceivedListener = OnBinderReceivedListener {
+        shizukuStatus = true
+        shizukuUid = Shizuku.getUid()
+        shizukuApiVersion = Shizuku.getVersion()
         try {
-            Field serverPatchVersionField = Shizuku.class.getDeclaredField("serverPatchVersion");
-            serverPatchVersionField.setAccessible(true);
-            shizukuPatchVersion = serverPatchVersionField.getInt(null);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            shizukuPatchVersion = 0;
+            val serverPatchVersionField = Shizuku::class.java.getDeclaredField("serverPatchVersion")
+            serverPatchVersionField.isAccessible = true
+            shizukuPatchVersion = serverPatchVersionField.getInt(null)
+        } catch (_: NoSuchFieldException) {
+            shizukuPatchVersion = 0
+        } catch (_: IllegalAccessException) {
+            shizukuPatchVersion = 0
         }
-        if (shizukuPatchVersion < 0) shizukuPatchVersion = 0;
-        tryBindService();
-    };
+        if (shizukuPatchVersion < 0) shizukuPatchVersion = 0
+        tryBindService()
+    }
 
-    private static final Shizuku.OnBinderDeadListener onBinderDeadListener = () -> {
-        shizukuStatus = false;
-        serviceVersion = shizukuUid = shizukuApiVersion = shizukuPatchVersion = -1;
-        binder = null;
-        service = null;
-    };
+    private val onBinderDeadListener = OnBinderDeadListener {
+        shizukuStatus = false
+        shizukuPatchVersion = -1
+        shizukuApiVersion = shizukuPatchVersion
+        shizukuUid = shizukuApiVersion
+        serviceVersion = shizukuUid
+        binder = null
+        service = null
+    }
 
-    public static void refreshStatus() {
-        shizukuStatus = Shizuku.pingBinder();
-        try {
-            shizukuPermission = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED;
-        } catch (RuntimeException e) {
-            shizukuPermission = App.getInstance().checkSelfPermission("moe.shizuku.manager.permission.API_V23") == PackageManager.PERMISSION_GRANTED;
+    fun refreshStatus() {
+        shizukuStatus = Shizuku.pingBinder()
+        shizukuPermission = try {
+            Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        } catch (_: RuntimeException) {
+            App.instance?.checkSelfPermission("moe.shizuku.manager.permission.API_V23") == PackageManager.PERMISSION_GRANTED
         }
-        tryBindService();
+        tryBindService()
     }
 
-    public static void tryBindService() {
-        if (shizukuStatus && shizukuPermission && !pingServer())
-            Shizuku.bindUserService(userServiceArgs, serviceConnection);
+    fun tryBindService() {
+        if (shizukuStatus && shizukuPermission && !pingServer()) Shizuku.bindUserService(
+            userServiceArgs, serviceConnection
+        )
     }
 
-    public static void tryUnbindService(boolean remove) {
-        Shizuku.unbindUserService(userServiceArgs, serviceConnection, remove);
+    fun tryUnbindService(remove: Boolean) {
+        Shizuku.unbindUserService(userServiceArgs, serviceConnection, remove)
     }
 
-    public static void requestPermission() {
-        Shizuku.requestPermission(7890);
+    fun requestPermission() {
+        Shizuku.requestPermission(7890)
     }
 
-    public static boolean pingServer() {
-        return binder != null && binder.pingBinder();
+    fun pingServer(): Boolean {
+        return binder != null && binder!!.pingBinder()
     }
 
-    public static void init() {
-        Shizuku.addRequestPermissionResultListener(onRequestPermissionResultListener);
-        Shizuku.addBinderReceivedListenerSticky(onBinderReceivedListener);
-        Shizuku.addBinderDeadListener(onBinderDeadListener);
+    fun init() {
+        Shizuku.addRequestPermissionResultListener(onRequestPermissionResultListener)
+        Shizuku.addBinderReceivedListenerSticky(onBinderReceivedListener)
+        Shizuku.addBinderDeadListener(onBinderDeadListener)
     }
 
-    public static void remove() {
-        Shizuku.removeRequestPermissionResultListener(onRequestPermissionResultListener);
-        Shizuku.removeBinderReceivedListener(onBinderReceivedListener);
-        Shizuku.removeBinderDeadListener(onBinderDeadListener);
-        Shizuku.unbindUserService(userServiceArgs, serviceConnection, false);
+    fun remove() {
+        Shizuku.removeRequestPermissionResultListener(onRequestPermissionResultListener)
+        Shizuku.removeBinderReceivedListener(onBinderReceivedListener)
+        Shizuku.removeBinderDeadListener(onBinderDeadListener)
+        Shizuku.unbindUserService(userServiceArgs, serviceConnection, false)
     }
 }

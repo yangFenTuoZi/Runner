@@ -16,6 +16,8 @@ import rikka.preference.SimpleMenuPreference
 import rikka.recyclerview.fixEdgeEffect
 import yangFenTuoZi.runner.plus.BuildConfig
 import yangFenTuoZi.runner.plus.R
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder.DialogShowException
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.FragmentSettingsBinding
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
@@ -50,7 +52,8 @@ class SettingsFragment : BaseFragment() {
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
-            if (parentFragment is SettingsFragment) mParentFragment = parentFragment as SettingsFragment?
+            if (parentFragment is SettingsFragment) mParentFragment =
+                parentFragment as SettingsFragment?
         }
 
         override fun onDetach() {
@@ -65,7 +68,7 @@ class SettingsFragment : BaseFragment() {
             darkTheme?.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
                     val oldIsDark = mContext!!.mApp.isDark
-                    mContext!!.mApp.isDark = if (ThemeUtils.isDark(mContext)) 1 else 0
+                    mContext!!.mApp.isDark = if (ThemeUtils.isDark(mContext!!)) 1 else 0
                     if (oldIsDark != mContext!!.mApp.isDark) {
                         mContext!!.mApp.setTheme(ThemeUtils.getTheme(mContext!!.mApp.isDark == 1))
                         mContext!!.recreate()
@@ -80,65 +83,77 @@ class SettingsFragment : BaseFragment() {
                     BuildConfig.VERSION_NAME,
                     BuildConfig.VERSION_CODE
                 )
-                ver.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference? ->
-                    if (mContext!!.isDialogShow) true
-                    try {
-                        val updateInfo = UpdateUtils.Update(
-                            (findPreference<Preference?>("update_channel") as SimpleMenuPreference)
-                                .value == resources.getStringArray(R.array.update_channel_values)[1]
-                        )
-                        if (updateInfo.version_code > BuildConfig.VERSION_CODE) {
-                            mContext!!.isDialogShow = true
-                            MaterialAlertDialogBuilder(mContext!!)
-                                .setTitle(R.string.settings_check_update)
-                                .setMessage(
-                                    getString(
-                                        R.string.settings_check_update_msg,
-                                        BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE,
-                                        updateInfo.version_name, updateInfo.version_code,
-                                        updateInfo.update_msg
-                                    )
+                ver.onPreferenceClickListener =
+                    Preference.OnPreferenceClickListener { preference: Preference? ->
+                        Thread {
+                            if (mContext!!.isDialogShow) return@Thread
+                            try {
+                                val updateInfo = UpdateUtils.update(
+                                    (findPreference<Preference?>("update_channel") as SimpleMenuPreference)
+                                        .value == resources.getStringArray(R.array.update_channel_values)[1]
                                 )
-                                .setPositiveButton(
-                                    R.string.settings_check_update
-                                ) { dialog, which -> }
-                                .setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? ->
-                                    mContext!!.isDialogShow = false
-                                })
-                                .show()
-                        } else {
-                            Toast.makeText(
-                                mContext,
-                                R.string.settings_latest_version,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    } catch (e: UpdateException) {
-                        Toast.makeText(
-                            mContext, when (e.what) {
-                                UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER -> R.string.settings_can_not_connect_update_server
-                                UpdateException.WHAT_CAN_NOT_PARSE_JSON -> R.string.settings_can_not_parse_json
-                                UpdateException.WHAT_JSON_FORMAT_ERROR -> R.string.settings_json_format_error
-                                else -> R.string.settings_error
-                            }, Toast.LENGTH_SHORT
-                        ).show()
+                                if (updateInfo.versionCode > BuildConfig.VERSION_CODE) {
+                                    mContext!!.runOnUiThread {
+                                        try {
+                                            BaseDialogBuilder(mContext!!)
+                                                .setTitle(R.string.settings_check_update)
+                                                .setMessage(
+                                                    getString(
+                                                        R.string.settings_check_update_msg,
+                                                        BuildConfig.VERSION_NAME,
+                                                        BuildConfig.VERSION_CODE,
+                                                        updateInfo.versionName,
+                                                        updateInfo.versionCode,
+                                                        updateInfo.updateMsg
+                                                    )
+                                                )
+                                                .setPositiveButton(
+                                                    R.string.settings_check_update
+                                                ) { dialog, which -> }
+                                                .show()
+                                        } catch (_: DialogShowException) {
+                                        }
+                                    }
+                                } else {
+                                    mContext!!.runOnUiThread {
+                                        Toast.makeText(
+                                            mContext,
+                                            R.string.settings_latest_version,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            } catch (e: UpdateException) {
+                                mContext!!.runOnUiThread {
+                                    Toast.makeText(
+                                        mContext, when (e.what) {
+                                            UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER -> R.string.settings_can_not_connect_update_server
+                                            UpdateException.WHAT_CAN_NOT_PARSE_JSON -> R.string.settings_can_not_parse_json
+                                            UpdateException.WHAT_JSON_FORMAT_ERROR -> R.string.settings_json_format_error
+                                            else -> R.string.settings_error
+                                        }, Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                            true
+                        }.start()
+                        true
                     }
-                    true
-                }
             }
             val help = findPreference<Preference?>("help")
-            help?.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference? ->
-                if (mContext!!.isDialogShow) true
-                mContext!!.isDialogShow = true
-                MaterialAlertDialogBuilder(mContext!!)
-                    .setTitle(R.string.settings_help)
-                    .setMessage("没做")
-                    .setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? ->
-                        mContext!!.isDialogShow = false
-                    })
-                    .show()
-                true
-            }
+            help?.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { preference: Preference? ->
+                    if (mContext!!.isDialogShow) true
+                    mContext!!.isDialogShow = true
+                    MaterialAlertDialogBuilder(mContext!!)
+                        .setTitle(R.string.settings_help)
+                        .setMessage("没做")
+                        .setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? ->
+                            mContext!!.isDialogShow = false
+                        })
+                        .show()
+                    true
+                }
             val exportData = findPreference<Preference?>("export_data")
             exportData?.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener { preference: Preference? ->

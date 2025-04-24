@@ -2,33 +2,36 @@ package yangFenTuoZi.runner.plus.ui.fragment.proc
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.os.Handler
 import android.os.RemoteException
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import rikka.recyclerview.fixEdgeEffect
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
 import yangFenTuoZi.runner.plus.adapters.ProcAdapter
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding
-import yangFenTuoZi.runner.plus.utils.ExceptionUtils.toErrorDialog
+import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
 
 class ProcFragment : BaseFragment() {
     var binding: FragmentProcBinding? = null
         private set
     private var recyclerView: RecyclerView? = null
     var onRefreshListener: OnRefreshListener = OnRefreshListener {
-        Handler().postDelayed(Runnable {
+        lifecycleScope.launch {
+            delay(1000)
             initList()
-            binding!!.swipeRefreshLayout.isRefreshing = false
-        }, 1000)
+            binding?.swipeRefreshLayout?.isRefreshing = false
+        }
     }
 
     override fun onCreateView(
@@ -48,11 +51,6 @@ class ProcFragment : BaseFragment() {
                     if (binding!!.recyclerView.adapter
                             ?.itemCount == 0
                     ) {
-                        Toast.makeText(
-                            mContext,
-                            R.string.process_there_are_no_running_processes,
-                            Toast.LENGTH_SHORT
-                        ).show()
                         return@setOnClickListener
                     }
                 } catch (_: NullPointerException) {
@@ -77,7 +75,7 @@ class ProcFragment : BaseFragment() {
                                 if (Runner.pingServer()) {
                                     try {
                                         val strings =
-                                            Runner.service.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")
+                                            Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")!!
                                                 .split("\n".toRegex())
                                                 .dropLastWhile { it.isEmpty() }.toTypedArray()
                                         val data = IntArray(strings.size)
@@ -124,7 +122,7 @@ class ProcFragment : BaseFragment() {
             if (Runner.pingServer()) {
                 try {
                     val strings =
-                        Runner.service.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")
+                        Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")!!
                             .split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                     val data = IntArray(strings.size)
                     val dataName = arrayOfNulls<String>(strings.size)

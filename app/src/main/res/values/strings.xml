@@ -50,7 +50,6 @@
 
     <string name="process_the_killing_process_succeeded">The killing process succeeded</string>
     <string name="process_failed_to_kill_the_process">Failed to kill the process</string>
-    <string name="process_there_are_no_running_processes">There are no running processes</string>
     <string name="process_kill_all_processes">Kill all processes?</string>
 
     <string name="settings_update_channel">Update Channel</string>
