@@ -1,6 +1,5 @@
 package yangFenTuoZi.runner.plus
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
@@ -48,7 +47,6 @@ class App : Application(), Thread.UncaughtExceptionHandler {
         Runner.remove()
     }
 
-    @SuppressLint("WrongConstant")
     private fun crashHandler(t: Thread, e: Throwable) {
         val fileName = "runnerCrash-" + System.currentTimeMillis() + ".log"
         val file: File?

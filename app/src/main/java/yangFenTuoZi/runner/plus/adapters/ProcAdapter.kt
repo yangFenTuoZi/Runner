@@ -15,17 +15,21 @@ import yangFenTuoZi.runner.plus.Runner
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
 import yangFenTuoZi.runner.plus.ui.fragment.proc.ProcFragment
 
-class ProcAdapter //设置adapter需要接收两个参数：上下文、int数组
+class ProcAdapter
     (
     private val mContext: MainActivity,
     private val data: IntArray,
-    private val data_name: Array<String?>,
+    private val dataName: Array<String?>,
     private val procFragment: ProcFragment
 ) : RecyclerView.Adapter<ProcAdapter.ViewHolder?>() {
-    //获取长度
+
     override fun getItemCount(): Int {
         var i = 0
         for (x in data) if (x != 0) i++
+        if (i == 0)
+            mContext.toolbar.setSubtitle(R.string.empty)
+        else
+            mContext.toolbar.subtitle = null
         return i
     }
 
@@ -39,51 +43,26 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        init(holder, data[position], data_name[position])
+        init(holder, data[position], dataName[position])
     }
 
-    //固定的写法
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
 
-    //此函数定义每一个item的显示
-    //    public View getView(int position, View convertView, ViewGroup parent) {
-    //        ViewHolder holder;
-    //        if (convertView == null) {
-    //            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_process, null);
-    //            holder = new ViewHolder();
-    //            convertView.setTag(holder);
-    //            convertView.setOnKeyListener((view, i, keyEvent) -> false);
-    //        } else {
-    //
-    //            //对于已经加载过的item就直接使用，不需要再次加载了，这就是ViewHolder的作用
-    //            holder = (ViewHolder) convertView.getTag();
-    //        }
-    //
-    //        //获得用户对于这个格子的设置
-    //        init(holder, data[position], data_name[position]);
-    //        return convertView;
-    //    }
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var text_name: TextView = view.findViewById<TextView?>(R.id.item_proc_name)
-        var text_pid: TextView
-        var button_kill: MaterialButton
-
-
-        init {
-            text_pid = view.findViewById<TextView?>(R.id.item_proc_pid)
-            button_kill = view.findViewById<MaterialButton?>(R.id.item_proc_kill)
-        }
+        var textName: TextView = view.findViewById<TextView?>(R.id.item_proc_name)
+        var textPid: TextView = view.findViewById<TextView?>(R.id.item_proc_pid)
+        var buttonKill: MaterialButton = view.findViewById<MaterialButton?>(R.id.item_proc_kill)
     }
 
     //初始化
     fun init(holder: ViewHolder, pid: Int, name: String?) {
-        holder.text_name.text = name
-        holder.text_pid.text = mContext.getString(R.string.exec_pid, pid)
+        holder.textName.text = name
+        holder.textPid.text = mContext.getString(R.string.exec_pid, pid)
 
         //设置点击事件
-        holder.button_kill.setOnClickListener(View.OnClickListener { view: View? ->
+        holder.buttonKill.setOnClickListener(View.OnClickListener { view: View? ->
             MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process)
                 .setPositiveButton(R.string.dialog_finish) { dialog, which ->
                     Thread(
@@ -111,7 +90,6 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
     }
 
     companion object {
-        //判断进程是否噶了
         fun isDied(pid: String, processesInfo: Array<String>): Boolean {
             var firstLine = true
             var isAlive = false
@@ -127,7 +105,6 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
             return !isAlive
         }
 
-        //噶进程，顺便判断死没死透
         fun killPID(pid: Int): Boolean {
             if (Runner.pingServer()) {
                 try {
@@ -144,12 +121,11 @@ class ProcAdapter //设置adapter需要接收两个参数：上下文、int数�
             return false
         }
 
-        //噶进程，顺便判断死没死透
-        fun killPIDs(PIDs: IntArray) {
+        fun killPIDs(pids: IntArray) {
             if (Runner.pingServer()) {
                 try {
                     val cmd = StringBuilder()
-                    for (pid in PIDs) {
+                    for (pid in pids) {
                         if (pid != 0) cmd.append("kill -9 ").append(pid).append("\n")
                     }
                     Runner.service?.exec(cmd.toString())

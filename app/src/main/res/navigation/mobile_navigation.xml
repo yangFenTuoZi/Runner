@@ -12,15 +12,21 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@+id/navigation_runner"
+        android:name="yangFenTuoZi.runner.plus.ui.fragment.runner.RunnerFragment"
+        android:label="@string/title_runner"
+        tools:layout="@layout/fragment_runner" />
+
+    <fragment
         android:id="@+id/navigation_terminal"
         android:name="yangFenTuoZi.runner.plus.ui.fragment.terminal.TerminalFragment"
         android:label="@string/title_terminal"
         tools:layout="@layout/fragment_terminal" />
 
     <fragment
-        android:id="@+id/navigation_processes"
+        android:id="@+id/navigation_proc"
         android:name="yangFenTuoZi.runner.plus.ui.fragment.proc.ProcFragment"
-        android:label="@string/title_processes"
+        android:label="@string/title_proc"
         tools:layout="@layout/fragment_proc" />
 
     <fragment

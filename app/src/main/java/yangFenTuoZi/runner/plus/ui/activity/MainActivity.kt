@@ -22,8 +22,8 @@ import java.util.Locale
 
 class MainActivity : BaseActivity() {
 
-    private lateinit var mAppBar: AppBarLayout
-    private lateinit var mToolbar: MaterialToolbar
+    lateinit var appBar: AppBarLayout
+    lateinit var toolbar: MaterialToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,8 +33,9 @@ class MainActivity : BaseActivity() {
 
         val appBarConfiguration = AppBarConfiguration.Builder(
             R.id.navigation_home,
+            R.id.navigation_runner,
             R.id.navigation_terminal,
-            R.id.navigation_processes,
+            R.id.navigation_proc,
             R.id.navigation_settings
         ).build()
 
@@ -68,16 +69,18 @@ class MainActivity : BaseActivity() {
                         .show()
                     true
                 }
+
                 R.id.menu_about -> {
                     showAbout()
                     true
                 }
+
                 else -> true
             }
         }
 
-        mToolbar = binding.toolbar
-        mAppBar = binding.appBar
+        toolbar = binding.toolbar
+        appBar = binding.appBar
     }
 
     private fun showAbout() {
@@ -104,8 +107,4 @@ class MainActivity : BaseActivity() {
         } catch (_: BaseDialogBuilder.DialogShowException) {
         }
     }
-
-    fun getAppBar(): AppBarLayout = mAppBar
-
-    fun getToolbar(): MaterialToolbar = mToolbar
 }

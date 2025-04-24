@@ -15,9 +15,14 @@ open class BaseFragment : Fragment() {
             ?: throw RuntimeException("父Activity非MainActivity")
     }
 
-    fun getAppBar(): AppBarLayout = mContext.getAppBar()
+    override fun onStart() {
+        super.onStart()
+        mContext.toolbar.subtitle = null
+    }
 
-    fun getToolbar(): MaterialToolbar = mContext.getToolbar()
+    fun getAppBar(): AppBarLayout = mContext.appBar
+
+    fun getToolbar(): MaterialToolbar = mContext.toolbar
 
     fun runOnUiThread(action: Runnable) {
         mContext.runOnUiThread(action)

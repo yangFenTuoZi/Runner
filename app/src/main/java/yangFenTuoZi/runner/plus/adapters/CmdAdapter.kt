@@ -84,6 +84,10 @@ class CmdAdapter(private val mContext: MainActivity, count: Int) :
     }
 
     override fun getItemCount(): Int {
+        if (count == 0)
+            mContext.toolbar.setSubtitle(R.string.empty)
+        else
+            mContext.toolbar.subtitle = null
         return count
     }
 

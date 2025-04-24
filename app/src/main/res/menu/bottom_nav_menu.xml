@@ -7,14 +7,19 @@
         android:title="@string/title_home" />
 
     <item
+        android:id="@+id/navigation_runner"
+        android:icon="@drawable/ic_play_arrow"
+        android:title="@string/title_runner" />
+
+    <item
         android:id="@+id/navigation_terminal"
         android:icon="@drawable/ic_terminal_24"
         android:title="@string/title_terminal" />
 
     <item
-        android:id="@+id/navigation_processes"
+        android:id="@+id/navigation_proc"
         android:icon="@drawable/ic_layers"
-        android:title="@string/title_processes" />
+        android:title="@string/title_proc" />
 
     <item
         android:id="@+id/navigation_settings"

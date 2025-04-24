@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_home">主页</string>
+    <string name="title_runner">运行</string>
     <string name="title_terminal">终端</string>
-    <string name="title_processes">进程</string>
+    <string name="title_proc">进程</string>
     <string name="title_settings">设置</string>
 
     <string name="dialog_edit">编辑</string>
@@ -110,4 +111,5 @@
     <string name="term_ext_title">终端扩展包</string>
     <string name="term_ext_title_installed">终端扩展包 (已安装)</string>
     <string name="term_ext_version">版本: %s (%d)\nABI: %s</string>
+    <string name="empty">空</string>
 </resources>
