@@ -47,5 +47,11 @@ class HomeFragment : BaseFragment() {
         getToolbar().setOnClickListener(l)
         Runner.refreshStatus()
         adapter.updateData()
+        adapter.registerListeners()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        adapter.unregisterListeners()
     }
 }

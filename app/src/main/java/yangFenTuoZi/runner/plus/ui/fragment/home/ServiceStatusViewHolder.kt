@@ -20,6 +20,15 @@ class ServiceStatusViewHolder(binding: HomeServiceStatusBinding, root: View) :
     private val summaryView: TextView = binding.text2
     private val iconView: ImageView = binding.icon
 
+    init {
+        root.setOnClickListener {
+            if (Runner.pingServer()) return@setOnClickListener
+            Thread {
+                Runner.tryBindService()
+            }
+        }
+    }
+
     override fun onBind() {
         val context = itemView.context
         val ok = Runner.pingServer()

@@ -44,6 +44,7 @@ object Runner {
                 } catch (_: RemoteException) {
                     -1
                 }
+                scheduleServiceStatusListener(true)
             }
         }
 
@@ -51,6 +52,7 @@ object Runner {
             binder = null
             service = null
             serviceVersion = -1
+            scheduleServiceStatusListener(false)
         }
     }
 
@@ -58,7 +60,9 @@ object Runner {
         OnRequestPermissionResultListener { requestCode: Int, grantResult: Int ->
             if (requestCode != 7890) return@OnRequestPermissionResultListener
             shizukuPermission = grantResult == PackageManager.PERMISSION_GRANTED
+            scheduleShizukuPermissionListener(shizukuPermission)
             shizukuStatus = Shizuku.pingBinder()
+            scheduleShizukuStatusListener(shizukuStatus)
             tryBindService()
         }
 
@@ -76,6 +80,7 @@ object Runner {
             shizukuPatchVersion = 0
         }
         if (shizukuPatchVersion < 0) shizukuPatchVersion = 0
+        scheduleShizukuStatusListener(true)
         tryBindService()
     }
 
@@ -87,6 +92,8 @@ object Runner {
         serviceVersion = shizukuUid
         binder = null
         service = null
+        scheduleServiceStatusListener(false)
+        scheduleShizukuStatusListener(false)
     }
 
     fun refreshStatus() {
@@ -96,6 +103,8 @@ object Runner {
         } catch (_: RuntimeException) {
             App.instance?.checkSelfPermission("moe.shizuku.manager.permission.API_V23") == PackageManager.PERMISSION_GRANTED
         }
+        scheduleShizukuStatusListener(shizukuStatus)
+        scheduleShizukuPermissionListener(shizukuPermission)
         tryBindService()
     }
 
@@ -128,5 +137,79 @@ object Runner {
         Shizuku.removeBinderReceivedListener(onBinderReceivedListener)
         Shizuku.removeBinderDeadListener(onBinderDeadListener)
         Shizuku.unbindUserService(userServiceArgs, serviceConnection, false)
+    }
+
+    fun interface ShizukuPermissionListener {
+        fun onChange(granted: Boolean)
+    }
+
+    fun interface ShizukuStatusListener {
+        fun onChange(running: Boolean)
+    }
+
+    fun interface ServiceStatusListener {
+        fun onChange(running: Boolean)
+    }
+
+    private val shizukuPermissionListener: ArrayList<ShizukuPermissionListener> =
+        ArrayList<ShizukuPermissionListener>()
+    private val shizukuStatusListener: ArrayList<ShizukuStatusListener> =
+        ArrayList<ShizukuStatusListener>()
+    private val serviceStatusListener: ArrayList<ServiceStatusListener> =
+        ArrayList<ServiceStatusListener>()
+
+
+    private fun scheduleShizukuPermissionListener(granted: Boolean) {
+        synchronized(shizukuPermissionListener) {
+            for (listener in shizukuPermissionListener) {
+                listener.onChange(granted)
+            }
+        }
+    }
+
+    private fun scheduleShizukuStatusListener(running: Boolean) {
+        synchronized(shizukuStatusListener) {
+            for (listener in shizukuStatusListener) {
+                listener.onChange(running)
+            }
+        }
+    }
+
+    private fun scheduleServiceStatusListener(running: Boolean) {
+        synchronized(serviceStatusListener) {
+            for (listener in serviceStatusListener) {
+                listener.onChange(running)
+            }
+        }
+    }
+
+    fun addShizukuPermissionListener(listener: ShizukuPermissionListener) {
+        shizukuPermissionListener.add(listener)
+    }
+
+    fun removeShizukuPermissionListener(listener: ShizukuPermissionListener) {
+        synchronized(shizukuPermissionListener) {
+            shizukuPermissionListener.remove(listener)
+        }
+    }
+
+    fun addShizukuStatusListener(listener: ShizukuStatusListener) {
+        shizukuStatusListener.add(listener)
+    }
+
+    fun removeShizukuStatusListener(listener: ShizukuStatusListener) {
+        synchronized(shizukuStatusListener) {
+            shizukuStatusListener.remove(listener)
+        }
+    }
+
+    fun addServiceStatusListener(listener: ServiceStatusListener) {
+        serviceStatusListener.add(listener)
+    }
+
+    fun removeServiceStatusListener(listener: ServiceStatusListener) {
+        synchronized(serviceStatusListener) {
+            serviceStatusListener.remove(listener)
+        }
     }
 }
