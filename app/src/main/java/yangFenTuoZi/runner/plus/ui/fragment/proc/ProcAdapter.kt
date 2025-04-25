@@ -1,4 +1,4 @@
-package yangFenTuoZi.runner.plus.adapters
+package yangFenTuoZi.runner.plus.ui.fragment.proc
 
 import android.os.RemoteException
 import android.view.KeyEvent
@@ -13,7 +13,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
-import yangFenTuoZi.runner.plus.ui.fragment.proc.ProcFragment
 
 class ProcAdapter
     (
@@ -26,10 +25,6 @@ class ProcAdapter
     override fun getItemCount(): Int {
         var i = 0
         for (x in data) if (x != 0) i++
-        if (i == 0)
-            mContext.toolbar.setSubtitle(R.string.empty)
-        else
-            mContext.toolbar.subtitle = null
         return i
     }
 

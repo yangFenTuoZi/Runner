@@ -2,6 +2,7 @@ package yangFenTuoZi.runner.plus.service;
 
 import static android.util.Log.getStackTraceString;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.ddm.DdmHandleAppName;
 import android.os.Build;
 import android.os.Handler;
@@ -26,6 +27,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import yangFenTuoZi.runner.plus.BuildConfig;
+import yangFenTuoZi.runner.plus.service.data.CommandDao;
+import yangFenTuoZi.runner.plus.service.data.CommandDbHelper;
+import yangFenTuoZi.runner.plus.service.data.CommandInfo;
+import yangFenTuoZi.runner.plus.service.fakecontext.FakeContext;
 
 public class ServiceImpl extends IService.Stub {
 
@@ -33,16 +38,21 @@ public class ServiceImpl extends IService.Stub {
     public static final String DATA_PATH = "/data/local/tmp/runner";
     public static final String USR_PATH = DATA_PATH + "/usr";
     public final Handler mHandler;
+    private CommandDbHelper dbHelper = new CommandDbHelper(FakeContext.get());
+    private CommandDao commandDao;
 
     public ServiceImpl() {
         DdmHandleAppName.setAppName(TAG, Os.getuid());
         Log.i(TAG, "start");
         mHandler = new Handler();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        commandDao = new CommandDao(db);
     }
 
     @Override
     public void destroy() throws RemoteException {
         Log.i(TAG, "stop");
+        dbHelper.close();
         System.exit(0);
     }
 
@@ -67,42 +77,38 @@ public class ServiceImpl extends IService.Stub {
     }
 
     @Override
-    public void openCursor() throws RemoteException {
-
+    public int size() throws RemoteException {
+        return commandDao.size();
     }
 
     @Override
-    public void closeCursor() throws RemoteException {
-
+    public CommandInfo read(int position) throws RemoteException {
+        return commandDao.read(position);
     }
 
     @Override
-    public int count() throws RemoteException {
-        return 0;
+    public CommandInfo[] readAll() throws RemoteException {
+        return commandDao.readAll();
     }
 
     @Override
-    public CommandInfo query(int id) throws RemoteException {
-        return null;
+    public void delete(int position) throws RemoteException {
+        commandDao.delete(position);
     }
 
     @Override
-    public void delete(int id) throws RemoteException {
-
-    }
-
-    @Override
-    public void update(CommandInfo cmdInfo) throws RemoteException {
+    public void edit(CommandInfo cmdInfo, int position) throws RemoteException {
+        commandDao.edit(cmdInfo, position);
     }
 
     @Override
     public void insert(CommandInfo cmdInfo) throws RemoteException {
-
+        commandDao.insert(cmdInfo);
     }
 
     @Override
-    public CommandInfo[] getAll() throws RemoteException {
-        return new CommandInfo[0];
+    public void move(int fromPosition, int toPosition) throws RemoteException {
+        commandDao.move(fromPosition, toPosition);
     }
 
     @Override

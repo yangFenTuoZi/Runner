@@ -9,11 +9,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
-import yangFenTuoZi.runner.plus.adapters.ProcAdapter
 import yangFenTuoZi.runner.plus.base.BaseActivity
 import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.databinding.DialogExecBinding
-import yangFenTuoZi.runner.plus.service.CommandInfo
+import yangFenTuoZi.runner.plus.service.data.CommandInfo
+import yangFenTuoZi.runner.plus.ui.fragment.proc.ProcAdapter
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader

@@ -1,7 +1,9 @@
 package yangFenTuoZi.runner.plus.ui.fragment.runner
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
-import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -9,166 +11,182 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import rikka.recyclerview.fixEdgeEffect
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
-import yangFenTuoZi.runner.plus.adapters.CmdAdapter
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.DialogEditBinding
 import yangFenTuoZi.runner.plus.databinding.FragmentRunnerBinding
-import yangFenTuoZi.runner.plus.service.CommandInfo
-import java.lang.String
-import kotlin.Int
-import kotlin.toString
+import yangFenTuoZi.runner.plus.service.data.CommandInfo
+import yangFenTuoZi.runner.plus.ui.activity.PackActivity
+import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
 
 class RunnerFragment : BaseFragment() {
-    var binding: FragmentRunnerBinding? = null
-        private set
-    private var recyclerView: RecyclerView? = null
-    private val adapter: CmdAdapter? = null
+    private var _binding: FragmentRunnerBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var adapter: CommandAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
-        container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentRunnerBinding.inflate(inflater, container, false)
-        val root: View? = binding!!.getRoot()
-        recyclerView = binding!!.recyclerView
-        recyclerView!!.setLayoutManager(GridLayoutManager(mContext, 2))
-        recyclerView!!.fixEdgeEffect(false, true)
-        binding!!.swipeRefreshLayout.setOnRefreshListener {
-            Handler().postDelayed(Runnable {
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentRunnerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        adapter = CommandAdapter(mContext)
+
+        val itemTouchHelper = ItemTouchHelper(CommandItemTouchHelperCallback(adapter))
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(mContext)
+            fixEdgeEffect(false, true)
+            adapter = this@RunnerFragment.adapter
+        }
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            Handler().postDelayed({
                 initList()
-                binding!!.swipeRefreshLayout.isRefreshing = false
+                binding.swipeRefreshLayout.isRefreshing = false
             }, 1000)
         }
 
-        binding!!.add.setOnClickListener { view ->
-            if (mContext.isDialogShow) return@setOnClickListener
-            val binding = DialogEditBinding.inflate(LayoutInflater.from(mContext))
+        setupAddButton()
+        initList()
+    }
 
-            binding.dialogUidGid.visibility = View.GONE
-            binding.dialogChid.setOnCheckedChangeListener { buttonView, isChecked ->
-                binding.dialogUidGid.visibility = if (isChecked) View.VISIBLE else View.GONE
+    private fun setupAddButton() {
+        binding.add.setOnClickListener {
+            if (mContext.isDialogShow) return@setOnClickListener
+            showAddCommandDialog()
+        }
+    }
+
+    private fun showAddCommandDialog() {
+        val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mContext))
+
+        dialogBinding.apply {
+            dialogUidGid.visibility = View.GONE
+            dialogChid.setOnCheckedChangeListener { _, isChecked ->
+                dialogUidGid.visibility = if (isChecked) View.VISIBLE else View.GONE
             }
 
-            binding.dialogName.requestFocus()
-            binding.dialogName.postDelayed({
-                (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(
-                    binding.dialogName,
-                    0
-                )
+            dialogName.requestFocus()
+            dialogName.postDelayed({
+                (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(dialogName, InputMethodManager.SHOW_IMPLICIT)
             }, 200)
-            mContext.isDialogShow = true
-            MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.dialog_edit))
-                .setView(binding.getRoot()).setPositiveButton(
-                    mContext.getString(R.string.dialog_finish),
-                    DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
-                        if (!Runner.pingServer()) {
-                            Toast.makeText(
-                                mContext,
-                                R.string.home_status_service_not_running,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            true
-                        }
-                        val info = CommandInfo()
-                        info.command = String.valueOf(binding.dialogCommand.getText())
-                        info.name = String.valueOf(binding.dialogName.getText())
-                        info.keepAlive = binding.dialogKeepItAlive.isChecked
-                        info.useChid = binding.dialogChid.isChecked
-                        info.ids =
-                            if (binding.dialogChid.isChecked) binding.dialogIds.getText()
-                                .toString() else null
-                        adapter!!.add(info)
-                    })
-                .setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? ->
-                    mContext.isDialogShow = false
-                }).show()
         }
 
-        return root
+        mContext.isDialogShow = true
+        MaterialAlertDialogBuilder(mContext)
+            .setTitle(mContext.getString(R.string.dialog_edit))
+            .setView(dialogBinding.root)
+            .setPositiveButton(mContext.getString(R.string.dialog_finish)) { _, _ ->
+                if (!Runner.pingServer()) {
+                    Toast.makeText(
+                        mContext,
+                        R.string.home_status_service_not_running,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setPositiveButton
+                }
+
+                val newCommand = CommandInfo().apply {
+                    command = dialogBinding.dialogCommand.text.toString()
+                    name = dialogBinding.dialogName.text.toString()
+                    keepAlive = dialogBinding.dialogKeepItAlive.isChecked
+                    useChid = dialogBinding.dialogChid.isChecked
+                    ids = if (dialogBinding.dialogChid.isChecked) dialogBinding.dialogIds.text.toString() else null
+                }
+
+                adapter.add(newCommand)
+            }
+            .setOnDismissListener {
+                mContext.isDialogShow = false
+            }
+            .show()
     }
 
-    //初始化列表
-    fun initList() {
-//        if (!Runner.pingServer()) {
-//            Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        try {
-//            Runner.iService.closeCursor();
-//            int count = iService.count();
-//            if (adapter == null) {
-//                adapter = new CmdAdapter(mContext, count);
-//                binding.recyclerView.setAdapter(adapter);
-//            }
-//            else adapter.updateData(count);
-//        } catch (Exception e) {
-//            throwableToDialog(mContext, e);
-//        }
+    private fun initList() {
+        if (!Runner.pingServer()) {
+            Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+            return
+        }
+        adapter.updateData()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
+    override fun onContextItemSelected(item: android.view.MenuItem): Boolean {
+        when (item.itemId) {
+            CommandAdapter.LONG_CLICK_COPY_NAME -> {
+                if (!Runner.pingServer()) {
+                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+                    return false
+                }
+                try {
+                    val name = adapter.commands[item.groupId].name ?: return false
+                    (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                        .setPrimaryClip(ClipData.newPlainText("c", name))
+                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show()
+                    return true
+                } catch (e: Exception) {
+                    e.toErrorDialog(mContext)
+                }
+            }
+            CommandAdapter.LONG_CLICK_COPY_COMMAND -> {
+                if (!Runner.pingServer()) {
+                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+                    return false
+                }
+                try {
+                    val command = adapter.commands[item.groupId].command ?: return false
+                    (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                        .setPrimaryClip(ClipData.newPlainText("c", command))
+                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show()
+                    return true
+                } catch (e: Exception) {
+                    e.toErrorDialog(mContext)
+                }
+            }
+            CommandAdapter.LONG_CLICK_NEW -> {
+                showAddCommandDialog()
+                return true
+            }
+            CommandAdapter.LONG_CLICK_PACK -> {
+                val intent = Intent(context, PackActivity::class.java)
+                intent.putExtra("id", item.groupId)
+                startActivity(intent)
+                return true
+            }
+            CommandAdapter.LONG_CLICK_DEL -> {
+                if (!Runner.pingServer()) {
+                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+                    return false
+                }
+                adapter.remove(item.groupId)
+                return true
+            }
+        }
+        return super.onContextItemSelected(item)
     }
 
     override fun onStart() {
         super.onStart()
-        val l = View.OnClickListener { v: View? -> recyclerView!!.smoothScrollToPosition(0) }
-        getToolbar().setOnClickListener(l)
-    } //菜单选择事件
-    //    @SuppressLint("WrongConstant")
-    //    @Override
-    //    public boolean onContextItemSelected(MenuItem item) {
-    //        switch (item.getItemId()) {
-    //            case CmdAdapter.long_click_copy_name:
-    //                if (!Runner.pingServer()) {
-    //                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
-    //                    return super.onContextItemSelected(item);
-    //                }
-    //                try {
-    //                    String name = iService.query(item.getGroupId()).name;
-    //                    ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", name));
-    //                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show();
-    //                } catch (RemoteException e) {
-    //                    throwableToDialog(mContext, e);
-    //                }
-    //                return true;
-    //            case CmdAdapter.long_click_copy_command:
-    //                if (!Runner.pingServer()) {
-    //                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
-    //                    return super.onContextItemSelected(item);
-    //                }
-    //                try {
-    //                    String command = iService.query(item.getGroupId()).command;
-    //                    ((ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("c", command));
-    //                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show();
-    //                } catch (RemoteException e) {
-    //                    throwableToDialog(mContext, e);
-    //                }
-    //                return true;
-    //            case CmdAdapter.long_click_new:
-    //
-    //                return true;
-    //            case CmdAdapter.long_click_pack:
-    //                Intent intent = new Intent(getContext(), PackActivity.class);
-    //                intent.putExtra("id", item.getGroupId());
-    //                startActivity(intent);
-    //                return true;
-    //            case CmdAdapter.long_click_del:
-    //                if (!App.pingServer()) {
-    //                    Toast.makeText(mContext, R.string.home_service_is_not_running, Toast.LENGTH_SHORT).show();
-    //                    return super.onContextItemSelected(item);
-    //                }
-    //                adapter.remove(item.getGroupId());
-    //                return true;
-    //            default:
-    //                return super.onContextItemSelected(item);
-    //        }
-    //    }
+        getToolbar().setOnClickListener {
+            binding.recyclerView.smoothScrollToPosition(0)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.close()
+        _binding = null
+    }
 }

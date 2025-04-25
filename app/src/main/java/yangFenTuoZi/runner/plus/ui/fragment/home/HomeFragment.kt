@@ -28,10 +28,11 @@ class HomeFragment : BaseFragment() {
 
 
         recyclerView = binding!!.list
-        recyclerView!!.adapter = adapter
-        recyclerView!!.fixEdgeEffect(true, true)
-        recyclerView!!.addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
-        recyclerView!!.addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+        val recyclerView = binding!!.list
+        recyclerView.adapter = adapter
+        recyclerView.fixEdgeEffect(true, true)
+        recyclerView.addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+        recyclerView.addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
 
         return root
     }

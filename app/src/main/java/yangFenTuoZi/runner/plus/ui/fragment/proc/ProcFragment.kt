@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 import rikka.recyclerview.fixEdgeEffect
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
-import yangFenTuoZi.runner.plus.adapters.ProcAdapter
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding
 import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
