@@ -11,12 +11,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import rikka.recyclerview.fixEdgeEffect
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding
 import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
@@ -62,56 +62,51 @@ class ProcFragment : BaseFragment() {
                 ).show()
                 return@setOnClickListener
             }
-            if (mContext.isDialogShow) return@setOnClickListener
-            mContext.isDialogShow = true
-            MaterialAlertDialogBuilder(mContext)
-                .setTitle(R.string.process_kill_all_processes)
-                .setPositiveButton(
-                    android.R.string.ok,
-                    (DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
-                        Thread(
-                            Runnable {
-                                if (Runner.pingServer()) {
-                                    try {
-                                        val strings =
-                                            Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")!!
-                                                .split("\n".toRegex())
-                                                .dropLastWhile { it.isEmpty() }.toTypedArray()
-                                        val data = IntArray(strings.size)
-                                        var i = 0
-                                        for (proc in strings) {
-                                            if (!proc.isEmpty()) {
-                                                val pI = proc.replace(" +".toRegex(), " ")
-                                                    .trim { it <= ' ' }.split(" ".toRegex())
-                                                    .dropLastWhile { it.isEmpty() }.toTypedArray()
-                                                if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
-                                                    data[i] = pI[0].toInt()
-                                                    i++
-                                                }
+            try {
+                BaseDialogBuilder(mContext)
+                    .setTitle(R.string.process_kill_all_processes)
+                    .setPositiveButton(android.R.string.ok) { dialog: DialogInterface?, which: Int ->
+                        Thread {
+                            if (Runner.pingServer()) {
+                                try {
+                                    val strings =
+                                        Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")!!
+                                            .split("\n".toRegex())
+                                            .dropLastWhile { it.isEmpty() }.toTypedArray()
+                                    val data = IntArray(strings.size)
+                                    var i = 0
+                                    for (proc in strings) {
+                                        if (!proc.isEmpty()) {
+                                            val pI = proc.replace(" +".toRegex(), " ")
+                                                .trim { it <= ' ' }.split(" ".toRegex())
+                                                .dropLastWhile { it.isEmpty() }
+                                                .toTypedArray()
+                                            if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
+                                                data[i] = pI[0].toInt()
+                                                i++
                                             }
                                         }
-                                        ProcAdapter.killPIDs(data)
-                                    } catch (e: RemoteException) {
-                                        e.toErrorDialog(mContext)
                                     }
-                                    initList()
-                                } else {
-                                    runOnUiThread(Runnable {
-                                        Toast.makeText(
-                                            mContext,
-                                            R.string.home_status_service_not_running,
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    })
+                                    ProcAdapter.killPIDs(data)
+                                } catch (e: RemoteException) {
+                                    e.toErrorDialog(mContext)
                                 }
-                            }).start()
-                    })
-                )
-                .setNegativeButton(android.R.string.cancel, null)
-                .setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? ->
-                    mContext.isDialogShow = false
-                })
-                .show()
+                                initList()
+                            } else {
+                                runOnUiThread(Runnable {
+                                    Toast.makeText(
+                                        mContext,
+                                        R.string.home_status_service_not_running,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                })
+                            }
+                        }.start()
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            } catch (_: BaseDialogBuilder.DialogShowException) {
+            }
         }
         return binding!!.getRoot()
     }

@@ -18,6 +18,7 @@ interface IService {
     void edit(in CommandInfo cmdInfo, int position) = 204;
     void insert(in CommandInfo cmdInfo) = 205;
     void move(int position, int afterPosition) = 206;
+    void insertInto(in CommandInfo cmdInfo, int position) = 207;
 
     boolean backupData(String input, boolean includeTerm) = 300;
     boolean restoreData(String output) = 301;

@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-open class BaseDialogBuilder(context: BaseActivity) : MaterialAlertDialogBuilder(context) {
+open class BaseDialogBuilder @Throws(DialogShowException::class) constructor(context: BaseActivity) : MaterialAlertDialogBuilder(context) {
     class DialogShowException : Exception()
 
     private val mBaseActivity: BaseActivity = context

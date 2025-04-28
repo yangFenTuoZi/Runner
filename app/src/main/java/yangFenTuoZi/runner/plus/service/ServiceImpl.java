@@ -112,6 +112,11 @@ public class ServiceImpl extends IService.Stub {
     }
 
     @Override
+    public void insertInto(CommandInfo cmdInfo, int position) throws RemoteException {
+        commandDao.insertInto(cmdInfo, position);
+    }
+
+    @Override
     public boolean backupData(String input, boolean includeTerm) throws RemoteException {
         return false;
     }

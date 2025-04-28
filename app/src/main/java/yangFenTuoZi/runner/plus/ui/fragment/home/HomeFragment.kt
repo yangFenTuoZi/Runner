@@ -24,17 +24,15 @@ class HomeFragment : BaseFragment() {
         container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View? = binding!!.getRoot()
 
+        recyclerView = binding!!.list.apply {
+            adapter = this@HomeFragment.adapter
+            fixEdgeEffect(true, true)
+            addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+            addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+        }
 
-        recyclerView = binding!!.list
-        val recyclerView = binding!!.list
-        recyclerView.adapter = adapter
-        recyclerView.fixEdgeEffect(true, true)
-        recyclerView.addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
-        recyclerView.addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
-
-        return root
+        return binding!!.getRoot()
     }
 
     override fun onDestroyView() {

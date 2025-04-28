@@ -21,7 +21,7 @@ class TermExtStatusViewHolder(binding: HomeTermExtStatusBinding, root: View) :
     private val remove: Button = binding.button2
 
     override fun onBind() {
-        val context = itemView.context
+        val context = this@TermExtStatusViewHolder.itemView.context
         if (!Runner.pingServer()) return
 
         try {

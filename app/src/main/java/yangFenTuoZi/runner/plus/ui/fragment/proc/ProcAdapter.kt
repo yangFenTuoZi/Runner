@@ -9,9 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
 
 class ProcAdapter
@@ -30,7 +30,7 @@ class ProcAdapter
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_proc, parent, false)
+            .inflate(R.layout.item_proc, parent, false)
         val holder = ViewHolder(view)
         view.tag = holder
         view.setOnKeyListener(View.OnKeyListener { v: View?, i: Int, keyEvent: KeyEvent? -> false })
@@ -58,10 +58,11 @@ class ProcAdapter
 
         //设置点击事件
         holder.buttonKill.setOnClickListener(View.OnClickListener { view: View? ->
-            MaterialAlertDialogBuilder(mContext).setTitle(R.string.dialog_kill_this_process)
-                .setPositiveButton(R.string.dialog_finish) { dialog, which ->
-                    Thread(
-                        Runnable {
+            try {
+                BaseDialogBuilder(mContext)
+                    .setTitle(R.string.dialog_kill_this_process)
+                    .setPositiveButton(R.string.dialog_finish) { dialog, which ->
+                        Thread {
                             //杀死进程
                             if (killPID(pid)) {
                                 mContext.runOnUiThread(Runnable {
@@ -79,8 +80,12 @@ class ProcAdapter
                                     Toast.LENGTH_SHORT
                                 ).show()
                             })
-                        }).start()
-                }.setNeutralButton(R.string.dialog_cancel, null).show()
+                        }.start()
+                    }
+                    .setNeutralButton(R.string.dialog_cancel, null)
+                    .show()
+            } catch (_: BaseDialogBuilder.DialogShowException) {
+            }
         })
     }
 
@@ -106,7 +111,8 @@ class ProcAdapter
                     Runner.service?.exec("kill -9 $pid")
                     return isDied(
                         pid.toString(),
-                        Runner.service?.exec("busybox ps -A -o pid,ppid|grep $pid")!!.split("\n".toRegex())
+                        Runner.service?.exec("busybox ps -A -o pid,ppid|grep $pid")!!
+                            .split("\n".toRegex())
                             .dropLastWhile { it.isEmpty() }.toTypedArray()
                     )
                 } catch (e: RemoteException) {

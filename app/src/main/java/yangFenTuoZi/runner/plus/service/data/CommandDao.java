@@ -76,6 +76,30 @@ public class CommandDao {
         return db.insert(CommandDbHelper.TABLE_COMMANDS, null, values);
     }
 
+    public void insertInto(CommandInfo commandInfo, int position) {
+        db.beginTransaction();
+        try {
+            db.execSQL("UPDATE " + CommandDbHelper.TABLE_COMMANDS +
+                            " SET " + CommandDbHelper.COLUMN_POSITION + " = " + CommandDbHelper.COLUMN_POSITION + " + 1" +
+                            " WHERE " + CommandDbHelper.COLUMN_POSITION + " >= ?",
+                    new Object[]{position});
+
+            ContentValues values = new ContentValues();
+            values.put(CommandDbHelper.COLUMN_POSITION, position);
+            values.put(CommandDbHelper.COLUMN_NAME, commandInfo.name);
+            values.put(CommandDbHelper.COLUMN_COMMAND, commandInfo.command);
+            values.put(CommandDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
+            values.put(CommandDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
+            values.put(CommandDbHelper.COLUMN_IDS, commandInfo.ids);
+
+            db.insert(CommandDbHelper.TABLE_COMMANDS, null, values);
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     public void edit(CommandInfo commandInfo, int position) {
         ContentValues values = new ContentValues();
         values.put(CommandDbHelper.COLUMN_NAME, commandInfo.name);

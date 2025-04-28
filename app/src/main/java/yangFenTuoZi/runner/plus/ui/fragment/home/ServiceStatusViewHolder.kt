@@ -30,7 +30,7 @@ class ServiceStatusViewHolder(binding: HomeServiceStatusBinding, root: View) :
     }
 
     override fun onBind() {
-        val context = itemView.context
+        val context = this@ServiceStatusViewHolder.itemView.context
         val ok = Runner.pingServer()
         val version = Runner.serviceVersion
 

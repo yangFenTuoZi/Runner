@@ -21,7 +21,7 @@ class ShizukuStatusViewHolder(binding: HomeShizukuStatusBinding, root: View) :
     private val iconView: ImageView = binding.icon
 
     override fun onBind() {
-        val context = itemView.context
+        val context = this@ShizukuStatusViewHolder.itemView.context
         val ok = Runner.shizukuStatus
         val isRoot = Runner.shizukuUid == 0
         val apiVersion = Runner.shizukuApiVersion

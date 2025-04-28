@@ -7,7 +7,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import rikka.html.text.HtmlCompat
 import yangFenTuoZi.runner.plus.BuildConfig
 import yangFenTuoZi.runner.plus.R
@@ -53,20 +52,23 @@ class MainActivity : BaseActivity() {
             when (item.itemId) {
                 R.id.menu_stop_server -> {
                     if (!Runner.pingServer()) return@setOnMenuItemClickListener true
-                    MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.warning)
-                        .setMessage(R.string.confirm_stop_server)
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            Thread {
-                                try {
-                                    Runner.tryUnbindService(true)
-                                } catch (e: Exception) {
-                                    e.toErrorDialog(this)
-                                }
-                            }.start()
-                        }
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show()
+                    try {
+                        BaseDialogBuilder(this)
+                            .setTitle(R.string.warning)
+                            .setMessage(R.string.confirm_stop_server)
+                            .setPositiveButton(android.R.string.ok) { _, _ ->
+                                Thread {
+                                    try {
+                                        Runner.tryUnbindService(true)
+                                    } catch (e: Exception) {
+                                        e.toErrorDialog(this)
+                                    }
+                                }.start()
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show()
+                    } catch (_: BaseDialogBuilder.DialogShowException) {
+                    }
                     true
                 }
 

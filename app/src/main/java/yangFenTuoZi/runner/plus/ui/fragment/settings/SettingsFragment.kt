@@ -1,7 +1,6 @@
 package yangFenTuoZi.runner.plus.ui.fragment.settings
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,7 +10,6 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import rikka.preference.SimpleMenuPreference
 import rikka.recyclerview.fixEdgeEffect
 import yangFenTuoZi.runner.plus.BuildConfig
@@ -107,9 +105,7 @@ class SettingsFragment : BaseFragment() {
                                                         updateInfo.updateMsg
                                                     )
                                                 )
-                                                .setPositiveButton(
-                                                    R.string.settings_check_update
-                                                ) { dialog, which -> }
+                                                .setPositiveButton(R.string.settings_check_update) { dialog, which -> }
                                                 .show()
                                         } catch (_: DialogShowException) {
                                         }
@@ -143,15 +139,13 @@ class SettingsFragment : BaseFragment() {
             val help = findPreference<Preference?>("help")
             help?.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener { preference: Preference? ->
-                    if (mContext!!.isDialogShow) true
-                    mContext!!.isDialogShow = true
-                    MaterialAlertDialogBuilder(mContext!!)
-                        .setTitle(R.string.settings_help)
-                        .setMessage("没做")
-                        .setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? ->
-                            mContext!!.isDialogShow = false
-                        })
-                        .show()
+                    try {
+                        BaseDialogBuilder(mContext!!)
+                            .setTitle(R.string.settings_help)
+                            .setMessage("没做")
+                            .show()
+                    } catch (_: DialogShowException) {
+                    }
                     true
                 }
             val exportData = findPreference<Preference?>("export_data")

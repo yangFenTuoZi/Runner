@@ -1,28 +1,25 @@
 package yangFenTuoZi.runner.plus.ui.fragment.runner
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import rikka.recyclerview.addEdgeSpacing
+import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
+import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.DialogEditBinding
 import yangFenTuoZi.runner.plus.databinding.FragmentRunnerBinding
 import yangFenTuoZi.runner.plus.service.data.CommandInfo
-import yangFenTuoZi.runner.plus.ui.activity.PackActivity
-import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
 
 class RunnerFragment : BaseFragment() {
     private var _binding: FragmentRunnerBinding? = null
@@ -41,13 +38,13 @@ class RunnerFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = CommandAdapter(mContext)
+        adapter = CommandAdapter(mContext, this)
 
-        val itemTouchHelper = ItemTouchHelper(CommandItemTouchHelperCallback(adapter))
-        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(mContext)
-            fixEdgeEffect(false, true)
+            fixEdgeEffect(true, true)
+            addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+            addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             adapter = this@RunnerFragment.adapter
         }
 
@@ -58,18 +55,14 @@ class RunnerFragment : BaseFragment() {
             }, 1000)
         }
 
-        setupAddButton()
+        binding.add.setOnClickListener {
+            if (mContext.isDialogShow) return@setOnClickListener
+            showAddCommandDialog(-1)
+        }
         initList()
     }
 
-    private fun setupAddButton() {
-        binding.add.setOnClickListener {
-            if (mContext.isDialogShow) return@setOnClickListener
-            showAddCommandDialog()
-        }
-    }
-
-    private fun showAddCommandDialog() {
+    fun showAddCommandDialog(toPosition: Int) {
         val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mContext))
 
         dialogBinding.apply {
@@ -85,34 +78,37 @@ class RunnerFragment : BaseFragment() {
             }, 200)
         }
 
-        mContext.isDialogShow = true
-        MaterialAlertDialogBuilder(mContext)
-            .setTitle(mContext.getString(R.string.dialog_edit))
-            .setView(dialogBinding.root)
-            .setPositiveButton(mContext.getString(R.string.dialog_finish)) { _, _ ->
-                if (!Runner.pingServer()) {
-                    Toast.makeText(
-                        mContext,
-                        R.string.home_status_service_not_running,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setPositiveButton
-                }
+        try {
+            BaseDialogBuilder(mContext)
+                .setTitle(R.string.dialog_edit)
+                .setView(dialogBinding.root)
+                .setPositiveButton(R.string.dialog_finish) { _, _ ->
+                    if (!Runner.pingServer()) {
+                        Toast.makeText(
+                            mContext,
+                            R.string.home_status_service_not_running,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setPositiveButton
+                    }
 
-                val newCommand = CommandInfo().apply {
-                    command = dialogBinding.dialogCommand.text.toString()
-                    name = dialogBinding.dialogName.text.toString()
-                    keepAlive = dialogBinding.dialogKeepItAlive.isChecked
-                    useChid = dialogBinding.dialogChid.isChecked
-                    ids = if (dialogBinding.dialogChid.isChecked) dialogBinding.dialogIds.text.toString() else null
-                }
+                    val newCommand = CommandInfo().apply {
+                        command = dialogBinding.dialogCommand.text.toString()
+                        name = dialogBinding.dialogName.text.toString()
+                        keepAlive = dialogBinding.dialogKeepItAlive.isChecked
+                        useChid = dialogBinding.dialogChid.isChecked
+                        ids =
+                            if (dialogBinding.dialogChid.isChecked) dialogBinding.dialogIds.text.toString() else null
+                    }
 
-                adapter.add(newCommand)
-            }
-            .setOnDismissListener {
-                mContext.isDialogShow = false
-            }
-            .show()
+                    if (toPosition == -1)
+                        adapter.add(newCommand)
+                    else
+                        adapter.addUnderOne(toPosition + 1, newCommand)
+                }
+                .show()
+        } catch (_: BaseDialogBuilder.DialogShowException) {
+        }
     }
 
     private fun initList() {
@@ -124,57 +120,7 @@ class RunnerFragment : BaseFragment() {
     }
 
     override fun onContextItemSelected(item: android.view.MenuItem): Boolean {
-        when (item.itemId) {
-            CommandAdapter.LONG_CLICK_COPY_NAME -> {
-                if (!Runner.pingServer()) {
-                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
-                    return false
-                }
-                try {
-                    val name = adapter.commands[item.groupId].name ?: return false
-                    (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
-                        .setPrimaryClip(ClipData.newPlainText("c", name))
-                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show()
-                    return true
-                } catch (e: Exception) {
-                    e.toErrorDialog(mContext)
-                }
-            }
-            CommandAdapter.LONG_CLICK_COPY_COMMAND -> {
-                if (!Runner.pingServer()) {
-                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
-                    return false
-                }
-                try {
-                    val command = adapter.commands[item.groupId].command ?: return false
-                    (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
-                        .setPrimaryClip(ClipData.newPlainText("c", command))
-                    Toast.makeText(mContext, getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show()
-                    return true
-                } catch (e: Exception) {
-                    e.toErrorDialog(mContext)
-                }
-            }
-            CommandAdapter.LONG_CLICK_NEW -> {
-                showAddCommandDialog()
-                return true
-            }
-            CommandAdapter.LONG_CLICK_PACK -> {
-                val intent = Intent(context, PackActivity::class.java)
-                intent.putExtra("id", item.groupId)
-                startActivity(intent)
-                return true
-            }
-            CommandAdapter.LONG_CLICK_DEL -> {
-                if (!Runner.pingServer()) {
-                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
-                    return false
-                }
-                adapter.remove(item.groupId)
-                return true
-            }
-        }
-        return super.onContextItemSelected(item)
+        return adapter.onContextItemSelected(item)
     }
 
     override fun onStart() {
