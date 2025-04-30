@@ -12,24 +12,19 @@ import yangFenTuoZi.runner.plus.Runner
 import yangFenTuoZi.runner.plus.base.BaseActivity
 import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.databinding.DialogExecBinding
+import yangFenTuoZi.runner.plus.service.callback.IExecResultCallback
 import yangFenTuoZi.runner.plus.service.data.CommandInfo
 import yangFenTuoZi.runner.plus.ui.fragment.proc.ProcAdapter
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.ServerSocket
-import java.net.Socket
 import java.util.Objects
 
 class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialogBuilder(context) {
     var pid: Int = 0
-    var port: Int = 0
     var cmdInfo: CommandInfo
     var h1: Thread? = null
     var h2: Thread? = null
     var br: Boolean = false
     var br2: Boolean = false
-    var serverSocket: ServerSocket? = null
+    var callback: IExecResultCallback? = null
     var mContext: BaseActivity? = context
     var binding: DialogExecBinding = DialogExecBinding.inflate(LayoutInflater.from(mContext))
 
@@ -51,61 +46,60 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
         val cmd = if (cmdInfo.useChid) "chid " + cmdInfo.ids + " " + cmdInfo.command
         else cmdInfo.command
         if (Runner.pingServer()) {
-            h1 = Thread(Runnable {
+            h1 = Thread {
                 try {
-                    port = getUsablePort(8400)
-                    if (port == -1) return@Runnable
-                    h2 = Thread(Runnable {
-                        try {
-                            serverSocket = ServerSocket(port)
-                            while (!br) {
-                                val socket = serverSocket!!.accept()
-                                val thread = Thread(Runnable {
+                    h2 = Thread {
+                        var pid1 = false
+                        callback = object : IExecResultCallback.Stub() {
+                            override fun onOutput(outputs: String) {
+                                if (pid1) {
+                                    runOnUiThread(Runnable {
+                                        binding.execMsg.append(outputs + "\n")
+                                    })
+                                } else {
                                     try {
-                                        val br =
-                                            BufferedReader(InputStreamReader(socket.getInputStream()))
-                                        var inline: String
-                                        var pid1 = false
-                                        while ((br.readLine().also { inline = it }) != null) {
-                                            val finalInline = inline
-                                            if (pid1) {
-                                                runOnUiThread(Runnable {
-                                                    binding.execMsg.append(
-                                                        finalInline + "\n"
-                                                    )
-                                                })
-                                            } else {
-                                                try {
-                                                    val p = finalInline.toInt()
-                                                    runOnUiThread(Runnable {
-                                                        binding.execTitle.append(
-                                                            getString(R.string.exec_pid, p) + "\n"
-                                                        )
-                                                    })
-                                                    pid1 = true
-                                                    pid = p
-                                                } catch (_: Exception) {
-                                                    runOnUiThread(Runnable {
-                                                        binding.execMsg.append(
-                                                            finalInline + "\n"
-                                                        )
-                                                    })
-                                                }
-                                            }
-                                        }
-                                        br.close()
-                                        socket.close()
+                                        val p = outputs.toInt()
+                                        runOnUiThread(Runnable {
+                                            binding.execTitle.append(getString(R.string.exec_pid, p) + "\n")
+                                        })
+                                        pid1 = true
+                                        pid = p
                                     } catch (_: Exception) {
+                                        runOnUiThread(Runnable {
+                                            binding.execMsg.append(outputs + "\n")
+                                        })
                                     }
-                                })
-                                thread.start()
+                                }
                             }
-                            serverSocket!!.close()
-                        } catch (e: Exception) {
+
+                            override fun onExit(exitValue: Int) {
+                                runOnUiThread {
+                                    binding.execTitle.append(
+                                        getString(
+                                            R.string.exec_return, exitValue, getString(
+                                                when (exitValue) {
+                                                    0 -> R.string.exec_normal
+                                                    127 -> R.string.exec_command_not_found
+                                                    130 -> R.string.exec_ctrl_c_error
+                                                    139 -> R.string.exec_segmentation_error
+                                                    else -> R.string.exec_other_error
+                                                }
+                                            )
+                                        )
+                                    )
+                                    getAlertDialog()!!.setTitle(getString(R.string.exec_finish))
+                                }
+                                br = true
+                                br2 = true
+                            }
+                        }
+                        try {
+                            Runner.service?.execX(cmd, cmdInfo.name, callback)
+                        } catch (e: RemoteException) {
                             Log.e(javaClass.getName(), Objects.requireNonNull<String?>(e.message))
                         }
-                    })
-                    Thread(Runnable {
+                    }
+                    Thread {
                         try {
                             while (true) {
                                 if (!Runner.pingServer()) {
@@ -133,30 +127,11 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                             }
                         } catch (_: Exception) {
                         }
-                    }).start()
+                    }.start()
                     h2!!.start()
-                    val exitValue = Runner.service?.execX(cmd, cmdInfo.name, port)
-                    runOnUiThread(Runnable {
-                        binding.execTitle.append(
-                            getString(
-                                R.string.exec_return, exitValue, getString(
-                                    when (exitValue) {
-                                        0 -> R.string.exec_normal
-                                        127 -> R.string.exec_command_not_found
-                                        130 -> R.string.exec_ctrl_c_error
-                                        139 -> R.string.exec_segmentation_error
-                                        else -> R.string.exec_other_error
-                                    }
-                                )
-                            )
-                        )
-                        getAlertDialog()!!.setTitle(getString(R.string.exec_finish))
-                    })
-                    br = true
-                    br2 = true
                 } catch (_: RemoteException) {
                 }
-            })
+            }
             h1!!.start()
         }
         return getAlertDialog()
@@ -168,7 +143,6 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
         h1!!.interrupt()
         if (Runner.pingServer()) {
             try {
-                serverSocket!!.close()
                 if (!cmdInfo.keepAlive && !br2) {
                     Thread(Runnable {
                         try {
@@ -195,19 +169,6 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                 throw RuntimeException(e)
             }
         }
-    }
-
-    companion object {
-        fun getUsablePort(port: Int): Int {
-            var flag = false
-            try {
-                val socket = Socket("localhost", port)
-                flag = true
-                socket.close()
-            } catch (_: IOException) {
-            }
-            if (!flag && port == 65536) return -1
-            return if (flag) getUsablePort(port + 1) else port
-        }
+        callback = null
     }
 }

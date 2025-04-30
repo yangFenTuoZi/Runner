@@ -1,14 +1,17 @@
 package yangFenTuoZi.runner.plus.service;
 
 import yangFenTuoZi.runner.plus.service.data.CommandInfo;
-import yangFenTuoZi.runner.plus.service.TermExtVersion;
+import yangFenTuoZi.runner.plus.service.data.TermExtVersion;
+
+import yangFenTuoZi.runner.plus.service.callback.IExecResultCallback;
+import yangFenTuoZi.runner.plus.service.callback.IInstallTermExtCallback;
 
 interface IService {
     void destroy() = 16777114;
     void exit() = 1;
     int version() = 2;
 
-    int execX(String cmd, String procName, int port) = 100;
+    void execX(String cmd, String procName, in IExecResultCallback callback) = 100;
     String exec(String cmd) = 101;
 
     int size() = 200;
@@ -23,6 +26,6 @@ interface IService {
     boolean backupData(String input, boolean includeTerm) = 300;
     boolean restoreData(String output) = 301;
 
-    void installTermExt(String termExtZip) = 1000;
+    void installTermExt(String termExtZip, in IInstallTermExtCallback callback) = 1000;
     TermExtVersion getTermExtVersion() = 1001;
 }

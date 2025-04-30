@@ -1,4 +1,4 @@
-package yangFenTuoZi.runner.plus.service;
+package yangFenTuoZi.runner.plus.service.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
