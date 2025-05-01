@@ -27,5 +27,6 @@ interface IService {
     boolean restoreData(String output) = 301;
 
     void installTermExt(String termExtZip, in IInstallTermExtCallback callback) = 1000;
-    TermExtVersion getTermExtVersion() = 1001;
+    void removeTermExt() = 1001;
+    TermExtVersion getTermExtVersion() = 1002;
 }

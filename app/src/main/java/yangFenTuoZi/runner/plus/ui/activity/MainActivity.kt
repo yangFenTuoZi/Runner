@@ -46,8 +46,6 @@ class MainActivity : BaseActivity() {
         binding.appBar.setLiftable(true)
         binding.toolbar.inflateMenu(R.menu.menu_home)
 
-//        (this as MenuProvider).onPrepareMenu(binding.toolbar.menu)
-
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.menu_stop_server -> {

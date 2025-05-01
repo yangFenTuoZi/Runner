@@ -5,7 +5,7 @@ import rikka.recyclerview.IdBasedRecyclerViewAdapter
 import rikka.recyclerview.IndexCreatorPool
 import yangFenTuoZi.runner.plus.Runner
 
-class HomeAdapter : IdBasedRecyclerViewAdapter(ArrayList<Any?>()) {
+class HomeAdapter(private val fragment: HomeFragment) : IdBasedRecyclerViewAdapter(ArrayList<Any?>()) {
 
     private val shizukuPermissionListener = Runner.ShizukuPermissionListener {
         var position = findPositionById(ID_GRANT_SHIZUKU_PERM)
@@ -38,7 +38,7 @@ class HomeAdapter : IdBasedRecyclerViewAdapter(ArrayList<Any?>()) {
         if (position == -1) {
             if (!it) return@ServiceStatusListener
             position = if (findPositionById(ID_GRANT_SHIZUKU_PERM) == -1) 2 else 3
-            addItemAt<Any?>(position, TermExtStatusViewHolder.CREATOR, null, ID_TERM_EXT_STATUS)
+            addItemAt<HomeFragment>(position, TermExtStatusViewHolder.CREATOR, fragment, ID_TERM_EXT_STATUS)
             notifyItemInserted(position)
         } else {
             if (it) return@ServiceStatusListener
@@ -81,7 +81,7 @@ class HomeAdapter : IdBasedRecyclerViewAdapter(ArrayList<Any?>()) {
         }
 
         if (Runner.pingServer()) {
-            addItem<Any?>(TermExtStatusViewHolder.CREATOR, null, ID_TERM_EXT_STATUS)
+            addItem<HomeFragment>(TermExtStatusViewHolder.CREATOR, fragment, ID_TERM_EXT_STATUS)
         }
 
         notifyDataSetChanged()

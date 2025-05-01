@@ -40,6 +40,19 @@
             android:exported="false"
             android:label="@string/app_crashed" />
 
+        <activity
+            android:name=".ui.activity.InstallTermExtActivity"
+            android:exported="true"
+            android:label="@string/install_term_ext">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/zip" />
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"

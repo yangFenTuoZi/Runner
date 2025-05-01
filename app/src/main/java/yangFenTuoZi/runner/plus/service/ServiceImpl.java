@@ -43,6 +43,7 @@ public class ServiceImpl extends IService.Stub {
     public static final String TAG = "runner_server";
     public static final String DATA_PATH = "/data/local/tmp/runner";
     public static final String USR_PATH = DATA_PATH + "/usr";
+    public static final String HOME_PATH = DATA_PATH + "/home";
     public final Handler mHandler;
     private final CommandDbHelper dbHelper = new CommandDbHelper(FakeContext.get());
     private final CommandDao commandDao;
@@ -50,6 +51,11 @@ public class ServiceImpl extends IService.Stub {
     public ServiceImpl() {
         DdmHandleAppName.setAppName(TAG, Os.getuid());
         Log.i(TAG, "start");
+        {
+            ifExistsOrMkdirs(new File(HOME_PATH + "/.local/bin"));
+            ifExistsOrMkdirs(new File(HOME_PATH + "/.local/lib"));
+            ifExistsOrMkdirs(new File(HOME_PATH + "/.local/share/runner"));
+        }
         mHandler = new Handler();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         commandDao = new CommandDao(db);
@@ -157,129 +163,155 @@ public class ServiceImpl extends IService.Stub {
 
     @Override
     public void installTermExt(String termExtZip, IInstallTermExtCallback callback) {
-        var callbackWrapper = new InstallTermExtCallback(callback);
-        try {
-            Log.i(TAG, "install terminal extension: " + termExtZip);
-            callbackWrapper.onMessage(" - Install terminal extension: " + termExtZip);
+        new Thread(() -> {
+            var callbackWrapper = new InstallTermExtCallback(callback);
+            try {
+                Log.i(TAG, "install terminal extension: " + termExtZip);
+                callbackWrapper.onMessage(" - Install terminal extension: " + termExtZip);
 
-            ZipFile app = new ZipFile(termExtZip);
-            ZipEntry BP = app.getEntry("build.prop"), IS = app.getEntry("install.sh");
-            if (BP == null) {
-                Log.e(TAG, "'build.prop' doesn't exist");
-                callbackWrapper.onMessage(" ! 'build.prop' doesn't exist");
-                callbackWrapper.onExit(false);
-                return;
-            }
-            if (IS == null) {
-                Log.e(TAG, "'install.sh' doesn't exist");
-                callbackWrapper.onMessage(" ! 'install.sh' doesn't exist");
-                callbackWrapper.onExit(false);
-                return;
-            }
-            InputStream buildProp = app.getInputStream(BP);
-            TermExtVersion termExtVersion = new TermExtVersion(buildProp);
-            buildProp.close();
-            Log.i(TAG, String.format(Locale.getDefault(), """
-                    terminal extension:
-                    version: %s (%d)
-                    abi: %s
-                    """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
-            callbackWrapper.onMessage(String.format(Locale.getDefault(), """
-                    - Terminal extension:
-                    - Version: %s (%d)
-                    - ABI: %s
-                    """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
-
-            int indexOf = Arrays.asList(Build.SUPPORTED_ABIS).indexOf(termExtVersion.abi);
-            if (indexOf == -1) {
-                Log.e(TAG, "unsupported ABI: " + termExtVersion.abi);
-                callbackWrapper.onMessage(" ! Unsupported ABI: " + termExtVersion.abi);
-                callbackWrapper.onExit(false);
-                return;
-            } else if (indexOf != 0) {
-                Log.w(TAG, "ABI is not preferred: " + termExtVersion.abi);
-                callbackWrapper.onMessage(" - ABI is not preferred: " + termExtVersion.abi);
-            }
-
-            Log.i(TAG, "unzip files.");
-            callbackWrapper.onMessage(" - Unzip files.");
-            Enumeration<? extends ZipEntry> entries = app.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry zipEntry = entries.nextElement();
-                try {
-                    File file = new File(DATA_PATH + "/install_temp/" + zipEntry.getName());
-                    Log.i(TAG, "unzip '" + zipEntry.getName() + "' to '" + file.getAbsolutePath() + "'");
-                    callbackWrapper.onMessage(" - Unzip '" + zipEntry.getName() + "' to '" + file.getAbsolutePath() + "'");
-                    if (!Objects.requireNonNull(file.getParentFile()).exists())
-                        file.getParentFile().mkdirs();
-                    if (!file.exists()) {
-                        file.createNewFile();
-                    }
-                    BufferedInputStream in;
-                    BufferedOutputStream out;
-                    in = new BufferedInputStream(app.getInputStream(zipEntry));
-                    out = new BufferedOutputStream(new FileOutputStream(file));
-                    int len;
-                    byte[] b = new byte[1024];
-                    while ((len = in.read(b)) != -1) {
-                        out.write(b, 0, len);
-                    }
-                    in.close();
-                    out.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "unable to unzip file: " + zipEntry.getName(), e);
-                    callbackWrapper.onMessage(" ! Unable to unzip file: " + zipEntry.getName() + "\n" + Log.getStackTraceString(e));
+                ZipFile app = new ZipFile(termExtZip);
+                ZipEntry BP = app.getEntry("build.prop"), IS = app.getEntry("install.sh");
+                if (BP == null) {
+                    Log.e(TAG, "'build.prop' doesn't exist");
+                    callbackWrapper.onMessage(" ! 'build.prop' doesn't exist");
                     callbackWrapper.onExit(false);
                     return;
                 }
-            }
-            Log.i(TAG, "complete unzipping");
-            callbackWrapper.onMessage(" - Complete unzipping");
-
-            String installScript = DATA_PATH + "/install_temp/install.sh";
-            if (!new File(installScript).setExecutable(true)) {
-                Log.e(TAG, "unable to set executable");
-                callbackWrapper.onMessage(" ! Unable to set executable");
-            }
-            Log.i(TAG, "execute install script");
-            callbackWrapper.onMessage(" - Execute install script");
-            try {
-                Process process = Runtime.getRuntime().exec("/system/bin/sh");
-                OutputStream out = process.getOutputStream();
-                out.write((installScript + " 2>&1\n").getBytes());
-                out.flush();
-                out.close();
-                BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = br.readLine()) != null) {
-                    Log.i(TAG, "output: " + line);
-                    callbackWrapper.onMessage(" - ScriptOuts: " + line);
+                if (IS == null) {
+                    Log.e(TAG, "'install.sh' doesn't exist");
+                    callbackWrapper.onMessage(" ! 'install.sh' doesn't exist");
+                    callbackWrapper.onExit(false);
+                    return;
                 }
-                br.close();
-                int ev = process.waitFor();
-                if (ev == 0) {
-                    Log.i(TAG, "exit with 0");
-                    callbackWrapper.onMessage(" - Install script exit successfully");
-                } else {
-                    Log.e(TAG, "exit with non-zero value " + ev);
+                InputStream buildProp = app.getInputStream(BP);
+                TermExtVersion termExtVersion = new TermExtVersion(buildProp);
+                buildProp.close();
+                Log.i(TAG, String.format(Locale.getDefault(), """
+                        terminal extension:
+                        version: %s (%d)
+                        abi: %s
+                        """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
+                callbackWrapper.onMessage(String.format(Locale.getDefault(), """
+                        - Terminal extension:
+                        - Version: %s (%d)
+                        - ABI: %s
+                       """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
+
+                int indexOf = Arrays.asList(Build.SUPPORTED_ABIS).indexOf(termExtVersion.abi);
+                if (indexOf == -1) {
+                    Log.e(TAG, "unsupported ABI: " + termExtVersion.abi);
+                    callbackWrapper.onMessage(" ! Unsupported ABI: " + termExtVersion.abi);
+                    callbackWrapper.onExit(false);
+                    return;
+                } else if (indexOf != 0) {
+                    Log.w(TAG, "ABI is not preferred: " + termExtVersion.abi);
+                    callbackWrapper.onMessage(" - ABI is not preferred: " + termExtVersion.abi);
+                }
+
+                Log.i(TAG, "unzip files.");
+                callbackWrapper.onMessage(" - Unzip files.");
+                Enumeration<? extends ZipEntry> entries = app.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry zipEntry = entries.nextElement();
+                    try {
+                        if (zipEntry.isDirectory()) {
+                            Log.i(TAG, "unzip '" + zipEntry.getName() + "' to '" + DATA_PATH + "/install_temp/" + zipEntry.getName() + "'");
+                            callbackWrapper.onMessage(" - Unzip '" + zipEntry.getName() + "' to '" + DATA_PATH + "/install_temp/" + zipEntry.getName() + "'");
+                            File file = new File(DATA_PATH + "/install_temp/" + zipEntry.getName());
+                            if (!file.exists()) {
+                                file.mkdirs();
+                            }
+                        } else {
+                            File file = new File(DATA_PATH + "/install_temp/" + zipEntry.getName());
+                            Log.i(TAG, "unzip '" + zipEntry.getName() + "' to '" + file.getAbsolutePath() + "'");
+                            callbackWrapper.onMessage(" - Unzip '" + zipEntry.getName() + "' to '" + file.getAbsolutePath() + "'");
+                            if (!Objects.requireNonNull(file.getParentFile()).exists())
+                                file.getParentFile().mkdirs();
+                            if (!file.exists()) {
+                                file.createNewFile();
+                            }
+                            BufferedInputStream in;
+                            BufferedOutputStream out;
+                            in = new BufferedInputStream(app.getInputStream(zipEntry));
+                            out = new BufferedOutputStream(new FileOutputStream(file));
+                            int len;
+                            byte[] b = new byte[1024];
+                            while ((len = in.read(b)) != -1) {
+                                out.write(b, 0, len);
+                            }
+                            in.close();
+                            out.close();
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "unable to unzip file: " + zipEntry.getName(), e);
+                        callbackWrapper.onMessage(" ! Unable to unzip file: " + zipEntry.getName() + "\n" + Log.getStackTraceString(e));
+                        callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
+                        rmRF(new File(DATA_PATH + "/install_temp"));
+                        callbackWrapper.onExit(false);
+                        return;
+                    }
+                }
+                Log.i(TAG, "complete unzipping");
+                callbackWrapper.onMessage(" - Complete unzipping");
+
+                String installScript = DATA_PATH + "/install_temp/install.sh";
+                if (!new File(installScript).setExecutable(true)) {
+                    Log.e(TAG, "unable to set executable");
+                    callbackWrapper.onMessage(" ! Unable to set executable");
+                    callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                     rmRF(new File(DATA_PATH + "/install_temp"));
-                    callbackWrapper.onMessage(" ! Install script exit with non-zero value " + ev);
                     callbackWrapper.onExit(false);
                 }
-            } catch (InterruptedException | IOException e) {
+                Log.i(TAG, "execute install script");
+                callbackWrapper.onMessage(" - Execute install script");
+                try {
+                    Process process = Runtime.getRuntime().exec("/system/bin/sh");
+                    OutputStream out = process.getOutputStream();
+                    out.write((installScript + " 2>&1\n").getBytes());
+                    out.flush();
+                    out.close();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        Log.i(TAG, "output: " + line);
+                        callbackWrapper.onMessage(" - ScriptOuts: " + line);
+                    }
+                    br.close();
+                    int ev = process.waitFor();
+                    if (ev == 0) {
+                        Log.i(TAG, "exit with 0");
+                        callbackWrapper.onMessage(" - Install script exit successfully");
+                    } else {
+                        Log.e(TAG, "exit with non-zero value " + ev);
+                        callbackWrapper.onMessage(" ! Install script exit with non-zero value " + ev);
+                        callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
+                        rmRF(new File(DATA_PATH + "/install_temp"));
+                        callbackWrapper.onExit(false);
+                    }
+                } catch (InterruptedException | IOException e) {
+                    callbackWrapper.onMessage(" ! " + Log.getStackTraceString(e));
+                    callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
+                    rmRF(new File(DATA_PATH + "/install_temp"));
+                    callbackWrapper.onExit(false);
+                }
+                callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                 rmRF(new File(DATA_PATH + "/install_temp"));
-                callbackWrapper.onMessage(" ! " + Log.getStackTraceString(e));
+                Log.i(TAG, "finish");
+                callbackWrapper.onMessage(" - Finish");
+                callbackWrapper.onExit(true);
+            } catch (IOException e) {
+                Log.e(TAG, "read terminal extension file error!", e);
+                callbackWrapper.onMessage(" ! Read terminal extension file error!\n" + Log.getStackTraceString(e));
                 callbackWrapper.onExit(false);
             }
-            rmRF(new File(DATA_PATH + "/install_temp"));
-            Log.i(TAG, "finish");
-            callbackWrapper.onMessage(" - Finish");
-            callbackWrapper.onExit(true);
-        } catch (IOException e) {
-            Log.e(TAG, "read terminal extension file error!", e);
-            callbackWrapper.onMessage(" ! Read terminal extension file error!\n" + Log.getStackTraceString(e));
-            callbackWrapper.onExit(false);
-        }
+        }).start();
+    }
+
+    @Override
+    public void removeTermExt() {
+        Log.i(TAG, "remove terminal extension");
+        rmRF(new File(USR_PATH));
+        Log.i(TAG, "finish");
     }
 
     @Override
@@ -307,5 +339,10 @@ public class ServiceImpl extends IService.Stub {
             }
         }
         file.delete();
+    }
+
+    public static void ifExistsOrMkdirs(File file) {
+        if (!file.exists())
+            file.mkdirs();
     }
 }

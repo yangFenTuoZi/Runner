@@ -112,4 +112,6 @@
     <string name="term_ext_title_installed">终端扩展包 (已安装)</string>
     <string name="term_ext_version">版本: %s (%d)\nABI: %s</string>
     <string name="empty">空</string>
+    <string name="pick_term_ext">选择终端扩展包</string>
+    <string name="install_term_ext">安装终端扩展包</string>
 </resources>

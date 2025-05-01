@@ -113,4 +113,6 @@
     <string name="term_ext_title_installed">Terminal Extension (Installed)</string>
     <string name="term_ext_version">Version: %s (%d)\nABI: %s</string>
     <string name="empty">Empty</string>
+    <string name="pick_term_ext">Pick terminal extension</string>
+    <string name="install_term_ext">Install terminal extension</string>
 </resources>

@@ -14,14 +14,20 @@ import yangFenTuoZi.runner.plus.databinding.HomeItemContainerBinding
 import yangFenTuoZi.runner.plus.databinding.HomeTermExtStatusBinding
 
 class TermExtStatusViewHolder(binding: HomeTermExtStatusBinding, root: View) :
-    BaseViewHolder<Any?>(root) {
+    BaseViewHolder<HomeFragment>(root) {
     private val title: TextView = binding.text1
     private val summaryView: TextView = binding.text2
     private val install: Button = binding.button1
     private val remove: Button = binding.button2
 
     override fun onBind() {
-        val context = this@TermExtStatusViewHolder.itemView.context
+        install.setOnClickListener {
+            data.installTermExt()
+        }
+
+        remove.setOnClickListener {
+        }
+
         if (!Runner.pingServer()) return
 
         try {
@@ -51,7 +57,7 @@ class TermExtStatusViewHolder(binding: HomeTermExtStatusBinding, root: View) :
     }
 
     companion object {
-        val CREATOR: Creator<Any?> = Creator { inflater: LayoutInflater?, parent: ViewGroup? ->
+        val CREATOR: Creator<HomeFragment> = Creator { inflater: LayoutInflater?, parent: ViewGroup? ->
             val outer = HomeItemContainerBinding.inflate(
                 inflater!!, parent, false
             )

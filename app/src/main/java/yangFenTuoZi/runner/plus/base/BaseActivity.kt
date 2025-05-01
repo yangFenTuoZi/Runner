@@ -2,6 +2,7 @@ package yangFenTuoZi.runner.plus.base
 
 import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import com.google.android.material.color.DynamicColors
 import rikka.material.app.MaterialActivity
@@ -28,7 +29,9 @@ open class BaseActivity : MaterialActivity() {
             dark
         }
         setTheme(ThemeUtils.getTheme(isDark == 1))
-        DynamicColors.applyToActivityIfAvailable(this, mApp.dynamicColorsOptions)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            && DynamicColors.isDynamicColorAvailable())
+            DynamicColors.applyToActivityIfAvailable(this, mApp.dynamicColorsOptions)
         super.onCreate(savedInstanceState)
     }
 

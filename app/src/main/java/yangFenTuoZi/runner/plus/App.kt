@@ -3,6 +3,7 @@ package yangFenTuoZi.runner.plus
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.os.Build
 import android.os.Environment
 import android.os.Looper
 import android.util.Log
@@ -25,7 +26,9 @@ class App : Application(), Thread.UncaughtExceptionHandler {
         val isDark = isDark(this)
         this.isDark = if (isDark) 1 else 0
         setTheme(getTheme(isDark))
-        DynamicColors.applyToActivitiesIfAvailable(this, this.dynamicColorsOptions)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            && DynamicColors.isDynamicColorAvailable())
+            DynamicColors.applyToActivitiesIfAvailable(this, this.dynamicColorsOptions)
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
 

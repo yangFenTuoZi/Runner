@@ -7,6 +7,7 @@ import android.os.SystemProperties
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
+import android.view.MenuItem
 import yangFenTuoZi.runner.plus.base.BaseActivity
 import yangFenTuoZi.runner.plus.databinding.ActivityCrashReportBinding
 import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
@@ -73,5 +74,14 @@ class CrashReportActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mApp.finishApp()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == android.R.id.home) {
+            finish()
+            true
+        } else {
+            super.onOptionsItemSelected(item)
+        }
     }
 }
