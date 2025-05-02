@@ -27,7 +27,7 @@ import yangFenTuoZi.runner.plus.service.data.CommandInfo
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
 import yangFenTuoZi.runner.plus.ui.activity.PackActivity
 import yangFenTuoZi.runner.plus.ui.dialog.ExecDialogBuilder
-import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
+import yangFenTuoZi.runner.plus.util.ThrowableUtil.toErrorDialog
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

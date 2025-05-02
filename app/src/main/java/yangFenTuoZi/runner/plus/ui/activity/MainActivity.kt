@@ -16,7 +16,7 @@ import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.databinding.ActivityMainBinding
 import yangFenTuoZi.runner.plus.databinding.DialogAboutBinding
 import yangFenTuoZi.runner.plus.ui.dialog.BlurBehindDialogBuilder
-import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
+import yangFenTuoZi.runner.plus.util.ThrowableUtil.toErrorDialog
 import java.util.Locale
 
 class MainActivity : BaseActivity() {

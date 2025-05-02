@@ -7,15 +7,15 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         google()
         mavenCentral()
         mavenLocal()
-        maven { url 'https://jitpack.io' }
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "Runner"
-include ':app'
-//include ':server'
+include(":app")
+//include(":server")

@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="App">
-
-        <rikka.preference.SimpleMenuPreference
-            android:defaultValue="MODE_NIGHT_FOLLOW_SYSTEM"
-            android:entries="@array/theme_texts"
-            android:entryValues="@array/theme_values"
-            android:icon="@drawable/ic_dark_mode_24"
-            android:key="dark_theme"
-            android:summary="%s"
-            android:title="@string/dark_theme" />
 
         <rikka.preference.SimpleMenuPreference
             android:defaultValue="CHANNEL_STABLE"
@@ -19,6 +11,36 @@
             android:key="update_channel"
             android:summary="%s"
             android:title="@string/settings_update_channel" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_group_theme">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_palette_outline_24"
+            android:key="follow_system_accent"
+            android:title="@string/theme_color_system"
+            app:isPreferenceVisible="false" />
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="COLOR_BLUE"
+            android:entries="@array/color_texts"
+            android:entryValues="@array/color_values"
+            android:icon="@drawable/ic_format_color_fill_24"
+            android:key="theme_color"
+            android:summary="%s"
+            android:title="@string/theme_color" />
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="MODE_NIGHT_FOLLOW_SYSTEM"
+            android:entries="@array/theme_texts"
+            android:entryValues="@array/theme_values"
+            android:icon="@drawable/ic_dark_mode_24"
+            android:key="dark_theme"
+            android:summary="%s"
+            android:title="@string/dark_theme" />
+        <rikka.material.preference.MaterialSwitchPreference
+            android:icon="@drawable/ic_invert_colors_24"
+            android:key="black_dark_theme"
+            android:summary="@string/pure_black_dark_theme_summary"
+            android:title="@string/pure_black_dark_theme" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_backup">
 

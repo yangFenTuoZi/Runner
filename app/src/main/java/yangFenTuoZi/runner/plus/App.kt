@@ -3,32 +3,29 @@ package yangFenTuoZi.runner.plus
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.os.Build
+import android.content.SharedPreferences
 import android.os.Environment
 import android.os.Looper
 import android.util.Log
-import com.google.android.material.color.DynamicColors
-import com.google.android.material.color.DynamicColorsOptions
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.PreferenceManager
 import yangFenTuoZi.runner.plus.ui.activity.CrashReportActivity
-import yangFenTuoZi.runner.plus.utils.ThemeUtils.getTheme
-import yangFenTuoZi.runner.plus.utils.ThemeUtils.isDark
+import yangFenTuoZi.runner.plus.util.ThemeUtil
 import java.io.File
 import java.util.LinkedList
 
+
 class App : Application(), Thread.UncaughtExceptionHandler {
-    val dynamicColorsOptions: DynamicColorsOptions = DynamicColorsOptions.Builder().build()
     private val activities: MutableList<Activity> = LinkedList<Activity>()
-    var isDark: Int = -1
+    private lateinit var pref: SharedPreferences
+
     override fun onCreate() {
         super.onCreate()
         instance = this
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        AppCompatDelegate.setDefaultNightMode(ThemeUtil.darkTheme);
+
         Runner.init()
-        val isDark = isDark(this)
-        this.isDark = if (isDark) 1 else 0
-        setTheme(getTheme(isDark))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-            && DynamicColors.isDynamicColorAvailable())
-            DynamicColors.applyToActivitiesIfAvailable(this, this.dynamicColorsOptions)
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
 
@@ -82,7 +79,11 @@ class App : Application(), Thread.UncaughtExceptionHandler {
     }
 
     companion object {
-        var instance: App? = null
+        lateinit var instance: App
             private set
+
+        fun getPreferences(): SharedPreferences {
+            return instance.pref
+        }
     }
 }

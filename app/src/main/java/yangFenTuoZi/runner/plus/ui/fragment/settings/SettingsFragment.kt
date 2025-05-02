@@ -7,11 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.DynamicColors
+import rikka.core.util.ResourceUtils
+import rikka.material.preference.MaterialSwitchPreference
 import rikka.preference.SimpleMenuPreference
 import rikka.recyclerview.fixEdgeEffect
+import yangFenTuoZi.runner.plus.App
 import yangFenTuoZi.runner.plus.BuildConfig
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
@@ -19,9 +24,10 @@ import yangFenTuoZi.runner.plus.base.BaseDialogBuilder.DialogShowException
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.FragmentSettingsBinding
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
-import yangFenTuoZi.runner.plus.utils.ThemeUtils
-import yangFenTuoZi.runner.plus.utils.UpdateUtils
-import yangFenTuoZi.runner.plus.utils.UpdateUtils.UpdateException
+import yangFenTuoZi.runner.plus.util.ThemeUtil
+import yangFenTuoZi.runner.plus.util.UpdateUtil
+import yangFenTuoZi.runner.plus.util.UpdateUtil.UpdateException
+
 
 class SettingsFragment : BaseFragment() {
     private var binding: FragmentSettingsBinding? = null
@@ -45,7 +51,7 @@ class SettingsFragment : BaseFragment() {
     }
 
     class PreferenceFragment : PreferenceFragmentCompat() {
-        private var mContext: MainActivity? = null
+        private var mMainActivity: MainActivity? = null
         private var mParentFragment: SettingsFragment? = null
 
         override fun onAttach(context: Context) {
@@ -60,40 +66,69 @@ class SettingsFragment : BaseFragment() {
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            mContext = requireContext() as MainActivity
+            mMainActivity = activity as MainActivity
             addPreferencesFromResource(R.xml.preference_setting)
-            val darkTheme = findPreference<SimpleMenuPreference?>("dark_theme")
-            darkTheme?.onPreferenceChangeListener =
+
+
+            findPreference<Preference?>("dark_theme")?.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
-                    val oldIsDark = mContext!!.mApp.isDark
-                    mContext!!.mApp.isDark = if (ThemeUtils.isDark(mContext!!)) 1 else 0
-                    if (oldIsDark != mContext!!.mApp.isDark) {
-                        mContext!!.mApp.setTheme(ThemeUtils.getTheme(mContext!!.mApp.isDark == 1))
-                        mContext!!.recreate()
+                    if (App.getPreferences()
+                            .getString(
+                                "dark_theme",
+                                ThemeUtil.MODE_NIGHT_FOLLOW_SYSTEM
+                            )!! != newValue
+                    ) {
+                        AppCompatDelegate.setDefaultNightMode(ThemeUtil.getDarkTheme((newValue as String?)!!))
                     }
                     true
                 }
 
-            val ver = findPreference<Preference?>("ver")
-            if (ver != null) {
-                ver.title = getString(
+            findPreference<Preference?>("black_dark_theme")?.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
+                    if (mMainActivity != null && ResourceUtils.isNightMode(resources.configuration)) {
+                        mMainActivity!!.recreate()
+                    }
+                    true
+                }
+
+            val primaryColor = findPreference<Preference?>("theme_color")
+            primaryColor?.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
+                    mMainActivity?.recreate()
+                    true
+                }
+
+            findPreference<MaterialSwitchPreference?>("follow_system_accent")?.apply {
+                if (DynamicColors.isDynamicColorAvailable()) {
+                    primaryColor?.isVisible = !isChecked
+                    isVisible = true
+                    onPreferenceChangeListener =
+                        Preference.OnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
+                            mMainActivity?.recreate()
+                            true
+                        }
+                }
+            }
+
+            findPreference<Preference?>("ver")?.apply {
+                title = getString(
                     R.string.settings_ver,
                     BuildConfig.VERSION_NAME,
                     BuildConfig.VERSION_CODE
                 )
-                ver.onPreferenceClickListener =
-                    Preference.OnPreferenceClickListener { preference: Preference? ->
+                onPreferenceClickListener =
+                    Preference.OnPreferenceClickListener {
                         Thread {
-                            if (mContext!!.isDialogShow) return@Thread
+                            if (mMainActivity!!.isDialogShow) return@Thread
                             try {
-                                val updateInfo = UpdateUtils.update(
+                                val updateInfo = UpdateUtil.update(
                                     (findPreference<Preference?>("update_channel") as SimpleMenuPreference)
                                         .value == resources.getStringArray(R.array.update_channel_values)[1]
                                 )
                                 if (updateInfo.versionCode > BuildConfig.VERSION_CODE) {
-                                    mContext!!.runOnUiThread {
+                                    mMainActivity!!.runOnUiThread {
                                         try {
-                                            BaseDialogBuilder(mContext!!)
+                                            BaseDialogBuilder(mMainActivity!!)
                                                 .setTitle(R.string.settings_check_update)
                                                 .setMessage(
                                                     getString(
@@ -111,18 +146,18 @@ class SettingsFragment : BaseFragment() {
                                         }
                                     }
                                 } else {
-                                    mContext!!.runOnUiThread {
+                                    mMainActivity!!.runOnUiThread {
                                         Toast.makeText(
-                                            mContext,
+                                            mMainActivity,
                                             R.string.settings_latest_version,
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
                                 }
                             } catch (e: UpdateException) {
-                                mContext!!.runOnUiThread {
+                                mMainActivity!!.runOnUiThread {
                                     Toast.makeText(
-                                        mContext, when (e.what) {
+                                        mMainActivity, when (e.what) {
                                             UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER -> R.string.settings_can_not_connect_update_server
                                             UpdateException.WHAT_CAN_NOT_PARSE_JSON -> R.string.settings_can_not_parse_json
                                             UpdateException.WHAT_JSON_FORMAT_ERROR -> R.string.settings_json_format_error
@@ -138,9 +173,9 @@ class SettingsFragment : BaseFragment() {
             }
             val help = findPreference<Preference?>("help")
             help?.onPreferenceClickListener =
-                Preference.OnPreferenceClickListener { preference: Preference? ->
+                Preference.OnPreferenceClickListener {
                     try {
-                        BaseDialogBuilder(mContext!!)
+                        BaseDialogBuilder(mMainActivity!!)
                             .setTitle(R.string.settings_help)
                             .setMessage("没做")
                             .show()
@@ -150,9 +185,9 @@ class SettingsFragment : BaseFragment() {
                 }
             val exportData = findPreference<Preference?>("export_data")
             exportData?.onPreferenceClickListener =
-                Preference.OnPreferenceClickListener { preference: Preference? ->
-                    if (mContext!!.isDialogShow) true
-                    mContext!!.isDialogShow = true
+                Preference.OnPreferenceClickListener {
+                    if (mMainActivity!!.isDialogShow) true
+                    mMainActivity!!.isDialogShow = true
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     intent.setType("application/json")
@@ -161,9 +196,9 @@ class SettingsFragment : BaseFragment() {
                 }
             val importData = findPreference<Preference?>("import_data")
             importData?.onPreferenceClickListener =
-                Preference.OnPreferenceClickListener { preference: Preference? ->
-                    if (mContext!!.isDialogShow) true
-                    mContext!!.isDialogShow = true
+                Preference.OnPreferenceClickListener {
+                    if (mMainActivity!!.isDialogShow) true
+                    mMainActivity!!.isDialogShow = true
                     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     intent.setType("application/json")

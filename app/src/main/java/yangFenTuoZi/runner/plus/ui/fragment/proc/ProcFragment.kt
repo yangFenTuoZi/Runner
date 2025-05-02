@@ -19,7 +19,7 @@ import yangFenTuoZi.runner.plus.Runner
 import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding
-import yangFenTuoZi.runner.plus.utils.ThrowableKT.toErrorDialog
+import yangFenTuoZi.runner.plus.util.ThrowableUtil.toErrorDialog
 
 class ProcFragment : BaseFragment() {
     var binding: FragmentProcBinding? = null

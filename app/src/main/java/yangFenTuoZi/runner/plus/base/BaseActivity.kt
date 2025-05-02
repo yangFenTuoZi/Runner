@@ -2,36 +2,23 @@ package yangFenTuoZi.runner.plus.base
 
 import android.content.res.Resources
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import com.google.android.material.color.DynamicColors
 import rikka.material.app.MaterialActivity
 import yangFenTuoZi.runner.plus.App
-import yangFenTuoZi.runner.plus.utils.ThemeUtils
+import yangFenTuoZi.runner.plus.R
+import yangFenTuoZi.runner.plus.util.ThemeUtil
+
 
 open class BaseActivity : MaterialActivity() {
 
     var isDialogShow: Boolean = false
 
-    var isDark: Int = -1
     lateinit var mApp: App
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mApp = application as App
         mApp.addActivity(this)
-
-        // 设置主题
-        isDark = if (mApp.isDark != -1) {
-            mApp.isDark
-        } else {
-            val dark = if (ThemeUtils.isDark(this)) 1 else 0
-            mApp.isDark = dark
-            dark
-        }
-        setTheme(ThemeUtils.getTheme(isDark == 1))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-            && DynamicColors.isDynamicColorAvailable())
-            DynamicColors.applyToActivityIfAvailable(this, mApp.dynamicColorsOptions)
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState)
     }
 
@@ -40,18 +27,16 @@ open class BaseActivity : MaterialActivity() {
         super.onDestroy()
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (mApp.isDark == -1) {
-            mApp.isDark = isDark
+    override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
+        if (!ThemeUtil.isSystemAccent) {
+            theme.applyStyle(ThemeUtil.colorThemeStyleRes, true);
         }
-        if (mApp.isDark != isDark) {
-            recreate()
-        }
+        theme.applyStyle(ThemeUtil.getNightThemeStyleRes(this), true);
+        theme.applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true)
     }
 
-    override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
-        theme.applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true)
+    override fun computeUserThemeKey(): String? {
+        return ThemeUtil.colorTheme + ThemeUtil.getNightTheme(this)
     }
 
     override fun onApplyTranslucentSystemBars() {

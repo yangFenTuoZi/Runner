@@ -1,15 +1,15 @@
-package yangFenTuoZi.runner.plus.utils
+package yangFenTuoZi.runner.plus.util
 
 import android.util.Log
 import org.json.JSONException
 import org.json.JSONObject
-import yangFenTuoZi.runner.plus.utils.ThrowableKT.getStackTraceString
+import yangFenTuoZi.runner.plus.util.ThrowableUtil.getStackTraceString
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-object UpdateUtils {
+object UpdateUtil {
 
     fun wget(url: String): String? {
         try {

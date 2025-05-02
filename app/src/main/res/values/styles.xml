@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="AppTheme" parent="Theme.Light" />
+
     <style name="Card">
         <item name="android:duplicateParentState">true</item>
         <item name="android:layout_width">match_parent</item>

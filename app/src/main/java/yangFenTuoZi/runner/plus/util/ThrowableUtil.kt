@@ -1,4 +1,4 @@
-package yangFenTuoZi.runner.plus.utils
+package yangFenTuoZi.runner.plus.util
 
 import android.app.Activity
 import android.content.Context
@@ -7,7 +7,7 @@ import android.util.Log
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import yangFenTuoZi.runner.plus.R
 
-object ThrowableKT {
+object ThrowableUtil {
 
     fun Throwable.getStackTraceString() : String {
         return Log.getStackTraceString(this)

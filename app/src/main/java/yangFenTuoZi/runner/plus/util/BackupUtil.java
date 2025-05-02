@@ -1,8 +1,8 @@
-package yangFenTuoZi.runner.plus.utils;
+package yangFenTuoZi.runner.plus.util;
 
 import org.json.JSONObject;
 
-public class BackupUtils {
+public class BackupUtil {
     public static class RestoreException extends RuntimeException {
         public final static int WHAT_VER_IS_LOW = 0;
         public final static int WHAT_IS_NOT_APP_DATA = 1;
