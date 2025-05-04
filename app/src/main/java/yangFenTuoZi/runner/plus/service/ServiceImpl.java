@@ -2,7 +2,6 @@ package yangFenTuoZi.runner.plus.service;
 
 import static android.util.Log.getStackTraceString;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.ddm.DdmHandleAppName;
 import android.os.Build;
 import android.os.Handler;
@@ -23,18 +22,21 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import rikka.hidden.compat.PackageManagerApis;
 import yangFenTuoZi.runner.plus.BuildConfig;
 import yangFenTuoZi.runner.plus.service.callback.ExecResultCallback;
 import yangFenTuoZi.runner.plus.service.callback.IExecResultCallback;
 import yangFenTuoZi.runner.plus.service.callback.IInstallTermExtCallback;
 import yangFenTuoZi.runner.plus.service.callback.InstallTermExtCallback;
 import yangFenTuoZi.runner.plus.service.data.CommandDao;
-import yangFenTuoZi.runner.plus.service.data.CommandDbHelper;
 import yangFenTuoZi.runner.plus.service.data.CommandInfo;
+import yangFenTuoZi.runner.plus.service.data.DataDbHelper;
+import yangFenTuoZi.runner.plus.service.data.EnvironmentDao;
 import yangFenTuoZi.runner.plus.service.data.TermExtVersion;
 import yangFenTuoZi.runner.plus.service.fakecontext.FakeContext;
 
@@ -44,9 +46,11 @@ public class ServiceImpl extends IService.Stub {
     public static final String DATA_PATH = "/data/local/tmp/runner";
     public static final String USR_PATH = DATA_PATH + "/usr";
     public static final String HOME_PATH = DATA_PATH + "/home";
+    public static final String STARTER = HOME_PATH + "/.local/bin/starter";
     public final Handler mHandler;
-    private final CommandDbHelper dbHelper = new CommandDbHelper(FakeContext.get());
-    private final CommandDao commandDao;
+    private final DataDbHelper dataDbHelper = new DataDbHelper(FakeContext.get());
+    private final CommandDao commandDao = new CommandDao(dataDbHelper.getDatabase());
+    private final EnvironmentDao environmentDao = new EnvironmentDao(dataDbHelper.getDatabase());
 
     public ServiceImpl() {
         DdmHandleAppName.setAppName(TAG, Os.getuid());
@@ -54,17 +58,58 @@ public class ServiceImpl extends IService.Stub {
         {
             ifExistsOrMkdirs(new File(HOME_PATH + "/.local/bin"));
             ifExistsOrMkdirs(new File(HOME_PATH + "/.local/lib"));
-            ifExistsOrMkdirs(new File(HOME_PATH + "/.local/share/runner"));
         }
         mHandler = new Handler();
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        commandDao = new CommandDao(db);
+
+        ZipFile app = null;
+        try {
+            app = new ZipFile(PackageManagerApis.getApplicationInfo(BuildConfig.APPLICATION_ID, 0, 0).sourceDir);
+        } catch (RemoteException | IOException e) {
+            Log.e(TAG, e instanceof RemoteException ? "get application info error" : "open apk zip file error", e);
+        }
+
+        if (app == null) {
+            Log.w(TAG, "ignore unzip starter from app zip file");
+        } else {
+            try {
+                ZipEntry entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libstarter.so");
+                if (entry != null) {
+                    Log.i(TAG, "unzip starter");
+                    InputStream in = app.getInputStream(entry);
+                    File file = new File(STARTER);
+                    if (!file.exists()) {
+                        file.createNewFile();
+                    }
+                    BufferedInputStream inStream = new BufferedInputStream(in);
+                    BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(file));
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = inStream.read(buffer)) != -1) {
+                        outStream.write(buffer, 0, len);
+                    }
+                    inStream.close();
+                    outStream.close();
+
+                    file.setExecutable(true);
+                } else {
+                    Log.e(TAG, "libstarter.so doesn't exist");
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "unzip starter error", e);
+            } finally {
+                try {
+                    app.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "close apk zip file error", e);
+                }
+            }
+        }
     }
 
     @Override
     public void destroy() {
         Log.i(TAG, "stop");
-        dbHelper.close();
+        dataDbHelper.close();
         System.exit(0);
     }
 
@@ -79,19 +124,20 @@ public class ServiceImpl extends IService.Stub {
     }
 
     @Override
-    public void execX(String cmd, String procName, IExecResultCallback callback) {
+    public void exec(String cmd, String ids, String procName, IExecResultCallback callback) {
         new Thread(() -> {
             var callbackWrapper = new ExecResultCallback(callback);
             try {
-                Process p = Runtime.getRuntime().exec(USR_PATH + "/bin/bash");
+                var finalIds = ids == null || ids.isEmpty() ? "-1" : ids;
+                var finalProcName = procName == null || procName.isEmpty() ? "execTask" : procName;
+                ProcessBuilder processBuilder = new ProcessBuilder(STARTER, finalIds, finalProcName);
+                Map<String, String> env = processBuilder.environment();
+                env.putAll(getAllEnv());
+                Process p = processBuilder.start();
                 OutputStream out = p.getOutputStream();
-                out.write((USR_PATH + "/bin/bash 2>&1\n").getBytes());
-                out.flush();
-                out.write("echo $$\n".getBytes());
-                out.flush();
-                out.write((". " + USR_PATH + "/etc/profile\n").getBytes());
-                out.flush();
-                out.write((cmd + "\n").getBytes());
+                out.write(String.format("""
+                echo $$;. %s/etc/profile;%s;exit
+                """, USR_PATH, cmd).getBytes());
                 out.flush();
                 out.close();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -104,11 +150,6 @@ public class ServiceImpl extends IService.Stub {
                 callbackWrapper.onOutput(" ! Exception: " + getStackTraceString(e));
             }
         }).start();
-    }
-
-    @Override
-    public String exec(String cmd) {
-        return "";
     }
 
     @Override
@@ -152,13 +193,28 @@ public class ServiceImpl extends IService.Stub {
     }
 
     @Override
-    public boolean backupData(String input, boolean includeTerm) {
-        return false;
+    public void deleteEnv(String key) {
+        environmentDao.delete(key);
     }
 
     @Override
-    public boolean restoreData(String output) {
-        return false;
+    public boolean insertEnv(String key, String value) {
+        return environmentDao.insert(key, value);
+    }
+
+    @Override
+    public boolean updateEnv(String fromKey, String fromValue, String toKey, String toValue) throws RemoteException {
+        return environmentDao.update(fromKey, fromValue, toKey, toValue);
+    }
+
+    @Override
+    public String getEnv(String key) {
+        return environmentDao.getValue(key);
+    }
+
+    @Override
+    public Map<String, String> getAllEnv() {
+        return environmentDao.getAll();
     }
 
     @Override
@@ -192,10 +248,10 @@ public class ServiceImpl extends IService.Stub {
                         abi: %s
                         """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
                 callbackWrapper.onMessage(String.format(Locale.getDefault(), """
-                        - Terminal extension:
-                        - Version: %s (%d)
-                        - ABI: %s
-                       """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
+                         - Terminal extension:
+                         - Version: %s (%d)
+                         - ABI: %s
+                        """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
 
                 int indexOf = Arrays.asList(Build.SUPPORTED_ABIS).indexOf(termExtVersion.abi);
                 if (indexOf == -1) {
@@ -244,7 +300,7 @@ public class ServiceImpl extends IService.Stub {
                         }
                     } catch (IOException e) {
                         Log.e(TAG, "unable to unzip file: " + zipEntry.getName(), e);
-                        callbackWrapper.onMessage(" ! Unable to unzip file: " + zipEntry.getName() + "\n" + Log.getStackTraceString(e));
+                        callbackWrapper.onMessage(" ! Unable to unzip file: " + zipEntry.getName() + "\n" + getStackTraceString(e));
                         callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                         rmRF(new File(DATA_PATH + "/install_temp"));
                         callbackWrapper.onExit(false);
@@ -289,7 +345,7 @@ public class ServiceImpl extends IService.Stub {
                         callbackWrapper.onExit(false);
                     }
                 } catch (InterruptedException | IOException e) {
-                    callbackWrapper.onMessage(" ! " + Log.getStackTraceString(e));
+                    callbackWrapper.onMessage(" ! " + getStackTraceString(e));
                     callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                     rmRF(new File(DATA_PATH + "/install_temp"));
                     callbackWrapper.onExit(false);
@@ -301,7 +357,7 @@ public class ServiceImpl extends IService.Stub {
                 callbackWrapper.onExit(true);
             } catch (IOException e) {
                 Log.e(TAG, "read terminal extension file error!", e);
-                callbackWrapper.onMessage(" ! Read terminal extension file error!\n" + Log.getStackTraceString(e));
+                callbackWrapper.onMessage(" ! Read terminal extension file error!\n" + getStackTraceString(e));
                 callbackWrapper.onExit(false);
             }
         }).start();

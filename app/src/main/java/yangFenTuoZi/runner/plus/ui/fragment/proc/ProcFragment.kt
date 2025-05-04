@@ -19,6 +19,7 @@ import yangFenTuoZi.runner.plus.Runner
 import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
 import yangFenTuoZi.runner.plus.base.BaseFragment
 import yangFenTuoZi.runner.plus.databinding.FragmentProcBinding
+import yangFenTuoZi.runner.plus.service.callback.IExecResultCallback
 import yangFenTuoZi.runner.plus.util.ThrowableUtil.toErrorDialog
 
 class ProcFragment : BaseFragment() {
@@ -69,37 +70,54 @@ class ProcFragment : BaseFragment() {
                         Thread {
                             if (Runner.pingServer()) {
                                 try {
-                                    val strings =
-                                        Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")!!
-                                            .split("\n".toRegex())
-                                            .dropLastWhile { it.isEmpty() }.toTypedArray()
-                                    val data = IntArray(strings.size)
-                                    var i = 0
-                                    for (proc in strings) {
-                                        if (!proc.isEmpty()) {
-                                            val pI = proc.replace(" +".toRegex(), " ")
-                                                .trim { it <= ' ' }.split(" ".toRegex())
-                                                .dropLastWhile { it.isEmpty() }
-                                                .toTypedArray()
-                                            if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
-                                                data[i] = pI[0].toInt()
-                                                i++
-                                            }
+                                    val outs = StringBuilder()
+                                    Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep", null, "Task-GetProcList", object : IExecResultCallback.Stub() {
+                                        @Throws(RemoteException::class)
+                                        override fun onOutput(outputs: String?) {
+                                            outs.append(outputs)
                                         }
-                                    }
-                                    ProcAdapter.killPIDs(data)
+
+                                        @Throws(RemoteException::class)
+                                        override fun onExit(exitValue: Int) {
+                                            if (exitValue != 0) {
+                                                runOnUiThread {
+                                                    Toast.makeText(
+                                                        mContext,
+                                                        R.string.failed_to_get_the_process_list,
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                            val strings = outs.toString().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                                            val data = IntArray(strings.size)
+                                            var i = 0
+                                            for (proc in strings) {
+                                                if (!proc.isEmpty()) {
+                                                    val pI = proc.replace(" +".toRegex(), " ")
+                                                        .trim { it <= ' ' }.split(" ".toRegex())
+                                                        .dropLastWhile { it.isEmpty() }
+                                                        .toTypedArray()
+                                                    if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
+                                                        data[i] = pI[0].toInt()
+                                                        i++
+                                                    }
+                                                }
+                                            }
+                                            ProcAdapter.killPIDs(data)
+                                        }
+                                    })
                                 } catch (e: RemoteException) {
                                     e.toErrorDialog(mContext)
                                 }
                                 initList()
                             } else {
-                                runOnUiThread(Runnable {
+                                runOnUiThread {
                                     Toast.makeText(
                                         mContext,
                                         R.string.home_status_service_not_running,
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                })
+                                }
                             }
                         }.start()
                     }
@@ -112,50 +130,68 @@ class ProcFragment : BaseFragment() {
     }
 
     fun initList() {
-        Thread(Runnable {
+        Thread {
             if (Runner.pingServer()) {
                 try {
-                    val strings =
-                        Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep")!!
-                            .split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                    val data = IntArray(strings.size)
-                    val dataName = arrayOfNulls<String>(strings.size)
-                    var i = 0
-                    for (proc in strings) {
-                        if (!proc.isEmpty()) {
-                            val pI = proc.replace(" +".toRegex(), " ").trim { it <= ' ' }
-                                .split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                            if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
-                                data[i] = pI[0].toInt()
-                                dataName[i] =
-                                    pI[2].split(":".toRegex(), limit = 2).toTypedArray()[1]
-                                i++
+                    val outs = StringBuilder()
+                    Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep", null, "Task-GetProcList", object : IExecResultCallback.Stub() {
+                        @Throws(RemoteException::class)
+                        override fun onOutput(outputs: String?) {
+                            outs.append(outputs)
+                        }
+
+                        @Throws(RemoteException::class)
+                        override fun onExit(exitValue: Int) {
+                            if (exitValue != 0) {
+                                runOnUiThread {
+                                    Toast.makeText(
+                                        mContext,
+                                        R.string.failed_to_get_the_process_list,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                            val strings = outs.toString().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                            val data = IntArray(strings.size)
+                            val dataName = arrayOfNulls<String>(strings.size)
+                            var i = 0
+                            for (proc in strings) {
+                                if (!proc.isEmpty()) {
+                                    val pI = proc.replace(" +".toRegex(), " ").trim { it <= ' ' }
+                                        .split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                                    if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
+                                        data[i] = pI[0].toInt()
+                                        dataName[i] =
+                                            pI[2].split(":".toRegex(), limit = 2).toTypedArray()[1]
+                                        i++
+                                    }
+                                }
+                            }
+                            runOnUiThread {
+                                binding!!.recyclerView.setAdapter(
+                                    ProcAdapter(
+                                        mContext,
+                                        data,
+                                        dataName,
+                                        this@ProcFragment
+                                    )
+                                )
                             }
                         }
-                    }
-                    runOnUiThread(Runnable {
-                        binding!!.recyclerView.setAdapter(
-                            ProcAdapter(
-                                mContext,
-                                data,
-                                dataName,
-                                this
-                            )
-                        )
                     })
                 } catch (e: RemoteException) {
                     e.toErrorDialog(mContext)
                 }
             } else {
-                runOnUiThread(Runnable {
+                runOnUiThread {
                     Toast.makeText(
                         mContext,
                         R.string.home_status_service_not_running,
                         Toast.LENGTH_SHORT
                     ).show()
-                })
+                }
             }
-        }).start()
+        }.start()
     }
 
     override fun onDestroyView() {

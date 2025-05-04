@@ -71,11 +71,11 @@ class App : Application(), Thread.UncaughtExceptionHandler {
     }
 
     override fun uncaughtException(t: Thread, e: Throwable) {
-        Thread(Runnable {
+        Thread {
             Looper.prepare()
             crashHandler(t, e)
             Looper.loop()
-        }).start()
+        }.start()
     }
 
     companion object {

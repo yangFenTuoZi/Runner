@@ -6,10 +6,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import yangFenTuoZi.runner.plus.service.ServiceImpl;
 
-public class CommandDbHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = ServiceImpl.DATA_PATH + "/commands.db";
+public class DataDbHelper extends SQLiteOpenHelper {
+    private static final String DATABASE_NAME = ServiceImpl.DATA_PATH + "/data.db";
     private static final int DATABASE_VERSION = 1;
 
+    // commands 表
     public static final String TABLE_COMMANDS = "commands";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_POSITION = "position";
@@ -19,7 +20,7 @@ public class CommandDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USE_CHID = "use_chid";
     public static final String COLUMN_IDS = "ids";
 
-    private static final String TABLE_CREATE =
+    private static final String TABLE_COMMANDS_CREATE =
             "CREATE TABLE " + TABLE_COMMANDS + " (" +
                     COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COLUMN_POSITION + " INTEGER NOT NULL, " +
@@ -29,18 +30,37 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                     COLUMN_USE_CHID + " INTEGER NOT NULL DEFAULT 0, " +
                     COLUMN_IDS + " TEXT);";
 
-    public CommandDbHelper(Context context) {
+    // environment 表
+    public static final String TABLE_ENVIRONMENT = "environment";
+    public static final String COLUMN_KEY = "env_key";
+    public static final String COLUMN_VALUE = "value";
+
+    private static final String TABLE_ENVIRONMENT_CREATE =
+            "CREATE TABLE " + TABLE_ENVIRONMENT + " (" +
+                    COLUMN_KEY + " TEXT NOT NULL, " +
+                    COLUMN_VALUE + " TEXT NOT NULL, " +
+                    "PRIMARY KEY (" + COLUMN_KEY + "));";
+
+    public DataDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(TABLE_CREATE);
+        db.execSQL(TABLE_COMMANDS_CREATE);
+        db.execSQL(TABLE_ENVIRONMENT_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMMANDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ENVIRONMENT);
         onCreate(db);
+    }
+
+    private final SQLiteDatabase database = getWritableDatabase();
+
+    public SQLiteDatabase getDatabase() {
+        return database;
     }
 }

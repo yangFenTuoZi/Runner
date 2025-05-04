@@ -53,21 +53,21 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                         callback = object : IExecResultCallback.Stub() {
                             override fun onOutput(outputs: String) {
                                 if (pid1) {
-                                    runOnUiThread(Runnable {
+                                    runOnUiThread {
                                         binding.execMsg.append(outputs + "\n")
-                                    })
+                                    }
                                 } else {
                                     try {
                                         val p = outputs.toInt()
-                                        runOnUiThread(Runnable {
+                                        runOnUiThread {
                                             binding.execTitle.append(getString(R.string.exec_pid, p) + "\n")
-                                        })
+                                        }
                                         pid1 = true
                                         pid = p
                                     } catch (_: Exception) {
-                                        runOnUiThread(Runnable {
+                                        runOnUiThread {
                                             binding.execMsg.append(outputs + "\n")
-                                        })
+                                        }
                                     }
                                 }
                             }
@@ -94,7 +94,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                             }
                         }
                         try {
-                            Runner.service?.execX(cmd, cmdInfo.name, callback)
+                            Runner.service?.exec(cmd, cmdInfo.ids, cmdInfo.name, callback)
                         } catch (e: RemoteException) {
                             Log.e(javaClass.getName(), Objects.requireNonNull<String?>(e.message))
                         }
@@ -103,7 +103,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                         try {
                             while (true) {
                                 if (!Runner.pingServer()) {
-                                    runOnUiThread(Runnable {
+                                    runOnUiThread {
                                         Toast.makeText(
                                             mContext,
                                             R.string.home_status_service_not_running,
@@ -118,7 +118,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                                         )
                                         getAlertDialog()!!.setTitle(getString(R.string.exec_finish))
                                         br2 = true
-                                    })
+                                    }
                                     onDestroy()
                                     break
                                 }
@@ -144,26 +144,26 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
         if (Runner.pingServer()) {
             try {
                 if (!cmdInfo.keepAlive && !br2) {
-                    Thread(Runnable {
+                    Thread {
                         try {
                             if (ProcAdapter.killPID(pid)) {
-                                runOnUiThread(Runnable {
+                                runOnUiThread {
                                     Toast.makeText(
                                         mContext,
                                         R.string.process_the_killing_process_succeeded,
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                })
-                            } else runOnUiThread(Runnable {
+                                }
+                            } else runOnUiThread {
                                 Toast.makeText(
                                     mContext,
                                     R.string.process_failed_to_kill_the_process,
                                     Toast.LENGTH_SHORT
                                 ).show()
-                            })
+                            }
                         } catch (_: Exception) {
                         }
-                    }).start()
+                    }.start()
                 }
             } catch (e: Exception) {
                 throw RuntimeException(e)

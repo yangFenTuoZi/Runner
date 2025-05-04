@@ -17,6 +17,11 @@ android {
         ndk {
             abiFilters.addAll(listOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a"))
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+            }
+        }
     }
 
     buildTypes {
@@ -39,6 +44,12 @@ android {
     }
     kotlinOptions {
         jvmTarget = "21"
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 }
 

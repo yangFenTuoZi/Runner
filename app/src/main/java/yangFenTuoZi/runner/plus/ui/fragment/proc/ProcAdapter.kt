@@ -12,6 +12,7 @@ import com.google.android.material.button.MaterialButton
 import yangFenTuoZi.runner.plus.R
 import yangFenTuoZi.runner.plus.Runner
 import yangFenTuoZi.runner.plus.base.BaseDialogBuilder
+import yangFenTuoZi.runner.plus.service.callback.IExecResultCallback
 import yangFenTuoZi.runner.plus.ui.activity.MainActivity
 
 class ProcAdapter
@@ -65,21 +66,21 @@ class ProcAdapter
                         Thread {
                             //杀死进程
                             if (killPID(pid)) {
-                                mContext.runOnUiThread(Runnable {
+                                mContext.runOnUiThread {
                                     procFragment.initList()
                                     Toast.makeText(
                                         mContext,
                                         R.string.process_the_killing_process_succeeded,
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                })
-                            } else mContext.runOnUiThread(Runnable {
+                                }
+                            } else mContext.runOnUiThread {
                                 Toast.makeText(
                                     mContext,
                                     R.string.process_failed_to_kill_the_process,
                                     Toast.LENGTH_SHORT
                                 ).show()
-                            })
+                            }
                         }.start()
                     }
                     .setNeutralButton(R.string.dialog_cancel, null)
@@ -108,15 +109,35 @@ class ProcAdapter
         fun killPID(pid: Int): Boolean {
             if (Runner.pingServer()) {
                 try {
-                    Runner.service?.exec("kill -9 $pid")
-                    return isDied(
-                        pid.toString(),
-                        Runner.service?.exec("busybox ps -A -o pid,ppid|grep $pid")!!
-                            .split("\n".toRegex())
-                            .dropLastWhile { it.isEmpty() }.toTypedArray()
-                    )
+                    Runner.service?.exec("kill -9 $pid", null, "Task-KillProc", null)
+                    val outs = StringBuilder()
+                    var waited = -1
+                    Runner.service?.exec(
+                        "busybox ps -A -o pid,ppid|grep $pid",
+                        null,
+                        "Task-GetProcList",
+                        object : IExecResultCallback.Stub() {
+                            @Throws(RemoteException::class)
+                            override fun onOutput(outputs: String?) {
+                                outs.append(outputs)
+                            }
+
+                            @Throws(RemoteException::class)
+                            override fun onExit(exitValue: Int) {
+                                if (exitValue != 0) {
+                                    waited = if (isDied(
+                                            pid.toString(),
+                                            outs.toString().split("\n".toRegex())
+                                                .dropLastWhile { it.isEmpty() }
+                                                .toTypedArray())
+                                    ) 1 else 0
+                                }
+                            }
+                        })
+                    while (waited == -1);
+                    return waited == 1
                 } catch (e: RemoteException) {
-                    throw RuntimeException(e)
+                    e.printStackTrace()
                 }
             }
             return false
@@ -129,7 +150,7 @@ class ProcAdapter
                     for (pid in pids) {
                         if (pid != 0) cmd.append("kill -9 ").append(pid).append("\n")
                     }
-                    Runner.service?.exec(cmd.toString())
+                    Runner.service?.exec(cmd.toString(), null, "Task-KillProc", null)
                 } catch (e: RemoteException) {
                     throw RuntimeException(e)
                 }

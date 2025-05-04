@@ -13,8 +13,8 @@ public class CommandDao {
 
     public int size() {
         try (Cursor cursor = db.query(
-                CommandDbHelper.TABLE_COMMANDS,
-                new String[]{CommandDbHelper.COLUMN_ID},
+                DataDbHelper.TABLE_COMMANDS,
+                new String[]{DataDbHelper.COLUMN_ID},
                 null, null, null, null, null)) {
             return cursor.getCount();
         }
@@ -22,21 +22,21 @@ public class CommandDao {
 
     public CommandInfo[] readAll() {
         try (Cursor cursor = db.query(
-                CommandDbHelper.TABLE_COMMANDS,
+                DataDbHelper.TABLE_COMMANDS,
                 null,
                 null, null, null, null,
-                CommandDbHelper.COLUMN_POSITION + " ASC")) {
+                DataDbHelper.COLUMN_POSITION + " ASC")) {
 
             CommandInfo[] commands = new CommandInfo[cursor.getCount()];
             int index = 0;
 
             while (cursor.moveToNext()) {
                 CommandInfo info = new CommandInfo();
-                info.name = cursor.getString(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_NAME));
-                info.command = cursor.getString(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_COMMAND));
-                info.keepAlive = cursor.getInt(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_KEEP_ALIVE)) == 1;
-                info.useChid = cursor.getInt(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_USE_CHID)) == 1;
-                info.ids = cursor.getString(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_IDS));
+                info.name = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_NAME));
+                info.command = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_COMMAND));
+                info.keepAlive = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEEP_ALIVE)) == 1;
+                info.useChid = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_USE_CHID)) == 1;
+                info.ids = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_IDS));
                 commands[index++] = info;
             }
             return commands;
@@ -45,19 +45,19 @@ public class CommandDao {
 
     public CommandInfo read(int position) {
         try (Cursor cursor = db.query(
-                CommandDbHelper.TABLE_COMMANDS,
+                DataDbHelper.TABLE_COMMANDS,
                 null,
-                CommandDbHelper.COLUMN_POSITION + " = ?",
+                DataDbHelper.COLUMN_POSITION + " = ?",
                 new String[]{String.valueOf(position)},
                 null, null, null, "1")) {
 
             if (cursor.moveToFirst()) {
                 CommandInfo info = new CommandInfo();
-                info.name = cursor.getString(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_NAME));
-                info.command = cursor.getString(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_COMMAND));
-                info.keepAlive = cursor.getInt(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_KEEP_ALIVE)) == 1;
-                info.useChid = cursor.getInt(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_USE_CHID)) == 1;
-                info.ids = cursor.getString(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_IDS));
+                info.name = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_NAME));
+                info.command = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_COMMAND));
+                info.keepAlive = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEEP_ALIVE)) == 1;
+                info.useChid = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_USE_CHID)) == 1;
+                info.ids = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_IDS));
                 return info;
             }
             return null;
@@ -66,33 +66,33 @@ public class CommandDao {
 
     public long insert(CommandInfo commandInfo) {
         ContentValues values = new ContentValues();
-        values.put(CommandDbHelper.COLUMN_POSITION, size()); // 新项目放在最后
-        values.put(CommandDbHelper.COLUMN_NAME, commandInfo.name);
-        values.put(CommandDbHelper.COLUMN_COMMAND, commandInfo.command);
-        values.put(CommandDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
-        values.put(CommandDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
-        values.put(CommandDbHelper.COLUMN_IDS, commandInfo.ids);
+        values.put(DataDbHelper.COLUMN_POSITION, size()); // 新项目放在最后
+        values.put(DataDbHelper.COLUMN_NAME, commandInfo.name);
+        values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command);
+        values.put(DataDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
+        values.put(DataDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
+        values.put(DataDbHelper.COLUMN_IDS, commandInfo.ids);
 
-        return db.insert(CommandDbHelper.TABLE_COMMANDS, null, values);
+        return db.insert(DataDbHelper.TABLE_COMMANDS, null, values);
     }
 
     public void insertInto(CommandInfo commandInfo, int position) {
         db.beginTransaction();
         try {
-            db.execSQL("UPDATE " + CommandDbHelper.TABLE_COMMANDS +
-                            " SET " + CommandDbHelper.COLUMN_POSITION + " = " + CommandDbHelper.COLUMN_POSITION + " + 1" +
-                            " WHERE " + CommandDbHelper.COLUMN_POSITION + " >= ?",
+            db.execSQL("UPDATE " + DataDbHelper.TABLE_COMMANDS +
+                            " SET " + DataDbHelper.COLUMN_POSITION + " = " + DataDbHelper.COLUMN_POSITION + " + 1" +
+                            " WHERE " + DataDbHelper.COLUMN_POSITION + " >= ?",
                     new Object[]{position});
 
             ContentValues values = new ContentValues();
-            values.put(CommandDbHelper.COLUMN_POSITION, position);
-            values.put(CommandDbHelper.COLUMN_NAME, commandInfo.name);
-            values.put(CommandDbHelper.COLUMN_COMMAND, commandInfo.command);
-            values.put(CommandDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
-            values.put(CommandDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
-            values.put(CommandDbHelper.COLUMN_IDS, commandInfo.ids);
+            values.put(DataDbHelper.COLUMN_POSITION, position);
+            values.put(DataDbHelper.COLUMN_NAME, commandInfo.name);
+            values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command);
+            values.put(DataDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
+            values.put(DataDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
+            values.put(DataDbHelper.COLUMN_IDS, commandInfo.ids);
 
-            db.insert(CommandDbHelper.TABLE_COMMANDS, null, values);
+            db.insert(DataDbHelper.TABLE_COMMANDS, null, values);
 
             db.setTransactionSuccessful();
         } finally {
@@ -102,14 +102,14 @@ public class CommandDao {
 
     public void edit(CommandInfo commandInfo, int position) {
         ContentValues values = new ContentValues();
-        values.put(CommandDbHelper.COLUMN_NAME, commandInfo.name);
-        values.put(CommandDbHelper.COLUMN_COMMAND, commandInfo.command);
-        values.put(CommandDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
-        values.put(CommandDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
-        values.put(CommandDbHelper.COLUMN_IDS, commandInfo.ids);
+        values.put(DataDbHelper.COLUMN_NAME, commandInfo.name);
+        values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command);
+        values.put(DataDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
+        values.put(DataDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
+        values.put(DataDbHelper.COLUMN_IDS, commandInfo.ids);
 
-        db.update(CommandDbHelper.TABLE_COMMANDS, values,
-                CommandDbHelper.COLUMN_POSITION + " = ?",
+        db.update(DataDbHelper.TABLE_COMMANDS, values,
+                DataDbHelper.COLUMN_POSITION + " = ?",
                 new String[]{String.valueOf(position)});
     }
 
@@ -121,23 +121,23 @@ public class CommandDao {
 
             if (fromPosition < toPosition) {
                 // 向下移动 - 将中间项目向上移动
-                db.execSQL("UPDATE " + CommandDbHelper.TABLE_COMMANDS +
-                                " SET " + CommandDbHelper.COLUMN_POSITION + " = " + CommandDbHelper.COLUMN_POSITION + " - 1" +
-                                " WHERE " + CommandDbHelper.COLUMN_POSITION + " > ? AND " + CommandDbHelper.COLUMN_POSITION + " <= ?",
+                db.execSQL("UPDATE " + DataDbHelper.TABLE_COMMANDS +
+                                " SET " + DataDbHelper.COLUMN_POSITION + " = " + DataDbHelper.COLUMN_POSITION + " - 1" +
+                                " WHERE " + DataDbHelper.COLUMN_POSITION + " > ? AND " + DataDbHelper.COLUMN_POSITION + " <= ?",
                         new Object[]{fromPosition, toPosition});
             } else {
                 // 向上移动 - 将中间项目向下移动
-                db.execSQL("UPDATE " + CommandDbHelper.TABLE_COMMANDS +
-                                " SET " + CommandDbHelper.COLUMN_POSITION + " = " + CommandDbHelper.COLUMN_POSITION + " + 1" +
-                                " WHERE " + CommandDbHelper.COLUMN_POSITION + " >= ? AND " + CommandDbHelper.COLUMN_POSITION + " < ?",
+                db.execSQL("UPDATE " + DataDbHelper.TABLE_COMMANDS +
+                                " SET " + DataDbHelper.COLUMN_POSITION + " = " + DataDbHelper.COLUMN_POSITION + " + 1" +
+                                " WHERE " + DataDbHelper.COLUMN_POSITION + " >= ? AND " + DataDbHelper.COLUMN_POSITION + " < ?",
                         new Object[]{toPosition, fromPosition});
             }
 
             // 更新移动项目的position
             ContentValues values = new ContentValues();
-            values.put(CommandDbHelper.COLUMN_POSITION, toPosition);
-            db.update(CommandDbHelper.TABLE_COMMANDS, values,
-                    CommandDbHelper.COLUMN_ID + " = ?",
+            values.put(DataDbHelper.COLUMN_POSITION, toPosition);
+            db.update(DataDbHelper.TABLE_COMMANDS, values,
+                    DataDbHelper.COLUMN_ID + " = ?",
                     new String[]{String.valueOf(idToMove)});
 
             db.setTransactionSuccessful();
@@ -150,14 +150,14 @@ public class CommandDao {
         db.beginTransaction();
         try {
             // 先删除项目
-            db.delete(CommandDbHelper.TABLE_COMMANDS,
-                    CommandDbHelper.COLUMN_POSITION + " = ?",
+            db.delete(DataDbHelper.TABLE_COMMANDS,
+                    DataDbHelper.COLUMN_POSITION + " = ?",
                     new String[]{String.valueOf(position)});
 
             // 将后面的项目position减1
-            db.execSQL("UPDATE " + CommandDbHelper.TABLE_COMMANDS +
-                            " SET " + CommandDbHelper.COLUMN_POSITION + " = " + CommandDbHelper.COLUMN_POSITION + " - 1" +
-                            " WHERE " + CommandDbHelper.COLUMN_POSITION + " > ?",
+            db.execSQL("UPDATE " + DataDbHelper.TABLE_COMMANDS +
+                            " SET " + DataDbHelper.COLUMN_POSITION + " = " + DataDbHelper.COLUMN_POSITION + " - 1" +
+                            " WHERE " + DataDbHelper.COLUMN_POSITION + " > ?",
                     new Object[]{position});
 
             db.setTransactionSuccessful();
@@ -168,14 +168,14 @@ public class CommandDao {
 
     private long getIdAtPosition(int position) {
         try (Cursor cursor = db.query(
-                CommandDbHelper.TABLE_COMMANDS,
-                new String[]{CommandDbHelper.COLUMN_ID},
-                CommandDbHelper.COLUMN_POSITION + " = ?",
+                DataDbHelper.TABLE_COMMANDS,
+                new String[]{DataDbHelper.COLUMN_ID},
+                DataDbHelper.COLUMN_POSITION + " = ?",
                 new String[]{String.valueOf(position)},
                 null, null, null, "1")) {
 
             if (cursor.moveToFirst()) {
-                return cursor.getLong(cursor.getColumnIndexOrThrow(CommandDbHelper.COLUMN_ID));
+                return cursor.getLong(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_ID));
             }
             return -1;
         }
