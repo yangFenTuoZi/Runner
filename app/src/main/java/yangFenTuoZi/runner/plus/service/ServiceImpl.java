@@ -33,11 +33,12 @@ import yangFenTuoZi.runner.plus.service.callback.ExecResultCallback;
 import yangFenTuoZi.runner.plus.service.callback.IExecResultCallback;
 import yangFenTuoZi.runner.plus.service.callback.IInstallTermExtCallback;
 import yangFenTuoZi.runner.plus.service.callback.InstallTermExtCallback;
-import yangFenTuoZi.runner.plus.service.data.CommandDao;
 import yangFenTuoZi.runner.plus.service.data.CommandInfo;
-import yangFenTuoZi.runner.plus.service.data.DataDbHelper;
-import yangFenTuoZi.runner.plus.service.data.EnvironmentDao;
+import yangFenTuoZi.runner.plus.service.data.ProcessInfo;
 import yangFenTuoZi.runner.plus.service.data.TermExtVersion;
+import yangFenTuoZi.runner.plus.service.database.CommandDao;
+import yangFenTuoZi.runner.plus.service.database.DataDbHelper;
+import yangFenTuoZi.runner.plus.service.database.EnvironmentDao;
 import yangFenTuoZi.runner.plus.service.fakecontext.FakeContext;
 
 public class ServiceImpl extends IService.Stub {
@@ -47,6 +48,7 @@ public class ServiceImpl extends IService.Stub {
     public static final String USR_PATH = DATA_PATH + "/usr";
     public static final String HOME_PATH = DATA_PATH + "/home";
     public static final String STARTER = HOME_PATH + "/.local/bin/starter";
+    public static final String JNI_PROCESS_UTILS = HOME_PATH + "/.local/lib/libprocessutils.so";
     public final Handler mHandler;
     private final DataDbHelper dataDbHelper = new DataDbHelper(FakeContext.get());
     private final CommandDao commandDao = new CommandDao(dataDbHelper.getDatabase());
@@ -69,7 +71,7 @@ public class ServiceImpl extends IService.Stub {
         }
 
         if (app == null) {
-            Log.w(TAG, "ignore unzip starter from app zip file");
+            Log.w(TAG, "ignore unzip library from app zip file");
         } else {
             try {
                 ZipEntry entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libstarter.so");
@@ -94,8 +96,32 @@ public class ServiceImpl extends IService.Stub {
                 } else {
                     Log.e(TAG, "libstarter.so doesn't exist");
                 }
+                entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libprocessutils.so");
+                if (entry != null) {
+                    Log.i(TAG, "unzip libprocessutils.so");
+                    InputStream in = app.getInputStream(entry);
+                    File file = new File(JNI_PROCESS_UTILS);
+                    if (!file.exists()) {
+                        file.createNewFile();
+                    }
+                    BufferedInputStream inStream = new BufferedInputStream(in);
+                    BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(file));
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = inStream.read(buffer)) != -1) {
+                        outStream.write(buffer, 0, len);
+                    }
+                    inStream.close();
+                    outStream.close();
+
+                    file.setExecutable(true);
+
+                    NativeProcessUtils.loadLibrary();
+                } else {
+                    Log.e(TAG, "libprocessutils.so doesn't exist");
+                }
             } catch (IOException e) {
-                Log.e(TAG, "unzip starter error", e);
+                Log.e(TAG, "unzip error", e);
             } finally {
                 try {
                     app.close();
@@ -215,6 +241,16 @@ public class ServiceImpl extends IService.Stub {
     @Override
     public Map<String, String> getAllEnv() {
         return environmentDao.getAll();
+    }
+
+    @Override
+    public ProcessInfo[] getProcesses() {
+        return NativeProcessUtils.getProcesses();
+    }
+
+    @Override
+    public boolean[] killProcess(int[] pid) throws RemoteException {
+        return new boolean[0];
     }
 
     @Override

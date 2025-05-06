@@ -111,7 +111,7 @@ class ProcAdapter
                 try {
                     Runner.service?.exec("kill -9 $pid", null, "Task-KillProc", null)
                     val outs = StringBuilder()
-                    var waited = -1
+                    var exited = -1
                     Runner.service?.exec(
                         "busybox ps -A -o pid,ppid|grep $pid",
                         null,
@@ -124,18 +124,18 @@ class ProcAdapter
 
                             @Throws(RemoteException::class)
                             override fun onExit(exitValue: Int) {
-                                if (exitValue != 0) {
-                                    waited = if (isDied(
+                                exited = if (exitValue != 0) {
+                                    if (isDied(
                                             pid.toString(),
                                             outs.toString().split("\n".toRegex())
                                                 .dropLastWhile { it.isEmpty() }
                                                 .toTypedArray())
                                     ) 1 else 0
-                                }
+                                } else 0
                             }
                         })
-                    while (waited == -1);
-                    return waited == 1
+                    while (exited == -1);
+                    return exited == 1
                 } catch (e: RemoteException) {
                     e.printStackTrace()
                 }

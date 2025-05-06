@@ -1,8 +1,10 @@
-package yangFenTuoZi.runner.plus.service.data;
+package yangFenTuoZi.runner.plus.service.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import yangFenTuoZi.runner.plus.service.data.CommandInfo;
 
 public class CommandDao {
     private final SQLiteDatabase db;

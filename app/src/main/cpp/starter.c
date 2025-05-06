@@ -18,7 +18,8 @@ typedef struct {
 } UserInfo;
 
 // Constants for fixed command execution
-static const char* BASH_ARGS[] = {"/data/local/tmp/runner/usr/bin/bash", NULL};
+static const char* BASH_PATH = "/data/local/tmp/runner/usr/bin/bash";
+static const char* BASH_ARGS[] = {"runner-bash", NULL};
 
 void parse_uid_gid(const char* arg, UserInfo* info) {
     // Initialize structure
@@ -114,6 +115,6 @@ int main(int argc, char* argv[]) {
 
     free_user_info(&user_info);
 
-    return execvp(BASH_ARGS[0], (char *const *) BASH_ARGS);
+    return execvp(BASH_PATH, (char *const *) BASH_ARGS);
 }
 

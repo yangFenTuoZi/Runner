@@ -22,4 +22,4 @@
 -dontobfuscate
 -dontwarn org.jetbrains.annotations.NotNull
 -dontwarn org.jetbrains.annotations.Nullable
--keep class yangFenTuoZi.runner.plus.**
+-keep class yangFenTuoZi.runner.plus.service.** { *; }

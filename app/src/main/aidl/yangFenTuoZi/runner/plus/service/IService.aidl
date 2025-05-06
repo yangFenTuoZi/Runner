@@ -2,6 +2,7 @@ package yangFenTuoZi.runner.plus.service;
 
 import yangFenTuoZi.runner.plus.service.data.CommandInfo;
 import yangFenTuoZi.runner.plus.service.data.TermExtVersion;
+import yangFenTuoZi.runner.plus.service.data.ProcessInfo;
 
 import yangFenTuoZi.runner.plus.service.callback.IExecResultCallback;
 import yangFenTuoZi.runner.plus.service.callback.IInstallTermExtCallback;
@@ -30,6 +31,9 @@ interface IService {
     boolean updateEnv(String fromKey, String fromValue, String toKey, String toValue) = 302;
     String getEnv(String key) = 303;
     Map<String, String> getAllEnv() = 304;
+
+    ProcessInfo[] getProcesses() = 400;
+    boolean[] killProcess(in int[] pid) = 401;
 
     void installTermExt(String termExtZip, in IInstallTermExtCallback callback) = 1000;
     void removeTermExt() = 1001;

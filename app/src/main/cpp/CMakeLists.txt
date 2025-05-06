@@ -3,7 +3,13 @@ cmake_minimum_required(VERSION 3.22.1)
 project("starter")
 
 add_executable(starter
-        starter/starter.c)
+        starter.c)
+
+add_library(processutils SHARED
+        processutils.cpp)
 
 set_target_properties(starter PROPERTIES PREFIX "lib")
 set_target_properties(starter PROPERTIES SUFFIX ".so")
+
+set_target_properties(processutils PROPERTIES PREFIX "lib")
+set_target_properties(processutils PROPERTIES SUFFIX ".so")
