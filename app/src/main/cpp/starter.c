@@ -13,37 +13,36 @@
 typedef struct {
     uid_t uid;
     gid_t gid;
-    gid_t* groups;
+    gid_t *groups;
     size_t groups_count;
 } UserInfo;
 
 // Constants for fixed command execution
-static const char* BASH_PATH = "/data/local/tmp/runner/usr/bin/bash";
-static const char* BASH_ARGS[] = {"runner-bash", NULL};
+static const char *BASH_PATH = "/data/local/tmp/runner/usr/bin/bash";
 
-void parse_uid_gid(const char* arg, UserInfo* info) {
+void parse_uid_gid(const char *arg, UserInfo *info) {
     // Initialize structure
     memset(info, 0, sizeof(UserInfo));
 
     if (!arg || !*arg) return;
 
-    char* str = strdup(arg);
+    char *str = strdup(arg);
     if (!str) {
         perror("strdup failed");
         return;
     }
 
     // First token - UID
-    char* token = strtok(str, ",");
-    if (token) info->uid = (uid_t)atoi(token);
+    char *token = strtok(str, ",");
+    if (token) info->uid = (uid_t) atoi(token);
 
     // Second token - GID
     token = strtok(NULL, ",");
-    if (token) info->gid = (gid_t)atoi(token);
+    if (token) info->gid = (gid_t) atoi(token);
 
     // Count additional groups
     size_t count = 0;
-    char* tmp = str;
+    char *tmp = str;
     while ((tmp = strchr(tmp, ','))) {
         count++;
         tmp++;
@@ -61,7 +60,7 @@ void parse_uid_gid(const char* arg, UserInfo* info) {
         // Parse groups
         for (size_t i = 0; i < count; i++) {
             token = strtok(NULL, ",");
-            if (token) info->groups[i] = (gid_t)atoi(token);
+            if (token) info->groups[i] = (gid_t) atoi(token);
         }
         info->groups_count = count;
     }
@@ -69,7 +68,7 @@ void parse_uid_gid(const char* arg, UserInfo* info) {
     free(str);
 }
 
-int set_user_groups(const UserInfo* info) {
+int set_user_groups(const UserInfo *info) {
     if (info->gid != 0 && setgid(info->gid) != 0) {
         perror("setgid failed");
         return 0;
@@ -88,7 +87,7 @@ int set_user_groups(const UserInfo* info) {
     return 1;
 }
 
-void free_user_info(UserInfo* info) {
+void free_user_info(UserInfo *info) {
     if (info) {
         free(info->groups);
         info->groups = NULL;
@@ -96,14 +95,16 @@ void free_user_info(UserInfo* info) {
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <uid,gid,groups> <procName>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
     UserInfo user_info = {0};
 
     // Parse UID/GID argument
-    if (argc > 1) {
-        if (isdigit(argv[1][0]) && strcmp(argv[1], "-1") != 0) {
-            parse_uid_gid(argv[1], &user_info);
-        }
+    if (isdigit(argv[1][0]) && strcmp(argv[1], "-1") != 0) {
+        parse_uid_gid(argv[1], &user_info);
     }
 
     // Set user and group IDs if specified
@@ -115,6 +116,7 @@ int main(int argc, char* argv[]) {
 
     free_user_info(&user_info);
 
-    return execvp(BASH_PATH, (char *const *) BASH_ARGS);
+    char *const args[] = {"bash", "--nice-name", argv[2], NULL};
+    return execvp(BASH_PATH, args);
 }
 

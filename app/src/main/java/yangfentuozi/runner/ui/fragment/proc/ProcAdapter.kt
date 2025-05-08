@@ -37,7 +37,15 @@ class ProcAdapter(private val mContext: MainActivity) :
         var processInfo: ProcessInfo? = data?.get(position)
         if (processInfo == null) return
 
-        holder.mBindingInner.itemName.text = processInfo.exe
+        var niceNameFlag = false
+        for (arg in processInfo.args) {
+            if (niceNameFlag) {
+                holder.mBindingInner.itemName.text = arg
+                break
+            }
+            if (arg == "--nice-name") niceNameFlag = true
+        }
+
         holder.mBindingInner.itemPid.text = mContext.getString(R.string.exec_pid, processInfo.pid)
 
         //设置点击事件
