@@ -64,7 +64,7 @@ int readProcessPpid(int pid) {
 
 // 获取所有进程
 extern "C" JNIEXPORT jobjectArray JNICALL
-Java_yangFenTuoZi_runner_plus_service_NativeProcessUtils_getProcesses(JNIEnv *env, jobject /* this */) {
+Java_yangFenTuoZi_runner_plus_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobject /* this */) {
     initProcessInfoFields(env);
 
     std::vector<int> pids;
@@ -130,7 +130,7 @@ Java_yangFenTuoZi_runner_plus_service_NativeProcessUtils_getProcesses(JNIEnv *en
 
 // 发送信号给进程
 extern "C" JNIEXPORT jboolean JNICALL
-Java_yangFenTuoZi_runner_plus_service_NativeProcessUtils_sendSignal(JNIEnv *env, jobject /* this */, jint pid, jint signal) {
+Java_yangFenTuoZi_runner_plus_service_jni_ProcessUtils_sendSignal(JNIEnv *env, jobject /* this */, jint pid, jint signal) {
     if (kill(pid, signal) == 0) {
         return JNI_TRUE;
     }

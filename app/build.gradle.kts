@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "yangFenTuoZi.runner.plus"
+    namespace = "yangfentuozi.runner"
     compileSdk = rootProject.ext["compileSdk"] as Int
 
     defaultConfig {
-        applicationId = "yangFenTuoZi.runner.plus"
+        applicationId = "yangfentuozi.runner"
         minSdk = rootProject.ext["minSdk"] as Int
         targetSdk = rootProject.ext["targetSdk"] as Int
         versionCode = rootProject.ext["versionCode"] as Int

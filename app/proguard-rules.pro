@@ -1,4 +1,4 @@
-# Add project specific ProGuard rules here.
+# Add project specific ProGuard rules here.风堇
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.kts.
 #
@@ -22,4 +22,4 @@
 -dontobfuscate
 -dontwarn org.jetbrains.annotations.NotNull
 -dontwarn org.jetbrains.annotations.Nullable
--keep class yangFenTuoZi.runner.plus.service.** { *; }
+-keep class yangfentuozi.runner.service.** { *; }

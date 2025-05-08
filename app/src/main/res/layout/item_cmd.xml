@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingStart="10dp"
@@ -27,7 +28,8 @@
             android:ellipsize="end"
             android:lineSpacingExtra="2dp"
             android:maxLines="1"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="name"/>
 
         <TextView
             android:id="@+id/item_command"
@@ -36,7 +38,8 @@
             android:layout_height="wrap_content"
             android:duplicateParentState="true"
             android:ellipsize="end"
-            android:maxLines="2" />
+            android:maxLines="2"
+            tools:text="command"/>
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton

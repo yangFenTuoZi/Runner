@@ -77,8 +77,8 @@
 
             <intent
                 android:action="android.intent.action.MAIN"
-                android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
-                android:targetPackage="yangFenTuoZi.runner.plus">
+                android:targetClass="yangfentuozi.runner.ui.activity.FileMangerActivity"
+                android:targetPackage="yangfentuozi.runner">
 
                 <extra
                     android:name="exec"
@@ -95,8 +95,8 @@
 
             <intent
                 android:action="android.intent.action.MAIN"
-                android:targetClass="yangFenTuoZi.runner.plus.ui.activity.FileMangerActivity"
-                android:targetPackage="yangFenTuoZi.runner.plus">
+                android:targetClass="yangfentuozi.runner.ui.activity.FileMangerActivity"
+                android:targetPackage="yangfentuozi.runner">
 
                 <extra
                     android:name="exec"
