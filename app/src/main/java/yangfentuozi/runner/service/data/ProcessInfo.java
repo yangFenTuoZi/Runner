@@ -11,7 +11,7 @@ public class ProcessInfo implements Parcelable {
 
     public int pid;
     public int ppid;
-    public String name;
+    public String exe;
     public String[] args;
 
     public ProcessInfo() {
@@ -21,7 +21,7 @@ public class ProcessInfo implements Parcelable {
         super();
         pid = source.readInt();
         ppid = source.readInt();
-        name = source.readString();
+        exe = source.readString();
         int argsLength = source.readInt();
         args = new String[argsLength];
         source.readStringArray(args);
@@ -34,7 +34,7 @@ public class ProcessInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(pid);
         dest.writeInt(ppid);
-        dest.writeString(name);
+        dest.writeString(exe);
         dest.writeInt(args.length);
         dest.writeStringArray(args);
     }
@@ -55,7 +55,7 @@ public class ProcessInfo implements Parcelable {
         return "ProcessInfo{" +
                 "pid=" + pid +
                 ", ppid=" + ppid +
-                ", name='" + name + '\'' +
+                ", name='" + exe + '\'' +
                 ", args=" + Arrays.toString(args) +
                 '}';
     }

@@ -3,6 +3,7 @@ package yangfentuozi.runner.ui.fragment.proc
 import android.content.DialogInterface
 import android.os.Bundle
 import android.os.RemoteException
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,24 +14,25 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import rikka.recyclerview.addEdgeSpacing
+import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner
 import yangfentuozi.runner.base.BaseDialogBuilder
 import yangfentuozi.runner.base.BaseFragment
 import yangfentuozi.runner.databinding.FragmentProcBinding
-import yangfentuozi.runner.service.callback.IExecResultCallback
 import yangfentuozi.runner.util.ThrowableUtil.toErrorDialog
 
 class ProcFragment : BaseFragment() {
-    var binding: FragmentProcBinding? = null
-        private set
+    private lateinit var binding: FragmentProcBinding
     private var recyclerView: RecyclerView? = null
+    private lateinit var adapter: ProcAdapter
     var onRefreshListener: OnRefreshListener = OnRefreshListener {
         lifecycleScope.launch {
             delay(1000)
-            initList()
-            binding?.swipeRefreshLayout?.isRefreshing = false
+            adapter.updateData()
+            binding.swipeRefreshLayout.isRefreshing = false
         }
     }
 
@@ -39,16 +41,25 @@ class ProcFragment : BaseFragment() {
         container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentProcBinding.inflate(inflater, container, false)
-        recyclerView = binding!!.recyclerView
+        recyclerView = binding.recyclerView
         recyclerView!!.setLayoutManager(LinearLayoutManager(mContext))
         recyclerView!!.fixEdgeEffect(false, true)
 
-        binding!!.swipeRefreshLayout.setOnRefreshListener(onRefreshListener)
+        adapter = ProcAdapter(mContext)
 
-        binding!!.procKillAll.setOnClickListener { v ->
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(mContext)
+            fixEdgeEffect(true, true)
+            addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+            addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+            adapter = this@ProcFragment.adapter
+        }
+        binding.swipeRefreshLayout.setOnRefreshListener(onRefreshListener)
+
+        binding.procKillAll.setOnClickListener { v ->
             if (Runner.pingServer()) {
                 try {
-                    if (binding!!.recyclerView.adapter
+                    if (binding.recyclerView.adapter
                             ?.itemCount == 0
                     ) {
                         return@setOnClickListener
@@ -70,46 +81,10 @@ class ProcFragment : BaseFragment() {
                         Thread {
                             if (Runner.pingServer()) {
                                 try {
-                                    val outs = StringBuilder()
-                                    Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep", null, "Task-GetProcList", object : IExecResultCallback.Stub() {
-                                        @Throws(RemoteException::class)
-                                        override fun onOutput(outputs: String?) {
-                                            outs.append(outputs)
-                                        }
-
-                                        @Throws(RemoteException::class)
-                                        override fun onExit(exitValue: Int) {
-                                            if (exitValue != 0) {
-                                                runOnUiThread {
-                                                    Toast.makeText(
-                                                        mContext,
-                                                        R.string.failed_to_get_the_process_list,
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            }
-                                            val strings = outs.toString().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                                            val data = IntArray(strings.size)
-                                            var i = 0
-                                            for (proc in strings) {
-                                                if (!proc.isEmpty()) {
-                                                    val pI = proc.replace(" +".toRegex(), " ")
-                                                        .trim { it <= ' ' }.split(" ".toRegex())
-                                                        .dropLastWhile { it.isEmpty() }
-                                                        .toTypedArray()
-                                                    if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
-                                                        data[i] = pI[0].toInt()
-                                                        i++
-                                                    }
-                                                }
-                                            }
-                                            ProcAdapter.killPIDs(data)
-                                        }
-                                    })
+                                    adapter.killAll()
                                 } catch (e: RemoteException) {
                                     e.toErrorDialog(mContext)
                                 }
-                                initList()
                             } else {
                                 runOnUiThread {
                                     Toast.makeText(
@@ -126,83 +101,13 @@ class ProcFragment : BaseFragment() {
             } catch (_: BaseDialogBuilder.DialogShowException) {
             }
         }
-        return binding!!.getRoot()
-    }
-
-    fun initList() {
-        Thread {
-            if (Runner.pingServer()) {
-                try {
-                    val outs = StringBuilder()
-                    Runner.service?.exec("busybox ps -A -o pid,args|grep RUNNER-proc:|grep -v grep", null, "Task-GetProcList", object : IExecResultCallback.Stub() {
-                        @Throws(RemoteException::class)
-                        override fun onOutput(outputs: String?) {
-                            outs.append(outputs)
-                        }
-
-                        @Throws(RemoteException::class)
-                        override fun onExit(exitValue: Int) {
-                            if (exitValue != 0) {
-                                runOnUiThread {
-                                    Toast.makeText(
-                                        mContext,
-                                        R.string.failed_to_get_the_process_list,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                            val strings = outs.toString().split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                            val data = IntArray(strings.size)
-                            val dataName = arrayOfNulls<String>(strings.size)
-                            var i = 0
-                            for (proc in strings) {
-                                if (!proc.isEmpty()) {
-                                    val pI = proc.replace(" +".toRegex(), " ").trim { it <= ' ' }
-                                        .split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                                    if (pI[2].matches("^RUNNER-proc:.*".toRegex())) {
-                                        data[i] = pI[0].toInt()
-                                        dataName[i] =
-                                            pI[2].split(":".toRegex(), limit = 2).toTypedArray()[1]
-                                        i++
-                                    }
-                                }
-                            }
-                            runOnUiThread {
-                                binding!!.recyclerView.setAdapter(
-                                    ProcAdapter(
-                                        mContext,
-                                        data,
-                                        dataName,
-                                        this@ProcFragment
-                                    )
-                                )
-                            }
-                        }
-                    })
-                } catch (e: RemoteException) {
-                    e.toErrorDialog(mContext)
-                }
-            } else {
-                runOnUiThread {
-                    Toast.makeText(
-                        mContext,
-                        R.string.home_status_service_not_running,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }.start()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
+        return binding.getRoot()
     }
 
     override fun onStart() {
         super.onStart()
         val l = View.OnClickListener { v: View? -> recyclerView!!.smoothScrollToPosition(0) }
         getToolbar().setOnClickListener(l)
-        initList()
+        adapter.updateData()
     }
 }

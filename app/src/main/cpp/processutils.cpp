@@ -6,12 +6,13 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <unistd.h>
 
 // 定义 ProcessInfo 类对应的字段和方法
 static jclass processInfoClass;
 static jfieldID pidField;
 static jfieldID ppidField;
-static jfieldID nameField;
+static jfieldID exeField;
 static jfieldID argsField;
 
 // 初始化 ProcessInfo 类的字段引用
@@ -19,7 +20,7 @@ void initProcessInfoFields(JNIEnv *env) {
     processInfoClass = env->FindClass("yangfentuozi/runner/service/data/ProcessInfo");
     pidField = env->GetFieldID(processInfoClass, "pid", "I");
     ppidField = env->GetFieldID(processInfoClass, "ppid", "I");
-    nameField = env->GetFieldID(processInfoClass, "name", "Ljava/lang/String;");
+    exeField = env->GetFieldID(processInfoClass, "exe", "Ljava/lang/String;");
     argsField = env->GetFieldID(processInfoClass, "args", "[Ljava/lang/String;");
 }
 
@@ -62,6 +63,20 @@ int readProcessPpid(int pid) {
     return ppid;
 }
 
+// 读取进程的可执行文件路径
+std::string readProcessExe(int pid) {
+    char exePath[256];
+    char resolvedPath[PATH_MAX];
+    sprintf(exePath, "/proc/%d/exe", pid);
+
+    ssize_t len = readlink(exePath, resolvedPath, sizeof(resolvedPath) - 1);
+    if (len != -1) {
+        resolvedPath[len] = '\0';
+        return {resolvedPath};
+    }
+    return "";
+}
+
 // 获取所有进程
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_yangfentuozi_runner_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobject /* this */) {
@@ -97,6 +112,7 @@ Java_yangfentuozi_runner_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobj
         // 读取进程名和参数
         std::vector<std::string> args = readProcessArgs(pid);
         int ppid = readProcessPpid(pid);
+        std::string exePath = readProcessExe(pid);
 
         // 创建 ProcessInfo 对象
         jobject processInfo = env->AllocObject(processInfoClass);
@@ -105,10 +121,10 @@ Java_yangfentuozi_runner_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobj
         env->SetIntField(processInfo, pidField, pid);
         env->SetIntField(processInfo, ppidField, ppid);
 
-        // 设置进程名（使用第一个参数作为进程名）
-        jstring name = env->NewStringUTF(args.empty() ? "" : args[0].c_str());
-        env->SetObjectField(processInfo, nameField, name);
-        env->DeleteLocalRef(name);
+        // 设置可执行文件路径
+        jstring exe = env->NewStringUTF(exePath.c_str());
+        env->SetObjectField(processInfo, exeField, exe);
+        env->DeleteLocalRef(exe);
 
         // 设置参数数组
         jobjectArray argsArray = env->NewObjectArray(args.size(), env->FindClass("java/lang/String"), nullptr);

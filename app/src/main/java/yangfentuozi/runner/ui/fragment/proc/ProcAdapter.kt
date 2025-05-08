@@ -1,73 +1,56 @@
 package yangfentuozi.runner.ui.fragment.proc
 
 import android.os.RemoteException
-import android.view.KeyEvent
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner
 import yangfentuozi.runner.base.BaseDialogBuilder
-import yangfentuozi.runner.service.callback.IExecResultCallback
+import yangfentuozi.runner.databinding.HomeItemContainerBinding
+import yangfentuozi.runner.databinding.ItemProcBinding
+import yangfentuozi.runner.service.ServiceImpl
+import yangfentuozi.runner.service.data.ProcessInfo
 import yangfentuozi.runner.ui.activity.MainActivity
 
-class ProcAdapter
-    (
-    private val mContext: MainActivity,
-    private val data: IntArray,
-    private val dataName: Array<String?>,
-    private val procFragment: ProcFragment
-) : RecyclerView.Adapter<ProcAdapter.ViewHolder?>() {
+class ProcAdapter(private val mContext: MainActivity) :
+    RecyclerView.Adapter<ProcAdapter.ViewHolder>() {
+
+    private var data: List<ProcessInfo>? = null;
 
     override fun getItemCount(): Int {
-        var i = 0
-        for (x in data) if (x != 0) i++
-        return i
+        return data?.size ?: 0
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view: View = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_proc, parent, false)
-        val holder = ViewHolder(view)
-        view.tag = holder
-        view.setOnKeyListener(View.OnKeyListener { v: View?, i: Int, keyEvent: KeyEvent? -> false })
-        return holder
+        val outer =
+            HomeItemContainerBinding.inflate(LayoutInflater.from(parent.context)!!, parent, false)
+        val inner =
+            ItemProcBinding.inflate(LayoutInflater.from(parent.context), outer.getRoot(), true)
+        return ViewHolder(inner, outer)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        init(holder, data[position], dataName[position])
-    }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
+        var processInfo: ProcessInfo? = data?.get(position)
+        if (processInfo == null) return
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var textName: TextView = view.findViewById<TextView?>(R.id.item_name)
-        var textPid: TextView = view.findViewById<TextView?>(R.id.item_pid)
-        var buttonKill: MaterialButton = view.findViewById<MaterialButton?>(R.id.item_button)
-    }
-
-    //初始化
-    fun init(holder: ViewHolder, pid: Int, name: String?) {
-        holder.textName.text = name
-        holder.textPid.text = mContext.getString(R.string.exec_pid, pid)
+        holder.mBindingInner.itemName.text = processInfo.exe
+        holder.mBindingInner.itemPid.text = mContext.getString(R.string.exec_pid, processInfo.pid)
 
         //设置点击事件
-        holder.buttonKill.setOnClickListener(View.OnClickListener { view: View? ->
+        holder.mBindingInner.itemButton.setOnClickListener {
             try {
                 BaseDialogBuilder(mContext)
                     .setTitle(R.string.dialog_kill_this_process)
                     .setPositiveButton(R.string.dialog_finish) { dialog, which ->
                         Thread {
                             //杀死进程
-                            if (killPID(pid)) {
+                            if (killPID(processInfo.pid)) {
                                 mContext.runOnUiThread {
-                                    procFragment.initList()
+                                    updateData()
                                     Toast.makeText(
                                         mContext,
                                         R.string.process_the_killing_process_succeeded,
@@ -87,57 +70,59 @@ class ProcAdapter
                     .show()
             } catch (_: BaseDialogBuilder.DialogShowException) {
             }
-        })
+        }
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    class ViewHolder(bindingInner: ItemProcBinding, bindingOuter: HomeItemContainerBinding) :
+        RecyclerView.ViewHolder(bindingOuter.root) {
+        val mBindingInner: ItemProcBinding = bindingInner
+        val mBindingOuter: HomeItemContainerBinding = bindingOuter
+    }
+
+    fun updateData() {
+        data = if (Runner.pingServer()) {
+            try {
+                val processes = Runner.service?.processes
+                if (processes == null) null
+                else {
+                    val a: ArrayList<ProcessInfo> = ArrayList()
+                    for (pi in processes) {
+                        if (pi.exe == ServiceImpl.USR_PATH + "/bin/bash") a.add(pi)
+                    }
+                    a
+                }
+            } catch (_: RemoteException) {
+                null
+            }
+        } else {
+            null
+        }
+        notifyDataSetChanged()
+    }
+
+    fun killAll() {
+        val pids = IntArray(data?.size ?: 0)
+        for (i in 0 until (data?.size ?: 0)) {
+            pids[i] = data?.get(i)?.pid ?: -1
+        }
+        if (pids.isEmpty()) return
+        killPIDs(pids)
+        updateData()
     }
 
     companion object {
-        fun isDied(pid: String, processesInfo: Array<String>): Boolean {
-            var firstLine = true
-            var isAlive = false
-            for (processInfo in processesInfo) {
-                if (firstLine) {
-                    firstLine = false
-                    continue
-                }
-                if (pid == processInfo.replace(" +".toRegex(), " ").split(" ".toRegex())
-                        .dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-                ) isAlive = true
-            }
-            return !isAlive
-        }
 
         fun killPID(pid: Int): Boolean {
             if (Runner.pingServer()) {
                 try {
-                    Runner.service?.exec("kill -9 $pid", null, "Task-KillProc", null)
-                    val outs = StringBuilder()
-                    var exited = -1
-                    Runner.service?.exec(
-                        "busybox ps -A -o pid,ppid|grep $pid",
-                        null,
-                        "Task-GetProcList",
-                        object : IExecResultCallback.Stub() {
-                            @Throws(RemoteException::class)
-                            override fun onOutput(outputs: String?) {
-                                outs.append(outputs)
-                            }
-
-                            @Throws(RemoteException::class)
-                            override fun onExit(exitValue: Int) {
-                                exited = if (exitValue != 0) {
-                                    if (isDied(
-                                            pid.toString(),
-                                            outs.toString().split("\n".toRegex())
-                                                .dropLastWhile { it.isEmpty() }
-                                                .toTypedArray())
-                                    ) 1 else 0
-                                } else 0
-                            }
-                        })
-                    while (exited == -1);
-                    return exited == 1
+                    var result: BooleanArray? = Runner.service?.sendSignal(intArrayOf(pid), 9)
+                    return if (result == null) false else result[0]
                 } catch (e: RemoteException) {
-                    e.printStackTrace()
+                    Log.e("ProcAdapter", "killPID: ", e)
                 }
             }
             return false
@@ -145,14 +130,12 @@ class ProcAdapter
 
         fun killPIDs(pids: IntArray) {
             if (Runner.pingServer()) {
-                try {
-                    val cmd = StringBuilder()
-                    for (pid in pids) {
-                        if (pid != 0) cmd.append("kill -9 ").append(pid).append("\n")
+                if (Runner.pingServer()) {
+                    try {
+                        Runner.service?.sendSignal(pids, 9)
+                    } catch (e: RemoteException) {
+                        Log.e("ProcAdapter", "killPIDs: ", e)
                     }
-                    Runner.service?.exec(cmd.toString(), null, "Task-KillProc", null)
-                } catch (e: RemoteException) {
-                    throw RuntimeException(e)
                 }
             }
         }
