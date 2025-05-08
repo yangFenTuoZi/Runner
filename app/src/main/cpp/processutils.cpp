@@ -16,7 +16,7 @@ static jfieldID argsField;
 
 // 初始化 ProcessInfo 类的字段引用
 void initProcessInfoFields(JNIEnv *env) {
-    processInfoClass = env->FindClass("yangFenTuoZi/runner/plus/service/data/ProcessInfo");
+    processInfoClass = env->FindClass("yangfentuozi/runner/service/data/ProcessInfo");
     pidField = env->GetFieldID(processInfoClass, "pid", "I");
     ppidField = env->GetFieldID(processInfoClass, "ppid", "I");
     nameField = env->GetFieldID(processInfoClass, "name", "Ljava/lang/String;");
@@ -64,7 +64,7 @@ int readProcessPpid(int pid) {
 
 // 获取所有进程
 extern "C" JNIEXPORT jobjectArray JNICALL
-Java_yangFenTuoZi_runner_plus_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobject /* this */) {
+Java_yangfentuozi_runner_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobject /* this */) {
     initProcessInfoFields(env);
 
     std::vector<int> pids;
@@ -130,7 +130,7 @@ Java_yangFenTuoZi_runner_plus_service_jni_ProcessUtils_getProcesses(JNIEnv *env,
 
 // 发送信号给进程
 extern "C" JNIEXPORT jboolean JNICALL
-Java_yangFenTuoZi_runner_plus_service_jni_ProcessUtils_sendSignal(JNIEnv *env, jobject /* this */, jint pid, jint signal) {
+Java_yangfentuozi_runner_service_jni_ProcessUtils_sendSignal(JNIEnv *env, jobject /* this */, jint pid, jint signal) {
     if (kill(pid, signal) == 0) {
         return JNI_TRUE;
     }
