@@ -7,13 +7,11 @@
     <string name="title_settings">设置</string>
 
     <string name="dialog_edit">编辑</string>
-    <string name="dialog_finish">完成</string>
     <string name="dialog_name">名称</string>
     <string name="dialog_command">命令</string>
     <string name="dialog_chid">降低权限</string>
     <string name="dialog_keep_it_alive">保活</string>
     <string name="dialog_ids" translatable="false">UID[,GID[,Groups...]]</string>
-    <string name="dialog_cancel">取消</string>
     <string name="dialog_kill">杀死</string>
     <string name="dialog_kill_this_process">杀死这个进程吗?</string>
 
@@ -137,5 +135,6 @@
     <string name="empty">空</string>
     <string name="pick_term_ext">选择终端扩展包</string>
     <string name="install_term_ext">安装终端扩展包</string>
+    <string name="will_remove_term_ext">移除终端扩展包？</string>
     <string name="failed_to_get_the_process_list">获取进程列表失败</string>
 </resources>

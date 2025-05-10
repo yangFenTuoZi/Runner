@@ -53,16 +53,16 @@ class ProcAdapter(private val mContext: MainActivity) :
             try {
                 BaseDialogBuilder(mContext)
                     .setTitle(R.string.dialog_kill_this_process)
-                    .setPositiveButton(R.string.dialog_finish) { dialog, which ->
+                    .setPositiveButton(android.R.string.ok) { dialog, which ->
                         Thread {
                             //杀死进程
                             killPIDs(intArrayOf(processInfo.pid))
                             mContext.runOnUiThread { updateData() }
                         }.start()
                     }
-                    .setNeutralButton(R.string.dialog_cancel, null)
+                    .setNeutralButton(android.R.string.cancel, null)
                     .show()
-            } catch (_: BaseDialogBuilder.DialogShowException) {
+            } catch (_: BaseDialogBuilder.DialogShowingException) {
             }
         }
     }

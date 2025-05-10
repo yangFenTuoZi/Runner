@@ -5,18 +5,18 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-open class BaseDialogBuilder @Throws(DialogShowException::class) constructor(context: BaseActivity) : MaterialAlertDialogBuilder(context) {
-    class DialogShowException : Exception()
+open class BaseDialogBuilder @Throws(DialogShowingException::class) constructor(context: BaseActivity) : MaterialAlertDialogBuilder(context) {
+    class DialogShowingException : Exception()
 
     private val mBaseActivity: BaseActivity = context
     private var mAlertDialog: AlertDialog? = null
     private var mOnDismissListener: DialogInterface.OnDismissListener? = null
 
     init {
-        if (mBaseActivity.isDialogShow) throw DialogShowException()
-        mBaseActivity.isDialogShow = true
+        if (mBaseActivity.isDialogShowing) throw DialogShowingException()
+        mBaseActivity.isDialogShowing = true
         super.setOnDismissListener { dialogInterface ->
-            mBaseActivity.isDialogShow = false
+            mBaseActivity.isDialogShowing = false
             mOnDismissListener?.onDismiss(dialogInterface)
         }
     }

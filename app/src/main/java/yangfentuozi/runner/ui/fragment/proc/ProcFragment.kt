@@ -98,7 +98,7 @@ class ProcFragment : BaseFragment() {
                     }
                     .setNegativeButton(android.R.string.cancel, null)
                     .show()
-            } catch (_: BaseDialogBuilder.DialogShowException) {
+            } catch (_: BaseDialogBuilder.DialogShowingException) {
             }
         }
         return binding.getRoot()

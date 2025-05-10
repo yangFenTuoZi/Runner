@@ -11,7 +11,7 @@ import yangfentuozi.runner.util.ThemeUtil
 
 open class BaseActivity : MaterialActivity() {
 
-    var isDialogShow: Boolean = false
+    var isDialogShowing: Boolean = false
 
     lateinit var mApp: App
 

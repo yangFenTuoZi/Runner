@@ -20,7 +20,7 @@ import yangfentuozi.runner.App
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.R
 import yangfentuozi.runner.base.BaseDialogBuilder
-import yangfentuozi.runner.base.BaseDialogBuilder.DialogShowException
+import yangfentuozi.runner.base.BaseDialogBuilder.DialogShowingException
 import yangfentuozi.runner.base.BaseFragment
 import yangfentuozi.runner.databinding.FragmentSettingsBinding
 import yangfentuozi.runner.ui.activity.MainActivity
@@ -119,7 +119,7 @@ class SettingsFragment : BaseFragment() {
                 onPreferenceClickListener =
                     Preference.OnPreferenceClickListener {
                         Thread {
-                            if (mMainActivity!!.isDialogShow) return@Thread
+                            if (mMainActivity!!.isDialogShowing) return@Thread
                             try {
                                 val updateInfo = UpdateUtil.update(
                                     (findPreference<Preference?>("update_channel") as SimpleMenuPreference)
@@ -142,7 +142,7 @@ class SettingsFragment : BaseFragment() {
                                                 )
                                                 .setPositiveButton(R.string.settings_check_update) { dialog, which -> }
                                                 .show()
-                                        } catch (_: DialogShowException) {
+                                        } catch (_: DialogShowingException) {
                                         }
                                     }
                                 } else {
@@ -179,15 +179,15 @@ class SettingsFragment : BaseFragment() {
                             .setTitle(R.string.settings_help)
                             .setMessage("没做")
                             .show()
-                    } catch (_: DialogShowException) {
+                    } catch (_: DialogShowingException) {
                     }
                     true
                 }
             val exportData = findPreference<Preference?>("export_data")
             exportData?.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    if (mMainActivity!!.isDialogShow) true
-                    mMainActivity!!.isDialogShow = true
+                    if (mMainActivity!!.isDialogShowing) true
+                    mMainActivity!!.isDialogShowing = true
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     intent.setType("application/json")
@@ -197,8 +197,8 @@ class SettingsFragment : BaseFragment() {
             val importData = findPreference<Preference?>("import_data")
             importData?.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    if (mMainActivity!!.isDialogShow) true
-                    mMainActivity!!.isDialogShow = true
+                    if (mMainActivity!!.isDialogShowing) true
+                    mMainActivity!!.isDialogShowing = true
                     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     intent.setType("application/json")

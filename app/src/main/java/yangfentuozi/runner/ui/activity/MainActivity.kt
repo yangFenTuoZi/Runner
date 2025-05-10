@@ -65,7 +65,7 @@ class MainActivity : BaseActivity() {
                             }
                             .setNegativeButton(android.R.string.cancel, null)
                             .show()
-                    } catch (_: BaseDialogBuilder.DialogShowException) {
+                    } catch (_: BaseDialogBuilder.DialogShowingException) {
                     }
                     true
                 }
@@ -104,7 +104,7 @@ class MainActivity : BaseActivity() {
             BlurBehindDialogBuilder(this)
                 .setView(binding.root)
                 .show()
-        } catch (_: BaseDialogBuilder.DialogShowException) {
+        } catch (_: BaseDialogBuilder.DialogShowingException) {
         }
     }
 }

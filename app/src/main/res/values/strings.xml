@@ -8,13 +8,11 @@
     <string name="title_settings">Settings</string>
 
     <string name="dialog_edit">Edit</string>
-    <string name="dialog_finish">Finish</string>
     <string name="dialog_name">Name</string>
     <string name="dialog_command">Command</string>
     <string name="dialog_chid">Reduced permissions</string>
     <string name="dialog_keep_it_alive">Keep it alive</string>
     <string name="dialog_ids" translatable="false">UID[,GID[,Groups...]]</string>
-    <string name="dialog_cancel">Cancel</string>
     <string name="dialog_kill">Kill</string>
     <string name="dialog_kill_this_process">Kill this process?</string>
 
@@ -138,5 +136,6 @@
     <string name="empty">Empty</string>
     <string name="pick_term_ext">Pick terminal extension</string>
     <string name="install_term_ext">Install terminal extension</string>
+    <string name="will_remove_term_ext">Remove terminal extension?</string>
     <string name="failed_to_get_the_process_list">Failed to get the process list</string>
 </resources>

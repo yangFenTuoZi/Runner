@@ -22,7 +22,7 @@ class HomeFragment : BaseFragment() {
     var binding: FragmentHomeBinding? = null
         private set
     private var recyclerView: BorderRecyclerView? = null
-    private val adapter = HomeAdapter(this)
+    private val mAdapter = HomeAdapter(this)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,7 +31,7 @@ class HomeFragment : BaseFragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         recyclerView = binding!!.list.apply {
-            adapter = this@HomeFragment.adapter
+            adapter = this@HomeFragment.mAdapter
             fixEdgeEffect(true, true)
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
@@ -50,14 +50,16 @@ class HomeFragment : BaseFragment() {
         val l = View.OnClickListener { v: View? -> recyclerView!!.smoothScrollToPosition(0) }
         getToolbar().setOnClickListener(l)
         Runner.refreshStatus()
-        adapter.updateData()
-        adapter.registerListeners()
+        mAdapter.updateData()
+        mAdapter.registerListeners()
     }
 
     override fun onStop() {
         super.onStop()
-        adapter.unregisterListeners()
+        mAdapter.unregisterListeners()
     }
+
+    val adapter: HomeAdapter get() = mAdapter
 
     fun installTermExt() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {

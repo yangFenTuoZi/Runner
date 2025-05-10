@@ -56,7 +56,7 @@ class RunnerFragment : BaseFragment() {
         }
 
         binding.add.setOnClickListener {
-            if (mContext.isDialogShow) return@setOnClickListener
+            if (mContext.isDialogShowing) return@setOnClickListener
             showAddCommandDialog(-1)
         }
         initList()
@@ -82,7 +82,7 @@ class RunnerFragment : BaseFragment() {
             BaseDialogBuilder(mContext)
                 .setTitle(R.string.dialog_edit)
                 .setView(dialogBinding.root)
-                .setPositiveButton(R.string.dialog_finish) { _, _ ->
+                .setPositiveButton(android.R.string.ok) { _, _ ->
                     if (!Runner.pingServer()) {
                         Toast.makeText(
                             mContext,
@@ -107,7 +107,7 @@ class RunnerFragment : BaseFragment() {
                         adapter.addUnderOne(toPosition + 1, newCommand)
                 }
                 .show()
-        } catch (_: BaseDialogBuilder.DialogShowException) {
+        } catch (_: BaseDialogBuilder.DialogShowingException) {
         }
     }
 

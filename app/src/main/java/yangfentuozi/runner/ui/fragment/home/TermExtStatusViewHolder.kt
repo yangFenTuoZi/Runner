@@ -10,6 +10,8 @@ import android.widget.TextView
 import rikka.recyclerview.BaseViewHolder
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner
+import yangfentuozi.runner.base.BaseActivity
+import yangfentuozi.runner.base.BaseDialogBuilder
 import yangfentuozi.runner.databinding.HomeItemContainerBinding
 import yangfentuozi.runner.databinding.HomeTermExtStatusBinding
 
@@ -26,6 +28,20 @@ class TermExtStatusViewHolder(binding: HomeTermExtStatusBinding, root: View) :
         }
 
         remove.setOnClickListener {
+            if (!Runner.pingServer()) return@setOnClickListener
+            try {
+                BaseDialogBuilder(context as BaseActivity)
+                    .setTitle(R.string.will_remove_term_ext)
+
+            } catch (_: BaseDialogBuilder.DialogShowingException){}
+            Thread {
+                try {
+                    Runner.service?.removeTermExt()
+                    data.runOnUiThread { onBind() }
+                } catch (e: RemoteException) {
+                    Log.e("TermExtStatusViewHolder", "uninstall term ext error", e)
+                }
+            }.start()
         }
 
         if (!Runner.pingServer()) return
