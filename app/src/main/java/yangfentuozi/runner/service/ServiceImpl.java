@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -159,8 +160,19 @@ public class ServiceImpl extends IService.Stub {
                 var finalIds = ids == null || ids.isEmpty() ? "-1" : ids;
                 var finalProcName = procName == null || procName.isEmpty() ? "execTask" : procName;
                 ProcessBuilder processBuilder = new ProcessBuilder(STARTER, finalIds, finalProcName);
-                Map<String, String> env = processBuilder.environment();
-                env.putAll(getAllEnv());
+                Map<String, String> processEnv = processBuilder.environment(),
+                        customEnv = getAllEnv();
+                processEnv.put("PREFIX", USR_PATH);
+                processEnv.put("HOME", HOME_PATH);
+                processEnv.put("TMPDIR", USR_PATH + "/tmp");
+                processEnv.merge("PATH", HOME_PATH + "/.local/bin:" + USR_PATH + "/bin:" + USR_PATH + "/bin/applets", (oldValue, newValue) -> newValue + ":" + oldValue);
+                processEnv.merge("LD_LIBRARY_PATH", HOME_PATH + "/.local/lib:" + USR_PATH + "/lib", (oldValue, newValue) -> newValue + ":" + oldValue);
+
+                for (Map.Entry<String, String> entry : customEnv.entrySet()) {
+                    processEnv.merge(entry.getKey(), entry.getValue(), (oldValue, newValue) ->
+                            newValue.replaceAll(String.format("\\$(%1$s|\\{%1$s\\})", Pattern.quote(entry.getKey())), oldValue));
+                }
+                processBuilder.redirectErrorStream(true);
                 Process p = processBuilder.start();
                 OutputStream out = p.getOutputStream();
                 out.write(String.format("""
@@ -231,7 +243,7 @@ public class ServiceImpl extends IService.Stub {
     }
 
     @Override
-    public boolean updateEnv(String fromKey, String fromValue, String toKey, String toValue) throws RemoteException {
+    public boolean updateEnv(String fromKey, String fromValue, String toKey, String toValue) {
         return environmentDao.update(fromKey, fromValue, toKey, toValue);
     }
 
@@ -371,6 +383,7 @@ public class ServiceImpl extends IService.Stub {
                     callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                     rmRF(new File(DATA_PATH + "/install_temp"));
                     callbackWrapper.onExit(false);
+                    return;
                 }
                 Log.i(TAG, "execute install script");
                 callbackWrapper.onMessage(" - Execute install script");
@@ -397,12 +410,14 @@ public class ServiceImpl extends IService.Stub {
                         callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                         rmRF(new File(DATA_PATH + "/install_temp"));
                         callbackWrapper.onExit(false);
+                        return;
                     }
                 } catch (InterruptedException | IOException e) {
                     callbackWrapper.onMessage(" ! " + getStackTraceString(e));
                     callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                     rmRF(new File(DATA_PATH + "/install_temp"));
                     callbackWrapper.onExit(false);
+                    return;
                 }
                 callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
                 rmRF(new File(DATA_PATH + "/install_temp"));

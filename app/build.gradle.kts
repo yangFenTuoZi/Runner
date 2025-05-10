@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -51,6 +53,10 @@ android {
             version = "3.31.6"
         }
     }
+    fun Packaging.() {
+        jniLibs.useLegacyPackaging = true
+    }
+    ndkVersion = "28.1.13356709"
 }
 
 materialThemeBuilder {
