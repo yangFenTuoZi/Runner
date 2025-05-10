@@ -48,8 +48,6 @@
     <string name="pack_versionCode">版本号</string>
     <string name="pack_pinToAShortcutTile">固定到快捷磁贴</string>
 
-    <string name="process_the_killing_process_succeeded">成功杀死进程</string>
-    <string name="process_failed_to_kill_the_process">杀死进程失败</string>
     <string name="process_kill_all_processes">杀死所有进程?</string>
 
     <string name="settings_update_channel">更新渠道</string>
@@ -60,13 +58,13 @@
     <string name="settings_export_data_summary">将数据导出为JSON</string>
     <string name="settings_import_data">导入数据</string>
     <string name="settings_import_data_summary">导入JSON</string>
-    <string name="settings_shortcut_commands_and_terminals">快捷命令与终端</string>
-    <string name="settings_exec_files_manager">可执行文件管理</string>
-    <string name="settings_exec_files_manager_summary">这些文件可以在快捷命令和终端用到</string>
-    <string name="settings_lib_file_manager">运行库文件管理</string>
-    <string name="settings_lib_file_manager_summary">这些文件可以在快捷命令和终端用到</string>
+    <string name="settings_server">服务</string>
     <string name="settings_env_manager">运行环境管理</string>
-    <string name="settings_env_manager_summary">这些配置将会在快捷执行命令与终端加载</string>
+    <string name="settings_env_manager_summary">这些环境配置将会在执行命令前加载</string>
+    <string name="settings_force_kill">强制杀死进程</string>
+    <string name="settings_force_kill_summary">这不会使进程正常退出，略过进程清理机制，一般情况不要启用</string>
+    <string name="settings_kill_child_processes">杀死所有子进程</string>
+    <string name="settings_kill_child_processes_summary">这可能会有意想不到的后果</string>
     <string name="settings_about">关于</string>
     <string name="settings_ver">版本名: %s\n版本号: %d</string>
     <string name="settings_help">帮助</string>

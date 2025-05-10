@@ -145,24 +145,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
             try {
                 if (!cmdInfo.keepAlive && !br2) {
                     Thread {
-                        try {
-                            if (ProcAdapter.killPID(pid)) {
-                                runOnUiThread {
-                                    Toast.makeText(
-                                        mContext,
-                                        R.string.process_the_killing_process_succeeded,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            } else runOnUiThread {
-                                Toast.makeText(
-                                    mContext,
-                                    R.string.process_failed_to_kill_the_process,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        } catch (_: Exception) {
-                        }
+                        ProcAdapter.killPIDs(intArrayOf(pid))
                     }.start()
                 }
             } catch (e: Exception) {

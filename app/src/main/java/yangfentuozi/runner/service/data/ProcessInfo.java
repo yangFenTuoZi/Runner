@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ProcessInfo implements Parcelable {
 
@@ -58,5 +59,16 @@ public class ProcessInfo implements Parcelable {
                 ", name='" + exe + '\'' +
                 ", args=" + Arrays.toString(args) +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ProcessInfo that)) return false;
+        return pid == that.pid;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(pid);
     }
 }

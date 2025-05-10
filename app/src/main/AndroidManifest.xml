@@ -29,10 +29,6 @@
             android:label="@string/long_click_pack" />
 
         <activity
-            android:name=".ui.activity.FileMangerActivity"
-            android:exported="true" />
-
-        <activity
             android:name=".ui.activity.CrashReportActivity"
             android:exported="false"
             android:label="@string/app_crashed" />

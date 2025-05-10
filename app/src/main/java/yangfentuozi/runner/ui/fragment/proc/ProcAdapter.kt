@@ -4,8 +4,8 @@ import android.os.RemoteException
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import yangfentuozi.runner.App
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner
 import yangfentuozi.runner.base.BaseDialogBuilder
@@ -18,7 +18,7 @@ import yangfentuozi.runner.ui.activity.MainActivity
 class ProcAdapter(private val mContext: MainActivity) :
     RecyclerView.Adapter<ProcAdapter.ViewHolder>() {
 
-    private var data: List<ProcessInfo>? = null;
+    private var data: List<ProcessInfo>? = null
 
     override fun getItemCount(): Int {
         return data?.size ?: 0
@@ -56,22 +56,8 @@ class ProcAdapter(private val mContext: MainActivity) :
                     .setPositiveButton(R.string.dialog_finish) { dialog, which ->
                         Thread {
                             //杀死进程
-                            if (killPID(processInfo.pid)) {
-                                mContext.runOnUiThread {
-                                    updateData()
-                                    Toast.makeText(
-                                        mContext,
-                                        R.string.process_the_killing_process_succeeded,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            } else mContext.runOnUiThread {
-                                Toast.makeText(
-                                    mContext,
-                                    R.string.process_failed_to_kill_the_process,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            killPIDs(intArrayOf(processInfo.pid))
+                            mContext.runOnUiThread { updateData() }
                         }.start()
                     }
                     .setNeutralButton(R.string.dialog_cancel, null)
@@ -122,30 +108,50 @@ class ProcAdapter(private val mContext: MainActivity) :
         updateData()
     }
 
-    companion object {
-
-        fun killPID(pid: Int): Boolean {
-            if (Runner.pingServer()) {
-                try {
-                    var result: BooleanArray? = Runner.service?.sendSignal(intArrayOf(pid), 9)
-                    return if (result == null) false else result[0]
-                } catch (e: RemoteException) {
-                    Log.e("ProcAdapter", "killPID: ", e)
+    open class GetChildProcesses(val mProcesses: Array<ProcessInfo>) {
+        private var mResult: ArrayList<Int> = ArrayList<Int>()
+        fun find(pid: Int) {
+            // 遍历所有进程，查找父进程 ID 匹配的子进程
+            for (process in mProcesses) {
+                if (process.ppid == pid) {
+                    // 添加子进程 ID 到结果列表
+                    mResult.add(process.pid)
+                    // 递归查找该子进程的子进程
+                    find(process.pid)
                 }
             }
-            return false
         }
+        fun fix() {
+            mResult = ArrayList(LinkedHashSet(mResult))
+        }
+        fun getResult(): ArrayList<Int> {
+            return mResult
+        }
+    }
+
+    companion object {
 
         fun killPIDs(pids: IntArray) {
             if (Runner.pingServer()) {
-                if (Runner.pingServer()) {
-                    try {
-                        Runner.service?.sendSignal(pids, 9)
-                    } catch (e: RemoteException) {
-                        Log.e("ProcAdapter", "killPIDs: ", e)
-                    }
+                try {
+                    val signal = if (App.getPreferences().getBoolean("force_kill", false)) 9 else 15
+                    if (App.getPreferences().getBoolean("kill_child_processes", false)) {
+                        val processes = Runner.service?.processes
+                        if (processes == null) {
+                            Runner.service?.sendSignal(pids, signal)
+                        } else {
+                            val getChildProcesses = GetChildProcesses(processes)
+                            for (i in pids)
+                                getChildProcesses.find(i)
+                            getChildProcesses.fix()
+                            Runner.service?.sendSignal(getChildProcesses.getResult().toIntArray(), signal)
+                        }
+                    } else Runner.service?.sendSignal(pids, signal)
+                } catch (e: RemoteException) {
+                    Log.e("ProcAdapter", "killPIDs: ", e)
+                    null
                 }
-            }
+            } else null
         }
     }
 }
