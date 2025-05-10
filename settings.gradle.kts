@@ -18,4 +18,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Runner"
 include(":app")
-//include(":server")

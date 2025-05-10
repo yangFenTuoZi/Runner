@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project("starter")
+project("runner")
 
 add_executable(starter
         starter.c)

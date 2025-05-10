@@ -19,7 +19,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                cppFlags += ""
+                arguments += listOf("-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
             }
         }
     }
@@ -48,7 +48,7 @@ android {
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
+            version = "3.31.6"
         }
     }
 }
@@ -106,8 +106,8 @@ dependencies {
 
     // AndroidX
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.8.9")
-    implementation("androidx.navigation:navigation-ui-ktx:2.8.9")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.0")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.0")
 //    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.core:core-ktx:1.16.0")
