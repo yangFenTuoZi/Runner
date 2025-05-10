@@ -80,13 +80,13 @@ class RunnerFragment : BaseFragment() {
 
         try {
             BaseDialogBuilder(mContext)
-                .setTitle(R.string.dialog_edit)
+                .setTitle(R.string.edit)
                 .setView(dialogBinding.root)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     if (!Runner.pingServer()) {
                         Toast.makeText(
                             mContext,
-                            R.string.home_status_service_not_running,
+                            R.string.service_not_running,
                             Toast.LENGTH_SHORT
                         ).show()
                         return@setPositiveButton
@@ -113,7 +113,7 @@ class RunnerFragment : BaseFragment() {
 
     private fun initList() {
         if (!Runner.pingServer()) {
-            Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+            Toast.makeText(mContext, R.string.service_not_running, Toast.LENGTH_SHORT).show()
             return
         }
         adapter.updateData()

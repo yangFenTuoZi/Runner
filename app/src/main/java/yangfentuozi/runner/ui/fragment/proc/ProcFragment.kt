@@ -69,14 +69,14 @@ class ProcFragment : BaseFragment() {
             } else {
                 Toast.makeText(
                     mContext,
-                    R.string.home_status_service_not_running,
+                    R.string.service_not_running,
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
             }
             try {
                 BaseDialogBuilder(mContext)
-                    .setTitle(R.string.process_kill_all_processes)
+                    .setTitle(R.string.kill_all_processes)
                     .setPositiveButton(android.R.string.ok) { dialog: DialogInterface?, which: Int ->
                         Thread {
                             if (Runner.pingServer()) {
@@ -89,7 +89,7 @@ class ProcFragment : BaseFragment() {
                                 runOnUiThread {
                                     Toast.makeText(
                                         mContext,
-                                        R.string.home_status_service_not_running,
+                                        R.string.service_not_running,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }

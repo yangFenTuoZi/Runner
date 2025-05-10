@@ -30,7 +30,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
 
     init {
         setView(binding.getRoot())
-        setTitle(getString(R.string.exec_running))
+        setTitle(getString(R.string.executing))
         setOnDismissListener(DialogInterface.OnDismissListener { dialog: DialogInterface? -> onDestroy() })
         this.cmdInfo = cmdInfo
     }
@@ -60,7 +60,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                                     try {
                                         val p = outputs.toInt()
                                         runOnUiThread {
-                                            binding.execTitle.append(getString(R.string.exec_pid, p) + "\n")
+                                            binding.execTitle.append(getString(R.string.pid_info, p) + "\n")
                                         }
                                         pid1 = true
                                         pid = p
@@ -76,18 +76,18 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                                 runOnUiThread {
                                     binding.execTitle.append(
                                         getString(
-                                            R.string.exec_return, exitValue, getString(
+                                            R.string.return_info, exitValue, getString(
                                                 when (exitValue) {
-                                                    0 -> R.string.exec_normal
-                                                    127 -> R.string.exec_command_not_found
-                                                    130 -> R.string.exec_ctrl_c_error
-                                                    139 -> R.string.exec_segmentation_error
-                                                    else -> R.string.exec_other_error
+                                                    0 -> R.string.normal
+                                                    127 -> R.string.command_not_found
+                                                    130 -> R.string.ctrl_c_exit
+                                                    139 -> R.string.segmentation_error
+                                                    else -> R.string.other_error
                                                 }
                                             )
                                         )
                                     )
-                                    getAlertDialog()!!.setTitle(getString(R.string.exec_finish))
+                                    getAlertDialog()!!.setTitle(getString(R.string.finish))
                                 }
                                 br = true
                                 br2 = true
@@ -106,17 +106,17 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                                     runOnUiThread {
                                         Toast.makeText(
                                             mContext,
-                                            R.string.home_status_service_not_running,
+                                            R.string.service_not_running,
                                             Toast.LENGTH_SHORT
                                         ).show()
                                         binding.execTitle.append(
                                             getString(
-                                                R.string.exec_return,
+                                                R.string.return_info,
                                                 -1,
-                                                getString(R.string.exec_other_error)
+                                                getString(R.string.other_error)
                                             )
                                         )
-                                        getAlertDialog()!!.setTitle(getString(R.string.exec_finish))
+                                        getAlertDialog()!!.setTitle(getString(R.string.finish))
                                         br2 = true
                                     }
                                     onDestroy()

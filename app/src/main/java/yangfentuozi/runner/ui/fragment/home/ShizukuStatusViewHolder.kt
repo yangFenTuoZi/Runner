@@ -40,14 +40,14 @@ class ShizukuStatusViewHolder(binding: HomeShizukuStatusBinding, root: View) :
         val summary: String?
 
         if (ok) {
-            title = context.getString(R.string.home_status_shizuku_is_running)
+            title = context.getString(R.string.shizuku_is_running)
             summary = context.getString(
-                R.string.home_status_shizuku_version,
+                R.string.shizuku_version,
                 user,
                 "$apiVersion.$patchVersion"
             )
         } else {
-            title = context.getString(R.string.home_status_shizuku_not_running)
+            title = context.getString(R.string.shizuku_not_running)
             summary = ""
         }
 

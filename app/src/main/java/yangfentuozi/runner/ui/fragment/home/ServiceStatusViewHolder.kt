@@ -45,10 +45,10 @@ class ServiceStatusViewHolder(binding: HomeServiceStatusBinding, root: View) :
         val summary: String?
 
         if (ok) {
-            title = context.getString(R.string.home_status_service_is_running)
-            summary = context.getString(R.string.home_status_service_version, version)
+            title = context.getString(R.string.service_is_running)
+            summary = context.getString(R.string.service_version, version)
         } else {
-            title = context.getString(R.string.home_status_service_not_running)
+            title = context.getString(R.string.service_not_running)
             summary = ""
         }
 

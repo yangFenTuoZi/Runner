@@ -151,7 +151,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
             } else {
                 Toast.makeText(
                     mContext,
-                    R.string.home_status_service_not_running,
+                    R.string.service_not_running,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -167,11 +167,11 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
             if (empty[2]) getItalicText("__CMD__") else info.command
 
         holder.mBindingOuter.root.setOnCreateContextMenuListener { menu, _, _ ->
-            menu.add(position, LONG_CLICK_COPY_NAME, 0, R.string.long_click_copy_name)
-            menu.add(position, LONG_CLICK_COPY_COMMAND, 0, R.string.long_click_copy_command)
-            menu.add(position, LONG_CLICK_NEW, 0, R.string.long_click_new)
-            menu.add(position, LONG_CLICK_PACK, 0, R.string.long_click_pack)
-            menu.add(position, LONG_CLICK_DEL, 0, R.string.long_click_del)
+            menu.add(position, LONG_CLICK_COPY_NAME, 0, R.string.copy_name)
+            menu.add(position, LONG_CLICK_COPY_COMMAND, 0, R.string.copy_command)
+            menu.add(position, LONG_CLICK_NEW, 0, R.string.create_below)
+            menu.add(position, LONG_CLICK_PACK, 0, R.string.pack_apk)
+            menu.add(position, LONG_CLICK_DEL, 0, R.string.delete)
         }
     }
 
@@ -197,13 +197,13 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
 
         try {
             BaseDialogBuilder(mContext)
-                .setTitle(R.string.dialog_edit)
+                .setTitle(R.string.edit)
                 .setView(binding.root)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     if (!Runner.pingServer()) {
                         Toast.makeText(
                             mContext,
-                            R.string.home_status_service_not_running,
+                            R.string.service_not_running,
                             Toast.LENGTH_SHORT
                         ).show()
                         return@setPositiveButton
@@ -267,14 +267,14 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         when (item.itemId) {
             LONG_CLICK_COPY_NAME -> {
                 if (!Runner.pingServer()) {
-                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, R.string.service_not_running, Toast.LENGTH_SHORT).show()
                     return false
                 }
                 try {
                     val name = commands[item.groupId].name ?: return false
                     (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                         .setPrimaryClip(ClipData.newPlainText("c", name))
-                    Toast.makeText(mContext, mContext.getString(R.string.home_copy_command) + "\n" + name, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, mContext.getString(R.string.copied_info) + "\n" + name, Toast.LENGTH_SHORT).show()
                     return true
                 } catch (e: Exception) {
                     e.toErrorDialog(mContext)
@@ -282,14 +282,14 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
             }
             LONG_CLICK_COPY_COMMAND -> {
                 if (!Runner.pingServer()) {
-                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, R.string.service_not_running, Toast.LENGTH_SHORT).show()
                     return false
                 }
                 try {
                     val command = commands[item.groupId].command ?: return false
                     (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                         .setPrimaryClip(ClipData.newPlainText("c", command))
-                    Toast.makeText(mContext, mContext.getString(R.string.home_copy_command) + "\n" + command, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, mContext.getString(R.string.copied_info) + "\n" + command, Toast.LENGTH_SHORT).show()
                     return true
                 } catch (e: Exception) {
                     e.toErrorDialog(mContext)
@@ -307,7 +307,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
             }
             LONG_CLICK_DEL -> {
                 if (!Runner.pingServer()) {
-                    Toast.makeText(mContext, R.string.home_status_service_not_running, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, R.string.service_not_running, Toast.LENGTH_SHORT).show()
                     return false
                 }
                 remove(item.groupId)

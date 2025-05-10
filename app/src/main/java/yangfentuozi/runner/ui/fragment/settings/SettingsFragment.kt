@@ -112,7 +112,7 @@ class SettingsFragment : BaseFragment() {
 
             findPreference<Preference?>("ver")?.apply {
                 title = getString(
-                    R.string.settings_ver,
+                    R.string.ver_info,
                     BuildConfig.VERSION_NAME,
                     BuildConfig.VERSION_CODE
                 )
@@ -129,10 +129,10 @@ class SettingsFragment : BaseFragment() {
                                     mMainActivity!!.runOnUiThread {
                                         try {
                                             BaseDialogBuilder(mMainActivity!!)
-                                                .setTitle(R.string.settings_check_update)
+                                                .setTitle(R.string.check_update)
                                                 .setMessage(
                                                     getString(
-                                                        R.string.settings_check_update_msg,
+                                                        R.string.check_update_msg,
                                                         BuildConfig.VERSION_NAME,
                                                         BuildConfig.VERSION_CODE,
                                                         updateInfo.versionName,
@@ -140,7 +140,7 @@ class SettingsFragment : BaseFragment() {
                                                         updateInfo.updateMsg
                                                     )
                                                 )
-                                                .setPositiveButton(R.string.settings_check_update) { dialog, which -> }
+                                                .setPositiveButton(R.string.check_update) { dialog, which -> }
                                                 .show()
                                         } catch (_: DialogShowingException) {
                                         }
@@ -149,7 +149,7 @@ class SettingsFragment : BaseFragment() {
                                     mMainActivity!!.runOnUiThread {
                                         Toast.makeText(
                                             mMainActivity,
-                                            R.string.settings_latest_version,
+                                            R.string.it_is_latest_version,
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -158,10 +158,10 @@ class SettingsFragment : BaseFragment() {
                                 mMainActivity!!.runOnUiThread {
                                     Toast.makeText(
                                         mMainActivity, when (e.what) {
-                                            UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER -> R.string.settings_can_not_connect_update_server
-                                            UpdateException.WHAT_CAN_NOT_PARSE_JSON -> R.string.settings_can_not_parse_json
-                                            UpdateException.WHAT_JSON_FORMAT_ERROR -> R.string.settings_json_format_error
-                                            else -> R.string.settings_error
+                                            UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER -> R.string.connect_update_server_error
+                                            UpdateException.WHAT_CAN_NOT_PARSE_JSON -> R.string.parse_json_error
+                                            UpdateException.WHAT_JSON_FORMAT_ERROR -> R.string.json_format_error
+                                            else -> R.string.error
                                         }, Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -176,7 +176,7 @@ class SettingsFragment : BaseFragment() {
                 Preference.OnPreferenceClickListener {
                     try {
                         BaseDialogBuilder(mMainActivity!!)
-                            .setTitle(R.string.settings_help)
+                            .setTitle(R.string.help)
                             .setMessage("没做")
                             .show()
                     } catch (_: DialogShowingException) {

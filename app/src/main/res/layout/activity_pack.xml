@@ -53,7 +53,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/pack_name">
+                android:hint="@string/name">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/pack_name"
@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:hint="@string/pack_packageName">
+                android:hint="@string/packageName">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/pack_packageName"
@@ -81,7 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:hint="@string/pack_versionName">
+                android:hint="@string/versionName">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/pack_versionName"
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:hint="@string/pack_versionCode">
+                android:hint="@string/versionCode">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/pack_versionCode"
@@ -118,7 +118,7 @@
                     android:id="@+id/pack_pinToAShortcutTile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/pack_pinToAShortcutTile" />
+                    android:text="@string/pinShortcutTile" />
             </LinearLayout>
 
         </LinearLayout>

@@ -46,13 +46,13 @@ class ProcAdapter(private val mContext: MainActivity) :
             if (arg == "--nice-name") niceNameFlag = true
         }
 
-        holder.mBindingInner.itemPid.text = mContext.getString(R.string.exec_pid, processInfo.pid)
+        holder.mBindingInner.itemPid.text = mContext.getString(R.string.pid_info, processInfo.pid)
 
         //设置点击事件
         holder.mBindingInner.itemButton.setOnClickListener {
             try {
                 BaseDialogBuilder(mContext)
-                    .setTitle(R.string.dialog_kill_this_process)
+                    .setTitle(R.string.kill_process_ask)
                     .setPositiveButton(android.R.string.ok) { dialog, which ->
                         Thread {
                             //杀死进程

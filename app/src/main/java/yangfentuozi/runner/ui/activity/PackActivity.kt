@@ -39,7 +39,7 @@ class PackActivity : BaseActivity() {
 
         val id = intent.getIntExtra("id", -1)
         if (id == -1) {
-            Toast.makeText(this, R.string.exec_finish, Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.finish, Toast.LENGTH_LONG).show()
             finish()
         }
 

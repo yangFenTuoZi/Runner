@@ -10,10 +10,10 @@
             android:icon="@drawable/ic_merge_type_24"
             android:key="update_channel"
             android:summary="%s"
-            android:title="@string/settings_update_channel" />
+            android:title="@string/update_channel" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/settings_group_theme">
+    <PreferenceCategory android:title="@string/theme">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
             android:icon="@drawable/ic_palette_outline_24"
@@ -42,66 +42,66 @@
             android:summary="@string/pure_black_dark_theme_summary"
             android:title="@string/pure_black_dark_theme" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/settings_backup">
+    <PreferenceCategory android:title="@string/backup">
 
         <Preference
             android:defaultValue="false"
             android:icon="@drawable/ic_backup_restore_24"
             android:key="export_data"
-            android:summary="@string/settings_export_data_summary"
-            android:title="@string/settings_export_data" />
+            android:summary="@string/export_data_summary"
+            android:title="@string/export_data" />
 
         <Preference
             android:defaultValue="false"
             android:icon="@drawable/ic_restore_24"
             android:key="import_data"
-            android:summary="@string/settings_import_data_summary"
-            android:title="@string/settings_import_data" />
+            android:summary="@string/import_data_summary"
+            android:title="@string/import_data" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_settings_outline_24"
             android:key="backup_settings"
-            android:summary="@string/settings_backup_settings_summary"
-            android:title="@string/settings_backup_settings" />
+            android:summary="@string/backup_settings_summary"
+            android:title="@string/backup_settings" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/settings_server">
+    <PreferenceCategory android:title="@string/server">
 
         <Preference
             android:defaultValue="false"
             android:icon="@drawable/ic_configs_24"
             android:key="env_configs"
-            android:summary="@string/settings_env_manager_summary"
-            android:title="@string/settings_env_manager" />
+            android:summary="@string/env_manager_summary"
+            android:title="@string/env_manager" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_stop_circle_outline_24"
             android:key="force_kill"
-            android:summary="@string/settings_force_kill_summary"
-            android:title="@string/settings_force_kill" />
+            android:summary="@string/force_kill_summary"
+            android:title="@string/force_kill" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_layers_outline_24"
             android:key="kill_child_processes"
-            android:summary="@string/settings_kill_child_processes_summary"
-            android:title="@string/settings_kill_child_processes" />
+            android:summary="@string/kill_child_processes_summary"
+            android:title="@string/kill_child_processes" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/settings_about">
+    <PreferenceCategory android:title="@string/about">
 
         <Preference
             android:defaultValue="false"
             android:icon="@drawable/ic_info_24"
             android:key="ver"
-            android:title="@string/settings_ver" />
+            android:title="@string/ver_info" />
         <Preference
             android:defaultValue="false"
             android:icon="@drawable/ic_help_24"
             android:key="help"
-            android:title="@string/settings_help" />
+            android:title="@string/help" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -7,82 +7,79 @@
     <string name="title_proc">Proc</string>
     <string name="title_settings">Settings</string>
 
-    <string name="dialog_edit">Edit</string>
-    <string name="dialog_name">Name</string>
-    <string name="dialog_command">Command</string>
-    <string name="dialog_chid">Reduced permissions</string>
-    <string name="dialog_keep_it_alive">Keep it alive</string>
-    <string name="dialog_ids" translatable="false">UID[,GID[,Groups...]]</string>
-    <string name="dialog_kill">Kill</string>
-    <string name="dialog_kill_this_process">Kill this process?</string>
+    <string name="edit">Edit</string>
+    <string name="name">Name</string>
+    <string name="command">Command</string>
+    <string name="reduce_perm">Reduced permissions</string>
+    <string name="keep_alive">Keep it alive</string>
+    <string name="target_perm_hint" translatable="false">UID[,GID[,Groups...]]</string>
+    <string name="kill">Kill</string>
+    <string name="kill_process_ask">Kill this process?</string>
 
-    <string name="exec_running">Running…</string>
-    <string name="exec_finish">Finish</string>
-    <string name="exec_return">Return value: %d(%s)</string>
-    <string name="exec_pid" translatable="false">PID: %d</string>
-    <string name="exec_normal">Normal</string>
-    <string name="exec_command_not_found">Command not found</string>
-    <string name="exec_segmentation_error">Segmentation error</string>
-    <string name="exec_ctrl_c_error">Ctrl+C was used</string>
-    <string name="exec_other_error">Other error</string>
+    <string name="executing">Executing…</string>
+    <string name="finish">Finish</string>
+    <string name="return_info">Return value: %d(%s)</string>
+    <string name="pid_info" translatable="false">PID: %d</string>
+    <string name="normal">Normal</string>
+    <string name="command_not_found">Command not found</string>
+    <string name="segmentation_error">Segmentation error</string>
+    <string name="ctrl_c_exit">Ctrl+C was used</string>
+    <string name="other_error">Other error</string>
 
-    <string name="home_status_service_is_running">Service is running</string>
-    <string name="home_status_service_not_running">Service is not running</string>
-    <string name="home_status_service_version">Version %1$d</string>
-    <string name="home_status_shizuku_is_running">Shizuku is running</string>
-    <string name="home_status_shizuku_not_running">Shizuku is not running</string>
-    <string name="home_status_shizuku_version">Version %2$s, %1$s</string>
+    <string name="service_is_running">Service is running</string>
+    <string name="service_not_running">Service is not running</string>
+    <string name="service_version">Version %1$d</string>
+    <string name="shizuku_is_running">Shizuku is running</string>
+    <string name="shizuku_not_running">Shizuku is not running</string>
+    <string name="shizuku_version">Version %2$s, %1$s</string>
 
-    <string name="home_copy_command">Copied to clipboard:</string>
+    <string name="copied_info">Copied to clipboard:</string>
 
-    <string name="long_click_copy_name">Copy Name</string>
-    <string name="long_click_copy_command">Copy Command</string>
-    <string name="long_click_new">Create new below</string>
-    <string name="long_click_pack">Packaged it as an APK</string>
-    <string name="long_click_del">Delete it</string>
+    <string name="copy_name">Copy Name</string>
+    <string name="copy_command">Copy Command</string>
+    <string name="create_below">Create below</string>
+    <string name="pack_apk">Pack to APK</string>
+    <string name="delete">Delete</string>
 
-    <string name="pack_name">Name</string>
-    <string name="pack_packageName">PackageName</string>
-    <string name="pack_versionName">VersionName</string>
-    <string name="pack_versionCode">VersionCode</string>
-    <string name="pack_pinToAShortcutTile">Pin to a shortcut tile</string>
+    <string name="packageName">PackageName</string>
+    <string name="versionName">VersionName</string>
+    <string name="versionCode">VersionCode</string>
+    <string name="pinShortcutTile">Pin to a shortcut tile</string>
 
-    <string name="process_kill_all_processes">Kill all processes?</string>
+    <string name="kill_all_processes">Kill all processes?</string>
 
-    <string name="settings_update_channel">Update Channel</string>
-    <string name="settings_update_channel_stable">Stable</string>
-    <string name="settings_update_channel_beta">Beta</string>
-    <string name="settings_backup">Backup</string>
-    <string name="settings_export_data">Export Data</string>
-    <string name="settings_export_data_summary">Export the data to JSON</string>
-    <string name="settings_import_data">Import Data</string>
-    <string name="settings_import_data_summary">Import JSON</string>
-    <string name="settings_server">Server</string>
-    <string name="settings_env_manager">Environment manager</string>
-    <string name="settings_env_manager_summary">These environment configs will be loaded before executing the command.</string>
-    <string name="settings_force_kill">Force kill processes</string>
-    <string name="settings_force_kill_summary">This does not allow the process to exit gracefully, bypassing the cleanup mechanism. Do not enable this under normal circumstances.</string>
-    <string name="settings_kill_child_processes">Kill all child processes</string>
-    <string name="settings_kill_child_processes_summary">That may have unintended consequences.</string>
-    <string name="settings_about">About</string>
-    <string name="settings_ver">verName: %s\nverCode: %d</string>
-    <string name="settings_help">Help</string>
-    <string name="settings_copy">Copy</string>
-    <string name="settings_can_not_parse_json_data">Can not parse JSON data</string>
-    <string name="settings_ver_is_low">The JSON data version is too low</string>
-    <string name="settings_is_not_app_data">It is not App data</string>
-    <string name="settings_data_error">Data error</string>
-    <string name="settings_decode_error">Decode data error</string>
-    <string name="settings_backup_settings">Backup settings</string>
-    <string name="settings_backup_settings_summary">Back up settings (e.g. night mode, language settings, etc.)</string>
-    <string name="settings_check_update">Update</string>
-    <string name="settings_can_not_connect_update_server">Can not connect update server</string>
-    <string name="settings_can_not_parse_json">Can not parse JSON</string>
-    <string name="settings_json_format_error">JSON format error</string>
-    <string name="settings_error" translatable="false">Error</string>
-    <string name="settings_check_update_msg">Local version name: %s\nLocal version code: %d\nNew version name: %s\nNew version code: %d\nUpdate message: %s</string>
-    <string name="settings_latest_version">It is the latest version</string>
-    <string name="settings_group_theme">Theme</string>
+    <string name="update_channel">Update Channel</string>
+    <string name="stable">Stable</string>
+    <string name="beta">Beta</string>
+    <string name="backup">Backup</string>
+    <string name="export_data">Export Data</string>
+    <string name="export_data_summary">Export the data to JSON</string>
+    <string name="import_data">Import Data</string>
+    <string name="import_data_summary">Import JSON</string>
+    <string name="server">Server</string>
+    <string name="env_manager">Environment manager</string>
+    <string name="env_manager_summary">These environment configs will be loaded before executing the command.</string>
+    <string name="force_kill">Force kill processes</string>
+    <string name="force_kill_summary">This does not allow the process to exit gracefully, bypassing the cleanup mechanism. Do not enable this under normal circumstances.</string>
+    <string name="kill_child_processes">Kill all child processes</string>
+    <string name="kill_child_processes_summary">That may have unintended consequences.</string>
+    <string name="ver_info">verName: %s\nverCode: %d</string>
+    <string name="help">Help</string>
+    <string name="copy">Copy</string>
+    <string name="parse_json_data_error">Can not parse JSON data</string>
+    <string name="data_ver_low">The JSON data version is too low</string>
+    <string name="not_app_data">It is not App data</string>
+    <string name="data_error">Data error</string>
+    <string name="decode_error">Decode data error</string>
+    <string name="backup_settings">Backup settings</string>
+    <string name="backup_settings_summary">Back up settings (e.g. night mode, language settings, etc.)</string>
+    <string name="check_update">Update</string>
+    <string name="connect_update_server_error">Can not connect update server</string>
+    <string name="parse_json_error">Can not parse JSON</string>
+    <string name="json_format_error">JSON format error</string>
+    <string name="check_update_msg">Local version name: %s\nLocal version code: %d\nNew version name: %s\nNew version code: %d\nUpdate message: %s</string>
+    <string name="it_is_latest_version">It is the latest version</string>
+    <string name="theme">Theme</string>
 
     <string name="theme_color">Theme color</string>
     <string name="theme_color_system">System theme color</string>
@@ -108,7 +105,7 @@
     <string name="color_brown">Brown</string>
     <string name="color_blue_grey">Blue grey</string>
 
-    <string name="menu_stop_server">Stop server</string>
+    <string name="stop_server">Stop server</string>
     <string name="about">About</string>
 
     <string name="warning">Warning</string>
@@ -118,11 +115,11 @@
     <string name="can_not_stop_server">Cannot stop server</string>
     <string name="choose_start_server">Select a startup method</string>
     <string name="start">Start</string>
-    
+
     <string name="exec_start_server_command">Execute the command as the Root/Shell/ADB user</string>
     <string name="about_view_source_code"><![CDATA[View source code at %1$s]]></string>
 
-    <string name="menu_add">Add</string>
+    <string name="add">Add</string>
     <string name="grant_shizuku_permission">Grant Shizuku permissions</string>
     <string name="grant_shizuku_permission_summary">You have not granted Shizuku permissions, so the user service cannot be started.</string>
     <string name="grant">Grant</string>

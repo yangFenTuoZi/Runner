@@ -6,82 +6,80 @@
     <string name="title_proc">进程</string>
     <string name="title_settings">设置</string>
 
-    <string name="dialog_edit">编辑</string>
-    <string name="dialog_name">名称</string>
-    <string name="dialog_command">命令</string>
-    <string name="dialog_chid">降低权限</string>
-    <string name="dialog_keep_it_alive">保活</string>
-    <string name="dialog_ids" translatable="false">UID[,GID[,Groups...]]</string>
-    <string name="dialog_kill">杀死</string>
-    <string name="dialog_kill_this_process">杀死这个进程吗?</string>
+    <string name="edit">编辑</string>
+    <string name="name">名称</string>
+    <string name="command">命令</string>
+    <string name="reduce_perm">降低权限</string>
+    <string name="keep_alive">保活</string>
+    <string name="target_perm_hint" translatable="false">UID[,GID[,Groups...]]</string>
+    <string name="kill">杀死</string>
+    <string name="kill_process_ask">杀死这个进程吗?</string>
 
-    <string name="exec_running">执行中…</string>
-    <string name="exec_finish">结束</string>
-    <string name="exec_return">返回值: %d(%s)</string>
-    <string name="exec_pid" translatable="false">PID: %d</string>
-    <string name="exec_normal">正常</string>
-    <string name="exec_command_not_found">找不到命令</string>
-    <string name="exec_segmentation_error">分段错误</string>
-    <string name="exec_ctrl_c_error">使用了Ctrl+C</string>
-    <string name="exec_other_error">其他错误</string>
+    <string name="executing">执行中…</string>
+    <string name="finish">结束</string>
+    <string name="return_info">返回值: %d(%s)</string>
+    <string name="pid_info" translatable="false">PID: %d</string>
+    <string name="normal">正常</string>
+    <string name="command_not_found">找不到命令</string>
+    <string name="segmentation_error">分段错误</string>
+    <string name="ctrl_c_exit">使用了Ctrl+C</string>
+    <string name="other_error">其他错误</string>
 
-    <string name="home_status_service_is_running">服务正在运行</string>
-    <string name="home_status_service_not_running">服务未运行</string>
-    <string name="home_status_service_version">版本 %1$d</string>
-    <string name="home_status_shizuku_is_running">Shizuku 正在运行</string>
-    <string name="home_status_shizuku_not_running">Shizuku 未运行</string>
-    <string name="home_status_shizuku_version">版本 %2$s, %1$s</string>
+    <string name="service_is_running">服务正在运行</string>
+    <string name="service_not_running">服务未运行</string>
+    <string name="service_version">版本 %1$d</string>
+    <string name="shizuku_is_running">Shizuku 正在运行</string>
+    <string name="shizuku_not_running">Shizuku 未运行</string>
+    <string name="shizuku_version">版本 %2$s, %1$s</string>
 
-    <string name="home_copy_command">已复制到剪切板:</string>
+    <string name="copied_info">已复制到剪切板:</string>
 
-    <string name="long_click_copy_name">复制名字</string>
-    <string name="long_click_copy_command">复制命令</string>
-    <string name="long_click_new">在下方新建</string>
-    <string name="long_click_pack">打包成APK</string>
-    <string name="long_click_del">删除</string>
+    <string name="copy_name">复制名字</string>
+    <string name="copy_command">复制命令</string>
+    <string name="create_below">在下方新建</string>
+    <string name="pack_apk">打包成APK</string>
+    <string name="delete">删除</string>
 
-    <string name="pack_name">名称</string>
-    <string name="pack_packageName">包名</string>
-    <string name="pack_versionName">版本名</string>
-    <string name="pack_versionCode">版本号</string>
-    <string name="pack_pinToAShortcutTile">固定到快捷磁贴</string>
+    <string name="packageName">包名</string>
+    <string name="versionName">版本名</string>
+    <string name="versionCode">版本号</string>
+    <string name="pinShortcutTile">固定到快捷磁贴</string>
 
-    <string name="process_kill_all_processes">杀死所有进程?</string>
+    <string name="kill_all_processes">杀死所有进程?</string>
 
-    <string name="settings_update_channel">更新渠道</string>
-    <string name="settings_update_channel_stable">稳定版</string>
-    <string name="settings_update_channel_beta">测试版</string>
-    <string name="settings_backup">备份</string>
-    <string name="settings_export_data">导出数据</string>
-    <string name="settings_export_data_summary">将数据导出为JSON</string>
-    <string name="settings_import_data">导入数据</string>
-    <string name="settings_import_data_summary">导入JSON</string>
-    <string name="settings_server">服务</string>
-    <string name="settings_env_manager">运行环境管理</string>
-    <string name="settings_env_manager_summary">这些环境配置将会在执行命令前加载</string>
-    <string name="settings_force_kill">强制杀死进程</string>
-    <string name="settings_force_kill_summary">这不会使进程正常退出，略过进程清理机制，一般情况不要启用</string>
-    <string name="settings_kill_child_processes">杀死所有子进程</string>
-    <string name="settings_kill_child_processes_summary">这可能会有意想不到的后果</string>
-    <string name="settings_about">关于</string>
-    <string name="settings_ver">版本名: %s\n版本号: %d</string>
-    <string name="settings_help">帮助</string>
-    <string name="settings_copy">复制</string>
-    <string name="settings_can_not_parse_json_data">无法解析JSON数据</string>
-    <string name="settings_ver_is_low">JSON数据版本过低</string>
-    <string name="settings_is_not_app_data">不是此APP的数据</string>
-    <string name="settings_data_error">数据错误</string>
-    <string name="settings_decode_error">解密数据失败</string>
-    <string name="settings_backup_settings">备份设置项</string>
-    <string name="settings_backup_settings_summary">将设置项备份(例如夜间模式、语言设置等)</string>
-    <string name="settings_check_update">更新</string>
-    <string name="settings_can_not_connect_update_server">无法连接更新服务</string>
-    <string name="settings_can_not_parse_json">无法解析JSON</string>
-    <string name="settings_json_format_error">JSON格式错误</string>
-    <string name="settings_error" translatable="false">Error</string>
-    <string name="settings_check_update_msg">本地版本名: %s\n本地版本号: %d\n新版本名: %s\n新版本号: %d\n更新信息: %s</string>
-    <string name="settings_latest_version">已是最新版本</string>
-    <string name="settings_group_theme">主题</string>
+    <string name="update_channel">更新渠道</string>
+    <string name="stable">稳定版</string>
+    <string name="beta">测试版</string>
+    <string name="backup">备份</string>
+    <string name="export_data">导出数据</string>
+    <string name="export_data_summary">将数据导出为JSON</string>
+    <string name="import_data">导入数据</string>
+    <string name="import_data_summary">导入JSON</string>
+    <string name="server">服务</string>
+    <string name="env_manager">运行环境管理</string>
+    <string name="env_manager_summary">这些环境配置将会在执行命令前加载</string>
+    <string name="force_kill">强制杀死进程</string>
+    <string name="force_kill_summary">这不会使进程正常退出，略过进程清理机制，一般情况不要启用</string>
+    <string name="kill_child_processes">杀死所有子进程</string>
+    <string name="kill_child_processes_summary">这可能会有意想不到的后果</string>
+    <string name="ver_info">版本名: %s\n版本号: %d</string>
+    <string name="help">帮助</string>
+    <string name="copy">复制</string>
+    <string name="parse_json_data_error">无法解析JSON数据</string>
+    <string name="data_ver_low">JSON数据版本过低</string>
+    <string name="not_app_data">不是此APP的数据</string>
+    <string name="data_error">数据错误</string>
+    <string name="decode_error">解密数据失败</string>
+    <string name="backup_settings">备份设置项</string>
+    <string name="backup_settings_summary">将设置项备份(例如夜间模式、语言设置等)</string>
+    <string name="check_update">更新</string>
+    <string name="connect_update_server_error">无法连接更新服务</string>
+    <string name="parse_json_error">无法解析JSON</string>
+    <string name="json_format_error">JSON格式错误</string>
+    <string name="error" translatable="false">Error</string>
+    <string name="check_update_msg">本地版本名: %s\n本地版本号: %d\n新版本名: %s\n新版本号: %d\n更新信息: %s</string>
+    <string name="it_is_latest_version">已是最新版本</string>
+    <string name="theme">主题</string>
 
     <string name="theme_color">主题颜色</string>
     <string name="theme_color_system">系统主题色</string>
@@ -107,7 +105,7 @@
     <string name="color_brown">棕色</string>
     <string name="color_blue_grey">灰蓝</string>
 
-    <string name="menu_stop_server">停止服务</string>
+    <string name="stop_server">停止服务</string>
     <string name="about">关于</string>
 
     <string name="warning">警告</string>
@@ -121,7 +119,7 @@
     <string name="exec_start_server_command">使用Root/Shell/ADB用户执行</string>
     <string name="about_view_source_code"><![CDATA[在 %1$s 查看源码]]></string>
 
-    <string name="menu_add">添加</string>
+    <string name="add">添加</string>
     <string name="grant_shizuku_permission">授予 Shizuku 权限</string>
     <string name="grant_shizuku_permission_summary">您还未授予 Shizuku 权限，所以无法启动用户服务</string>
     <string name="grant">授权</string>

@@ -64,7 +64,7 @@ class InstallTermExtActivity : BaseActivity() {
         val path = getPathFromUri(this, uri)
         if (path != null) {
             if (!Runner.pingServer()) {
-                Toast.makeText(this, R.string.home_status_service_not_running, Toast.LENGTH_SHORT)
+                Toast.makeText(this, R.string.service_not_running, Toast.LENGTH_SHORT)
                     .show()
                 finish()
             }
