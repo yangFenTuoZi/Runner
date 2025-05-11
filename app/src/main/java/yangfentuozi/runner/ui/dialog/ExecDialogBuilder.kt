@@ -57,18 +57,17 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                                         binding.execMsg.append(outputs + "\n")
                                     }
                                 } else {
-                                    try {
-                                        val p = outputs.toInt()
-                                        runOnUiThread {
-                                            binding.execTitle.append(getString(R.string.pid_info, p) + "\n")
-                                        }
-                                        pid1 = true
-                                        pid = p
-                                    } catch (_: Exception) {
-                                        runOnUiThread {
-                                            binding.execMsg.append(outputs + "\n")
-                                        }
+                                    val p = outputs.toInt()
+                                    runOnUiThread {
+                                        binding.execTitle.append(
+                                            getString(
+                                                R.string.pid_info,
+                                                p
+                                            ) + "\n"
+                                        )
                                     }
+                                    pid1 = true
+                                    pid = p
                                 }
                             }
 
