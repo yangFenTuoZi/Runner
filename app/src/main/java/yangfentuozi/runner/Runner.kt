@@ -101,7 +101,7 @@ object Runner {
         shizukuPermission = try {
             Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
         } catch (_: RuntimeException) {
-            App.instance?.checkSelfPermission("moe.shizuku.manager.permission.API_V23") == PackageManager.PERMISSION_GRANTED
+            App.instance.checkSelfPermission("moe.shizuku.manager.permission.API_V23") == PackageManager.PERMISSION_GRANTED
         }
         scheduleShizukuStatusListener(shizukuStatus)
         scheduleShizukuPermissionListener(shizukuPermission)

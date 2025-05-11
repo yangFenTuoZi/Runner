@@ -55,7 +55,6 @@
     <string name="export_data_summary">将数据导出为JSON</string>
     <string name="import_data">导入数据</string>
     <string name="import_data_summary">导入JSON</string>
-    <string name="server">服务</string>
     <string name="env_manage">运行环境管理</string>
     <string name="env_manage_summary">这些环境配置将会在执行命令前加载</string>
     <string name="force_kill">强制杀死进程</string>
@@ -136,4 +135,10 @@
     <string name="failed_to_get_the_process_list">获取进程列表失败</string>
     <string name="value">值</string>
     <string name="key">键</string>
+    <string name="update">更新</string>
+    <string name="auto_start_exec">开机启动并执行命令</string>
+    <string name="auto_start_exec_summary">在开机时启动，并在连接到服务时自动执行命令</string>
+    <string name="auto_start_exec_script">开机启动时将执行的脚本</string>
+    <string name="auto_start_exec_ids">要降低的目标权限</string>
+    <string name="click_edit">点击编辑</string>
 </resources>

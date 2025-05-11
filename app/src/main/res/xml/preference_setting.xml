@@ -1,7 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory android:title="App">
+    <PreferenceCategory android:title="@string/app_name">
+
+        <Preference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_configs_24"
+            android:key="env_configs"
+            android:summary="@string/env_manage_summary"
+            android:title="@string/env_manage" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_stop_circle_outline_24"
+            android:key="force_kill"
+            android:summary="@string/force_kill_summary"
+            android:title="@string/force_kill" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_layers_outline_24"
+            android:key="kill_child_processes"
+            android:summary="@string/kill_child_processes_summary"
+            android:title="@string/kill_child_processes" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_play_arrow"
+            android:key="auto_start_exec"
+            android:summary="@string/auto_start_exec_summary"
+            android:title="@string/auto_start_exec" />
+        <EditTextPreference
+            android:defaultValue=""
+            android:icon="@drawable/ic_empty_icon_24"
+            android:key="auto_start_exec_script"
+            android:summary="@string/click_edit"
+            android:title="@string/auto_start_exec_script" />
+        <EditTextPreference
+            android:defaultValue=""
+            android:icon="@drawable/ic_empty_icon_24"
+            android:key="auto_start_exec_ids"
+            android:summary="@string/click_edit"
+            android:title="@string/auto_start_exec_ids" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/update">
 
         <rikka.preference.SimpleMenuPreference
             android:defaultValue="CHANNEL_STABLE"
@@ -64,30 +106,6 @@
             android:key="backup_settings"
             android:summary="@string/backup_settings_summary"
             android:title="@string/backup_settings" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/server">
-
-        <Preference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_configs_24"
-            android:key="env_configs"
-            android:summary="@string/env_manage_summary"
-            android:title="@string/env_manage" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_stop_circle_outline_24"
-            android:key="force_kill"
-            android:summary="@string/force_kill_summary"
-            android:title="@string/force_kill" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_layers_outline_24"
-            android:key="kill_child_processes"
-            android:summary="@string/kill_child_processes_summary"
-            android:title="@string/kill_child_processes" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/about">

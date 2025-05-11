@@ -56,7 +56,6 @@
     <string name="export_data_summary">Export the data to JSON</string>
     <string name="import_data">Import Data</string>
     <string name="import_data_summary">Import JSON</string>
-    <string name="server">Server</string>
     <string name="env_manage">Environment manage</string>
     <string name="env_manage_summary">These environment configs will be loaded before executing the command.</string>
     <string name="force_kill">Force kill processes</string>
@@ -138,4 +137,10 @@
     <string name="more" translatable="false">...</string>
     <string name="value">Value</string>
     <string name="key">Key</string>
+    <string name="update">Update</string>
+    <string name="auto_start_exec">Start on boot and run commands</string>
+    <string name="auto_start_exec_summary">Launch at startup and auto-run commands upon service connection</string>
+    <string name="auto_start_exec_script">Boot script to execute on startup</string>
+    <string name="auto_start_exec_ids">Target permissions to be reduced</string>
+    <string name="click_edit">Click and edit</string>
 </resources>
