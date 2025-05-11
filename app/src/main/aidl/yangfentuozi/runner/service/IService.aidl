@@ -3,6 +3,7 @@ package yangfentuozi.runner.service;
 import yangfentuozi.runner.service.data.CommandInfo;
 import yangfentuozi.runner.service.data.TermExtVersion;
 import yangfentuozi.runner.service.data.ProcessInfo;
+import yangfentuozi.runner.service.data.EnvInfo;
 
 import yangfentuozi.runner.service.callback.IExecResultCallback;
 import yangfentuozi.runner.service.callback.IInstallTermExtCallback;
@@ -28,9 +29,9 @@ interface IService {
 
     void deleteEnv(String key) = 300;
     boolean insertEnv(String key, String value) = 301;
-    boolean updateEnv(String fromKey, String fromValue, String toKey, String toValue) = 302;
+    boolean updateEnv(in EnvInfo from, in EnvInfo to) = 302;
     String getEnv(String key) = 303;
-    Map<String, String> getAllEnv() = 304;
+    EnvInfo[] getAllEnv() = 304;
 
     ProcessInfo[] getProcesses() = 400;
     boolean[] sendSignal(in int[] pid, int signal) = 401;

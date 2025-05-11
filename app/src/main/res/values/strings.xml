@@ -57,8 +57,8 @@
     <string name="import_data">Import Data</string>
     <string name="import_data_summary">Import JSON</string>
     <string name="server">Server</string>
-    <string name="env_manager">Environment manager</string>
-    <string name="env_manager_summary">These environment configs will be loaded before executing the command.</string>
+    <string name="env_manage">Environment manage</string>
+    <string name="env_manage_summary">These environment configs will be loaded before executing the command.</string>
     <string name="force_kill">Force kill processes</string>
     <string name="force_kill_summary">This does not allow the process to exit gracefully, bypassing the cleanup mechanism. Do not enable this under normal circumstances.</string>
     <string name="kill_child_processes">Kill all child processes</string>
@@ -135,4 +135,7 @@
     <string name="install_term_ext">Install terminal extension</string>
     <string name="will_remove_term_ext">Remove terminal extension?</string>
     <string name="failed_to_get_the_process_list">Failed to get the process list</string>
+    <string name="more" translatable="false">..</string>
+    <string name="value">Value</string>
+    <string name="key">Key</string>
 </resources>

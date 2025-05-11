@@ -4,8 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+
+import yangfentuozi.runner.service.data.EnvInfo;
 
 public class EnvironmentDao {
     private final SQLiteDatabase db;
@@ -76,7 +77,7 @@ public class EnvironmentDao {
     }
 
     // 获取所有键值对
-    public Map<String, String> getAll() {
+    public ArrayList<EnvInfo> getAll() {
         Cursor cursor = db.query(
                 DataDbHelper.TABLE_ENVIRONMENT,
                 new String[]{DataDbHelper.COLUMN_KEY, DataDbHelper.COLUMN_VALUE},
@@ -87,13 +88,16 @@ public class EnvironmentDao {
                 null
         );
 
-        Map<String, String> map = new HashMap<>();
+        ArrayList<EnvInfo> arrayList = new ArrayList<>();
         while (cursor.moveToNext()) {
             String key = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEY));
             String value = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_VALUE));
-            map.put(key, value);
+            var envInfo = new EnvInfo();
+            envInfo.key = key;
+            envInfo.value = value;
+            arrayList.add(envInfo);
         }
         cursor.close();
-        return map;
+        return arrayList;
     }
 }

@@ -72,8 +72,8 @@
             android:defaultValue="false"
             android:icon="@drawable/ic_configs_24"
             android:key="env_configs"
-            android:summary="@string/env_manager_summary"
-            android:title="@string/env_manager" />
+            android:summary="@string/env_manage_summary"
+            android:title="@string/env_manage" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"

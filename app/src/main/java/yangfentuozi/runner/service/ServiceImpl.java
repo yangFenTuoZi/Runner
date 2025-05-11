@@ -35,6 +35,7 @@ import yangfentuozi.runner.service.callback.IExecResultCallback;
 import yangfentuozi.runner.service.callback.IInstallTermExtCallback;
 import yangfentuozi.runner.service.callback.InstallTermExtCallback;
 import yangfentuozi.runner.service.data.CommandInfo;
+import yangfentuozi.runner.service.data.EnvInfo;
 import yangfentuozi.runner.service.data.ProcessInfo;
 import yangfentuozi.runner.service.data.TermExtVersion;
 import yangfentuozi.runner.service.database.CommandDao;
@@ -160,17 +161,17 @@ public class ServiceImpl extends IService.Stub {
                 var finalIds = ids == null || ids.isEmpty() ? "-1" : ids;
                 var finalProcName = procName == null || procName.isEmpty() ? "execTask" : procName;
                 ProcessBuilder processBuilder = new ProcessBuilder(STARTER, finalIds, finalProcName);
-                Map<String, String> processEnv = processBuilder.environment(),
-                        customEnv = getAllEnv();
+                Map<String, String> processEnv = processBuilder.environment();
+                var customEnv = getAllEnv();
                 processEnv.put("PREFIX", USR_PATH);
                 processEnv.put("HOME", HOME_PATH);
                 processEnv.put("TMPDIR", USR_PATH + "/tmp");
                 processEnv.merge("PATH", HOME_PATH + "/.local/bin:" + USR_PATH + "/bin:" + USR_PATH + "/bin/applets", (oldValue, newValue) -> newValue + ":" + oldValue);
                 processEnv.merge("LD_LIBRARY_PATH", HOME_PATH + "/.local/lib:" + USR_PATH + "/lib", (oldValue, newValue) -> newValue + ":" + oldValue);
 
-                for (Map.Entry<String, String> entry : customEnv.entrySet()) {
-                    processEnv.merge(entry.getKey(), entry.getValue(), (oldValue, newValue) ->
-                            newValue.replaceAll(String.format("\\$(%1$s|\\{%1$s\\})", Pattern.quote(entry.getKey())), oldValue));
+                for (EnvInfo entry : customEnv) {
+                    processEnv.merge(entry.key, entry.value, (oldValue, newValue) ->
+                            newValue.replaceAll(String.format("\\$(%1$s|\\{%1$s\\})", Pattern.quote(entry.key)), oldValue));
                 }
                 processBuilder.redirectErrorStream(true);
                 Process p = processBuilder.start();
@@ -243,8 +244,8 @@ public class ServiceImpl extends IService.Stub {
     }
 
     @Override
-    public boolean updateEnv(String fromKey, String fromValue, String toKey, String toValue) {
-        return environmentDao.update(fromKey, fromValue, toKey, toValue);
+    public boolean updateEnv(EnvInfo from, EnvInfo to) {
+        return environmentDao.update(from.key, from.value, to.key, to.value);
     }
 
     @Override
@@ -253,8 +254,8 @@ public class ServiceImpl extends IService.Stub {
     }
 
     @Override
-    public Map<String, String> getAllEnv() {
-        return environmentDao.getAll();
+    public EnvInfo[] getAllEnv() {
+        return environmentDao.getAll().toArray(new EnvInfo[0]);
     }
 
     @Override

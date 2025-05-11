@@ -56,8 +56,8 @@
     <string name="import_data">导入数据</string>
     <string name="import_data_summary">导入JSON</string>
     <string name="server">服务</string>
-    <string name="env_manager">运行环境管理</string>
-    <string name="env_manager_summary">这些环境配置将会在执行命令前加载</string>
+    <string name="env_manage">运行环境管理</string>
+    <string name="env_manage_summary">这些环境配置将会在执行命令前加载</string>
     <string name="force_kill">强制杀死进程</string>
     <string name="force_kill_summary">这不会使进程正常退出，略过进程清理机制，一般情况不要启用</string>
     <string name="kill_child_processes">杀死所有子进程</string>
@@ -134,4 +134,6 @@
     <string name="install_term_ext">安装终端扩展包</string>
     <string name="will_remove_term_ext">移除终端扩展包？</string>
     <string name="failed_to_get_the_process_list">获取进程列表失败</string>
+    <string name="value">值</string>
+    <string name="key">键</string>
 </resources>

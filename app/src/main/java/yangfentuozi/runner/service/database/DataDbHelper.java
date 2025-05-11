@@ -33,7 +33,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
     // environment 表
     public static final String TABLE_ENVIRONMENT = "environment";
     public static final String COLUMN_KEY = "env_key";
-    public static final String COLUMN_VALUE = "value";
+    public static final String COLUMN_VALUE = "env_value";
 
     private static final String TABLE_ENVIRONMENT_CREATE =
             "CREATE TABLE " + TABLE_ENVIRONMENT + " (" +

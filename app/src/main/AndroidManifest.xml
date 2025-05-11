@@ -24,6 +24,11 @@
         </activity>
 
         <activity
+            android:name=".ui.activity.envmanage.EnvManageActivity"
+            android:exported="true"
+            android:label="@string/env_manage" />
+
+        <activity
             android:name=".ui.activity.PackActivity"
             android:exported="false"
             android:label="@string/pack_apk" />
@@ -41,6 +46,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/zip" />
             </intent-filter>
