@@ -1,21 +1,26 @@
 package yangfentuozi.runner.ui.activity.envmanage
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.RemoteException
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import rikka.recyclerview.addEdgeSpacing
+import rikka.recyclerview.addItemSpacing
+import rikka.recyclerview.fixEdgeEffect
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner
 import yangfentuozi.runner.base.BaseDialogBuilder
 import yangfentuozi.runner.databinding.DialogEditEnvBinding
+import yangfentuozi.runner.databinding.DialogEditEnvEBinding
 import yangfentuozi.runner.databinding.HomeItemContainerBinding
 import yangfentuozi.runner.databinding.ItemEnvBinding
 import yangfentuozi.runner.service.data.EnvInfo
@@ -24,7 +29,7 @@ import yangfentuozi.runner.util.ThrowableUtil.toErrorDialog
 class EnvAdapter(private val mContext: EnvManageActivity) :
     RecyclerView.Adapter<EnvAdapter.ViewHolder>() {
     var dataList: List<EnvInfo> = emptyList()
-    private lateinit var mHandler: Handler;
+    private lateinit var mHandler: Handler
 
     init {
         Thread {
@@ -63,7 +68,7 @@ class EnvAdapter(private val mContext: EnvManageActivity) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val info = dataList[position]
+        val info = dataList[holder.bindingAdapterPosition]
 
         val position = holder.bindingAdapterPosition
 
@@ -128,15 +133,40 @@ class EnvAdapter(private val mContext: EnvManageActivity) :
     }
 
     private fun showEditDialog(info: EnvInfo) {
+
         val binding = DialogEditEnvBinding.inflate(LayoutInflater.from(mContext))
 
         binding.apply {
             key.setText(info.key)
             value.setText(info.value)
-            value.requestFocus()
+            more.setOnClickListener {
+                val dialogBinding = DialogEditEnvEBinding.inflate(mContext.layoutInflater)
+                val mAdapter = ItemAdapter(mContext, binding.value.text.toString())
+                dialogBinding.recyclerView.apply {
+                    layoutManager = LinearLayoutManager(mContext)
+                    fixEdgeEffect(true, true)
+                    addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
+                    addEdgeSpacing(16f, 4f, 12f, 0f, TypedValue.COMPLEX_UNIT_DIP)
+                    adapter = mAdapter
+                }
+                MaterialAlertDialogBuilder(mContext)
+                    .setTitle(R.string.edit)
+                    .setView(dialogBinding.root)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        if (!Runner.pingServer()) {
+                            Toast.makeText(
+                                mContext,
+                                R.string.service_not_running,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setPositiveButton
+                        }
+                        binding.value.setText(mAdapter.save())
+                        updateData()
+                    }
+                    .show()
 
-            (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .showSoftInput(value, InputMethodManager.SHOW_IMPLICIT)
+            }
         }
 
         try {

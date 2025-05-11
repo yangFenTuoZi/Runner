@@ -17,7 +17,7 @@
             android:id="@+id/key"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="#546E7A"/>
+            android:textColorHint="#546E7A" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -25,8 +25,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
@@ -43,14 +43,16 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
+            android:layout_marginStart="10dp"
             android:id="@+id/more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
             android:minWidth="0dp"
             android:minEms="0"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:background="@android:color/transparent"
-            android:text="@string/more"/>
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:text="@string/more"
+            android:textColor="?android:textColorPrimary" />
     </LinearLayout>
 </LinearLayout>

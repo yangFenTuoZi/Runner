@@ -135,7 +135,7 @@
     <string name="install_term_ext">Install terminal extension</string>
     <string name="will_remove_term_ext">Remove terminal extension?</string>
     <string name="failed_to_get_the_process_list">Failed to get the process list</string>
-    <string name="more" translatable="false">..</string>
+    <string name="more" translatable="false">...</string>
     <string name="value">Value</string>
     <string name="key">Key</string>
 </resources>
