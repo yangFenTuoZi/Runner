@@ -42,12 +42,14 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateData() {
+        mContext.runOnUiThread { mFragment.binding.swipeRefreshLayout.isRefreshing = true }
         executorService.execute {
             try {
                 val newCommands = Runner.service?.readAll() ?: emptyArray()
                 mContext.runOnUiThread {
                     commands = newCommands
                     notifyDataSetChanged()
+                    mFragment.binding.swipeRefreshLayout.isRefreshing = false
                 }
             } catch (e: RemoteException) {
                 e.toErrorDialog(mContext)
@@ -319,7 +321,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-        ItemTouchHelper(ItemTouchHelperCallback()).attachToRecyclerView(recyclerView)
+//        ItemTouchHelper(ItemTouchHelperCallback()).attachToRecyclerView(recyclerView)
     }
 
     private inner class ItemTouchHelperCallback() : ItemTouchHelper.Callback() {

@@ -59,8 +59,6 @@ class HomeFragment : BaseFragment() {
         mAdapter.unregisterListeners()
     }
 
-    val adapter: HomeAdapter get() = mAdapter
-
     fun installTermExt() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)

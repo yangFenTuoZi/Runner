@@ -15,7 +15,7 @@ import yangfentuozi.runner.service.ServiceImpl
 import yangfentuozi.runner.service.data.ProcessInfo
 import yangfentuozi.runner.ui.activity.MainActivity
 
-class ProcAdapter(private val mContext: MainActivity) :
+class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragment) :
     RecyclerView.Adapter<ProcAdapter.ViewHolder>() {
 
     private var data: List<ProcessInfo>? = null
@@ -78,6 +78,7 @@ class ProcAdapter(private val mContext: MainActivity) :
     }
 
     fun updateData() {
+        mContext.runOnUiThread { mFragment.binding.swipeRefreshLayout.isRefreshing = true }
         data = if (Runner.pingServer()) {
             try {
                 val processes = Runner.service?.processes
@@ -96,6 +97,7 @@ class ProcAdapter(private val mContext: MainActivity) :
             null
         }
         notifyDataSetChanged()
+        mContext.runOnUiThread { mFragment.binding.swipeRefreshLayout.isRefreshing = false }
     }
 
     fun killAll() {

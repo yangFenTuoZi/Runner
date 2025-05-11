@@ -8,12 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
@@ -25,41 +21,37 @@ import yangfentuozi.runner.databinding.FragmentProcBinding
 import yangfentuozi.runner.util.ThrowableUtil.toErrorDialog
 
 class ProcFragment : BaseFragment() {
-    private lateinit var binding: FragmentProcBinding
+    private lateinit var mBinding: FragmentProcBinding
+    val binding get() = mBinding
     private var recyclerView: RecyclerView? = null
     private lateinit var adapter: ProcAdapter
-    var onRefreshListener: OnRefreshListener = OnRefreshListener {
-        lifecycleScope.launch {
-            delay(1000)
-            adapter.updateData()
-            binding.swipeRefreshLayout.isRefreshing = false
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding = FragmentProcBinding.inflate(inflater, container, false)
-        recyclerView = binding.recyclerView
+        mBinding = FragmentProcBinding.inflate(inflater, container, false)
+        recyclerView = mBinding.recyclerView
         recyclerView!!.setLayoutManager(LinearLayoutManager(mContext))
         recyclerView!!.fixEdgeEffect(false, true)
 
-        adapter = ProcAdapter(mContext)
+        adapter = ProcAdapter(mContext, this)
 
-        binding.recyclerView.apply {
+        mBinding.recyclerView.apply {
             layoutManager = LinearLayoutManager(mContext)
             fixEdgeEffect(true, true)
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             adapter = this@ProcFragment.adapter
         }
-        binding.swipeRefreshLayout.setOnRefreshListener(onRefreshListener)
+        mBinding.swipeRefreshLayout.setOnRefreshListener {
+            adapter.updateData()
+        }
 
-        binding.procKillAll.setOnClickListener { v ->
+        mBinding.procKillAll.setOnClickListener { v ->
             if (Runner.pingServer()) {
                 try {
-                    if (binding.recyclerView.adapter
+                    if (mBinding.recyclerView.adapter
                             ?.itemCount == 0
                     ) {
                         return@setOnClickListener
@@ -101,7 +93,7 @@ class ProcFragment : BaseFragment() {
             } catch (_: BaseDialogBuilder.DialogShowingException) {
             }
         }
-        return binding.getRoot()
+        return mBinding.getRoot()
     }
 
     override fun onStart() {

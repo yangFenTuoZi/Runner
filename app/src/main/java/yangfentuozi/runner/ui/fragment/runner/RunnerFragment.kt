@@ -2,7 +2,6 @@ package yangfentuozi.runner.ui.fragment.runner
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -22,17 +21,17 @@ import yangfentuozi.runner.databinding.FragmentRunnerBinding
 import yangfentuozi.runner.service.data.CommandInfo
 
 class RunnerFragment : BaseFragment() {
-    private var _binding: FragmentRunnerBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var mBinding: FragmentRunnerBinding
     private lateinit var adapter: CommandAdapter
+    val binding get() = mBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentRunnerBinding.inflate(inflater, container, false)
-        return binding.root
+        mBinding = FragmentRunnerBinding.inflate(inflater, container, false)
+        return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,7 +39,7 @@ class RunnerFragment : BaseFragment() {
 
         adapter = CommandAdapter(mContext, this)
 
-        binding.recyclerView.apply {
+        mBinding.recyclerView.apply {
             layoutManager = LinearLayoutManager(mContext)
             fixEdgeEffect(true, true)
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
@@ -48,18 +47,13 @@ class RunnerFragment : BaseFragment() {
             adapter = this@RunnerFragment.adapter
         }
 
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            Handler().postDelayed({
-                initList()
-                binding.swipeRefreshLayout.isRefreshing = false
-            }, 1000)
-        }
+        mBinding.swipeRefreshLayout.setOnRefreshListener { adapter.updateData() }
 
-        binding.add.setOnClickListener {
+        mBinding.add.setOnClickListener {
             if (mContext.isDialogShowing) return@setOnClickListener
             showAddCommandDialog(-1)
         }
-        initList()
+        adapter.updateData()
     }
 
     fun showAddCommandDialog(toPosition: Int) {
@@ -111,14 +105,6 @@ class RunnerFragment : BaseFragment() {
         }
     }
 
-    private fun initList() {
-        if (!Runner.pingServer()) {
-            Toast.makeText(mContext, R.string.service_not_running, Toast.LENGTH_SHORT).show()
-            return
-        }
-        adapter.updateData()
-    }
-
     override fun onContextItemSelected(item: android.view.MenuItem): Boolean {
         return adapter.onContextItemSelected(item)
     }
@@ -126,13 +112,12 @@ class RunnerFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
         getToolbar().setOnClickListener {
-            binding.recyclerView.smoothScrollToPosition(0)
+            mBinding.recyclerView.smoothScrollToPosition(0)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         adapter.close()
-        _binding = null
     }
 }
