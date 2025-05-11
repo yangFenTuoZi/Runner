@@ -53,6 +53,9 @@ android {
             version = "3.31.6"
         }
     }
+    androidResources {
+        generateLocaleConfig = true
+    }
     fun Packaging.() {
         jniLibs.useLegacyPackaging = true
     }
