@@ -1,9 +1,29 @@
-import com.android.build.api.dsl.Packaging
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("dev.rikka.tools.materialthemebuilder")
+}
+
+val ksFile = rootProject.file("signing.properties")
+val props = Properties()
+if (ksFile.canRead()) {
+    props.load(FileInputStream(ksFile))
+    android.signingConfigs.create("sign").apply {
+        storeFile = file(props["KEYSTORE_FILE"] as String)
+        storePassword = props["KEYSTORE_PASSWORD"] as String
+        keyAlias = props["KEYSTORE_ALIAS"] as String
+        keyPassword = props["KEYSTORE_ALIAS_PASSWORD"] as String
+    }
+} else {
+    android.signingConfigs.create("sign").apply {
+        storeFile = android.signingConfigs.getByName("debug").storeFile
+        storePassword = android.signingConfigs.getByName("debug").storePassword
+        keyAlias = android.signingConfigs.getByName("debug").keyAlias
+        keyPassword = android.signingConfigs.getByName("debug").keyPassword
+    }
 }
 
 android {
@@ -30,7 +50,14 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("sign")
+        }
+        debug {
+            signingConfig = signingConfigs.getByName("sign")
         }
     }
 
@@ -56,10 +83,34 @@ android {
     androidResources {
         generateLocaleConfig = true
     }
-    fun Packaging.() {
-        jniLibs.useLegacyPackaging = true
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
     ndkVersion = "28.1.13356709"
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName = "runner-v${versionName}-${name}.apk"
+            assembleProvider.get().doLast {
+                val outDir = File(rootDir, "out")
+                val mappingDir = File(outDir, "mapping").absolutePath
+                val apkDir = File(outDir, "apk").absolutePath
+
+                if (buildType.isMinifyEnabled) {
+                    copy {
+                        from(mappingFileProvider.get())
+                        into(mappingDir)
+                        rename { fileName -> "mapping-${versionName}.txt" }
+                    }
+                    copy {
+                        from(outputFile)
+                        into(apkDir)
+                    }
+                }
+            }
+        }
+    }
 }
 
 materialThemeBuilder {
@@ -95,6 +146,7 @@ materialThemeBuilder {
     // rikka.material >= 2.0.0 provides such attributes
     generatePalette = true
 }
+
 
 dependencies {
     // RikkaX
