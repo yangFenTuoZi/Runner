@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.system.Os;
+import android.system.OsConstants;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -86,15 +87,8 @@ public class ServiceImpl extends IService.Stub {
                     if (!file.exists()) {
                         file.createNewFile();
                     }
-                    BufferedInputStream inStream = new BufferedInputStream(in);
-                    BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(file));
-                    byte[] buffer = new byte[1024];
-                    int len;
-                    while ((len = inStream.read(buffer)) != -1) {
-                        outStream.write(buffer, 0, len);
-                    }
-                    inStream.close();
-                    outStream.close();
+
+                    copyFile(in, new FileOutputStream(file));
 
                     file.setExecutable(true);
                 } else {
@@ -108,15 +102,8 @@ public class ServiceImpl extends IService.Stub {
                     if (!file.exists()) {
                         file.createNewFile();
                     }
-                    BufferedInputStream inStream = new BufferedInputStream(in);
-                    BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(file));
-                    byte[] buffer = new byte[1024];
-                    int len;
-                    while ((len = inStream.read(buffer)) != -1) {
-                        outStream.write(buffer, 0, len);
-                    }
-                    inStream.close();
-                    outStream.close();
+
+                    copyFile(in, new FileOutputStream(file));
 
                     file.setExecutable(true);
 
@@ -353,17 +340,7 @@ public class ServiceImpl extends IService.Stub {
                             if (!file.exists()) {
                                 file.createNewFile();
                             }
-                            BufferedInputStream in;
-                            BufferedOutputStream out;
-                            in = new BufferedInputStream(app.getInputStream(zipEntry));
-                            out = new BufferedOutputStream(new FileOutputStream(file));
-                            int len;
-                            byte[] b = new byte[1024];
-                            while ((len = in.read(b)) != -1) {
-                                out.write(b, 0, len);
-                            }
-                            in.close();
-                            out.close();
+                            copyFile(app.getInputStream(zipEntry), new FileOutputStream(file));
                         }
                     } catch (IOException e) {
                         Log.e(TAG, "unable to unzip file: " + zipEntry.getName(), e);
@@ -381,7 +358,7 @@ public class ServiceImpl extends IService.Stub {
                 if (!new File(installScript).setExecutable(true)) {
                     Log.e(TAG, "unable to set executable");
                     callbackWrapper.onMessage(" ! Unable to set executable");
-                    callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
+                    callbackWrapper.onMessage(" - Clean up " + DATA_PATH + "/install_temp");
                     rmRF(new File(DATA_PATH + "/install_temp"));
                     callbackWrapper.onExit(false);
                     return;
@@ -471,4 +448,18 @@ public class ServiceImpl extends IService.Stub {
         if (!file.exists())
             file.mkdirs();
     }
+
+    public static void copyFile(InputStream inputStream, OutputStream outputStream) throws IOException {
+        BufferedInputStream in = new BufferedInputStream(inputStream);
+        BufferedOutputStream out = new BufferedOutputStream(outputStream);
+        int len;
+        byte[] b = new byte[PAGE_SIZE];
+        while ((len = in.read(b)) != -1) {
+            out.write(b, 0, len);
+        }
+        in.close();
+        out.close();
+    }
+
+    public static final int PAGE_SIZE = (int) Os.sysconf(OsConstants._SC_PAGESIZE);
 }
