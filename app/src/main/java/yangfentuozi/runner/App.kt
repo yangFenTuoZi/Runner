@@ -22,8 +22,8 @@ class App : Application(), Thread.UncaughtExceptionHandler {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
-        AppCompatDelegate.setDefaultNightMode(ThemeUtil.darkTheme);
+        pref = PreferenceManager.getDefaultSharedPreferences(this)
+        AppCompatDelegate.setDefaultNightMode(ThemeUtil.darkTheme)
 
         Runner.init()
         Thread.setDefaultUncaughtExceptionHandler(this)

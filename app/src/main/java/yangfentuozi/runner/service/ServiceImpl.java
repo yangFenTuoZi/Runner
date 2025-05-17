@@ -12,7 +12,9 @@ import android.system.OsConstants;
 import android.util.Log;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 import java.io.BufferedInputStream;
@@ -59,9 +61,9 @@ public class ServiceImpl extends IService.Stub {
     public static final String STARTER = HOME_PATH + "/.local/bin/starter";
     public static final String JNI_PROCESS_UTILS = HOME_PATH + "/.local/lib/libprocessutils.so";
     public final Handler mHandler;
-    private final DataDbHelper dataDbHelper = new DataDbHelper(FakeContext.get());
-    private final CommandDao commandDao = new CommandDao(dataDbHelper.getDatabase());
-    private final EnvironmentDao environmentDao = new EnvironmentDao(dataDbHelper.getDatabase());
+    private DataDbHelper dataDbHelper = new DataDbHelper(FakeContext.get());
+    private CommandDao commandDao = new CommandDao(dataDbHelper.getDatabase());
+    private EnvironmentDao environmentDao = new EnvironmentDao(dataDbHelper.getDatabase());
     private final ProcessUtils processUtils = new ProcessUtils();
 
     public ServiceImpl() {
@@ -308,11 +310,11 @@ public class ServiceImpl extends IService.Stub {
         try (TarArchiveOutputStream taos = new TarArchiveOutputStream(
                 new GzipCompressorOutputStream(new FileOutputStream(tarGzFile)))) {
             taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-            tarGzFileRecursive(srcDir, srcDir, taos);
+            tarFileRecursive(srcDir, srcDir, taos);
         }
     }
 
-    public static void tarGzFileRecursive(File rootDir, File srcFile, TarArchiveOutputStream taos) throws IOException {
+    public static void tarFileRecursive(File rootDir, File srcFile, TarArchiveOutputStream taos) throws IOException {
         String name = rootDir.toURI().relativize(srcFile.toURI()).getPath();
         boolean isSymlink;
         try {
@@ -330,7 +332,7 @@ public class ServiceImpl extends IService.Stub {
             File[] children = srcFile.listFiles();
             if (children != null) {
                 for (File child : children) {
-                    tarGzFileRecursive(rootDir, child, taos);
+                    tarFileRecursive(rootDir, child, taos);
                 }
             }
         } else if (isSymlink) {
@@ -357,9 +359,79 @@ public class ServiceImpl extends IService.Stub {
         }
     }
 
+    public static void extractTarGz(File tarGzFile, File destDir) throws IOException {
+        if (!destDir.exists()) destDir.mkdirs();
+        try (FileInputStream fis = new FileInputStream(tarGzFile);
+             GzipCompressorInputStream gis = new GzipCompressorInputStream(fis);
+             TarArchiveInputStream tais = new TarArchiveInputStream(gis)) {
+            TarArchiveEntry entry;
+            while ((entry = tais.getNextEntry()) != null) {
+                File outFile = new File(destDir, entry.getName());
+                if (entry.isDirectory()) {
+                    if (!outFile.exists()) outFile.mkdirs();
+                } else if (entry.isSymbolicLink()) {
+                    File target = new File(entry.getLinkName());
+                    try {
+                        Os.symlink(target.getPath(), outFile.getPath());
+                    } catch (Exception e) {
+                        Log.w(TAG, "extractTarGz: symlink failed: " + outFile + " -> " + target, e);
+                    }
+                } else {
+                    File parent = outFile.getParentFile();
+                    if (parent != null && !parent.exists()) parent.mkdirs();
+                    try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                        byte[] buffer = new byte[PAGE_SIZE];
+                        int len;
+                        while ((len = tais.read(buffer)) != -1) {
+                            fos.write(buffer, 0, len);
+                        }
+                    }
+                    outFile.setLastModified(entry.getModTime().getTime());
+                    outFile.setExecutable((entry.getMode() & 0100) != 0);
+                }
+            }
+        }
+    }
+
     @Override
     public void restoreData(String input) {
 
+        File inputFile = new File(input);
+        if (!inputFile.exists()) {
+            Log.e(TAG, "restoreData: input file does not exist: " + input);
+            return;
+        }
+        File database = new File(input, "data.db");
+        if (database.exists()) {
+            try {
+                copyFile(new FileInputStream(database), new FileOutputStream(DataDbHelper.DATABASE_NAME));
+            } catch (IOException e) {
+                Log.e(TAG, "restoreData: copy database error", e);
+            }
+            dataDbHelper.getDatabase().close();
+            dataDbHelper.close();
+            dataDbHelper = new DataDbHelper(FakeContext.get());
+            commandDao = new CommandDao(dataDbHelper.getDatabase());
+            environmentDao = new EnvironmentDao(dataDbHelper.getDatabase());
+        }
+
+        File home = new File(input, "home.tar.gz");
+        if (home.exists()) {
+            try {
+                extractTarGz(home, new File(HOME_PATH));
+            } catch (IOException e) {
+                Log.e(TAG, "restoreData: extract tar gz error", e);
+            }
+        }
+
+        File usr = new File(input, "usr.tar.gz");
+        if (usr.exists()) {
+            try {
+                extractTarGz(usr, new File(USR_PATH));
+            } catch (IOException e) {
+                Log.e(TAG, "restoreData: extract tar gz error", e);
+            }
+        }
     }
 
     @Override

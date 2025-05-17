@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,13 +15,17 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.DynamicColors
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
 import rikka.core.util.ResourceUtils
 import rikka.material.preference.MaterialSwitchPreference
 import rikka.preference.SimpleMenuPreference
@@ -44,11 +49,13 @@ import yangfentuozi.runner.util.UpdateUtil.UpdateException
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 
 
 class SettingsFragment : BaseFragment() {
     private var binding: FragmentSettingsBinding? = null
     private var lastArg: BooleanArray? = null
+    private var childFragment: PreferenceFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,7 +65,8 @@ class SettingsFragment : BaseFragment() {
         val root: View? = binding!!.getRoot()
         if (savedInstanceState == null) {
             getChildFragmentManager().beginTransaction()
-                .add(R.id.setting_container, PreferenceFragment()).commitNow()
+                .add(R.id.setting_container, PreferenceFragment().apply { childFragment = this })
+                .commitNow()
         }
         return root
     }
@@ -86,7 +94,6 @@ class SettingsFragment : BaseFragment() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             mMainActivity = activity as MainActivity
             addPreferencesFromResource(R.xml.preference_setting)
-
 
             findPreference<Preference?>("dark_theme")?.setOnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
                 if (App.getPreferences()
@@ -230,7 +237,7 @@ class SettingsFragment : BaseFragment() {
             }
             val importData = findPreference<Preference?>("import_data")
             importData?.setOnPreferenceClickListener {
-                mParentFragment?.pickFileLauncher?.launch(arrayOf("application/zip"))
+                mParentFragment?.pickFileLauncher?.launch(arrayOf("application/x-tar"))
                 true
             }
             findPreference<Preference>("env_configs")?.setOnPreferenceClickListener {
@@ -325,8 +332,8 @@ class SettingsFragment : BaseFragment() {
         @CallSuper
         override fun createIntent(context: Context, input: Unit): Intent {
             return Intent(Intent.ACTION_CREATE_DOCUMENT)
-                .setType("application/zip")
-                .putExtra(Intent.EXTRA_TITLE, "runner_backup_${System.currentTimeMillis()}.zip")
+                .setType("application/x-tar")
+                .putExtra(Intent.EXTRA_TITLE, "runner_backup_${System.currentTimeMillis()}.tar")
         }
 
         final override fun getSynchronousResult(
@@ -351,34 +358,201 @@ class SettingsFragment : BaseFragment() {
                     Runner.service?.backupData(backupTmpDir.absolutePath, arg[2], arg[3], arg[4])
 
                 if (arg[1]) {
-                    val method = PreferenceManager::class.java.getDeclaredMethod(
-                        "getDefaultSharedPreferencesName",
-                        Context::class.java
+                    val prefsInput =
+                        FileInputStream(mContext.applicationInfo.dataDir + "/shared_prefs/${getDefaultSharedPreferencesName()}.xml")
+                    val prefsOutput = FileOutputStream(
+                        "${backupTmpDir.absolutePath}/settings.xml"
                     )
-                    method.isAccessible = true
-                    val settingsName = method.invoke(null, mContext) as String?
-                    if (settingsName != null) {
-                        val prefsInput =
-                            FileInputStream(mContext.applicationInfo.dataDir + "/shared_prefs/$settingsName.xml")
-                        val prefsOutput = FileOutputStream(
-                            "${backupTmpDir.absolutePath}/settings.xml"
-                        )
-                        prefsInput.copyTo(prefsOutput, bufferSize = ServiceImpl.PAGE_SIZE)
-                        prefsInput.close()
-                        prefsOutput.close()
-                    }
+                    prefsInput.copyTo(prefsOutput, bufferSize = ServiceImpl.PAGE_SIZE)
+                    prefsInput.close()
+                    prefsOutput.close()
                 }
                 val output = mContext.contentResolver.openOutputStream(uri)
-                TarArchiveOutputStream(
-                    GzipCompressorOutputStream(output)
-                ).use { taos ->
+                TarArchiveOutputStream(output).use { taos ->
                     taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
-                    ServiceImpl.tarGzFileRecursive(backupTmpDir, backupTmpDir, taos)
+                    ServiceImpl.tarFileRecursive(backupTmpDir, backupTmpDir, taos)
                 }
+                output?.close()
+                ServiceImpl.rmRF(backupTmpDir)
             }.start()
         }
 
     private val pickFileLauncher =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri == null) return@registerForActivityResult
+            Thread {
+                try {
+                    val input = requireContext().contentResolver.openInputStream(uri)
+                    val restoreTmpDir = File(mContext.externalCacheDir, "restoreData")
+                    ServiceImpl.rmRF(restoreTmpDir)
+                    restoreTmpDir.mkdirs()
+                    try {
+                        input.use { fis ->
+                            TarArchiveInputStream(fis).use { tais ->
+                                var entry: TarArchiveEntry?
+                                while ((tais.nextEntry.also { entry = it }) != null) {
+                                    val outFile = File(restoreTmpDir, entry!!.name)
+                                    if (entry.isDirectory()) {
+                                        if (!outFile.exists()) outFile.mkdirs()
+                                    } else if (entry.isSymbolicLink) {
+                                        continue
+                                    } else {
+                                        val parent = outFile.getParentFile()
+                                        if (parent != null && !parent.exists()) parent.mkdirs()
+                                        FileOutputStream(outFile).use { fos ->
+                                            val buffer = ByteArray(ServiceImpl.PAGE_SIZE)
+                                            var len: Int
+                                            while ((tais.read(buffer).also { len = it }) != -1) {
+                                                fos.write(buffer, 0, len)
+                                            }
+                                        }
+                                        outFile.setLastModified(entry.modTime.time)
+                                        outFile.setExecutable((entry.mode and 64) != 0)
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e: IOException) {
+                        Log.e("SettingsFragment", "restoreData error", e)
+                    }
+                    File(restoreTmpDir, "settings.xml").let {
+                        if (it.exists()) {
+                            try {
+                                App.getPreferences().edit(commit = true) {
+                                    clear()
+                                    val factory = XmlPullParserFactory.newInstance()
+                                    factory.isNamespaceAware = true
+                                    val parser = factory.newPullParser()
+                                    parser.setInput(FileInputStream(it), "UTF-8")
+                                    var eventType = parser.eventType
+                                    var currentKey: String? = null
+
+                                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                                        when (eventType) {
+                                            XmlPullParser.START_TAG -> {
+                                                when (parser.name) {
+                                                    "string" -> {
+                                                        currentKey =
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "name"
+                                                            )
+                                                        putString(
+                                                            currentKey,
+                                                            parser.nextText()
+                                                        )
+                                                    }
+
+                                                    "int" -> {
+                                                        currentKey =
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "name"
+                                                            )
+                                                        putInt(
+                                                            currentKey,
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "value"
+                                                            )
+                                                                .toInt()
+                                                        )
+                                                    }
+
+                                                    "long" -> {
+                                                        currentKey =
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "name"
+                                                            )
+                                                        putLong(
+                                                            currentKey,
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "value"
+                                                            )
+                                                                .toLong()
+                                                        )
+                                                    }
+
+                                                    "float" -> {
+                                                        currentKey =
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "name"
+                                                            )
+                                                        putFloat(
+                                                            currentKey,
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "value"
+                                                            )
+                                                                .toFloat()
+                                                        )
+                                                    }
+
+                                                    "boolean" -> {
+                                                        currentKey =
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "name"
+                                                            )
+                                                        putBoolean(
+                                                            currentKey,
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "value"
+                                                            )
+                                                                .toBoolean()
+                                                        )
+                                                    }
+
+                                                    "set" -> {
+                                                        currentKey =
+                                                            parser.getAttributeValue(
+                                                                null,
+                                                                "name"
+                                                            )
+                                                        val stringSet = mutableSetOf<String>()
+                                                        var innerEventType = parser.eventType
+                                                        while (innerEventType != XmlPullParser.END_TAG || parser.name != "set") {
+                                                            if (innerEventType == XmlPullParser.START_TAG && parser.name == "string") {
+                                                                stringSet.add(parser.nextText())
+                                                            }
+                                                            innerEventType = parser.next()
+                                                        }
+                                                        putStringSet(currentKey, stringSet)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        eventType = parser.next()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("SettingsFragment", "restore shared_prefs error", e)
+                            }
+                            mContext.runOnUiThread {
+                                childFragment?.apply {
+                                    preferenceScreen = null
+                                    addPreferencesFromResource(R.xml.preference_setting)
+                                }
+                            }
+                        }
+                    }
+                    Runner.service?.restoreData(restoreTmpDir.absolutePath)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }.start()
         }
+
+    fun getDefaultSharedPreferencesName(): String? {
+        val method = PreferenceManager::class.java.getDeclaredMethod(
+            "getDefaultSharedPreferencesName",
+            Context::class.java
+        )
+        method.isAccessible = true
+        return method.invoke(null, mContext) as String?
+    }
 }
