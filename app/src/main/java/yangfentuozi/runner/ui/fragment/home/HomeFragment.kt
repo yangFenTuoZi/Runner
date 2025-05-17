@@ -48,7 +48,7 @@ class HomeFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
         val l = View.OnClickListener { v: View? -> recyclerView!!.smoothScrollToPosition(0) }
-        getToolbar().setOnClickListener(l)
+        toolbar.setOnClickListener(l)
         Runner.refreshStatus()
         mAdapter.updateData()
         mAdapter.registerListeners()

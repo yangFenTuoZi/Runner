@@ -111,7 +111,7 @@ class RunnerFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        getToolbar().setOnClickListener {
+        toolbar.setOnClickListener {
             mBinding.recyclerView.smoothScrollToPosition(0)
         }
     }

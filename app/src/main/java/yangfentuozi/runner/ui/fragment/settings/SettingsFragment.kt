@@ -265,7 +265,7 @@ class SettingsFragment : BaseFragment() {
             val recyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
             recyclerView.fixEdgeEffect(false, true)
             val l = View.OnClickListener { v: View? -> recyclerView.smoothScrollToPosition(0) }
-            mParentFragment!!.getToolbar().setOnClickListener(l)
+            mParentFragment!!.toolbar.setOnClickListener(l)
             return recyclerView
         }
     }
