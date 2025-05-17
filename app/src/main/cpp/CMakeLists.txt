@@ -6,7 +6,7 @@ add_executable(starter
         starter.c)
 
 add_library(processutils SHARED
-        processutils.cpp)
+        processutils.c)
 
 set_target_properties(starter PROPERTIES PREFIX "lib")
 set_target_properties(starter PROPERTIES SUFFIX ".so")
