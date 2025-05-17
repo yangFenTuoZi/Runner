@@ -139,6 +139,5 @@
     <string name="auto_start_exec">开机启动并执行命令</string>
     <string name="auto_start_exec_summary">在开机时启动，并在连接到服务时自动执行命令</string>
     <string name="startup_script">开机启动时将执行的脚本</string>
-    <string name="auto_start_exec_ids">要降低的目标权限</string>
     <string name="click_edit">点击编辑</string>
 </resources>
