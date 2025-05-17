@@ -30,18 +30,12 @@
             android:key="auto_start_exec"
             android:summary="@string/auto_start_exec_summary"
             android:title="@string/auto_start_exec" />
-        <EditTextPreference
-            android:defaultValue=""
+        <Preference
+            android:defaultValue="false"
             android:icon="@drawable/ic_empty_icon_24"
-            android:key="auto_start_exec_script"
+            android:key="startup_script"
             android:summary="@string/click_edit"
-            android:title="@string/auto_start_exec_script" />
-        <EditTextPreference
-            android:defaultValue=""
-            android:icon="@drawable/ic_empty_icon_24"
-            android:key="auto_start_exec_ids"
-            android:summary="@string/click_edit"
-            android:title="@string/auto_start_exec_ids" />
+            android:title="@string/startup_script" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/update">
 

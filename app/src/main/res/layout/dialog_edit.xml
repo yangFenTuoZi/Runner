@@ -22,7 +22,7 @@
                 android:hint="@string/name">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dialog_name"
+                    android:id="@+id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColorHint="#546E7A" />
@@ -36,7 +36,7 @@
                 android:hint="@string/command">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dialog_command"
+                    android:id="@+id/command"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColorHint="#546E7A" />
@@ -55,7 +55,7 @@
                     android:gravity="center">
 
                     <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/dialog_keep_it_alive"
+                        android:id="@+id/keep_alive"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/keep_alive" />
@@ -68,7 +68,7 @@
                     android:gravity="center">
 
                     <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/dialog_chid"
+                        android:id="@+id/reduce_perm"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/reduce_perm" />
@@ -77,14 +77,14 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/dialog_uid_gid"
+                android:id="@+id/target_perm_parent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="@string/target_perm_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dialog_ids"
+                    android:id="@+id/target_perm"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:digits="1234567890," />

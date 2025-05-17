@@ -182,19 +182,19 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         val position = holder.bindingAdapterPosition
 
         binding.apply {
-            dialogChid.isChecked = info.useChid
-            dialogChid.setOnCheckedChangeListener { _, isChecked ->
-                dialogUidGid.visibility = if (isChecked) View.VISIBLE else View.GONE
+            reducePerm.isChecked = info.reducePerm
+            reducePerm.setOnCheckedChangeListener { _, isChecked ->
+                targetPermParent.visibility = if (isChecked) View.VISIBLE else View.GONE
             }
-            dialogKeepItAlive.isChecked = info.keepAlive
-            dialogUidGid.visibility = if (info.useChid) View.VISIBLE else View.GONE
-            dialogName.setText(info.name)
-            dialogCommand.setText(info.command)
-            dialogIds.setText(info.ids)
-            dialogName.requestFocus()
+            keepAlive.isChecked = info.keepAlive
+            targetPermParent.visibility = if (info.reducePerm) View.VISIBLE else View.GONE
+            name.setText(info.name)
+            command.setText(info.command)
+            targetPerm.setText(info.targetPerm)
+            name.requestFocus()
 
             (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .showSoftInput(dialogName, InputMethodManager.SHOW_IMPLICIT)
+                .showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
         }
 
         try {
@@ -212,12 +212,12 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                     }
 
                     val updatedInfo = CommandInfo().apply {
-                        name = binding.dialogName.text.toString()
-                        command = binding.dialogCommand.text.toString()
-                        keepAlive = binding.dialogKeepItAlive.isChecked
-                        useChid = binding.dialogChid.isChecked
-                        ids =
-                            if (binding.dialogChid.isChecked) binding.dialogIds.text.toString() else null
+                        name = binding.name.text.toString()
+                        command = binding.command.text.toString()
+                        keepAlive = binding.keepAlive.isChecked
+                        reducePerm = binding.reducePerm.isChecked
+                        targetPerm =
+                            if (binding.reducePerm.isChecked) binding.targetPerm.text.toString() else null
                     }
 
                     executorService.execute {

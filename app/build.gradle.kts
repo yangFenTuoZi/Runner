@@ -101,7 +101,7 @@ android {
                     copy {
                         from(mappingFileProvider.get())
                         into(mappingDir)
-                        rename { fileName -> "mapping-${versionName}.txt" }
+                        rename { _ -> "mapping-${versionName}.txt" }
                     }
                     copy {
                         from(outputFile)
@@ -160,9 +160,9 @@ dependencies {
     implementation("dev.rikka.rikkax.widget:borderview:1.1.0")
     implementation("dev.rikka.rikkax.widget:mainswitchbar:1.0.2")
     implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.3.0")
-    implementation("dev.rikka.rikkax.lifecycle:lifecycle-resource-livedata:1.0.1")
-    implementation("dev.rikka.rikkax.lifecycle:lifecycle-shared-viewmodel:1.0.1")
-    implementation("dev.rikka.rikkax.lifecycle:lifecycle-viewmodel-lazy:2.0.0")
+//    implementation("dev.rikka.rikkax.lifecycle:lifecycle-resource-livedata:1.0.1")
+//    implementation("dev.rikka.rikkax.lifecycle:lifecycle-shared-viewmodel:1.0.1")
+//    implementation("dev.rikka.rikkax.lifecycle:lifecycle-viewmodel-lazy:2.0.0")
     implementation("dev.rikka.rikkax.html:html-ktx:1.1.2")
 
     // AndroidX

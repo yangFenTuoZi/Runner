@@ -37,8 +37,8 @@ public class CommandDao {
                 info.name = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_NAME));
                 info.command = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_COMMAND));
                 info.keepAlive = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEEP_ALIVE)) == 1;
-                info.useChid = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_USE_CHID)) == 1;
-                info.ids = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_IDS));
+                info.reducePerm = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_REDUCE_PERM)) == 1;
+                info.targetPerm = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_TARGET_PERM));
                 commands[index++] = info;
             }
             return commands;
@@ -58,8 +58,8 @@ public class CommandDao {
                 info.name = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_NAME));
                 info.command = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_COMMAND));
                 info.keepAlive = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEEP_ALIVE)) == 1;
-                info.useChid = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_USE_CHID)) == 1;
-                info.ids = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_IDS));
+                info.reducePerm = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_REDUCE_PERM)) == 1;
+                info.targetPerm = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_TARGET_PERM));
                 return info;
             }
             return null;
@@ -72,8 +72,8 @@ public class CommandDao {
         values.put(DataDbHelper.COLUMN_NAME, commandInfo.name);
         values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command);
         values.put(DataDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
-        values.put(DataDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
-        values.put(DataDbHelper.COLUMN_IDS, commandInfo.ids);
+        values.put(DataDbHelper.COLUMN_REDUCE_PERM, commandInfo.reducePerm ? 1 : 0);
+        values.put(DataDbHelper.COLUMN_TARGET_PERM, commandInfo.targetPerm);
 
         return db.insert(DataDbHelper.TABLE_COMMANDS, null, values);
     }
@@ -91,8 +91,8 @@ public class CommandDao {
             values.put(DataDbHelper.COLUMN_NAME, commandInfo.name);
             values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command);
             values.put(DataDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
-            values.put(DataDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
-            values.put(DataDbHelper.COLUMN_IDS, commandInfo.ids);
+            values.put(DataDbHelper.COLUMN_REDUCE_PERM, commandInfo.reducePerm ? 1 : 0);
+            values.put(DataDbHelper.COLUMN_TARGET_PERM, commandInfo.targetPerm);
 
             db.insert(DataDbHelper.TABLE_COMMANDS, null, values);
 
@@ -107,8 +107,8 @@ public class CommandDao {
         values.put(DataDbHelper.COLUMN_NAME, commandInfo.name);
         values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command);
         values.put(DataDbHelper.COLUMN_KEEP_ALIVE, commandInfo.keepAlive ? 1 : 0);
-        values.put(DataDbHelper.COLUMN_USE_CHID, commandInfo.useChid ? 1 : 0);
-        values.put(DataDbHelper.COLUMN_IDS, commandInfo.ids);
+        values.put(DataDbHelper.COLUMN_REDUCE_PERM, commandInfo.reducePerm ? 1 : 0);
+        values.put(DataDbHelper.COLUMN_TARGET_PERM, commandInfo.targetPerm);
 
         db.update(DataDbHelper.TABLE_COMMANDS, values,
                 DataDbHelper.COLUMN_POSITION + " = ?",

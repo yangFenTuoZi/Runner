@@ -17,8 +17,8 @@ public class DataDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_COMMAND = "command";
     public static final String COLUMN_KEEP_ALIVE = "keep_alive";
-    public static final String COLUMN_USE_CHID = "use_chid";
-    public static final String COLUMN_IDS = "ids";
+    public static final String COLUMN_REDUCE_PERM = "reduce_perm";
+    public static final String COLUMN_TARGET_PERM = "target_perm";
 
     private static final String TABLE_COMMANDS_CREATE =
             "CREATE TABLE " + TABLE_COMMANDS + " (" +
@@ -27,8 +27,8 @@ public class DataDbHelper extends SQLiteOpenHelper {
                     COLUMN_NAME + " TEXT NOT NULL, " +
                     COLUMN_COMMAND + " TEXT NOT NULL, " +
                     COLUMN_KEEP_ALIVE + " INTEGER NOT NULL DEFAULT 0, " +
-                    COLUMN_USE_CHID + " INTEGER NOT NULL DEFAULT 0, " +
-                    COLUMN_IDS + " TEXT);";
+                    COLUMN_REDUCE_PERM + " INTEGER NOT NULL DEFAULT 0, " +
+                    COLUMN_TARGET_PERM + " TEXT);";
 
     // environment 表
     public static final String TABLE_ENVIRONMENT = "environment";

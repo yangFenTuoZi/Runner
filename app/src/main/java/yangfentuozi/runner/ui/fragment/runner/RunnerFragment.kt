@@ -60,15 +60,15 @@ class RunnerFragment : BaseFragment() {
         val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mContext))
 
         dialogBinding.apply {
-            dialogUidGid.visibility = View.GONE
-            dialogChid.setOnCheckedChangeListener { _, isChecked ->
-                dialogUidGid.visibility = if (isChecked) View.VISIBLE else View.GONE
+            targetPermParent.visibility = View.GONE
+            reducePerm.setOnCheckedChangeListener { _, isChecked ->
+                targetPermParent.visibility = if (isChecked) View.VISIBLE else View.GONE
             }
 
-            dialogName.requestFocus()
-            dialogName.postDelayed({
+            name.requestFocus()
+            name.postDelayed({
                 (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .showSoftInput(dialogName, InputMethodManager.SHOW_IMPLICIT)
+                    .showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
             }, 200)
         }
 
@@ -87,12 +87,12 @@ class RunnerFragment : BaseFragment() {
                     }
 
                     val newCommand = CommandInfo().apply {
-                        command = dialogBinding.dialogCommand.text.toString()
-                        name = dialogBinding.dialogName.text.toString()
-                        keepAlive = dialogBinding.dialogKeepItAlive.isChecked
-                        useChid = dialogBinding.dialogChid.isChecked
-                        ids =
-                            if (dialogBinding.dialogChid.isChecked) dialogBinding.dialogIds.text.toString() else null
+                        command = dialogBinding.command.text.toString()
+                        name = dialogBinding.name.text.toString()
+                        keepAlive = dialogBinding.keepAlive.isChecked
+                        reducePerm = dialogBinding.reducePerm.isChecked
+                        targetPerm =
+                            if (dialogBinding.reducePerm.isChecked) dialogBinding.targetPerm.text.toString() else null
                     }
 
                     if (toPosition == -1)

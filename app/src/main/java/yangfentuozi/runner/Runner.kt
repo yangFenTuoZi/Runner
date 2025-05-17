@@ -19,10 +19,10 @@ object Runner {
     var binder: IBinder? = null
     var shizukuPermission: Boolean = false
     var shizukuStatus: Boolean = false
-    var shizukuUid: Int = 0
-    var shizukuApiVersion: Int = 0
-    var shizukuPatchVersion: Int = 0
-    var serviceVersion: Int = 0
+    var shizukuUid: Int = -1
+    var shizukuApiVersion: Int = -1
+    var shizukuPatchVersion: Int = -1
+    var serviceVersion: Int = -1
 
     private val userServiceArgs: UserServiceArgs = UserServiceArgs(
         ComponentName(
@@ -87,9 +87,9 @@ object Runner {
     private val onBinderDeadListener = OnBinderDeadListener {
         shizukuStatus = false
         shizukuPatchVersion = -1
-        shizukuApiVersion = shizukuPatchVersion
-        shizukuUid = shizukuApiVersion
-        serviceVersion = shizukuUid
+        shizukuApiVersion = -1
+        shizukuUid = -1
+        serviceVersion = -1
         binder = null
         service = null
         scheduleServiceStatusListener(false)
@@ -124,6 +124,24 @@ object Runner {
 
     fun pingServer(): Boolean {
         return binder != null && binder!!.pingBinder()
+    }
+
+    fun waitShizuku(timeOut: Long): Boolean {
+        val startTime = System.currentTimeMillis()
+        while (System.currentTimeMillis() - startTime < timeOut) {
+            if (Shizuku.pingBinder()) return true
+            Thread.sleep(100)
+        }
+        return false
+    }
+
+    fun waitService(timeOut: Long): Boolean {
+        val startTime = System.currentTimeMillis()
+        while (System.currentTimeMillis() - startTime < timeOut) {
+            if (pingServer()) return true
+            Thread.sleep(100)
+        }
+        return false
     }
 
     fun init() {

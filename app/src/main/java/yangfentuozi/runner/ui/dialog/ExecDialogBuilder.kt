@@ -43,7 +43,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
             false
         }
         //子线程执行命令，否则UI线程执行就会导致UI卡住动不了
-        val cmd = if (cmdInfo.useChid) "chid " + cmdInfo.ids + " " + cmdInfo.command
+        val cmd = if (cmdInfo.reducePerm) "chid " + cmdInfo.targetPerm + " " + cmdInfo.command
         else cmdInfo.command
         if (Runner.pingServer()) {
             h1 = Thread {
@@ -93,7 +93,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                             }
                         }
                         try {
-                            Runner.service?.exec(cmd, cmdInfo.ids, cmdInfo.name, callback)
+                            Runner.service?.exec(cmd, cmdInfo.targetPerm, cmdInfo.name, callback)
                         } catch (e: RemoteException) {
                             Log.e(javaClass.getName(), Objects.requireNonNull<String?>(e.message))
                         }
