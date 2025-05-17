@@ -70,8 +70,6 @@
     <string name="not_app_data">It is not App data</string>
     <string name="data_error">Data error</string>
     <string name="decode_error">Decode data error</string>
-    <string name="backup_settings">Backup settings</string>
-    <string name="backup_settings_summary">Back up settings (e.g. night mode, language settings, etc.)</string>
     <string name="check_update">Update</string>
     <string name="connect_update_server_error">Can not connect update server</string>
     <string name="parse_json_error">Can not parse JSON</string>
@@ -142,4 +140,9 @@
     <string name="auto_start_exec_summary">Launch at startup and auto-run commands upon service connection</string>
     <string name="startup_script">The command to be executed</string>
     <string name="click_edit">Click and edit</string>
+    <string name="app_settings">App Settings</string>
+    <string name="database">Database</string>
+    <string name="terminal_home">Terminal Home</string>
+    <string name="terminal_usr">Terminal Usr</string>
+    <string name="select_backup_data">Select the data to be backed up</string>
 </resources>

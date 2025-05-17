@@ -6,9 +6,14 @@ import android.ddm.DdmHandleAppName;
 import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.system.ErrnoException;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -269,6 +274,92 @@ public class ServiceImpl extends IService.Stub {
             Log.e(TAG, "process utils library not loaded");
             return null;
         }
+    }
+
+    @Override
+    public void backupData(String output, boolean data, boolean termHome, boolean termUsr) throws RemoteException {
+        File outputDir = new File(output);
+        if (!outputDir.exists()) outputDir.mkdirs();
+        try {
+            if (termHome) {
+                File homeDir = new File(HOME_PATH);
+                File homeTarGz = new File(outputDir, "home.tar.gz");
+                tarGzDirectory(homeDir, homeTarGz);
+            }
+            if (termUsr) {
+                File usrDir = new File(USR_PATH);
+                File usrTarGz = new File(outputDir, "usr.tar.gz");
+                tarGzDirectory(usrDir, usrTarGz);
+            }
+            if (data) {
+                File dbFile = dataDbHelper.getDatabase().getPath() != null ? new File(dataDbHelper.getDatabase().getPath()) : null;
+                if (dbFile != null && dbFile.exists()) {
+                    File outDb = new File(outputDir, "data.db");
+                    copyFile(new FileInputStream(dbFile), new FileOutputStream(outDb));
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "backupData error", e);
+            throw new RemoteException(Log.getStackTraceString(e));
+        }
+    }
+
+    public static void tarGzDirectory(File srcDir, File tarGzFile) throws IOException {
+        try (TarArchiveOutputStream taos = new TarArchiveOutputStream(
+                new GzipCompressorOutputStream(new FileOutputStream(tarGzFile)))) {
+            taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+            tarGzFileRecursive(srcDir, srcDir, taos);
+        }
+    }
+
+    public static void tarGzFileRecursive(File rootDir, File srcFile, TarArchiveOutputStream taos) throws IOException {
+        String name = rootDir.toURI().relativize(srcFile.toURI()).getPath();
+        boolean isSymlink;
+        try {
+            isSymlink = !srcFile.getAbsolutePath().equals(srcFile.getCanonicalPath());
+        } catch (IOException e) {
+            isSymlink = false;
+        }
+        if (srcFile.isDirectory() && !isSymlink) {
+            if (!name.isEmpty() && !name.endsWith("/")) name += "/";
+            if (!name.isEmpty()) {
+                TarArchiveEntry entry = new TarArchiveEntry(srcFile, name);
+                taos.putArchiveEntry(entry);
+                taos.closeArchiveEntry();
+            }
+            File[] children = srcFile.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    tarGzFileRecursive(rootDir, child, taos);
+                }
+            }
+        } else if (isSymlink) {
+            try {
+                String linkTarget = Os.readlink(srcFile.getAbsolutePath());
+                TarArchiveEntry entry = new TarArchiveEntry(name, TarArchiveEntry.LF_SYMLINK);
+                entry.setLinkName(linkTarget);
+                taos.putArchiveEntry(entry);
+                taos.closeArchiveEntry();
+            } catch (ErrnoException ignored) {
+            }
+        } else {
+            TarArchiveEntry entry = new TarArchiveEntry(srcFile, name);
+            entry.setSize(srcFile.length());
+            taos.putArchiveEntry(entry);
+            try (FileInputStream fis = new FileInputStream(srcFile)) {
+                byte[] buffer = new byte[PAGE_SIZE];
+                int len;
+                while ((len = fis.read(buffer)) != -1) {
+                    taos.write(buffer, 0, len);
+                }
+            }
+            taos.closeArchiveEntry();
+        }
+    }
+
+    @Override
+    public void restoreData(String input) {
+
     }
 
     @Override

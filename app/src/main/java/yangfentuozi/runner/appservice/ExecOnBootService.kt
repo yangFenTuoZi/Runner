@@ -59,8 +59,8 @@ class ExecOnBootService : Service() {
 
     fun exec() {
         val sharedPreferences = App.instance.getSharedPreferences("startup_script", MODE_PRIVATE)
-        val command = sharedPreferences.getString("command", "")
-        val targetPerm = if (sharedPreferences.getBoolean("reduce_perm", false)) sharedPreferences.getString("target_perm", null) else null
+        val command = sharedPreferences.getString("startup_script_command", "")
+        val targetPerm = if (sharedPreferences.getBoolean("startup_script_reduce_perm", false)) sharedPreferences.getString("startup_script_target_perm", null) else null
         if (command.isNullOrEmpty()) {
             Log.i(TAG, "exec: command is empty")
             return

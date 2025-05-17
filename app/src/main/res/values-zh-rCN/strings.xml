@@ -69,8 +69,6 @@
     <string name="not_app_data">不是此APP的数据</string>
     <string name="data_error">数据错误</string>
     <string name="decode_error">解密数据失败</string>
-    <string name="backup_settings">备份设置项</string>
-    <string name="backup_settings_summary">将设置项备份(例如夜间模式、语言设置等)</string>
     <string name="check_update">更新</string>
     <string name="connect_update_server_error">无法连接更新服务</string>
     <string name="parse_json_error">无法解析JSON</string>
@@ -140,4 +138,9 @@
     <string name="auto_start_exec_summary">在开机时启动，并在连接到服务时自动执行命令</string>
     <string name="startup_script">开机启动时将执行的脚本</string>
     <string name="click_edit">点击编辑</string>
+    <string name="app_settings">App 设置项</string>
+    <string name="database">数据库</string>
+    <string name="terminal_home">终端 Home</string>
+    <string name="terminal_usr">终端 Usr</string>
+    <string name="select_backup_data">选择需要备份的数据</string>
 </resources>

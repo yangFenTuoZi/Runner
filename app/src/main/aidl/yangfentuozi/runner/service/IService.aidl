@@ -24,9 +24,6 @@ interface IService {
     void move(int position, int afterPosition) = 206;
     void insertInto(in CommandInfo cmdInfo, int position) = 207;
 
-//    boolean backupData(String input, boolean includeTerm) = 300;
-//    boolean restoreData(String output) = 301;
-
     void deleteEnv(String key) = 300;
     boolean insertEnv(String key, String value) = 301;
     boolean updateEnv(in EnvInfo from, in EnvInfo to) = 302;
@@ -35,6 +32,9 @@ interface IService {
 
     ProcessInfo[] getProcesses() = 400;
     boolean[] sendSignal(in int[] pid, int signal) = 401;
+
+    void backupData(String output, boolean data, boolean termHome, boolean termUsr) = 500;
+    void restoreData(String input) = 501;
 
     void installTermExt(String termExtZip, in IInstallTermExtCallback callback) = 1000;
     void removeTermExt() = 1001;

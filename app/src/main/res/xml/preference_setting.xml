@@ -93,13 +93,6 @@
             android:key="import_data"
             android:summary="@string/import_data_summary"
             android:title="@string/import_data" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_settings_outline_24"
-            android:key="backup_settings"
-            android:summary="@string/backup_settings_summary"
-            android:title="@string/backup_settings" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/about">

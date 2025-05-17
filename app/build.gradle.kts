@@ -184,6 +184,8 @@ dependencies {
     // Hidden API
     compileOnly("dev.rikka.hidden:stub:4.3.3")
     implementation("dev.rikka.hidden:compat:4.3.3")
+
+    implementation("org.apache.commons:commons-compress:1.27.1")
 }
 
 configurations.configureEach {

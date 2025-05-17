@@ -73,15 +73,18 @@ class InstallTermExtActivity : BaseActivity() {
             onMessage(" ! Failed to open file")
             return
         }
-        val termExtCacheDir = getExternalFilesDir("termExtCache")
+        val termExtCacheDir = File(externalCacheDir, "termExtCache")
         ServiceImpl.rmRF(termExtCacheDir)
-        termExtCacheDir?.mkdirs()
+        termExtCacheDir.mkdirs()
         val file = File(termExtCacheDir, "termux_ext.zip");
         try {
             if (!file.exists()) {
                 file.createNewFile()
             }
-            ServiceImpl.copyFile(input, FileOutputStream(file))
+            val output = FileOutputStream(file)
+            input.copyTo(output, bufferSize = ServiceImpl.PAGE_SIZE)
+            input.close()
+            output.close()
         } catch (_: IOException) {
             onMessage(" ! Failed to copy file")
             return
@@ -99,7 +102,7 @@ class InstallTermExtActivity : BaseActivity() {
 
             override fun onExit(isSuccessful: Boolean) {
                 onMessage(if (isSuccessful) " - Installation successful" else " ! Installation failed")
-                onMessage("\n - Cleanup temp: ${termExtCacheDir?.absolutePath}")
+                onMessage("\n - Cleanup temp: ${termExtCacheDir.absolutePath}")
                 ServiceImpl.rmRF(termExtCacheDir)
                 callback = null
             }
