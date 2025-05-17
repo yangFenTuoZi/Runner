@@ -274,7 +274,7 @@ class SettingsFragment : BaseFragment() {
                                 it.visibility = View.GONE
                         }
                     }
-                    targetPermParent.visibility = View.GONE
+                    targetPermParent.visibility = if (reducePerm.isChecked) View.VISIBLE else View.GONE
                     reducePerm.setOnCheckedChangeListener { _, isChecked ->
                         targetPermParent.visibility = if (isChecked) View.VISIBLE else View.GONE
                     }
@@ -535,7 +535,7 @@ class SettingsFragment : BaseFragment() {
                             mContext.runOnUiThread {
                                 childFragment?.apply {
                                     preferenceScreen = null
-                                    addPreferencesFromResource(R.xml.preference_setting)
+                                    onCreatePreferences(null, null)
                                 }
                             }
                         }
