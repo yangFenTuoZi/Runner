@@ -97,7 +97,7 @@ public class ServiceImpl extends IService.Stub {
 
                     copyFile(in, new FileOutputStream(file));
 
-                    file.setExecutable(true);
+                    Os.chmod(STARTER, 0700);
                 } else {
                     Log.e(TAG, "libstarter.so doesn't exist");
                 }
@@ -112,7 +112,7 @@ public class ServiceImpl extends IService.Stub {
 
                     copyFile(in, new FileOutputStream(file));
 
-                    file.setExecutable(true);
+                    Os.chmod(JNI_PROCESS_UTILS, 0500);
 
                     processUtils.loadLibrary();
                 } else {
@@ -120,6 +120,8 @@ public class ServiceImpl extends IService.Stub {
                 }
             } catch (IOException e) {
                 Log.e(TAG, "unzip error", e);
+            } catch (ErrnoException e) {
+                Log.e(TAG, "set permission error", e);
             } finally {
                 try {
                     app.close();
@@ -152,6 +154,22 @@ public class ServiceImpl extends IService.Stub {
         new Thread(() -> {
             var callbackWrapper = new ExecResultCallback(callback);
             try {
+                if (!new File(STARTER).exists()) {
+                    Log.e(TAG, "starter not found");
+                    callbackWrapper.onOutput("starter not found");
+                    callbackWrapper.onExit(127);
+                    return;
+                } else if (!new File(USR_PATH + "/bin/bash").exists()) {
+                    Log.e(TAG, "bash not found");
+                    callbackWrapper.onOutput("bash not found, may be you don't install terminal extension");
+                    callbackWrapper.onExit(127);
+                }
+                try {
+                    Os.chmod(STARTER, 0700);
+                    Os.chmod(USR_PATH + "/bin/bash", 0700);
+                } catch (ErrnoException e) {
+                    Log.w(TAG, "set permission error", e);
+                }
                 var finalIds = ids == null || ids.isEmpty() ? "-1" : ids;
                 var finalProcName = procName == null || procName.isEmpty() ? "execTask" : procName;
                 ProcessBuilder processBuilder = new ProcessBuilder(STARTER, finalIds, finalProcName);
