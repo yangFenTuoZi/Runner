@@ -156,13 +156,16 @@ public class ServiceImpl extends IService.Stub {
             try {
                 if (!new File(STARTER).exists()) {
                     Log.e(TAG, "starter not found");
+                    callbackWrapper.onOutput("-1");
                     callbackWrapper.onOutput("starter not found");
                     callbackWrapper.onExit(127);
                     return;
                 } else if (!new File(USR_PATH + "/bin/bash").exists()) {
                     Log.e(TAG, "bash not found");
+                    callbackWrapper.onOutput("-1");
                     callbackWrapper.onOutput("bash not found, may be you don't install terminal extension");
                     callbackWrapper.onExit(127);
+                    return;
                 }
                 try {
                     Os.chmod(STARTER, 0700);
