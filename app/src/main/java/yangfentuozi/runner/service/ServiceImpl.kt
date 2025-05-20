@@ -323,9 +323,9 @@ class ServiceImpl : IService.Stub() {
                 }
                 callbackWrapper.onExit(p.waitFor())
             } catch (e: Exception) {
-                Log.e(TAG, Log.getStackTraceString(e))
+                Log.e(TAG, e.stackTraceToString())
                 callbackWrapper.onOutput("-1")
-                callbackWrapper.onOutput("! Exception: " + Log.getStackTraceString(e))
+                callbackWrapper.onOutput("! Exception: ${e.stackTraceToString()}")
                 callbackWrapper.onExit(255)
             }
         }.start()
@@ -429,7 +429,7 @@ class ServiceImpl : IService.Stub() {
             }
         } catch (e: IOException) {
             Log.e(TAG, "backupData error", e)
-            throw RemoteException(Log.getStackTraceString(e))
+            throw RemoteException(e.stackTraceToString())
         }
     }
 
@@ -549,9 +549,7 @@ class ServiceImpl : IService.Stub() {
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to unzip file: ${zipEntry.name}", e)
                         callbackWrapper.onMessage(
-                            "! Unable to unzip file: ${zipEntry.name}\n" + Log.getStackTraceString(
-                                e
-                            )
+                            "! Unable to unzip file: ${zipEntry.name}\n${e.stackTraceToString()}"
                         )
                         cleanupAndReturn(false)
                         return@Thread
@@ -592,7 +590,7 @@ class ServiceImpl : IService.Stub() {
                         return@Thread
                     }
                 } catch (e: Exception) {
-                    callbackWrapper.onMessage("! " + Log.getStackTraceString(e))
+                    callbackWrapper.onMessage("! ${e.stackTraceToString()}")
                     cleanupAndReturn(false)
                     return@Thread
                 }
@@ -603,7 +601,7 @@ class ServiceImpl : IService.Stub() {
             } catch (e: IOException) {
                 Log.e(TAG, "read terminal extension file error!", e)
                 callbackWrapper.onMessage(
-                    "! Read terminal extension file error!\n" + Log.getStackTraceString(e)
+                    "! Read terminal extension file error!\n${e.stackTraceToString()}"
                 )
                 callbackWrapper.onExit(false)
                 return@Thread
@@ -627,7 +625,7 @@ class ServiceImpl : IService.Stub() {
                 }
             } catch (e: IOException) {
                 Log.e(TAG, "getTermExtVersion error", e)
-                throw RemoteException(Log.getStackTraceString(e))
+                throw RemoteException(e.stackTraceToString())
             }
         }
         return result ?: TermExtVersion("", -1, "")

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Environment
 import android.os.Looper
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import yangfentuozi.runner.ui.activity.CrashReportActivity
@@ -65,7 +64,7 @@ class App : Application(), Thread.UncaughtExceptionHandler {
         startActivity(
             Intent(this, CrashReportActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .putExtra("crash_info", Log.getStackTraceString(e))
+                .putExtra("crash_info", e.stackTraceToString())
                 .putExtra("crash_file", file.absolutePath)
         )
     }

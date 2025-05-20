@@ -1,47 +1,46 @@
-package yangfentuozi.runner.service.fakecontext;
+package yangfentuozi.runner.service.fakecontext
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.Looper;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
+import yangfentuozi.runner.service.ServiceImpl
+import java.lang.reflect.Constructor
 
 @SuppressLint("PrivateApi,BlockedPrivateApi,SoonBlockedPrivateApi,DiscouragedPrivateApi")
-public final class Workarounds {
+object Workarounds {
+    private var ACTIVITY_THREAD_CLASS: Class<*>? = null
+    private var ACTIVITY_THREAD: Any? = null
 
-    private static final Class<?> ACTIVITY_THREAD_CLASS;
-    private static final Object ACTIVITY_THREAD;
-
-    static {
-//        prepareMainLooper();
-
+    init {
         try {
-            ACTIVITY_THREAD_CLASS = Class.forName("android.app.ActivityThread");
-            Constructor<?> activityThreadConstructor = ACTIVITY_THREAD_CLASS.getDeclaredConstructor();
-            activityThreadConstructor.setAccessible(true);
-            ACTIVITY_THREAD = activityThreadConstructor.newInstance();
+            ACTIVITY_THREAD_CLASS = Class.forName("android.app.ActivityThread")
+            val activityThreadConstructor: Constructor<*>? =
+                ACTIVITY_THREAD_CLASS?.getDeclaredConstructor()
+            activityThreadConstructor?.isAccessible = true
+            ACTIVITY_THREAD = activityThreadConstructor?.newInstance()
 
-            Field sCurrentActivityThreadField = ACTIVITY_THREAD_CLASS.getDeclaredField("sCurrentActivityThread");
-            sCurrentActivityThreadField.setAccessible(true);
-            sCurrentActivityThreadField.set(null, ACTIVITY_THREAD);
-        } catch (Exception e) {
-            throw new AssertionError(e);
+            val sCurrentActivityThreadField =
+                ACTIVITY_THREAD_CLASS?.getDeclaredField("sCurrentActivityThread")
+            sCurrentActivityThreadField?.isAccessible = true
+            sCurrentActivityThreadField?.set(null, ACTIVITY_THREAD)
+        } catch (e: Exception) {
+            throw AssertionError(e)
         }
     }
 
-    private static void prepareMainLooper() {
-        Looper.prepareMainLooper();
-    }
-
-    static Context getSystemContext() {
-        try {
-            Method getSystemContextMethod = ACTIVITY_THREAD_CLASS.getDeclaredMethod("getSystemContext");
-            return (Context) getSystemContextMethod.invoke(ACTIVITY_THREAD);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace(System.err);
-            return null;
+    val systemContext: Context?
+        get() {
+            try {
+                val getSystemContextMethod =
+                    ACTIVITY_THREAD_CLASS!!.getDeclaredMethod("getSystemContext")
+                return getSystemContextMethod.invoke(ACTIVITY_THREAD) as Context?
+            } catch (throwable: Throwable) {
+                Log.e(
+                    ServiceImpl.TAG,
+                    "Workarounds: Failed to get system context: ${throwable.stackTraceToString()}",
+                    throwable
+                )
+                return null
+            }
         }
-    }
 }

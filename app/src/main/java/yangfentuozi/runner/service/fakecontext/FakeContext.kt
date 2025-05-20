@@ -1,54 +1,44 @@
-package yangfentuozi.runner.service.fakecontext;
+package yangfentuozi.runner.service.fakecontext
 
-import android.content.AttributionSource;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.os.Build;
-import android.system.Os;
+import android.content.AttributionSource
+import android.content.Context
+import android.content.ContextWrapper
+import android.os.Build
+import android.system.Os
+import androidx.annotation.RequiresApi
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-
-public final class FakeContext extends ContextWrapper {
-    public static String PACKAGE_NAME = Os.getuid() == 0 ? "root" : "com.android.shell";
-    private static final FakeContext INSTANCE = new FakeContext();
-
-    public static FakeContext get() {
-        return INSTANCE;
+class FakeContext private constructor() : ContextWrapper(Workarounds.systemContext) {
+    override fun getPackageName(): String {
+        return PACKAGE_NAME
     }
 
-    private FakeContext() {
-        super(Workarounds.getSystemContext());
-    }
-
-    @Override
-    public String getPackageName() {
-        return PACKAGE_NAME;
-    }
-
-    @Override
-    @NonNull
-    public String getOpPackageName() {
-        return PACKAGE_NAME;
+    override fun getOpPackageName(): String {
+        return PACKAGE_NAME
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    @Override
-    @NonNull
-    public AttributionSource getAttributionSource() {
-        AttributionSource.Builder builder = new AttributionSource.Builder(Os.getuid());
-        builder.setPackageName(PACKAGE_NAME);
-        return builder.build();
+    override fun getAttributionSource(): AttributionSource {
+        val builder = AttributionSource.Builder(Os.getuid())
+        builder.setPackageName(PACKAGE_NAME)
+        return builder.build()
     }
 
     // @Override to be added on SDK upgrade for Android 14
-    @SuppressWarnings("unused")
-    public int getDeviceId() {
-        return 0;
+    @Suppress("unused")
+    override fun getDeviceId(): Int {
+        return 0
     }
 
-    @Override
-    public Context getApplicationContext() {
-        return this;
+    override fun getApplicationContext(): Context {
+        return this
+    }
+
+    companion object {
+        var PACKAGE_NAME: String = if (Os.getuid() == 0) "root" else "com.android.shell"
+        private val INSTANCE = FakeContext()
+
+        fun get(): FakeContext {
+            return INSTANCE
+        }
     }
 }
