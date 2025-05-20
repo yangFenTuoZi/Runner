@@ -44,7 +44,7 @@ class InstallTermExtActivity : BaseActivity() {
             if (uri != null)
                 handleReceivedFile(uri)
             else {
-                onMessage(" ! Invalid file")
+                onMessage("! Invalid file")
                 return
             }
         } else if (Intent.ACTION_SEND == action && type != null) {
@@ -52,11 +52,11 @@ class InstallTermExtActivity : BaseActivity() {
             if (uri != null)
                 handleReceivedFile(uri)
             else {
-                onMessage(" ! Invalid file")
+                onMessage("! Invalid file")
                 return
             }
         } else {
-            onMessage(" ! Invalid intent")
+            onMessage("! Invalid intent")
             return
         }
     }
@@ -66,11 +66,11 @@ class InstallTermExtActivity : BaseActivity() {
         try {
             input = contentResolver.openInputStream(uri)
         } catch (e: FileNotFoundException) {
-            onMessage(" ! File not found:\n" + e.stackTraceToString())
+            onMessage("! File not found:\n" + e.stackTraceToString())
             return
         }
         if (input == null) {
-            onMessage(" ! Failed to open file")
+            onMessage("! Failed to open file")
             return
         }
         val termExtCacheDir = File(externalCacheDir, "termExtCache")
@@ -86,7 +86,7 @@ class InstallTermExtActivity : BaseActivity() {
             input.close()
             output.close()
         } catch (_: IOException) {
-            onMessage(" ! Failed to copy file")
+            onMessage("! Failed to copy file")
             return
         }
 
@@ -101,8 +101,8 @@ class InstallTermExtActivity : BaseActivity() {
             }
 
             override fun onExit(isSuccessful: Boolean) {
-                onMessage(if (isSuccessful) " - Installation successful" else " ! Installation failed")
-                onMessage("\n - Cleanup temp: ${termExtCacheDir.absolutePath}")
+                onMessage(if (isSuccessful) "- Installation successful" else "! Installation failed")
+                onMessage("\n- Cleanup temp: ${termExtCacheDir.absolutePath}")
                 ServiceImpl.rmRF(termExtCacheDir)
                 callback = null
             }

@@ -322,12 +322,11 @@ class ServiceImpl : IService.Stub() {
                     callbackWrapper.onOutput(line)
                 }
                 callbackWrapper.onExit(p.waitFor())
-            } catch (e: InterruptedException) {
+            } catch (e: Exception) {
                 Log.e(TAG, Log.getStackTraceString(e))
-                callbackWrapper.onOutput(" ! Exception: " + Log.getStackTraceString(e))
-            } catch (e: IOException) {
-                Log.e(TAG, Log.getStackTraceString(e))
-                callbackWrapper.onOutput(" ! Exception: " + Log.getStackTraceString(e))
+                callbackWrapper.onOutput("-1")
+                callbackWrapper.onOutput("! Exception: " + Log.getStackTraceString(e))
+                callbackWrapper.onExit(255)
             }
         }.start()
     }
@@ -477,7 +476,7 @@ class ServiceImpl : IService.Stub() {
             val callbackWrapper = InstallTermExtCallback(callback)
             try {
                 Log.i(TAG, "install terminal extension: $termExtZip")
-                callbackWrapper.onMessage(" - Install terminal extension: $termExtZip")
+                callbackWrapper.onMessage("- Install terminal extension: $termExtZip")
                 val app = ZipFile(termExtZip)
                 val buildPropEntry = app.getEntry("build.prop")
                 val installShEntry = app.getEntry("install.sh")
@@ -505,23 +504,28 @@ class ServiceImpl : IService.Stub() {
                 )
                 callbackWrapper.onMessage(
                     """
-                         - Terminal extension:
-                         - Version: ${termExtVersion.versionName} (${termExtVersion.versionCode})
-                         - ABI: ${termExtVersion.abi}
+                       - Terminal extension:
+                       - Version: ${termExtVersion.versionName} (${termExtVersion.versionCode})
+                       - ABI: ${termExtVersion.abi}
                     """.trimIndent()
                 )
                 val indexOf = Build.SUPPORTED_ABIS.indexOf(termExtVersion.abi)
                 if (indexOf == -1) {
                     Log.e(TAG, "unsupported ABI: ${termExtVersion.abi}")
-                    callbackWrapper.onMessage(" ! Unsupported ABI: ${termExtVersion.abi}")
+                    callbackWrapper.onMessage("! Unsupported ABI: ${termExtVersion.abi}")
                     callbackWrapper.onExit(false)
                     return@Thread
                 } else if (indexOf != 0) {
                     Log.w(TAG, "ABI is not preferred: ${termExtVersion.abi}")
-                    callbackWrapper.onMessage(" - ABI is not preferred: ${termExtVersion.abi}")
+                    callbackWrapper.onMessage("- ABI is not preferred: ${termExtVersion.abi}")
+                }
+                fun cleanupAndReturn(isSuccessful: Boolean) {
+                    callbackWrapper.onMessage("- Cleanup $DATA_PATH/install_temp")
+                    rmRF(File("$DATA_PATH/install_temp"))
+                    callbackWrapper.onExit(isSuccessful)
                 }
                 Log.i(TAG, "unzip files.")
-                callbackWrapper.onMessage(" - Unzip files.")
+                callbackWrapper.onMessage("- Unzip files.")
                 val entries = app.entries()
                 while (entries.hasMoreElements()) {
                     val zipEntry = entries.nextElement()
@@ -531,13 +535,13 @@ class ServiceImpl : IService.Stub() {
                                 TAG,
                                 "unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'"
                             )
-                            callbackWrapper.onMessage(" - Unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'")
+                            callbackWrapper.onMessage("- Unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'")
                             val file = File("$DATA_PATH/install_temp/${zipEntry.name}")
                             if (!file.exists()) file.mkdirs()
                         } else {
                             val file = File("$DATA_PATH/install_temp/${zipEntry.name}")
                             Log.i(TAG, "unzip '${zipEntry.name}' to '${file.absolutePath}'")
-                            callbackWrapper.onMessage(" - Unzip '${zipEntry.name}' to '${file.absolutePath}'")
+                            callbackWrapper.onMessage("- Unzip '${zipEntry.name}' to '${file.absolutePath}'")
                             file.parentFile?.let { if (!it.exists()) it.mkdirs() }
                             if (!file.exists()) file.createNewFile()
                             copyFile(app.getInputStream(zipEntry), FileOutputStream(file))
@@ -545,29 +549,25 @@ class ServiceImpl : IService.Stub() {
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to unzip file: ${zipEntry.name}", e)
                         callbackWrapper.onMessage(
-                            " ! Unable to unzip file: ${zipEntry.name}\n" + Log.getStackTraceString(
+                            "! Unable to unzip file: ${zipEntry.name}\n" + Log.getStackTraceString(
                                 e
                             )
                         )
-                        callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
-                        rmRF(File("$DATA_PATH/install_temp"))
-                        callbackWrapper.onExit(false)
+                        cleanupAndReturn(false)
                         return@Thread
                     }
                 }
                 Log.i(TAG, "complete unzipping")
-                callbackWrapper.onMessage(" - Complete unzipping")
+                callbackWrapper.onMessage("- Complete unzipping")
                 val installScript = "$DATA_PATH/install_temp/install.sh"
                 if (!File(installScript).setExecutable(true)) {
                     Log.e(TAG, "unable to set executable")
-                    callbackWrapper.onMessage(" ! Unable to set executable")
-                    callbackWrapper.onMessage(" - Clean up $DATA_PATH/install_temp")
-                    rmRF(File("$DATA_PATH/install_temp"))
-                    callbackWrapper.onExit(false)
+                    callbackWrapper.onMessage("! Unable to set executable")
+                    cleanupAndReturn(false)
                     return@Thread
                 }
                 Log.i(TAG, "execute install script")
-                callbackWrapper.onMessage(" - Execute install script")
+                callbackWrapper.onMessage("- Execute install script")
                 try {
                     val process = Runtime.getRuntime().exec("/system/bin/sh")
                     val out = process.outputStream
@@ -578,41 +578,35 @@ class ServiceImpl : IService.Stub() {
                     var line: String?
                     while (br.readLine().also { line = it } != null) {
                         Log.i(TAG, "output: $line")
-                        callbackWrapper.onMessage(" - ScriptOuts: $line")
+                        callbackWrapper.onMessage("- ScriptOuts: $line")
                     }
                     br.close()
                     val ev = process.waitFor()
                     if (ev == 0) {
                         Log.i(TAG, "exit with 0")
-                        callbackWrapper.onMessage(" - Install script exit successfully")
+                        callbackWrapper.onMessage("- Install script exit successfully")
                     } else {
                         Log.e(TAG, "exit with non-zero value $ev")
-                        callbackWrapper.onMessage(" ! Install script exit with non-zero value $ev")
-                        callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
-                        rmRF(File("$DATA_PATH/install_temp"))
-                        callbackWrapper.onExit(false)
+                        callbackWrapper.onMessage("! Install script exit with non-zero value $ev")
+                        cleanupAndReturn(false)
                         return@Thread
                     }
                 } catch (e: Exception) {
-                    callbackWrapper.onMessage(" ! " + Log.getStackTraceString(e))
-                    callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
-                    rmRF(File("$DATA_PATH/install_temp"))
-                    callbackWrapper.onExit(false)
+                    callbackWrapper.onMessage("! " + Log.getStackTraceString(e))
+                    cleanupAndReturn(false)
                     return@Thread
                 }
-                callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
-                rmRF(File("$DATA_PATH/install_temp"))
+                callbackWrapper.onMessage("- Finish")
                 Log.i(TAG, "finish")
-                callbackWrapper.onMessage(" - Finish")
-                callbackWrapper.onExit(true)
+                cleanupAndReturn(true)
+                return@Thread
             } catch (e: IOException) {
                 Log.e(TAG, "read terminal extension file error!", e)
                 callbackWrapper.onMessage(
-                    " ! Read terminal extension file error!\n" + Log.getStackTraceString(
-                        e
-                    )
+                    "! Read terminal extension file error!\n" + Log.getStackTraceString(e)
                 )
                 callbackWrapper.onExit(false)
+                return@Thread
             }
         }.start()
     }
