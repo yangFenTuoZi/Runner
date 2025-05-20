@@ -38,12 +38,14 @@ class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragmen
         if (processInfo == null) return
 
         var niceNameFlag = false
-        for (arg in processInfo.args) {
-            if (niceNameFlag) {
-                holder.mBindingInner.itemName.text = arg
-                break
+        if (processInfo.args != null) {
+            for (arg in processInfo.args) {
+                if (niceNameFlag) {
+                    holder.mBindingInner.itemName.text = arg
+                    break
+                }
+                if (arg == "--nice-name") niceNameFlag = true
             }
-            if (arg == "--nice-name") niceNameFlag = true
         }
 
         holder.mBindingInner.itemPid.text = mContext.getString(R.string.pid_info, processInfo.pid)

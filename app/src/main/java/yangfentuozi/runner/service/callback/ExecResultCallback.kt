@@ -1,26 +1,19 @@
-package yangfentuozi.runner.service.callback;
+package yangfentuozi.runner.service.callback
 
-import android.os.RemoteException;
+import android.os.RemoteException
 
-public class ExecResultCallback {
-
-    private final IExecResultCallback mCallback;
-
-    public ExecResultCallback(IExecResultCallback callback) {
-        mCallback = callback;
-    }
-
-    public void onOutput(String outputs) {
+class ExecResultCallback(private val mCallback: IExecResultCallback?) {
+    fun onOutput(outputs: String?) {
         try {
-            mCallback.onOutput(outputs);
-        } catch (RemoteException ignored) {
+            mCallback?.onOutput(outputs)
+        } catch (_: RemoteException) {
         }
     }
 
-    public void onExit(int exitValue) {
+    fun onExit(exitValue: Int) {
         try {
-            mCallback.onExit(exitValue);
-        } catch (RemoteException ignored) {
+            mCallback?.onExit(exitValue)
+        } catch (_: RemoteException) {
         }
     }
 }

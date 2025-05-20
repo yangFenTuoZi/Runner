@@ -1,649 +1,641 @@
-package yangfentuozi.runner.service;
+package yangfentuozi.runner.service
 
-import static android.util.Log.getStackTraceString;
+import android.ddm.DdmHandleAppName
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.RemoteException
+import android.system.ErrnoException
+import android.system.Os
+import android.system.OsConstants
+import android.util.Log
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+import rikka.hidden.compat.PackageManagerApis
+import yangfentuozi.runner.BuildConfig
+import yangfentuozi.runner.service.callback.ExecResultCallback
+import yangfentuozi.runner.service.callback.IExecResultCallback
+import yangfentuozi.runner.service.callback.IInstallTermExtCallback
+import yangfentuozi.runner.service.callback.InstallTermExtCallback
+import yangfentuozi.runner.service.data.CommandInfo
+import yangfentuozi.runner.service.data.EnvInfo
+import yangfentuozi.runner.service.data.ProcessInfo
+import yangfentuozi.runner.service.data.TermExtVersion
+import yangfentuozi.runner.service.database.CommandDao
+import yangfentuozi.runner.service.database.DataDbHelper
+import yangfentuozi.runner.service.database.EnvironmentDao
+import yangfentuozi.runner.service.fakecontext.FakeContext
+import yangfentuozi.runner.service.util.ProcessUtils
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStream
+import java.util.regex.Pattern
+import java.util.zip.ZipFile
+import kotlin.system.exitProcess
 
-import android.ddm.DdmHandleAppName;
-import android.os.Build;
-import android.os.Handler;
-import android.os.RemoteException;
-import android.system.ErrnoException;
-import android.system.Os;
-import android.system.OsConstants;
-import android.util.Log;
+class ServiceImpl : IService.Stub() {
+    companion object {
+        const val TAG = "runner_server"
+        const val DATA_PATH = "/data/local/tmp/runner"
+        const val USR_PATH = "$DATA_PATH/usr"
+        const val HOME_PATH = "$DATA_PATH/home"
+        const val STARTER = "$HOME_PATH/.local/bin/starter"
+        const val JNI_PROCESS_UTILS = "$HOME_PATH/.local/lib/libprocessutils.so"
+        val PAGE_SIZE: Int = Os.sysconf(OsConstants._SC_PAGESIZE).toInt()
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import rikka.hidden.compat.PackageManagerApis;
-import yangfentuozi.runner.BuildConfig;
-import yangfentuozi.runner.service.callback.ExecResultCallback;
-import yangfentuozi.runner.service.callback.IExecResultCallback;
-import yangfentuozi.runner.service.callback.IInstallTermExtCallback;
-import yangfentuozi.runner.service.callback.InstallTermExtCallback;
-import yangfentuozi.runner.service.data.CommandInfo;
-import yangfentuozi.runner.service.data.EnvInfo;
-import yangfentuozi.runner.service.data.ProcessInfo;
-import yangfentuozi.runner.service.data.TermExtVersion;
-import yangfentuozi.runner.service.database.CommandDao;
-import yangfentuozi.runner.service.database.DataDbHelper;
-import yangfentuozi.runner.service.database.EnvironmentDao;
-import yangfentuozi.runner.service.fakecontext.FakeContext;
-import yangfentuozi.runner.service.jni.ProcessUtils;
-
-public class ServiceImpl extends IService.Stub {
-
-    public static final String TAG = "runner_server";
-    public static final String DATA_PATH = "/data/local/tmp/runner";
-    public static final String USR_PATH = DATA_PATH + "/usr";
-    public static final String HOME_PATH = DATA_PATH + "/home";
-    public static final String STARTER = HOME_PATH + "/.local/bin/starter";
-    public static final String JNI_PROCESS_UTILS = HOME_PATH + "/.local/lib/libprocessutils.so";
-    public final Handler mHandler;
-    private DataDbHelper dataDbHelper = new DataDbHelper(FakeContext.get());
-    private CommandDao commandDao = new CommandDao(dataDbHelper.getDatabase());
-    private EnvironmentDao environmentDao = new EnvironmentDao(dataDbHelper.getDatabase());
-    private final ProcessUtils processUtils = new ProcessUtils();
-
-    public ServiceImpl() {
-        DdmHandleAppName.setAppName(TAG, Os.getuid());
-        Log.i(TAG, "start");
-        {
-            ifExistsOrMkdirs(new File(HOME_PATH + "/.local/bin"));
-            ifExistsOrMkdirs(new File(HOME_PATH + "/.local/lib"));
+        fun tarGzDirectory(srcDir: File, tarGzFile: File) {
+            TarArchiveOutputStream(GzipCompressorOutputStream(FileOutputStream(tarGzFile))).use { taos ->
+                taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+                tarFileRecursive(srcDir, srcDir, taos)
+            }
         }
-        mHandler = new Handler();
 
-        ZipFile app = null;
+        fun tarFileRecursive(rootDir: File, srcFile: File, taos: TarArchiveOutputStream) {
+            var name = rootDir.toURI().relativize(srcFile.toURI()).path
+            val isSymlink = try {
+                srcFile.absolutePath != srcFile.canonicalPath
+            } catch (_: IOException) {
+                false
+            }
+            if (srcFile.isDirectory && !isSymlink) {
+                if (name.isNotEmpty() && !name.endsWith("/")) name += "/"
+                if (name.isNotEmpty()) {
+                    val entry = TarArchiveEntry(srcFile, name)
+                    taos.putArchiveEntry(entry)
+                    taos.closeArchiveEntry()
+                }
+                srcFile.listFiles()?.forEach { child ->
+                    tarFileRecursive(rootDir, child, taos)
+                }
+            } else if (isSymlink) {
+                try {
+                    val linkTarget = Os.readlink(srcFile.absolutePath)
+                    val entry = TarArchiveEntry(name, TarArchiveEntry.LF_SYMLINK)
+                    entry.linkName = linkTarget
+                    taos.putArchiveEntry(entry)
+                    taos.closeArchiveEntry()
+                } catch (_: ErrnoException) {
+                }
+            } else {
+                val entry = TarArchiveEntry(srcFile, name)
+                entry.size = srcFile.length()
+                taos.putArchiveEntry(entry)
+                FileInputStream(srcFile).use { fis ->
+                    val buffer = ByteArray(PAGE_SIZE)
+                    var len: Int
+                    while (fis.read(buffer).also { len = it } != -1) {
+                        taos.write(buffer, 0, len)
+                    }
+                }
+                taos.closeArchiveEntry()
+            }
+        }
+
+        fun extractTarGz(tarGzFile: File, destDir: File) {
+            if (!destDir.exists()) destDir.mkdirs()
+            FileInputStream(tarGzFile).use { fis ->
+                GzipCompressorInputStream(fis).use { gis ->
+                    TarArchiveInputStream(gis).use { tais ->
+                        var entry: TarArchiveEntry?
+                        while (tais.nextEntry.also { entry = it } != null) {
+                            val outFile = File(destDir, entry!!.name)
+                            if (entry.isDirectory) {
+                                if (!outFile.exists()) outFile.mkdirs()
+                            } else if (entry.isSymbolicLink) {
+                                val target = File(entry.linkName)
+                                try {
+                                    Os.symlink(target.path, outFile.path)
+                                } catch (e: Exception) {
+                                    Log.w(
+                                        TAG,
+                                        "extractTarGz: symlink failed: $outFile -> $target",
+                                        e
+                                    )
+                                }
+                            } else {
+                                val parent = outFile.parentFile
+                                if (parent != null && !parent.exists()) parent.mkdirs()
+                                FileOutputStream(outFile).use { fos ->
+                                    val buffer = ByteArray(PAGE_SIZE)
+                                    var len: Int
+                                    while (tais.read(buffer).also { len = it } != -1) {
+                                        fos.write(buffer, 0, len)
+                                    }
+                                }
+                                outFile.setLastModified(entry.modTime.time)
+                                outFile.setExecutable((entry.mode and "100".toInt(8)) != 0)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        fun rmRF(file: File) {
+            if (file.isDirectory) {
+                file.listFiles()?.forEach { f -> rmRF(f) }
+            }
+            file.delete()
+        }
+
+        fun ifExistsOrMkdirs(file: File) {
+            if (!file.exists()) file.mkdirs()
+        }
+
+        fun copyFile(inputStream: InputStream, outputStream: OutputStream) {
+            BufferedInputStream(inputStream).use { `in` ->
+                BufferedOutputStream(outputStream).use { out ->
+                    val b = ByteArray(PAGE_SIZE)
+                    var len: Int
+                    while (`in`.read(b).also { len = it } != -1) {
+                        out.write(b, 0, len)
+                    }
+                }
+            }
+        }
+    }
+
+    val mHandler: Handler
+    private var dataDbHelper: DataDbHelper = DataDbHelper(FakeContext.get())
+    private var commandDao: CommandDao = CommandDao(dataDbHelper.database)
+    private var environmentDao: EnvironmentDao = EnvironmentDao(dataDbHelper.database)
+    private val processUtils = ProcessUtils()
+
+    init {
+        DdmHandleAppName.setAppName(TAG, Os.getuid())
+        Log.i(TAG, "start")
+        ifExistsOrMkdirs(File("$HOME_PATH/.local/bin"))
+        ifExistsOrMkdirs(File("$HOME_PATH/.local/lib"))
+        mHandler = Handler(Looper.getMainLooper())
+        var app: ZipFile? = null
         try {
-            app = new ZipFile(PackageManagerApis.getApplicationInfo(BuildConfig.APPLICATION_ID, 0, 0).sourceDir);
-        } catch (RemoteException | IOException e) {
-            Log.e(TAG, e instanceof RemoteException ? "get application info error" : "open apk zip file error", e);
+            app = ZipFile(
+                PackageManagerApis.getApplicationInfo(
+                    BuildConfig.APPLICATION_ID,
+                    0,
+                    0
+                )?.sourceDir
+            )
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                if (e is RemoteException) "get application info error" else "open apk zip file error",
+                e
+            )
         }
-
         if (app == null) {
-            Log.w(TAG, "ignore unzip library from app zip file");
+            Log.w(TAG, "ignore unzip library from app zip file")
         } else {
             try {
-                ZipEntry entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libstarter.so");
+                var entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libstarter.so")
                 if (entry != null) {
-                    Log.i(TAG, "unzip starter");
-                    InputStream in = app.getInputStream(entry);
-                    File file = new File(STARTER);
-                    if (!file.exists()) {
-                        file.createNewFile();
-                    }
-
-                    copyFile(in, new FileOutputStream(file));
-
-                    Os.chmod(STARTER, 0700);
+                    Log.i(TAG, "unzip starter")
+                    val `in` = app.getInputStream(entry)
+                    val file = File(STARTER)
+                    if (!file.exists()) file.createNewFile()
+                    copyFile(`in`, FileOutputStream(file))
+                    Os.chmod(STARTER, "700".toInt(8))
                 } else {
-                    Log.e(TAG, "libstarter.so doesn't exist");
+                    Log.e(TAG, "libstarter.so doesn't exist")
                 }
-                entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libprocessutils.so");
+                entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libprocessutils.so")
                 if (entry != null) {
-                    Log.i(TAG, "unzip libprocessutils.so");
-                    InputStream in = app.getInputStream(entry);
-                    File file = new File(JNI_PROCESS_UTILS);
-                    if (!file.exists()) {
-                        file.createNewFile();
-                    }
-
-                    copyFile(in, new FileOutputStream(file));
-
-                    Os.chmod(JNI_PROCESS_UTILS, 0500);
-
-                    processUtils.loadLibrary();
+                    Log.i(TAG, "unzip libprocessutils.so")
+                    val `in` = app.getInputStream(entry)
+                    val file = File(JNI_PROCESS_UTILS)
+                    if (!file.exists()) file.createNewFile()
+                    copyFile(`in`, FileOutputStream(file))
+                    Os.chmod(JNI_PROCESS_UTILS, "500".toInt(8))
+                    processUtils.loadLibrary()
                 } else {
-                    Log.e(TAG, "libprocessutils.so doesn't exist");
+                    Log.e(TAG, "libprocessutils.so doesn't exist")
                 }
-            } catch (IOException e) {
-                Log.e(TAG, "unzip error", e);
-            } catch (ErrnoException e) {
-                Log.e(TAG, "set permission error", e);
+            } catch (e: IOException) {
+                Log.e(TAG, "unzip error", e)
+            } catch (e: ErrnoException) {
+                Log.e(TAG, "set permission error", e)
             } finally {
                 try {
-                    app.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "close apk zip file error", e);
+                    app.close()
+                } catch (e: IOException) {
+                    Log.e(TAG, "close apk zip file error", e)
                 }
             }
         }
     }
 
-    @Override
-    public void destroy() {
-        Log.i(TAG, "stop");
-        dataDbHelper.close();
-        System.exit(0);
+    override fun destroy() {
+        Log.i(TAG, "stop")
+        dataDbHelper.close()
+        exitProcess(0)
     }
 
-    @Override
-    public void exit() {
-        destroy();
+    override fun exit() {
+        destroy()
     }
 
-    @Override
-    public int version() throws RemoteException {
-        return BuildConfig.VERSION_CODE;
+    override fun version(): Int {
+        return BuildConfig.VERSION_CODE
     }
 
-    @Override
-    public void exec(String cmd, String ids, String procName, IExecResultCallback callback) {
-        new Thread(() -> {
-            var callbackWrapper = new ExecResultCallback(callback);
+    override fun exec(
+        cmd: String?,
+        ids: String?,
+        procName: String?,
+        callback: IExecResultCallback?
+    ) {
+        Thread {
+            val callbackWrapper = ExecResultCallback(callback)
             try {
-                if (!new File(STARTER).exists()) {
-                    Log.e(TAG, "starter not found");
-                    callbackWrapper.onOutput("-1");
-                    callbackWrapper.onOutput("starter not found");
-                    callbackWrapper.onExit(127);
-                    return;
-                } else if (!new File(USR_PATH + "/bin/bash").exists()) {
-                    Log.e(TAG, "bash not found");
-                    callbackWrapper.onOutput("-1");
-                    callbackWrapper.onOutput("bash not found, may be you don't install terminal extension");
-                    callbackWrapper.onExit(127);
-                    return;
+                if (!File(STARTER).exists()) {
+                    Log.e(TAG, "starter not found")
+                    callbackWrapper.onOutput("-1")
+                    callbackWrapper.onOutput("starter not found")
+                    callbackWrapper.onExit(127)
+                    return@Thread
+                } else if (!File("$USR_PATH/bin/bash").exists()) {
+                    Log.e(TAG, "bash not found")
+                    callbackWrapper.onOutput("-1")
+                    callbackWrapper.onOutput("bash not found, may be you don't install terminal extension")
+                    callbackWrapper.onExit(127)
+                    return@Thread
                 }
                 try {
-                    Os.chmod(STARTER, 0700);
-                    Os.chmod(USR_PATH + "/bin/bash", 0700);
-                } catch (ErrnoException e) {
-                    Log.w(TAG, "set permission error", e);
+                    Os.chmod(STARTER, "700".toInt(8))
+                    Os.chmod("$USR_PATH/bin/bash", "700".toInt(8))
+                } catch (e: ErrnoException) {
+                    Log.w(TAG, "set permission error", e)
                 }
-                var finalIds = ids == null || ids.isEmpty() ? "-1" : ids;
-                var finalProcName = procName == null || procName.isEmpty() ? "execTask" : procName;
-                ProcessBuilder processBuilder = new ProcessBuilder(STARTER, finalIds, finalProcName);
-                Map<String, String> processEnv = processBuilder.environment();
-                var customEnv = getAllEnv();
-                processEnv.put("PREFIX", USR_PATH);
-                processEnv.put("HOME", HOME_PATH);
-                processEnv.put("TMPDIR", USR_PATH + "/tmp");
-                processEnv.merge("PATH", HOME_PATH + "/.local/bin:" + USR_PATH + "/bin:" + USR_PATH + "/bin/applets", (oldValue, newValue) -> newValue + ":" + oldValue);
-                processEnv.merge("LD_LIBRARY_PATH", HOME_PATH + "/.local/lib:" + USR_PATH + "/lib", (oldValue, newValue) -> newValue + ":" + oldValue);
-
-                for (EnvInfo entry : customEnv) {
-                    processEnv.merge(entry.key, entry.value, (oldValue, newValue) ->
-                            newValue.replaceAll(String.format("\\$(%1$s|\\{%1$s\\})", Pattern.quote(entry.key)), oldValue));
+                val finalIds = if (ids.isNullOrEmpty()) "-1" else ids
+                val finalProcName = if (procName.isNullOrEmpty()) "execTask" else procName
+                val processBuilder = ProcessBuilder(STARTER, finalIds, finalProcName)
+                val processEnv = processBuilder.environment()
+                val customEnv = allEnv
+                processEnv["PREFIX"] = USR_PATH
+                processEnv["HOME"] = HOME_PATH
+                processEnv["TMPDIR"] = "$USR_PATH/tmp"
+                processEnv.merge(
+                    "PATH",
+                    "$HOME_PATH/.local/bin:$USR_PATH/bin:$USR_PATH/bin/applets"
+                ) { old, new -> "$new:$old" }
+                processEnv.merge(
+                    "LD_LIBRARY_PATH",
+                    "$HOME_PATH/.local/lib:$USR_PATH/lib"
+                ) { old, new -> "$new:$old" }
+                if (customEnv != null) {
+                    for (entry in customEnv) {
+                        entry.key?.let { key ->
+                            entry.value?.let { value ->
+                                processEnv.merge(key, value) { old, new ->
+                                    new.replace(
+                                        Regex("\\$(${Pattern.quote(key)}|\\{${Pattern.quote(key)}\\})"),
+                                        old
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-                processBuilder.redirectErrorStream(true);
-                Process p = processBuilder.start();
-                OutputStream out = p.getOutputStream();
-                out.write(String.format("""
-                        echo $$;. %s/etc/profile;%s;exit
-                        """, USR_PATH, cmd).getBytes());
-                out.flush();
-                out.close();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line;
-                while ((line = bufferedReader.readLine()) != null)
-                    callbackWrapper.onOutput(line);
-                callbackWrapper.onExit(p.waitFor());
-            } catch (InterruptedException | IOException e) {
-                Log.e(TAG, getStackTraceString(e));
-                callbackWrapper.onOutput(" ! Exception: " + getStackTraceString(e));
+                processBuilder.redirectErrorStream(true)
+                val p = processBuilder.start()
+                val out = p.outputStream
+                out.write(
+                    """
+                    echo $$;. $USR_PATH/etc/profile;${cmd ?: ""};exit
+                    """.trimIndent().toByteArray()
+                )
+                out.flush()
+                out.close()
+                val bufferedReader = BufferedReader(InputStreamReader(p.inputStream))
+                var line: String?
+                while (bufferedReader.readLine().also { line = it } != null) {
+                    callbackWrapper.onOutput(line)
+                }
+                callbackWrapper.onExit(p.waitFor())
+            } catch (e: InterruptedException) {
+                Log.e(TAG, Log.getStackTraceString(e))
+                callbackWrapper.onOutput(" ! Exception: " + Log.getStackTraceString(e))
+            } catch (e: IOException) {
+                Log.e(TAG, Log.getStackTraceString(e))
+                callbackWrapper.onOutput(" ! Exception: " + Log.getStackTraceString(e))
             }
-        }).start();
+        }.start()
     }
 
-    @Override
-    public int size() {
-        return commandDao.size();
+    override fun size(): Int = commandDao.size()
+
+    override fun read(position: Int): CommandInfo? = commandDao.read(position)
+
+    override fun readAll(): Array<CommandInfo>? = commandDao.readAll()?.toTypedArray()
+
+    override fun delete(position: Int) {
+        commandDao.delete(position)
     }
 
-    @Override
-    public CommandInfo read(int position) {
-        return commandDao.read(position);
+    override fun edit(cmdInfo: CommandInfo?, position: Int) {
+        if (cmdInfo != null) commandDao.edit(cmdInfo, position)
     }
 
-    @Override
-    public CommandInfo[] readAll() {
-        return commandDao.readAll();
+    override fun insert(cmdInfo: CommandInfo?) {
+        if (cmdInfo != null) commandDao.insert(cmdInfo)
     }
 
-    @Override
-    public void delete(int position) {
-        commandDao.delete(position);
+    override fun move(fromPosition: Int, toPosition: Int) {
+        commandDao.move(fromPosition, toPosition)
     }
 
-    @Override
-    public void edit(CommandInfo cmdInfo, int position) {
-        commandDao.edit(cmdInfo, position);
+    override fun insertInto(cmdInfo: CommandInfo?, position: Int) {
+        if (cmdInfo != null) commandDao.insertInto(cmdInfo, position)
     }
 
-    @Override
-    public void insert(CommandInfo cmdInfo) {
-        commandDao.insert(cmdInfo);
+    override fun deleteEnv(key: String?) {
+        if (key != null) environmentDao.delete(key)
     }
 
-    @Override
-    public void move(int fromPosition, int toPosition) {
-        commandDao.move(fromPosition, toPosition);
+    override fun insertEnv(key: String?, value: String?): Boolean {
+        return if (key != null && value != null) environmentDao.insert(key, value) else false
     }
 
-    @Override
-    public void insertInto(CommandInfo cmdInfo, int position) {
-        commandDao.insertInto(cmdInfo, position);
+    override fun updateEnv(from: EnvInfo?, to: EnvInfo?): Boolean {
+        return if (from != null && to != null) environmentDao.update(
+            from.key,
+            from.value,
+            to.key,
+            to.value
+        ) else false
     }
 
-    @Override
-    public void deleteEnv(String key) {
-        environmentDao.delete(key);
+    override fun getEnv(key: String?): String? {
+        return if (key != null) environmentDao.getValue(key) else null
     }
 
-    @Override
-    public boolean insertEnv(String key, String value) {
-        return environmentDao.insert(key, value);
+    override fun getAllEnv(): Array<EnvInfo>? {
+        return environmentDao.all?.toTypedArray()
     }
 
-    @Override
-    public boolean updateEnv(EnvInfo from, EnvInfo to) {
-        return environmentDao.update(from.key, from.value, to.key, to.value);
-    }
-
-    @Override
-    public String getEnv(String key) {
-        return environmentDao.getValue(key);
-    }
-
-    @Override
-    public EnvInfo[] getAllEnv() {
-        return environmentDao.getAll().toArray(new EnvInfo[0]);
-    }
-
-    @Override
-    public ProcessInfo[] getProcesses() {
-        if (processUtils.isLibraryLoaded()) {
-            Log.i(TAG, "get processes");
-            return processUtils.getProcesses();
+    override fun getProcesses(): Array<ProcessInfo>? {
+        return if (processUtils.isLibraryLoaded) {
+            Log.i(TAG, "get processes")
+            processUtils.getProcesses()
         } else {
-            Log.e(TAG, "process utils library not loaded");
-            return null;
+            Log.e(TAG, "process utils library not loaded")
+            null
         }
     }
 
-    @Override
-    public boolean[] sendSignal(int[] pid, int signal) {
-        if (processUtils.isLibraryLoaded()) {
-            boolean[] result = new boolean[pid.length];
-            for (int i = 0; i < pid.length; i++) {
-                Log.i(TAG, "kill process: " + pid[i]);
-                result[i] = processUtils.sendSignal(pid[i], signal);
+    override fun sendSignal(pid: IntArray?, signal: Int): BooleanArray? {
+        if (pid == null) return null
+        return if (processUtils.isLibraryLoaded) {
+            BooleanArray(pid.size) { i ->
+                Log.i(TAG, "kill process: ${pid[i]}")
+                processUtils.sendSignal(pid[i], signal)
             }
-            return result;
         } else {
-            Log.e(TAG, "process utils library not loaded");
-            return null;
+            Log.e(TAG, "process utils library not loaded")
+            null
         }
     }
 
-    @Override
-    public void backupData(String output, boolean data, boolean termHome, boolean termUsr) throws RemoteException {
-        File outputDir = new File(output);
-        if (!outputDir.exists()) outputDir.mkdirs();
+    override fun backupData(output: String?, data: Boolean, termHome: Boolean, termUsr: Boolean) {
+        if (output == null) return
+        val outputDir = File(output)
+        if (!outputDir.exists()) outputDir.mkdirs()
         try {
             if (termHome) {
-                File homeDir = new File(HOME_PATH);
-                File homeTarGz = new File(outputDir, "home.tar.gz");
-                tarGzDirectory(homeDir, homeTarGz);
+                val homeDir = File(HOME_PATH)
+                val homeTarGz = File(outputDir, "home.tar.gz")
+                tarGzDirectory(homeDir, homeTarGz)
             }
             if (termUsr) {
-                File usrDir = new File(USR_PATH);
-                File usrTarGz = new File(outputDir, "usr.tar.gz");
-                tarGzDirectory(usrDir, usrTarGz);
+                val usrDir = File(USR_PATH)
+                val usrTarGz = File(outputDir, "usr.tar.gz")
+                tarGzDirectory(usrDir, usrTarGz)
             }
             if (data) {
-                File dbFile = dataDbHelper.getDatabase().getPath() != null ? new File(dataDbHelper.getDatabase().getPath()) : null;
-                if (dbFile != null && dbFile.exists()) {
-                    File outDb = new File(outputDir, "data.db");
-                    copyFile(new FileInputStream(dbFile), new FileOutputStream(outDb));
+                val dbFile = File(dataDbHelper.database.path)
+                if (dbFile.exists()) {
+                    val outDb = File(outputDir, "data.db")
+                    copyFile(FileInputStream(dbFile), FileOutputStream(outDb))
                 }
             }
-        } catch (IOException e) {
-            Log.e(TAG, "backupData error", e);
-            throw new RemoteException(Log.getStackTraceString(e));
+        } catch (e: IOException) {
+            Log.e(TAG, "backupData error", e)
+            throw RemoteException(Log.getStackTraceString(e))
         }
     }
 
-    public static void tarGzDirectory(File srcDir, File tarGzFile) throws IOException {
-        try (TarArchiveOutputStream taos = new TarArchiveOutputStream(
-                new GzipCompressorOutputStream(new FileOutputStream(tarGzFile)))) {
-            taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-            tarFileRecursive(srcDir, srcDir, taos);
-        }
-    }
-
-    public static void tarFileRecursive(File rootDir, File srcFile, TarArchiveOutputStream taos) throws IOException {
-        String name = rootDir.toURI().relativize(srcFile.toURI()).getPath();
-        boolean isSymlink;
-        try {
-            isSymlink = !srcFile.getAbsolutePath().equals(srcFile.getCanonicalPath());
-        } catch (IOException e) {
-            isSymlink = false;
-        }
-        if (srcFile.isDirectory() && !isSymlink) {
-            if (!name.isEmpty() && !name.endsWith("/")) name += "/";
-            if (!name.isEmpty()) {
-                TarArchiveEntry entry = new TarArchiveEntry(srcFile, name);
-                taos.putArchiveEntry(entry);
-                taos.closeArchiveEntry();
-            }
-            File[] children = srcFile.listFiles();
-            if (children != null) {
-                for (File child : children) {
-                    tarFileRecursive(rootDir, child, taos);
-                }
-            }
-        } else if (isSymlink) {
-            try {
-                String linkTarget = Os.readlink(srcFile.getAbsolutePath());
-                TarArchiveEntry entry = new TarArchiveEntry(name, TarArchiveEntry.LF_SYMLINK);
-                entry.setLinkName(linkTarget);
-                taos.putArchiveEntry(entry);
-                taos.closeArchiveEntry();
-            } catch (ErrnoException ignored) {
-            }
-        } else {
-            TarArchiveEntry entry = new TarArchiveEntry(srcFile, name);
-            entry.setSize(srcFile.length());
-            taos.putArchiveEntry(entry);
-            try (FileInputStream fis = new FileInputStream(srcFile)) {
-                byte[] buffer = new byte[PAGE_SIZE];
-                int len;
-                while ((len = fis.read(buffer)) != -1) {
-                    taos.write(buffer, 0, len);
-                }
-            }
-            taos.closeArchiveEntry();
-        }
-    }
-
-    public static void extractTarGz(File tarGzFile, File destDir) throws IOException {
-        if (!destDir.exists()) destDir.mkdirs();
-        try (FileInputStream fis = new FileInputStream(tarGzFile);
-             GzipCompressorInputStream gis = new GzipCompressorInputStream(fis);
-             TarArchiveInputStream tais = new TarArchiveInputStream(gis)) {
-            TarArchiveEntry entry;
-            while ((entry = tais.getNextEntry()) != null) {
-                File outFile = new File(destDir, entry.getName());
-                if (entry.isDirectory()) {
-                    if (!outFile.exists()) outFile.mkdirs();
-                } else if (entry.isSymbolicLink()) {
-                    File target = new File(entry.getLinkName());
-                    try {
-                        Os.symlink(target.getPath(), outFile.getPath());
-                    } catch (Exception e) {
-                        Log.w(TAG, "extractTarGz: symlink failed: " + outFile + " -> " + target, e);
-                    }
-                } else {
-                    File parent = outFile.getParentFile();
-                    if (parent != null && !parent.exists()) parent.mkdirs();
-                    try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                        byte[] buffer = new byte[PAGE_SIZE];
-                        int len;
-                        while ((len = tais.read(buffer)) != -1) {
-                            fos.write(buffer, 0, len);
-                        }
-                    }
-                    outFile.setLastModified(entry.getModTime().getTime());
-                    outFile.setExecutable((entry.getMode() & 0100) != 0);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void restoreData(String input) {
-
-        File inputFile = new File(input);
+    override fun restoreData(input: String?) {
+        if (input == null) return
+        val inputFile = File(input)
         if (!inputFile.exists()) {
-            Log.e(TAG, "restoreData: input file does not exist: " + input);
-            return;
+            Log.e(TAG, "restoreData: input file does not exist: $input")
+            return
         }
-        File database = new File(input, "data.db");
+        val database = File(input, "data.db")
         if (database.exists()) {
             try {
-                copyFile(new FileInputStream(database), new FileOutputStream(DataDbHelper.DATABASE_NAME));
-            } catch (IOException e) {
-                Log.e(TAG, "restoreData: copy database error", e);
+                copyFile(FileInputStream(database), FileOutputStream(DataDbHelper.DATABASE_NAME))
+            } catch (e: IOException) {
+                Log.e(TAG, "restoreData: copy database error", e)
             }
-            dataDbHelper.getDatabase().close();
-            dataDbHelper.close();
-            dataDbHelper = new DataDbHelper(FakeContext.get());
-            commandDao = new CommandDao(dataDbHelper.getDatabase());
-            environmentDao = new EnvironmentDao(dataDbHelper.getDatabase());
+            dataDbHelper.database.close()
+            dataDbHelper.close()
+            dataDbHelper = DataDbHelper(FakeContext.get())
+            commandDao = CommandDao(dataDbHelper.database)
+            environmentDao = EnvironmentDao(dataDbHelper.database)
         }
-
-        File home = new File(input, "home.tar.gz");
+        val home = File(input, "home.tar.gz")
         if (home.exists()) {
             try {
-                extractTarGz(home, new File(HOME_PATH));
-            } catch (IOException e) {
-                Log.e(TAG, "restoreData: extract tar gz error", e);
+                extractTarGz(home, File(HOME_PATH))
+            } catch (e: IOException) {
+                Log.e(TAG, "restoreData: extract tar gz error", e)
             }
         }
-
-        File usr = new File(input, "usr.tar.gz");
+        val usr = File(input, "usr.tar.gz")
         if (usr.exists()) {
             try {
-                extractTarGz(usr, new File(USR_PATH));
-            } catch (IOException e) {
-                Log.e(TAG, "restoreData: extract tar gz error", e);
+                extractTarGz(usr, File(USR_PATH))
+            } catch (e: IOException) {
+                Log.e(TAG, "restoreData: extract tar gz error", e)
             }
         }
     }
 
-    @Override
-    public void installTermExt(String termExtZip, IInstallTermExtCallback callback) {
-        new Thread(() -> {
-            var callbackWrapper = new InstallTermExtCallback(callback);
+    override fun installTermExt(termExtZip: String?, callback: IInstallTermExtCallback?) {
+        Thread {
+            val callbackWrapper = InstallTermExtCallback(callback)
             try {
-                Log.i(TAG, "install terminal extension: " + termExtZip);
-                callbackWrapper.onMessage(" - Install terminal extension: " + termExtZip);
-
-                ZipFile app = new ZipFile(termExtZip);
-                ZipEntry BP = app.getEntry("build.prop"), IS = app.getEntry("install.sh");
-                if (BP == null) {
-                    Log.e(TAG, "'build.prop' doesn't exist");
-                    callbackWrapper.onMessage(" ! 'build.prop' doesn't exist");
-                    callbackWrapper.onExit(false);
-                    return;
+                Log.i(TAG, "install terminal extension: $termExtZip")
+                callbackWrapper.onMessage(" - Install terminal extension: $termExtZip")
+                val app = ZipFile(termExtZip)
+                val buildPropEntry = app.getEntry("build.prop")
+                val installShEntry = app.getEntry("install.sh")
+                if (buildPropEntry == null) {
+                    Log.e(TAG, "'build.prop' doesn't exist")
+                    callbackWrapper.onMessage(" ! 'build.prop' doesn't exist")
+                    callbackWrapper.onExit(false)
+                    return@Thread
                 }
-                if (IS == null) {
-                    Log.e(TAG, "'install.sh' doesn't exist");
-                    callbackWrapper.onMessage(" ! 'install.sh' doesn't exist");
-                    callbackWrapper.onExit(false);
-                    return;
+                if (installShEntry == null) {
+                    Log.e(TAG, "'install.sh' doesn't exist")
+                    callbackWrapper.onMessage(" ! 'install.sh' doesn't exist")
+                    callbackWrapper.onExit(false)
+                    return@Thread
                 }
-                InputStream buildProp = app.getInputStream(BP);
-                TermExtVersion termExtVersion = new TermExtVersion(buildProp);
-                buildProp.close();
-                Log.i(TAG, String.format(Locale.getDefault(), """
+                val buildProp = app.getInputStream(buildPropEntry)
+                val termExtVersion = TermExtVersion(buildProp)
+                buildProp.close()
+                Log.i(
+                    TAG, """
                         terminal extension:
-                        version: %s (%d)
-                        abi: %s
-                        """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
-                callbackWrapper.onMessage(String.format(Locale.getDefault(), """
+                        version: ${termExtVersion.versionName} (${termExtVersion.versionCode})
+                        abi: ${termExtVersion.abi}
+                    """.trimIndent()
+                )
+                callbackWrapper.onMessage(
+                    """
                          - Terminal extension:
-                         - Version: %s (%d)
-                         - ABI: %s
-                        """, termExtVersion.versionName, termExtVersion.versionCode, termExtVersion.abi));
-
-                int indexOf = Arrays.asList(Build.SUPPORTED_ABIS).indexOf(termExtVersion.abi);
+                         - Version: ${termExtVersion.versionName} (${termExtVersion.versionCode})
+                         - ABI: ${termExtVersion.abi}
+                    """.trimIndent()
+                )
+                val indexOf = Build.SUPPORTED_ABIS.indexOf(termExtVersion.abi)
                 if (indexOf == -1) {
-                    Log.e(TAG, "unsupported ABI: " + termExtVersion.abi);
-                    callbackWrapper.onMessage(" ! Unsupported ABI: " + termExtVersion.abi);
-                    callbackWrapper.onExit(false);
-                    return;
+                    Log.e(TAG, "unsupported ABI: ${termExtVersion.abi}")
+                    callbackWrapper.onMessage(" ! Unsupported ABI: ${termExtVersion.abi}")
+                    callbackWrapper.onExit(false)
+                    return@Thread
                 } else if (indexOf != 0) {
-                    Log.w(TAG, "ABI is not preferred: " + termExtVersion.abi);
-                    callbackWrapper.onMessage(" - ABI is not preferred: " + termExtVersion.abi);
+                    Log.w(TAG, "ABI is not preferred: ${termExtVersion.abi}")
+                    callbackWrapper.onMessage(" - ABI is not preferred: ${termExtVersion.abi}")
                 }
-
-                Log.i(TAG, "unzip files.");
-                callbackWrapper.onMessage(" - Unzip files.");
-                Enumeration<? extends ZipEntry> entries = app.entries();
+                Log.i(TAG, "unzip files.")
+                callbackWrapper.onMessage(" - Unzip files.")
+                val entries = app.entries()
                 while (entries.hasMoreElements()) {
-                    ZipEntry zipEntry = entries.nextElement();
+                    val zipEntry = entries.nextElement()
                     try {
-                        if (zipEntry.isDirectory()) {
-                            Log.i(TAG, "unzip '" + zipEntry.getName() + "' to '" + DATA_PATH + "/install_temp/" + zipEntry.getName() + "'");
-                            callbackWrapper.onMessage(" - Unzip '" + zipEntry.getName() + "' to '" + DATA_PATH + "/install_temp/" + zipEntry.getName() + "'");
-                            File file = new File(DATA_PATH + "/install_temp/" + zipEntry.getName());
-                            if (!file.exists()) {
-                                file.mkdirs();
-                            }
+                        if (zipEntry.isDirectory) {
+                            Log.i(
+                                TAG,
+                                "unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'"
+                            )
+                            callbackWrapper.onMessage(" - Unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'")
+                            val file = File("$DATA_PATH/install_temp/${zipEntry.name}")
+                            if (!file.exists()) file.mkdirs()
                         } else {
-                            File file = new File(DATA_PATH + "/install_temp/" + zipEntry.getName());
-                            Log.i(TAG, "unzip '" + zipEntry.getName() + "' to '" + file.getAbsolutePath() + "'");
-                            callbackWrapper.onMessage(" - Unzip '" + zipEntry.getName() + "' to '" + file.getAbsolutePath() + "'");
-                            if (!Objects.requireNonNull(file.getParentFile()).exists())
-                                file.getParentFile().mkdirs();
-                            if (!file.exists()) {
-                                file.createNewFile();
-                            }
-                            copyFile(app.getInputStream(zipEntry), new FileOutputStream(file));
+                            val file = File("$DATA_PATH/install_temp/${zipEntry.name}")
+                            Log.i(TAG, "unzip '${zipEntry.name}' to '${file.absolutePath}'")
+                            callbackWrapper.onMessage(" - Unzip '${zipEntry.name}' to '${file.absolutePath}'")
+                            file.parentFile?.let { if (!it.exists()) it.mkdirs() }
+                            if (!file.exists()) file.createNewFile()
+                            copyFile(app.getInputStream(zipEntry), FileOutputStream(file))
                         }
-                    } catch (IOException e) {
-                        Log.e(TAG, "unable to unzip file: " + zipEntry.getName(), e);
-                        callbackWrapper.onMessage(" ! Unable to unzip file: " + zipEntry.getName() + "\n" + getStackTraceString(e));
-                        callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
-                        rmRF(new File(DATA_PATH + "/install_temp"));
-                        callbackWrapper.onExit(false);
-                        return;
+                    } catch (e: IOException) {
+                        Log.e(TAG, "unable to unzip file: ${zipEntry.name}", e)
+                        callbackWrapper.onMessage(
+                            " ! Unable to unzip file: ${zipEntry.name}\n" + Log.getStackTraceString(
+                                e
+                            )
+                        )
+                        callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
+                        rmRF(File("$DATA_PATH/install_temp"))
+                        callbackWrapper.onExit(false)
+                        return@Thread
                     }
                 }
-                Log.i(TAG, "complete unzipping");
-                callbackWrapper.onMessage(" - Complete unzipping");
-
-                String installScript = DATA_PATH + "/install_temp/install.sh";
-                if (!new File(installScript).setExecutable(true)) {
-                    Log.e(TAG, "unable to set executable");
-                    callbackWrapper.onMessage(" ! Unable to set executable");
-                    callbackWrapper.onMessage(" - Clean up " + DATA_PATH + "/install_temp");
-                    rmRF(new File(DATA_PATH + "/install_temp"));
-                    callbackWrapper.onExit(false);
-                    return;
+                Log.i(TAG, "complete unzipping")
+                callbackWrapper.onMessage(" - Complete unzipping")
+                val installScript = "$DATA_PATH/install_temp/install.sh"
+                if (!File(installScript).setExecutable(true)) {
+                    Log.e(TAG, "unable to set executable")
+                    callbackWrapper.onMessage(" ! Unable to set executable")
+                    callbackWrapper.onMessage(" - Clean up $DATA_PATH/install_temp")
+                    rmRF(File("$DATA_PATH/install_temp"))
+                    callbackWrapper.onExit(false)
+                    return@Thread
                 }
-                Log.i(TAG, "execute install script");
-                callbackWrapper.onMessage(" - Execute install script");
+                Log.i(TAG, "execute install script")
+                callbackWrapper.onMessage(" - Execute install script")
                 try {
-                    Process process = Runtime.getRuntime().exec("/system/bin/sh");
-                    OutputStream out = process.getOutputStream();
-                    out.write((installScript + " 2>&1\n").getBytes());
-                    out.flush();
-                    out.close();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        Log.i(TAG, "output: " + line);
-                        callbackWrapper.onMessage(" - ScriptOuts: " + line);
+                    val process = Runtime.getRuntime().exec("/system/bin/sh")
+                    val out = process.outputStream
+                    out.write(("$installScript 2>&1\n").toByteArray())
+                    out.flush()
+                    out.close()
+                    val br = BufferedReader(InputStreamReader(process.inputStream))
+                    var line: String?
+                    while (br.readLine().also { line = it } != null) {
+                        Log.i(TAG, "output: $line")
+                        callbackWrapper.onMessage(" - ScriptOuts: $line")
                     }
-                    br.close();
-                    int ev = process.waitFor();
+                    br.close()
+                    val ev = process.waitFor()
                     if (ev == 0) {
-                        Log.i(TAG, "exit with 0");
-                        callbackWrapper.onMessage(" - Install script exit successfully");
+                        Log.i(TAG, "exit with 0")
+                        callbackWrapper.onMessage(" - Install script exit successfully")
                     } else {
-                        Log.e(TAG, "exit with non-zero value " + ev);
-                        callbackWrapper.onMessage(" ! Install script exit with non-zero value " + ev);
-                        callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
-                        rmRF(new File(DATA_PATH + "/install_temp"));
-                        callbackWrapper.onExit(false);
-                        return;
+                        Log.e(TAG, "exit with non-zero value $ev")
+                        callbackWrapper.onMessage(" ! Install script exit with non-zero value $ev")
+                        callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
+                        rmRF(File("$DATA_PATH/install_temp"))
+                        callbackWrapper.onExit(false)
+                        return@Thread
                     }
-                } catch (InterruptedException | IOException e) {
-                    callbackWrapper.onMessage(" ! " + getStackTraceString(e));
-                    callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
-                    rmRF(new File(DATA_PATH + "/install_temp"));
-                    callbackWrapper.onExit(false);
-                    return;
+                } catch (e: Exception) {
+                    callbackWrapper.onMessage(" ! " + Log.getStackTraceString(e))
+                    callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
+                    rmRF(File("$DATA_PATH/install_temp"))
+                    callbackWrapper.onExit(false)
+                    return@Thread
                 }
-                callbackWrapper.onMessage(" - Cleanup " + DATA_PATH + "/install_temp");
-                rmRF(new File(DATA_PATH + "/install_temp"));
-                Log.i(TAG, "finish");
-                callbackWrapper.onMessage(" - Finish");
-                callbackWrapper.onExit(true);
-            } catch (IOException e) {
-                Log.e(TAG, "read terminal extension file error!", e);
-                callbackWrapper.onMessage(" ! Read terminal extension file error!\n" + getStackTraceString(e));
-                callbackWrapper.onExit(false);
+                callbackWrapper.onMessage(" - Cleanup $DATA_PATH/install_temp")
+                rmRF(File("$DATA_PATH/install_temp"))
+                Log.i(TAG, "finish")
+                callbackWrapper.onMessage(" - Finish")
+                callbackWrapper.onExit(true)
+            } catch (e: IOException) {
+                Log.e(TAG, "read terminal extension file error!", e)
+                callbackWrapper.onMessage(
+                    " ! Read terminal extension file error!\n" + Log.getStackTraceString(
+                        e
+                    )
+                )
+                callbackWrapper.onExit(false)
             }
-        }).start();
+        }.start()
     }
 
-    @Override
-    public void removeTermExt() {
-        Log.i(TAG, "remove terminal extension");
-        rmRF(new File(USR_PATH));
-        Log.i(TAG, "finish");
+    override fun removeTermExt() {
+        Log.i(TAG, "remove terminal extension")
+        rmRF(File(USR_PATH))
+        Log.i(TAG, "finish")
     }
 
-    @Override
-    public TermExtVersion getTermExtVersion() throws RemoteException {
-        File buildProp = new File(USR_PATH + "/build.prop");
-        TermExtVersion result = null;
-        if (buildProp.exists() && buildProp.isFile()) {
-            try (FileInputStream in = new FileInputStream(buildProp)) {
-                result = new TermExtVersion(in);
-            } catch (IOException e) {
-                Log.e(TAG, "getTermExtVersion error", e);
-                throw new RemoteException(getStackTraceString(e));
-            }
-        }
-        return result == null ? new TermExtVersion("", -1, "") : result;
-    }
-
-    public static void rmRF(File file) {
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    rmRF(f);
+    override fun getTermExtVersion(): TermExtVersion {
+        val buildProp = File("$USR_PATH/build.prop")
+        var result: TermExtVersion? = null
+        if (buildProp.exists() && buildProp.isFile) {
+            try {
+                FileInputStream(buildProp).use { `in` ->
+                    result = TermExtVersion(`in`)
                 }
+            } catch (e: IOException) {
+                Log.e(TAG, "getTermExtVersion error", e)
+                throw RemoteException(Log.getStackTraceString(e))
             }
         }
-        file.delete();
+        return result ?: TermExtVersion("", -1, "")
     }
-
-    public static void ifExistsOrMkdirs(File file) {
-        if (!file.exists())
-            file.mkdirs();
-    }
-
-    public static void copyFile(InputStream inputStream, OutputStream outputStream) throws IOException {
-        BufferedInputStream in = new BufferedInputStream(inputStream);
-        BufferedOutputStream out = new BufferedOutputStream(outputStream);
-        int len;
-        byte[] b = new byte[PAGE_SIZE];
-        while ((len = in.read(b)) != -1) {
-            out.write(b, 0, len);
-        }
-        in.close();
-        out.close();
-    }
-
-    public static final int PAGE_SIZE = (int) Os.sysconf(OsConstants._SC_PAGESIZE);
 }

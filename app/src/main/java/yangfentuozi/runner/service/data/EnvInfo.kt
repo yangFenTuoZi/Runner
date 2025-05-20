@@ -1,38 +1,38 @@
-package yangfentuozi.runner.service.data;
+package yangfentuozi.runner.service.data
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
 
-public class EnvInfo implements Parcelable {
+open class EnvInfo : Parcelable {
+    var key: String? = null
+    var value: String? = null
 
-    public String key;
-    public String value;
+    constructor()
 
-    public EnvInfo() {
+    constructor(source: Parcel) : super() {
+        key = source.readString()
+        value = source.readString()
     }
 
-    public EnvInfo(Parcel source) {
-        super();
-        key = source.readString();
-        value = source.readString();
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public int describeContents() {
-        return 0;
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(key)
+        dest.writeString(value)
     }
 
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(key);
-        dest.writeString(value);
-    }
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<EnvInfo?> = object : Parcelable.Creator<EnvInfo?> {
+            override fun createFromParcel(source: Parcel): EnvInfo {
+                return EnvInfo(source)
+            }
 
-    public static final Parcelable.Creator<EnvInfo> CREATOR = new Parcelable.Creator<>() {
-        public EnvInfo createFromParcel(Parcel source) {
-            return new EnvInfo(source);
+            override fun newArray(size: Int): Array<EnvInfo?> {
+                return arrayOfNulls<EnvInfo>(size)
+            }
         }
-
-        public EnvInfo[] newArray(int size) {
-            return new EnvInfo[size];
-        }
-    };
+    }
 }

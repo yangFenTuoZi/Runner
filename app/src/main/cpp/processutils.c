@@ -86,7 +86,7 @@ int readProcessExe(int pid, char *exePath, size_t exePathLen) {
 
 // 获取所有进程
 JNIEXPORT jobjectArray JNICALL
-Java_yangfentuozi_runner_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobject thiz) {
+Java_yangfentuozi_runner_service_util_ProcessUtils_getProcesses(JNIEnv *env, jobject thiz) {
     initProcessInfoFields(env);
     DIR* dir = opendir("/proc");
     if (!dir) return NULL;
@@ -137,7 +137,7 @@ Java_yangfentuozi_runner_service_jni_ProcessUtils_getProcesses(JNIEnv *env, jobj
 
 // 发送信号给进程
 JNIEXPORT jboolean JNICALL
-Java_yangfentuozi_runner_service_jni_ProcessUtils_sendSignal(JNIEnv *env, jobject thiz, jint pid, jint signal) {
+Java_yangfentuozi_runner_service_util_ProcessUtils_sendSignal(JNIEnv *env, jobject thiz, jint pid, jint signal) {
     if (kill(pid, signal) == 0) {
         return JNI_TRUE;
     }

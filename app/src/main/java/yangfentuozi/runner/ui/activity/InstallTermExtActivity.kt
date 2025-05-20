@@ -76,7 +76,7 @@ class InstallTermExtActivity : BaseActivity() {
         val termExtCacheDir = File(externalCacheDir, "termExtCache")
         ServiceImpl.rmRF(termExtCacheDir)
         termExtCacheDir.mkdirs()
-        val file = File(termExtCacheDir, "termux_ext.zip");
+        val file = File(termExtCacheDir, "termux_ext.zip")
         try {
             if (!file.exists()) {
                 file.createNewFile()

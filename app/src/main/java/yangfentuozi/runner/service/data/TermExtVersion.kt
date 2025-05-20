@@ -1,65 +1,62 @@
-package yangfentuozi.runner.service.data;
+package yangfentuozi.runner.service.data
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
+import java.io.InputStream
+import java.util.Properties
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+open class TermExtVersion : Parcelable {
+    val versionName: String?
+    val versionCode: Int
+    val abi: String?
 
-public class TermExtVersion implements Parcelable {
-
-    public final String versionName;
-    public final int versionCode;
-    public final String abi;
-
-    public TermExtVersion(String versionName, int versionCode, String abi) {
-        this.versionName = versionName;
-        this.versionCode = versionCode;
-        this.abi = abi;
+    constructor(versionName: String?, versionCode: Int, abi: String?) {
+        this.versionName = versionName
+        this.versionCode = versionCode
+        this.abi = abi
     }
 
-    public TermExtVersion(InputStream in) throws IOException {
-        int versionCode1;
-        Properties buildProp = new Properties();
-        buildProp.load(in);
-        versionName = buildProp.getProperty("version.name");
+    constructor(`in`: InputStream?) {
+        var versionCode1: Int
+        val buildProp = Properties()
+        buildProp.load(`in`)
+        versionName = buildProp.getProperty("version.name")
         try {
-            versionCode1 = Integer.parseInt(buildProp.getProperty("version.code"));
-        } catch (NumberFormatException e) {
-            versionCode1 = -1;
+            versionCode1 = buildProp.getProperty("version.code").toInt()
+        } catch (e: NumberFormatException) {
+            versionCode1 = -1
         }
-        versionCode = versionCode1;
-        abi = buildProp.getProperty("build.abi");
+        versionCode = versionCode1
+        abi = buildProp.getProperty("build.abi")
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    override fun describeContents(): Int {
+        return 0
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.versionName);
-        dest.writeInt(this.versionCode);
-        dest.writeString(this.abi);
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(this.versionName)
+        dest.writeInt(this.versionCode)
+        dest.writeString(this.abi)
     }
 
-    protected TermExtVersion(Parcel in) {
-        this.versionName = in.readString();
-        this.versionCode = in.readInt();
-        this.abi = in.readString();
+    protected constructor(`in`: Parcel) {
+        this.versionName = `in`.readString()
+        this.versionCode = `in`.readInt()
+        this.abi = `in`.readString()
     }
 
-    public static final Creator<TermExtVersion> CREATOR = new Creator<>() {
-        @Override
-        public TermExtVersion createFromParcel(Parcel source) {
-            return new TermExtVersion(source);
-        }
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<TermExtVersion?> =
+            object : Parcelable.Creator<TermExtVersion?> {
+                override fun createFromParcel(source: Parcel): TermExtVersion {
+                    return TermExtVersion(source)
+                }
 
-        @Override
-        public TermExtVersion[] newArray(int size) {
-            return new TermExtVersion[size];
-        }
-    };
+                override fun newArray(size: Int): Array<TermExtVersion?> {
+                    return arrayOfNulls<TermExtVersion>(size)
+                }
+            }
+    }
 }

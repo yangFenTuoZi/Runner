@@ -109,7 +109,7 @@ class EnvAdapter(private val mContext: EnvManageActivity) :
         }
     }
 
-    fun update(fromKey: String, fromValue: String, toKey: String, toValue: String) {
+    fun update(fromKey: String?, fromValue: String?, toKey: String?, toValue: String?) {
         mHandler.post {
             try {
                 Runner.service?.updateEnv(EnvInfo().apply {

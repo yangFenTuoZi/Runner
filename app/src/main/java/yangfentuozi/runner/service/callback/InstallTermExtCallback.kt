@@ -1,23 +1,19 @@
-package yangfentuozi.runner.service.callback;
+package yangfentuozi.runner.service.callback
 
-public class InstallTermExtCallback {
-    private final IInstallTermExtCallback mCallback;
+import android.os.RemoteException
 
-    public InstallTermExtCallback(IInstallTermExtCallback callback) {
-        mCallback = callback;
-    }
-
-    public void onMessage(String message) {
+class InstallTermExtCallback(private val mCallback: IInstallTermExtCallback?) {
+    fun onMessage(message: String?) {
         try {
-            mCallback.onMessage(message);
-        } catch (Throwable ignored) {
+            mCallback?.onMessage(message)
+        } catch (_: RemoteException) {
         }
     }
 
-    public void onExit(boolean isSuccessful) {
+    fun onExit(isSuccessful: Boolean) {
         try {
-            mCallback.onExit(isSuccessful);
-        } catch (Throwable ignored) {
+            mCallback?.onExit(isSuccessful)
+        } catch (_: RemoteException) {
         }
     }
 }

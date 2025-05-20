@@ -1,47 +1,47 @@
-package yangfentuozi.runner.service.data;
+package yangfentuozi.runner.service.data
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
 
-public class CommandInfo implements Parcelable {
+open class CommandInfo : Parcelable {
+    var name: String? = null
+    var command: String? = null
+    var keepAlive: Boolean = false
+    var reducePerm: Boolean = false
+    var targetPerm: String? = null
 
-    public String name;
-    public String command;
-    public boolean keepAlive;
-    public boolean reducePerm;
-    public String targetPerm;
+    constructor()
 
-    public CommandInfo() {
+    constructor(source: Parcel) : super() {
+        name = source.readString()
+        command = source.readString()
+        keepAlive = source.readInt() == 1
+        reducePerm = source.readInt() == 1
+        targetPerm = source.readString()
     }
 
-    public CommandInfo(Parcel source) {
-        super();
-        name = source.readString();
-        command = source.readString();
-        keepAlive = source.readInt() == 1;
-        reducePerm = source.readInt() == 1;
-        targetPerm = source.readString();
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public int describeContents() {
-        return 0;
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(name)
+        dest.writeString(command)
+        dest.writeInt(if (keepAlive) 1 else 0)
+        dest.writeInt(if (reducePerm) 1 else 0)
+        dest.writeString(targetPerm)
     }
 
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(command);
-        dest.writeInt(keepAlive ? 1 : 0);
-        dest.writeInt(reducePerm ? 1 : 0);
-        dest.writeString(targetPerm);
-    }
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<CommandInfo?> = object : Parcelable.Creator<CommandInfo?> {
+            override fun createFromParcel(source: Parcel): CommandInfo {
+                return CommandInfo(source)
+            }
 
-    public static final Parcelable.Creator<CommandInfo> CREATOR = new Parcelable.Creator<>() {
-        public CommandInfo createFromParcel(Parcel source) {
-            return new CommandInfo(source);
+            override fun newArray(size: Int): Array<CommandInfo?> {
+                return arrayOfNulls<CommandInfo>(size)
+            }
         }
-
-        public CommandInfo[] newArray(int size) {
-            return new CommandInfo[size];
-        }
-    };
+    }
 }

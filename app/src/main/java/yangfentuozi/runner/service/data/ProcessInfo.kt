@@ -1,74 +1,66 @@
-package yangfentuozi.runner.service.data;
+package yangfentuozi.runner.service.data
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcel
+import android.os.Parcelable
+import java.util.Objects
 
-import androidx.annotation.NonNull;
+open class ProcessInfo : Parcelable {
+    var pid: Int = 0
+    var ppid: Int = 0
+    var exe: String? = null
+    var args: Array<String?>? = null
 
-import java.util.Arrays;
-import java.util.Objects;
+    constructor()
 
-public class ProcessInfo implements Parcelable {
-
-    public int pid;
-    public int ppid;
-    public String exe;
-    public String[] args;
-
-    public ProcessInfo() {
+    constructor(source: Parcel) : super() {
+        pid = source.readInt()
+        ppid = source.readInt()
+        exe = source.readString()
+        val argsLength = source.readInt()
+        args = arrayOfNulls<String>(argsLength)
+        source.readStringArray(args!!)
     }
 
-    public ProcessInfo(Parcel source) {
-        super();
-        pid = source.readInt();
-        ppid = source.readInt();
-        exe = source.readString();
-        int argsLength = source.readInt();
-        args = new String[argsLength];
-        source.readStringArray(args);
+    override fun describeContents(): Int {
+        return 0
     }
 
-    public int describeContents() {
-        return 0;
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(pid)
+        dest.writeInt(ppid)
+        dest.writeString(exe)
+        dest.writeInt(args?.size ?: 0)
+        dest.writeStringArray(args)
     }
 
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(pid);
-        dest.writeInt(ppid);
-        dest.writeString(exe);
-        dest.writeInt(args.length);
-        dest.writeStringArray(args);
-    }
-
-    public static final Parcelable.Creator<ProcessInfo> CREATOR = new Parcelable.Creator<>() {
-        public ProcessInfo createFromParcel(Parcel source) {
-            return new ProcessInfo(source);
-        }
-
-        public ProcessInfo[] newArray(int size) {
-            return new ProcessInfo[size];
-        }
-    };
-
-    @NonNull
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "ProcessInfo{" +
                 "pid=" + pid +
                 ", ppid=" + ppid +
                 ", name='" + exe + '\'' +
-                ", args=" + Arrays.toString(args) +
-                '}';
+                ", args=" + args.contentToString() +
+                '}'
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof ProcessInfo that)) return false;
-        return pid == that.pid;
+    override fun equals(o: Any?): Boolean {
+        if (o !is ProcessInfo) return false
+        return pid == o.pid
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(pid);
+    override fun hashCode(): Int {
+        return Objects.hashCode(pid)
+    }
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<ProcessInfo?> = object : Parcelable.Creator<ProcessInfo?> {
+            override fun createFromParcel(source: Parcel): ProcessInfo {
+                return ProcessInfo(source)
+            }
+
+            override fun newArray(size: Int): Array<ProcessInfo?> {
+                return arrayOfNulls<ProcessInfo>(size)
+            }
+        }
     }
 }
