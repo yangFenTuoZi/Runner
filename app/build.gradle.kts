@@ -163,7 +163,7 @@ dependencies {
 //    implementation("dev.rikka.rikkax.lifecycle:lifecycle-resource-livedata:1.0.1")
 //    implementation("dev.rikka.rikkax.lifecycle:lifecycle-shared-viewmodel:1.0.1")
 //    implementation("dev.rikka.rikkax.lifecycle:lifecycle-viewmodel-lazy:2.0.0")
-    implementation("dev.rikka.rikkax.html:html-ktx:1.1.2")
+//    implementation("dev.rikka.rikkax.html:html-ktx:1.1.2")
 
     // AndroidX
     implementation("com.google.android.material:material:1.12.0")

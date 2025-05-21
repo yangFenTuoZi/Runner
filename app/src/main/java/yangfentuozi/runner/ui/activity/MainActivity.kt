@@ -2,12 +2,12 @@ package yangfentuozi.runner.ui.activity
 
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import androidx.core.text.HtmlCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import rikka.html.text.HtmlCompat
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner

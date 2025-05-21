@@ -1,13 +1,11 @@
 package yangfentuozi.runner.ui.fragment.home
 
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner
@@ -52,13 +50,10 @@ class ServiceStatusViewHolder(binding: HomeServiceStatusBinding, root: View) :
             summary = ""
         }
 
-        textView.text = HtmlCompat.fromHtml(title, HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE)
-        summaryView.text = HtmlCompat.fromHtml(
-            summary,
-            HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE
-        )
+        textView.text = title
+        summaryView.text = summary
 
-        if (TextUtils.isEmpty(summaryView.getText())) {
+        if (summaryView.getText().isEmpty()) {
             summaryView.visibility = View.GONE
         } else {
             summaryView.visibility = View.VISIBLE

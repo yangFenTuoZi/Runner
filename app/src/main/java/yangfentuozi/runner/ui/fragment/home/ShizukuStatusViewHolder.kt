@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import yangfentuozi.runner.R
 import yangfentuozi.runner.Runner
@@ -51,11 +50,8 @@ class ShizukuStatusViewHolder(binding: HomeShizukuStatusBinding, root: View) :
             summary = ""
         }
 
-        textView.text = HtmlCompat.fromHtml(title, HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE)
-        summaryView.text = HtmlCompat.fromHtml(
-            summary,
-            HtmlCompat.FROM_HTML_OPTION_TRIM_WHITESPACE
-        )
+        textView.text = title
+        summaryView.text = summary
 
         if (TextUtils.isEmpty(summaryView.getText())) {
             summaryView.visibility = View.GONE
