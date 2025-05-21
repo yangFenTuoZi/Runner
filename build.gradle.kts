@@ -7,7 +7,7 @@ plugins {
 
 val gitCommitId: String = listOf("git", "rev-parse", "--short", "HEAD").execute(project.rootDir).trim()
 val gitCommitCount: Int = listOf("git", "rev-list", "--count", "HEAD").execute(project.rootDir).trim().toInt()
-val baseVersionName = "1.0.0"
+val baseVersionName = "1.0.0-rc1"
 
 extra.apply {
     set("compileSdk", 35)
