@@ -1,7 +1,6 @@
 package yangfentuozi.runner.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
@@ -12,7 +11,6 @@ import yangfentuozi.runner.R
 
 object ThemeUtil {
     private val colorThemeMap: MutableMap<String?, Int?> = HashMap<String?, Int?>()
-    private val preferences: SharedPreferences = App.getPreferences()
 
     const val MODE_NIGHT_FOLLOW_SYSTEM: String = "MODE_NIGHT_FOLLOW_SYSTEM"
     const val MODE_NIGHT_NO: String = "MODE_NIGHT_NO"
@@ -43,10 +41,10 @@ object ThemeUtil {
     private const val THEME_BLACK = "BLACK"
 
     private val isBlackNightTheme: Boolean
-        get() = preferences.getBoolean("black_dark_theme", false)
+        get() = App.preferences.getBoolean("black_dark_theme", false)
 
     val isSystemAccent: Boolean
-        get() = DynamicColors.isDynamicColorAvailable() && preferences.getBoolean(
+        get() = DynamicColors.isDynamicColorAvailable() && App.preferences.getBoolean(
             "follow_system_accent",
             true
         )
@@ -73,7 +71,7 @@ object ThemeUtil {
             if (isSystemAccent) {
                 return "SYSTEM"
             }
-            return preferences.getString("theme_color", "COLOR_BLUE")!!
+            return App.preferences.getString("theme_color", "COLOR_BLUE")!!
         }
 
     @get:StyleRes
@@ -97,7 +95,7 @@ object ThemeUtil {
 
     val darkTheme: Int
         get() = getDarkTheme(
-            preferences.getString(
+            App.preferences.getString(
                 "dark_theme",
                 MODE_NIGHT_FOLLOW_SYSTEM
             )!!

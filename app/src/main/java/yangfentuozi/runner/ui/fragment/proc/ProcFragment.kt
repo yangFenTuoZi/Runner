@@ -32,13 +32,13 @@ class ProcFragment : BaseFragment() {
     ): View {
         mBinding = FragmentProcBinding.inflate(inflater, container, false)
         recyclerView = mBinding.recyclerView
-        recyclerView!!.setLayoutManager(LinearLayoutManager(mContext))
+        recyclerView!!.setLayoutManager(LinearLayoutManager(mMainActivity))
         recyclerView!!.fixEdgeEffect(false, true)
 
-        adapter = ProcAdapter(mContext, this)
+        adapter = ProcAdapter(mMainActivity, this)
 
         mBinding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(mContext)
+            layoutManager = LinearLayoutManager(mMainActivity)
             fixEdgeEffect(true, true)
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
@@ -60,14 +60,14 @@ class ProcFragment : BaseFragment() {
                 }
             } else {
                 Toast.makeText(
-                    mContext,
+                    mMainActivity,
                     R.string.service_not_running,
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
             }
             try {
-                BaseDialogBuilder(mContext)
+                BaseDialogBuilder(mMainActivity)
                     .setTitle(R.string.kill_all_processes)
                     .setPositiveButton(android.R.string.ok) { dialog: DialogInterface?, which: Int ->
                         Thread {
@@ -75,12 +75,12 @@ class ProcFragment : BaseFragment() {
                                 try {
                                     adapter.killAll()
                                 } catch (e: RemoteException) {
-                                    e.toErrorDialog(mContext)
+                                    e.toErrorDialog(mMainActivity)
                                 }
                             } else {
-                                runOnUiThread {
+                                runOnMainThread {
                                     Toast.makeText(
-                                        mContext,
+                                        mMainActivity,
                                         R.string.service_not_running,
                                         Toast.LENGTH_SHORT
                                     ).show()

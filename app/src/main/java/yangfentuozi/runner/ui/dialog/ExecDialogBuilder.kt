@@ -53,12 +53,12 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                         callback = object : IExecResultCallback.Stub() {
                             override fun onOutput(outputs: String) {
                                 if (pid1) {
-                                    runOnUiThread {
+                                    runOnMainThread {
                                         binding.execMsg.append(outputs + "\n")
                                     }
                                 } else {
                                     val p = outputs.toInt()
-                                    runOnUiThread {
+                                    runOnMainThread {
                                         binding.execTitle.append(
                                             getString(
                                                 R.string.pid_info,
@@ -72,7 +72,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                             }
 
                             override fun onExit(exitValue: Int) {
-                                runOnUiThread {
+                                runOnMainThread {
                                     binding.execTitle.append(
                                         getString(
                                             R.string.return_info, exitValue, getString(
@@ -102,7 +102,7 @@ class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialo
                         try {
                             while (true) {
                                 if (!Runner.pingServer()) {
-                                    runOnUiThread {
+                                    runOnMainThread {
                                         Toast.makeText(
                                             mContext,
                                             R.string.service_not_running,

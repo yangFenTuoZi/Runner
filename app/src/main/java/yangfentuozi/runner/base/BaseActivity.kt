@@ -3,6 +3,8 @@ package yangfentuozi.runner.base
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import rikka.material.app.MaterialActivity
 import yangfentuozi.runner.App
 import yangfentuozi.runner.R
@@ -11,6 +13,8 @@ import yangfentuozi.runner.util.ThemeUtil
 
 open class BaseActivity : MaterialActivity() {
 
+    private val mHandler: Handler = Handler(Looper.getMainLooper())
+    private val mUiThread: Thread = Thread.currentThread()
     var isDialogShowing: Boolean = false
 
     lateinit var mApp: App
@@ -46,5 +50,13 @@ open class BaseActivity : MaterialActivity() {
         val window = window
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
+    }
+
+    fun runOnMainThread(action: Runnable) {
+        if (Thread.currentThread() !== mUiThread) {
+            mHandler.post(action)
+        } else {
+            action.run()
+        }
     }
 }

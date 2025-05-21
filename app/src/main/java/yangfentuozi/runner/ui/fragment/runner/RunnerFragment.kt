@@ -37,10 +37,10 @@ class RunnerFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = CommandAdapter(mContext, this)
+        adapter = CommandAdapter(mMainActivity, this)
 
         mBinding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(mContext)
+            layoutManager = LinearLayoutManager(mMainActivity)
             fixEdgeEffect(true, true)
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
@@ -50,14 +50,14 @@ class RunnerFragment : BaseFragment() {
         mBinding.swipeRefreshLayout.setOnRefreshListener { adapter.updateData() }
 
         mBinding.add.setOnClickListener {
-            if (mContext.isDialogShowing) return@setOnClickListener
+            if (mMainActivity.isDialogShowing) return@setOnClickListener
             showAddCommandDialog(-1)
         }
         adapter.updateData()
     }
 
     fun showAddCommandDialog(toPosition: Int) {
-        val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mContext))
+        val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mMainActivity))
 
         dialogBinding.apply {
             targetPermParent.visibility = View.GONE
@@ -67,19 +67,19 @@ class RunnerFragment : BaseFragment() {
 
             name.requestFocus()
             name.postDelayed({
-                (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                (mMainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                     .showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
             }, 200)
         }
 
         try {
-            BaseDialogBuilder(mContext)
+            BaseDialogBuilder(mMainActivity)
                 .setTitle(R.string.edit)
                 .setView(dialogBinding.root)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     if (!Runner.pingServer()) {
                         Toast.makeText(
-                            mContext,
+                            mMainActivity,
                             R.string.service_not_running,
                             Toast.LENGTH_SHORT
                         ).show()

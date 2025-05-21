@@ -112,7 +112,7 @@ class InstallTermExtActivity : BaseActivity() {
     }
 
     private fun onMessage(message: String?) {
-        runOnUiThread {
+        runOnMainThread {
             binding.text1.append(message + "\n")
             binding.scrollView.post {
                 binding.scrollView.fullScroll(ScrollView.FOCUS_DOWN)
@@ -121,7 +121,7 @@ class InstallTermExtActivity : BaseActivity() {
     }
 
     private fun showErrAndFinish(@StringRes resId: Int) {
-        runOnUiThread {
+        runOnMainThread {
             Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
             finish()
         }

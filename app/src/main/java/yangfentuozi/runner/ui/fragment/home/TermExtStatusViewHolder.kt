@@ -37,7 +37,7 @@ class TermExtStatusViewHolder(binding: HomeTermExtStatusBinding, root: View) :
             Thread {
                 try {
                     Runner.service?.removeTermExt()
-                    data.runOnUiThread { onBind() }
+                    data.runOnMainThread { onBind() }
                 } catch (e: RemoteException) {
                     Log.e("TermExtStatusViewHolder", "uninstall term ext error", e)
                 }

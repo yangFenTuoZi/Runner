@@ -71,12 +71,12 @@ class HomeFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 it.data?.data?.let { uri ->
-                    val mimeType = mContext.contentResolver.getType(uri)
+                    val mimeType = mMainActivity.contentResolver.getType(uri)
                     if (mimeType != "application/zip") {
                         return@let
                     }
 
-                    val installIntent = Intent(mContext, InstallTermExtActivity::class.java).apply {
+                    val installIntent = Intent(mMainActivity, InstallTermExtActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
                         setDataAndType(uri, "application/zip")
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

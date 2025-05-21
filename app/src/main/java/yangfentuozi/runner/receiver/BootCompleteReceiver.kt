@@ -19,7 +19,7 @@ class BootCompleteReceiver : BroadcastReceiver() {
             return
         }
 
-        if (!App.getPreferences().getBoolean("auto_start_exec", false)) return
+        if (!App.preferences.getBoolean("auto_start_exec", false)) return
         if (Process.myUid() / 100000 > 0) return
 
         Log.i(TAG, "receive $intent")

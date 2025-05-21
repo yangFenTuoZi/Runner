@@ -34,8 +34,8 @@ open class BaseDialogBuilder @Throws(DialogShowingException::class) constructor(
         return this
     }
 
-    fun runOnUiThread(action: Runnable) {
-        mBaseActivity.runOnUiThread(action)
+    fun runOnMainThread(action: Runnable) {
+        mBaseActivity.runOnMainThread(action)
     }
 
     

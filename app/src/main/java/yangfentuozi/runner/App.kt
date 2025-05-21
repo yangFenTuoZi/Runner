@@ -81,8 +81,7 @@ class App : Application(), Thread.UncaughtExceptionHandler {
         lateinit var instance: App
             private set
 
-        fun getPreferences(): SharedPreferences {
-            return instance.pref
-        }
+        val preferences: SharedPreferences
+            get() = instance.pref
     }
 }

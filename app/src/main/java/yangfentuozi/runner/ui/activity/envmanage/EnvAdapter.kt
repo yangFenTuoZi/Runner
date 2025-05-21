@@ -41,7 +41,7 @@ class EnvAdapter(private val mContext: EnvManageActivity) :
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateData() {
-        mContext.runOnUiThread { mContext.binding.swipeRefreshLayout.isRefreshing = true }
+        mContext.runOnMainThread { mContext.binding.swipeRefreshLayout.isRefreshing = true }
         mHandler.post {
             try {
                 dataList = Runner.service?.allEnv?.asList() ?: emptyList<EnvInfo>()
@@ -49,7 +49,7 @@ class EnvAdapter(private val mContext: EnvManageActivity) :
                 for (entry in dataList) {
                     Log.d("EnvAdapter", "get env: " + entry.key + "=" + entry.value)
                 }
-                mContext.runOnUiThread {
+                mContext.runOnMainThread {
                     notifyDataSetChanged()
                     mContext.binding.swipeRefreshLayout.isRefreshing = false
                 }

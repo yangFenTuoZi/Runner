@@ -42,11 +42,11 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateData() {
-        mContext.runOnUiThread { mFragment.binding.swipeRefreshLayout.isRefreshing = true }
+        mContext.runOnMainThread { mFragment.binding.swipeRefreshLayout.isRefreshing = true }
         executorService.execute {
             try {
                 val newCommands = Runner.service?.readAll() ?: emptyArray()
-                mContext.runOnUiThread {
+                mContext.runOnMainThread {
                     commands = newCommands
                     notifyDataSetChanged()
                     mFragment.binding.swipeRefreshLayout.isRefreshing = false
@@ -76,7 +76,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         executorService.execute {
             try {
                 Runner.service?.delete(position)
-                mContext.runOnUiThread {
+                mContext.runOnMainThread {
                     commands = commands.toMutableList().apply {
                         removeAt(position)
                     }.toTypedArray()
@@ -92,7 +92,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         executorService.execute {
             try {
                 Runner.service?.insertInto(info, position)
-                mContext.runOnUiThread {
+                mContext.runOnMainThread {
                     commands = commands.toMutableList().apply { add(position, info) }.toTypedArray()
                     notifyItemInserted(position)
                 }
@@ -106,7 +106,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         executorService.execute {
             try {
                 Runner.service?.insert(info)
-                mContext.runOnUiThread {
+                mContext.runOnMainThread {
                     commands = commands.toMutableList().apply { add(info) }.toTypedArray()
                     notifyItemInserted(commands.size - 1)
                 }
@@ -120,7 +120,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         executorService.execute {
             try {
                 Runner.service?.move(fromPosition, toPosition)
-                mContext.runOnUiThread {
+                mContext.runOnMainThread {
                     commands = commands.toMutableList().apply {
                         val item = removeAt(fromPosition)
                         add(toPosition, item)
@@ -223,7 +223,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                     executorService.execute {
                         try {
                             Runner.service?.edit(updatedInfo, position)
-                            mContext.runOnUiThread {
+                            mContext.runOnMainThread {
                                 if (!empty[0] && isEmpty(updatedInfo)[0]) {
                                     remove(position)
                                 } else {

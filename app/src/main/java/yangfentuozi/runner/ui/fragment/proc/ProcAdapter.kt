@@ -59,7 +59,7 @@ class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragmen
                         Thread {
                             //杀死进程
                             killPIDs(intArrayOf(processInfo.pid))
-                            mContext.runOnUiThread { updateData() }
+                            mContext.runOnMainThread { updateData() }
                         }.start()
                     }
                     .setNeutralButton(android.R.string.cancel, null)
@@ -80,7 +80,7 @@ class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragmen
     }
 
     fun updateData() {
-        mContext.runOnUiThread { mFragment.binding.swipeRefreshLayout.isRefreshing = true }
+        mContext.runOnMainThread { mFragment.binding.swipeRefreshLayout.isRefreshing = true }
         data = if (Runner.pingServer()) {
             try {
                 val processes = Runner.service?.processes
@@ -99,7 +99,7 @@ class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragmen
             null
         }
         notifyDataSetChanged()
-        mContext.runOnUiThread { mFragment.binding.swipeRefreshLayout.isRefreshing = false }
+        mContext.runOnMainThread { mFragment.binding.swipeRefreshLayout.isRefreshing = false }
     }
 
     fun killAll() {
@@ -138,8 +138,8 @@ class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragmen
         fun killPIDs(pids: IntArray) {
             if (Runner.pingServer()) {
                 try {
-                    val signal = if (App.getPreferences().getBoolean("force_kill", false)) 9 else 15
-                    if (App.getPreferences().getBoolean("kill_child_processes", false)) {
+                    val signal = if (App.preferences.getBoolean("force_kill", false)) 9 else 15
+                    if (App.preferences.getBoolean("kill_child_processes", false)) {
                         val processes = Runner.service?.processes
                         if (processes == null) {
                             Runner.service?.sendSignal(pids, signal)

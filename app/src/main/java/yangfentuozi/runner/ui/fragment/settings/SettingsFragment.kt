@@ -96,7 +96,7 @@ class SettingsFragment : BaseFragment() {
             addPreferencesFromResource(R.xml.preference_setting)
 
             findPreference<Preference?>("dark_theme")?.setOnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
-                if (App.getPreferences()
+                if (App.preferences
                         .getString(
                             "dark_theme",
                             ThemeUtil.MODE_NIGHT_FOLLOW_SYSTEM
@@ -146,7 +146,7 @@ class SettingsFragment : BaseFragment() {
                                     .value == resources.getStringArray(R.array.update_channel_values)[1]
                             )
                             if (updateInfo.versionCode > BuildConfig.VERSION_CODE) {
-                                mMainActivity!!.runOnUiThread {
+                                mMainActivity!!.runOnMainThread {
                                     try {
                                         BaseDialogBuilder(mMainActivity!!)
                                             .setTitle(R.string.check_update)
@@ -166,7 +166,7 @@ class SettingsFragment : BaseFragment() {
                                     }
                                 }
                             } else {
-                                mMainActivity!!.runOnUiThread {
+                                mMainActivity!!.runOnMainThread {
                                     Toast.makeText(
                                         mMainActivity,
                                         R.string.it_is_latest_version,
@@ -175,7 +175,7 @@ class SettingsFragment : BaseFragment() {
                                 }
                             }
                         } catch (e: UpdateException) {
-                            mMainActivity!!.runOnUiThread {
+                            mMainActivity!!.runOnMainThread {
                                 Toast.makeText(
                                     mMainActivity, when (e.what) {
                                         UpdateException.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER -> R.string.connect_update_server_error
@@ -245,7 +245,7 @@ class SettingsFragment : BaseFragment() {
                 true
             }
             findPreference<Preference>("startup_script")?.setOnPreferenceClickListener {
-                val sharedPreferences = App.getPreferences()
+                val sharedPreferences = App.preferences
                 val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mMainActivity))
 
                 dialogBinding.apply {
@@ -274,7 +274,8 @@ class SettingsFragment : BaseFragment() {
                                 it.visibility = View.GONE
                         }
                     }
-                    targetPermParent.visibility = if (reducePerm.isChecked) View.VISIBLE else View.GONE
+                    targetPermParent.visibility =
+                        if (reducePerm.isChecked) View.VISIBLE else View.GONE
                     reducePerm.setOnCheckedChangeListener { _, isChecked ->
                         targetPermParent.visibility = if (isChecked) View.VISIBLE else View.GONE
                     }
@@ -319,11 +320,10 @@ class SettingsFragment : BaseFragment() {
             parent: ViewGroup,
             savedInstanceState: Bundle?
         ): RecyclerView {
-            val recyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-            recyclerView.fixEdgeEffect(false, true)
-            val l = View.OnClickListener { v: View? -> recyclerView.smoothScrollToPosition(0) }
-            mParentFragment!!.toolbar.setOnClickListener(l)
-            return recyclerView
+            return super.onCreateRecyclerView(inflater, parent, savedInstanceState).apply {
+                fixEdgeEffect(false, true)
+                mParentFragment!!.toolbar.setOnClickListener { smoothScrollToPosition(0) }
+            }
         }
     }
 
@@ -351,7 +351,7 @@ class SettingsFragment : BaseFragment() {
             if (uri == null || lastArg == null) return@registerForActivityResult
             Thread {
                 val arg: BooleanArray = lastArg!!
-                val backupTmpDir = File(mContext.externalCacheDir, "backupData")
+                val backupTmpDir = File(mMainActivity.externalCacheDir, "backupData")
                 ServiceImpl.rmRF(backupTmpDir)
                 backupTmpDir.mkdirs()
                 if (!arg[0])
@@ -359,7 +359,7 @@ class SettingsFragment : BaseFragment() {
 
                 if (arg[1]) {
                     val prefsInput =
-                        FileInputStream(mContext.applicationInfo.dataDir + "/shared_prefs/${getDefaultSharedPreferencesName()}.xml")
+                        FileInputStream(mMainActivity.applicationInfo.dataDir + "/shared_prefs/${getDefaultSharedPreferencesName()}.xml")
                     val prefsOutput = FileOutputStream(
                         "${backupTmpDir.absolutePath}/settings.xml"
                     )
@@ -367,7 +367,7 @@ class SettingsFragment : BaseFragment() {
                     prefsInput.close()
                     prefsOutput.close()
                 }
-                val output = mContext.contentResolver.openOutputStream(uri)
+                val output = mMainActivity.contentResolver.openOutputStream(uri)
                 TarArchiveOutputStream(output).use { taos ->
                     taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
                     ServiceImpl.tarFileRecursive(backupTmpDir, backupTmpDir, taos)
@@ -383,7 +383,7 @@ class SettingsFragment : BaseFragment() {
             Thread {
                 try {
                     val input = requireContext().contentResolver.openInputStream(uri)
-                    val restoreTmpDir = File(mContext.externalCacheDir, "restoreData")
+                    val restoreTmpDir = File(mMainActivity.externalCacheDir, "restoreData")
                     ServiceImpl.rmRF(restoreTmpDir)
                     restoreTmpDir.mkdirs()
                     try {
@@ -418,7 +418,7 @@ class SettingsFragment : BaseFragment() {
                     File(restoreTmpDir, "settings.xml").let {
                         if (it.exists()) {
                             try {
-                                App.getPreferences().edit(commit = true) {
+                                App.preferences.edit(commit = true) {
                                     clear()
                                     val factory = XmlPullParserFactory.newInstance()
                                     factory.isNamespaceAware = true
@@ -532,7 +532,7 @@ class SettingsFragment : BaseFragment() {
                             } catch (e: Exception) {
                                 Log.e("SettingsFragment", "restore shared_prefs error", e)
                             }
-                            mContext.runOnUiThread {
+                            mMainActivity.runOnMainThread {
                                 childFragment?.apply {
                                     preferenceScreen = null
                                     onCreatePreferences(null, null)
@@ -553,6 +553,6 @@ class SettingsFragment : BaseFragment() {
             Context::class.java
         )
         method.isAccessible = true
-        return method.invoke(null, mContext) as String?
+        return method.invoke(null, mMainActivity) as String?
     }
 }
