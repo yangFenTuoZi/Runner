@@ -1,10 +1,12 @@
 package yangfentuozi.runner.base
 
 import android.content.res.Resources
-import android.graphics.Color
+import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import rikka.material.app.MaterialActivity
 import yangfentuozi.runner.App
 import yangfentuozi.runner.R
@@ -22,7 +24,7 @@ open class BaseActivity : MaterialActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         mApp = application as App
         mApp.addActivity(this)
-        setTheme(R.style.AppTheme);
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
     }
 
@@ -33,10 +35,13 @@ open class BaseActivity : MaterialActivity() {
 
     override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
         if (!ThemeUtil.isSystemAccent) {
-            theme.applyStyle(ThemeUtil.colorThemeStyleRes, true);
+            theme.applyStyle(ThemeUtil.colorThemeStyleRes, true)
         }
-        theme.applyStyle(ThemeUtil.getNightThemeStyleRes(this), true);
-        theme.applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true)
+        theme.applyStyle(ThemeUtil.getNightThemeStyleRes(this), true)
+        theme.applyStyle(
+            rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
+            true
+        )
     }
 
     override fun computeUserThemeKey(): String? {
@@ -47,9 +52,10 @@ open class BaseActivity : MaterialActivity() {
         super.onApplyTranslucentSystemBars()
 
         // 设置状态栏导航栏透明
-        val window = window
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT)
+        )
     }
 
     fun runOnMainThread(action: Runnable) {
