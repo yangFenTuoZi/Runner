@@ -29,16 +29,12 @@ import yangfentuozi.runner.service.database.DataDbHelper
 import yangfentuozi.runner.service.database.EnvironmentDao
 import yangfentuozi.runner.service.fakecontext.FakeContext
 import yangfentuozi.runner.service.util.ProcessUtils
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.OutputStream
 import java.util.regex.Pattern
 import java.util.zip.ZipFile
 import kotlin.system.exitProcess
@@ -151,18 +147,6 @@ class ServiceImpl : IService.Stub() {
         fun ifExistsOrMkdirs(file: File) {
             if (!file.exists()) file.mkdirs()
         }
-
-        fun copyFile(inputStream: InputStream, outputStream: OutputStream) {
-            BufferedInputStream(inputStream).use { `in` ->
-                BufferedOutputStream(outputStream).use { out ->
-                    val b = ByteArray(PAGE_SIZE)
-                    var len: Int
-                    while (`in`.read(b).also { len = it } != -1) {
-                        out.write(b, 0, len)
-                    }
-                }
-            }
-        }
     }
 
     val mHandler: Handler
@@ -200,10 +184,13 @@ class ServiceImpl : IService.Stub() {
                 var entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libstarter.so")
                 if (entry != null) {
                     Log.i(TAG, "unzip starter")
-                    val `in` = app.getInputStream(entry)
-                    val file = File(STARTER)
-                    if (!file.exists()) file.createNewFile()
-                    copyFile(`in`, FileOutputStream(file))
+                    app.getInputStream(entry).use { `in` ->
+                        val file = File(STARTER)
+                        if (!file.exists()) file.createNewFile()
+                        FileOutputStream(file).use { out ->
+                            `in`.copyTo(out, bufferSize =  PAGE_SIZE)
+                        }
+                    }
                     Os.chmod(STARTER, "700".toInt(8))
                 } else {
                     Log.e(TAG, "libstarter.so doesn't exist")
@@ -211,10 +198,13 @@ class ServiceImpl : IService.Stub() {
                 entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libprocessutils.so")
                 if (entry != null) {
                     Log.i(TAG, "unzip libprocessutils.so")
-                    val `in` = app.getInputStream(entry)
-                    val file = File(JNI_PROCESS_UTILS)
-                    if (!file.exists()) file.createNewFile()
-                    copyFile(`in`, FileOutputStream(file))
+                    app.getInputStream(entry).use { `in` ->
+                        val file = File(JNI_PROCESS_UTILS)
+                        if (!file.exists()) file.createNewFile()
+                        FileOutputStream(file).use { out ->
+                            `in`.copyTo(out, bufferSize =  PAGE_SIZE)
+                        }
+                    }
                     Os.chmod(JNI_PROCESS_UTILS, "500".toInt(8))
                     processUtils.loadLibrary()
                 } else {
@@ -423,8 +413,11 @@ class ServiceImpl : IService.Stub() {
             if (data) {
                 val dbFile = File(dataDbHelper.database.path)
                 if (dbFile.exists()) {
-                    val outDb = File(outputDir, "data.db")
-                    copyFile(FileInputStream(dbFile), FileOutputStream(outDb))
+                    FileInputStream(dbFile).use { input ->
+                        FileOutputStream(File(outputDir, "data.db")).use {
+                            input.copyTo(it, bufferSize = PAGE_SIZE)
+                        }
+                    }
                 }
             }
         } catch (e: IOException) {
@@ -443,7 +436,11 @@ class ServiceImpl : IService.Stub() {
         val database = File(input, "data.db")
         if (database.exists()) {
             try {
-                copyFile(FileInputStream(database), FileOutputStream(DataDbHelper.DATABASE_NAME))
+                FileInputStream(database).use { input ->
+                    FileOutputStream(DataDbHelper.DATABASE_NAME).use {
+                        input.copyTo(it, bufferSize = PAGE_SIZE)
+                    }
+                }
             } catch (e: IOException) {
                 Log.e(TAG, "restoreData: copy database error", e)
             }
@@ -544,7 +541,11 @@ class ServiceImpl : IService.Stub() {
                             callbackWrapper.onMessage("- Unzip '${zipEntry.name}' to '${file.absolutePath}'")
                             file.parentFile?.let { if (!it.exists()) it.mkdirs() }
                             if (!file.exists()) file.createNewFile()
-                            copyFile(app.getInputStream(zipEntry), FileOutputStream(file))
+                            app.getInputStream(zipEntry).use { input ->
+                                FileOutputStream(file).use {
+                                    input.copyTo(it, bufferSize = PAGE_SIZE)
+                                }
+                            }
                         }
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to unzip file: ${zipEntry.name}", e)
