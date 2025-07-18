@@ -28,11 +28,6 @@
             android:label="@string/env_manage" />
 
         <activity
-            android:name=".app.ui.activity.PackActivity"
-            android:exported="false"
-            android:label="@string/pack_apk" />
-
-        <activity
             android:name=".app.ui.activity.CrashReportActivity"
             android:exported="false"
             android:label="@string/app_crashed" />

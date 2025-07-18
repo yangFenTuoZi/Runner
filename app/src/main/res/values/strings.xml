@@ -38,13 +38,7 @@
     <string name="copy_name">Copy Name</string>
     <string name="copy_command">Copy Command</string>
     <string name="create_below">Create below</string>
-    <string name="pack_apk">Pack to APK</string>
     <string name="delete">Delete</string>
-
-    <string name="packageName">PackageName</string>
-    <string name="versionName">VersionName</string>
-    <string name="versionCode">VersionCode</string>
-    <string name="pinShortcutTile">Pin to a shortcut tile</string>
 
     <string name="kill_all_processes">Kill all processes?</string>
 

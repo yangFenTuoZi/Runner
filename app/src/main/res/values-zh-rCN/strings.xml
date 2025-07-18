@@ -37,7 +37,6 @@
     <string name="copy_name">复制名字</string>
     <string name="copy_command">复制命令</string>
     <string name="create_below">在下方新建</string>
-    <string name="pack_apk">打包成APK</string>
     <string name="delete">删除</string>
 
     <string name="packageName">包名</string>

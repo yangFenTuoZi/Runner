@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -21,7 +20,6 @@ import yangfentuozi.runner.R
 import yangfentuozi.runner.app.base.BaseDialogBuilder
 import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.activity.MainActivity
-import yangfentuozi.runner.app.ui.activity.PackActivity
 import yangfentuozi.runner.app.ui.dialog.ExecDialogBuilder
 import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.HomeItemContainerBinding
@@ -118,7 +116,6 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
             menu.add(position, LONG_CLICK_COPY_NAME, 0, R.string.copy_name)
             menu.add(position, LONG_CLICK_COPY_COMMAND, 0, R.string.copy_command)
             menu.add(position, LONG_CLICK_NEW, 0, R.string.create_below)
-            menu.add(position, LONG_CLICK_PACK, 0, R.string.pack_apk)
             menu.add(position, LONG_CLICK_DEL, 0, R.string.delete)
         }
     }
@@ -186,8 +183,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         const val LONG_CLICK_COPY_NAME = 0
         const val LONG_CLICK_COPY_COMMAND = 1
         const val LONG_CLICK_NEW = 2
-        const val LONG_CLICK_PACK = 3
-        const val LONG_CLICK_DEL = 4
+        const val LONG_CLICK_DEL = 3
 
         fun isEmpty(info: CommandInfo): BooleanArray {
             val existC = info.command.isNullOrEmpty()
@@ -214,12 +210,6 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
             }
             LONG_CLICK_NEW -> {
                 mFragment.showAddCommandDialog(item.groupId)
-                return true
-            }
-            LONG_CLICK_PACK -> {
-                val intent = Intent(mContext, PackActivity::class.java)
-                intent.putExtra("id", item.groupId)
-                mContext.startActivity(intent)
                 return true
             }
             LONG_CLICK_DEL -> {
