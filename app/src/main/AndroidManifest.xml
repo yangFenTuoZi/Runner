@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".App"
+        android:name=".app.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,7 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".app.ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,22 +25,22 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.envmanage.EnvManageActivity"
+            android:name=".app.ui.activity.envmanage.EnvManageActivity"
             android:exported="true"
             android:label="@string/env_manage" />
 
         <activity
-            android:name=".ui.activity.PackActivity"
+            android:name=".app.ui.activity.PackActivity"
             android:exported="false"
             android:label="@string/pack_apk" />
 
         <activity
-            android:name=".ui.activity.CrashReportActivity"
+            android:name=".app.ui.activity.CrashReportActivity"
             android:exported="false"
             android:label="@string/app_crashed" />
 
         <activity
-            android:name=".ui.activity.InstallTermExtActivity"
+            android:name=".app.ui.activity.InstallTermExtActivity"
             android:exported="true"
             android:label="@string/install_term_ext">
 
@@ -54,11 +54,11 @@
         </activity>
 
         <service
-            android:name=".appservice.ExecOnBootService"
+            android:name=".app.service.ExecOnBootService"
             android:exported="false" />
 
         <receiver
-            android:name=".receiver.BootCompleteReceiver"
+            android:name=".app.receiver.BootCompleteReceiver"
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true">

@@ -7,31 +7,31 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="yangfentuozi.runner.ui.fragment.home.HomeFragment"
+        android:name="yangfentuozi.runner.app.ui.fragment.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_runner"
-        android:name="yangfentuozi.runner.ui.fragment.runner.RunnerFragment"
+        android:name="yangfentuozi.runner.app.ui.fragment.runner.RunnerFragment"
         android:label="@string/title_runner"
         tools:layout="@layout/fragment_runner" />
 
     <fragment
         android:id="@+id/navigation_terminal"
-        android:name="yangfentuozi.runner.ui.fragment.terminal.TerminalFragment"
+        android:name="yangfentuozi.runner.app.ui.fragment.terminal.TerminalFragment"
         android:label="@string/title_terminal"
         tools:layout="@layout/fragment_terminal" />
 
     <fragment
         android:id="@+id/navigation_proc"
-        android:name="yangfentuozi.runner.ui.fragment.proc.ProcFragment"
+        android:name="yangfentuozi.runner.app.ui.fragment.proc.ProcFragment"
         android:label="@string/title_proc"
         tools:layout="@layout/fragment_proc" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="yangfentuozi.runner.ui.fragment.settings.SettingsFragment"
+        android:name="yangfentuozi.runner.app.ui.fragment.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>
