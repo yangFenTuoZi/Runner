@@ -52,14 +52,4 @@
         <item>@string/color_brown</item>
         <item>@string/color_blue_grey</item>
     </string-array>
-
-    <string-array name="update_channel_texts" translatable="false">
-        <item>@string/stable</item>
-        <item>@string/beta</item>
-    </string-array>
-
-    <string-array name="update_channel_values" translatable="false">
-        <item>CHANNEL_STABLE</item>
-        <item>CHANNEL_BETA</item>
-    </string-array>
 </resources>

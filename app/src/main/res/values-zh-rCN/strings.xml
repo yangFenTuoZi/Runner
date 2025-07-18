@@ -41,21 +41,17 @@
 
     <string name="kill_all_processes">杀死所有进程?</string>
 
-    <string name="update_channel">更新渠道</string>
-    <string name="stable">稳定版</string>
-    <string name="beta">测试版</string>
     <string name="backup">备份</string>
     <string name="export_data">导出数据</string>
-    <string name="export_data_summary">将数据导出为JSON</string>
+    <string name="export_data_summary">将数据导出为 Tar 压缩包</string>
     <string name="import_data">导入数据</string>
-    <string name="import_data_summary">导入JSON</string>
+    <string name="import_data_summary">导入备份的数据</string>
     <string name="env_manage">运行环境管理</string>
     <string name="env_manage_summary">这些环境配置将会在执行命令前加载</string>
     <string name="force_kill">强制杀死进程</string>
     <string name="force_kill_summary">这不会使进程正常退出，略过进程清理机制，一般情况不要启用</string>
     <string name="kill_child_processes">杀死所有子进程</string>
     <string name="kill_child_processes_summary">这可能会有意想不到的后果</string>
-    <string name="ver_info">版本名: %s\n版本号: %d</string>
     <string name="help">帮助</string>
     <string name="copy">复制</string>
     <string name="parse_json_data_error">无法解析JSON数据</string>
@@ -121,7 +117,6 @@
     <string name="failed_to_get_the_process_list">获取进程列表失败</string>
     <string name="value">值</string>
     <string name="key">键</string>
-    <string name="update">更新</string>
     <string name="auto_start_exec">开机启动并执行命令</string>
     <string name="auto_start_exec_summary">在开机时启动，并在连接到服务时自动执行命令</string>
     <string name="startup_script">开机启动时将执行的脚本</string>

@@ -13,7 +13,6 @@ import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.base.BaseActivity
 import yangfentuozi.runner.app.base.BaseDialogBuilder
-import yangfentuozi.runner.app.ui.dialog.BlurBehindDialogBuilder
 import yangfentuozi.runner.app.util.ThrowableUtil.toErrorDialog
 import yangfentuozi.runner.databinding.ActivityMainBinding
 import yangfentuozi.runner.databinding.DialogAboutBinding
@@ -71,12 +70,6 @@ class MainActivity : BaseActivity() {
                     }
                     true
                 }
-
-                R.id.menu_about -> {
-                    showAbout()
-                    true
-                }
-
                 else -> true
             }
         }
@@ -85,7 +78,7 @@ class MainActivity : BaseActivity() {
         appBar = binding.appBar
     }
 
-    private fun showAbout() {
+    fun showAbout() {
         val binding = DialogAboutBinding.inflate(layoutInflater, null, false)
         binding.designAboutTitle.setText(R.string.app_name)
         binding.designAboutInfo.movementMethod = LinkMovementMethod.getInstance()
@@ -103,7 +96,7 @@ class MainActivity : BaseActivity() {
         )
 
         try {
-            BlurBehindDialogBuilder(this)
+            BaseDialogBuilder(this)
                 .setView(binding.root)
                 .show()
         } catch (_: BaseDialogBuilder.DialogShowingException) {

@@ -37,17 +37,6 @@
             android:summary="@string/click_edit"
             android:title="@string/startup_script" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/update">
-
-        <rikka.preference.SimpleMenuPreference
-            android:defaultValue="CHANNEL_STABLE"
-            android:entries="@array/update_channel_texts"
-            android:entryValues="@array/update_channel_values"
-            android:icon="@drawable/ic_merge_type_24"
-            android:key="update_channel"
-            android:summary="%s"
-            android:title="@string/update_channel" />
-    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/theme">
         <rikka.material.preference.MaterialSwitchPreference
@@ -100,8 +89,8 @@
         <Preference
             android:defaultValue="false"
             android:icon="@drawable/ic_info_24"
-            android:key="ver"
-            android:title="@string/ver_info" />
+            android:key="about"
+            android:title="@string/about" />
         <Preference
             android:defaultValue="false"
             android:icon="@drawable/ic_help_24"

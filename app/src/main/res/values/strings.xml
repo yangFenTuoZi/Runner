@@ -42,21 +42,17 @@
 
     <string name="kill_all_processes">Kill all processes?</string>
 
-    <string name="update_channel">Update Channel</string>
-    <string name="stable">Stable</string>
-    <string name="beta">Beta</string>
     <string name="backup">Backup</string>
     <string name="export_data">Export Data</string>
-    <string name="export_data_summary">Export the data to JSON</string>
+    <string name="export_data_summary">Export the data to tar package</string>
     <string name="import_data">Import Data</string>
-    <string name="import_data_summary">Import JSON</string>
+    <string name="import_data_summary">Import backup data</string>
     <string name="env_manage">Environment manage</string>
     <string name="env_manage_summary">These environment configs will be loaded before executing the command.</string>
     <string name="force_kill">Force kill processes</string>
     <string name="force_kill_summary">This does not allow the process to exit gracefully, bypassing the cleanup mechanism. Do not enable this under normal circumstances.</string>
     <string name="kill_child_processes">Kill all child processes</string>
     <string name="kill_child_processes_summary">That may have unintended consequences.</string>
-    <string name="ver_info">verName: %s\nverCode: %d</string>
     <string name="help">Help</string>
     <string name="copy">Copy</string>
     <string name="parse_json_data_error">Can not parse JSON data</string>
@@ -123,7 +119,6 @@
     <string name="more" translatable="false">...</string>
     <string name="value">Value</string>
     <string name="key">Key</string>
-    <string name="update">Update</string>
     <string name="auto_start_exec">Start on boot and run commands</string>
     <string name="auto_start_exec_summary">Launch at startup and auto-run commands upon service connection</string>
     <string name="startup_script">The command to be executed</string>

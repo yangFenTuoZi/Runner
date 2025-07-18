@@ -3,7 +3,4 @@
     <item
         android:id="@+id/menu_stop_server"
         android:title="@string/stop_server" />
-    <item
-        android:id="@+id/menu_about"
-        android:title="@string/about" />
 </menu>

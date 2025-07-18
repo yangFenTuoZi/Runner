@@ -21,7 +21,6 @@ import com.google.android.material.color.DynamicColors
 import rikka.core.util.ResourceUtils
 import rikka.material.preference.MaterialSwitchPreference
 import rikka.recyclerview.fixEdgeEffect
-import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
@@ -115,12 +114,11 @@ class SettingsFragment : BaseFragment() {
                 }
             }
 
-            findPreference<Preference?>("ver")?.apply {
-                title = getString(
-                    R.string.ver_info,
-                    BuildConfig.VERSION_NAME,
-                    BuildConfig.VERSION_CODE
-                )
+            findPreference<Preference?>("about")?.apply {
+                setOnPreferenceClickListener {
+                    mMainActivity?.showAbout()
+                    true
+                }
             }
             val help = findPreference<Preference?>("help")
             help?.setOnPreferenceClickListener {
