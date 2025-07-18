@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.base.BaseDialogBuilder
-import yangfentuozi.runner.app.data.CommandInfo
 import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.activity.MainActivity
 import yangfentuozi.runner.app.ui.activity.PackActivity
@@ -27,6 +26,7 @@ import yangfentuozi.runner.app.ui.dialog.ExecDialogBuilder
 import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.HomeItemContainerBinding
 import yangfentuozi.runner.databinding.ItemCmdBinding
+import yangfentuozi.runner.shared.data.CommandInfo
 
 class CommandAdapter(private val mContext: MainActivity, private val mFragment: RunnerFragment) :
     RecyclerView.Adapter<CommandAdapter.ViewHolder>() {

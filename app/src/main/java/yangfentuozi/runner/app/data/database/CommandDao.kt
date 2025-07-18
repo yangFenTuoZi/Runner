@@ -3,7 +3,7 @@ package yangfentuozi.runner.app.data.database
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import androidx.core.database.sqlite.transaction
-import yangfentuozi.runner.app.data.CommandInfo
+import yangfentuozi.runner.shared.data.CommandInfo
 
 class CommandDao(private val db: SQLiteDatabase) {
     fun size(): Int {

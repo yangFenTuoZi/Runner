@@ -15,9 +15,9 @@ import rikka.recyclerview.fixEdgeEffect
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.base.BaseDialogBuilder
 import yangfentuozi.runner.app.base.BaseFragment
-import yangfentuozi.runner.app.data.CommandInfo
 import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.FragmentRunnerBinding
+import yangfentuozi.runner.shared.data.CommandInfo
 
 class RunnerFragment : BaseFragment() {
     private lateinit var mBinding: FragmentRunnerBinding

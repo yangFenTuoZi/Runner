@@ -10,11 +10,11 @@ import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.base.BaseActivity
 import yangfentuozi.runner.app.base.BaseDialogBuilder
-import yangfentuozi.runner.app.data.CommandInfo
 import yangfentuozi.runner.app.ui.fragment.proc.ProcAdapter
 import yangfentuozi.runner.app.util.ThrowableUtil.toErrorDialog
 import yangfentuozi.runner.databinding.DialogExecBinding
 import yangfentuozi.runner.server.callback.IExecResultCallback
+import yangfentuozi.runner.shared.data.CommandInfo
 
 class ExecDialogBuilder(context: BaseActivity, cmdInfo: CommandInfo) : BaseDialogBuilder(context) {
     var pid: Int = 0

@@ -5,6 +5,7 @@ import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.data.database.CommandDao
 import yangfentuozi.runner.app.data.database.DataDbHelper
 import yangfentuozi.runner.app.data.database.EnvironmentDao
+import yangfentuozi.runner.shared.data.CommandInfo
 import yangfentuozi.runner.shared.data.EnvInfo
 import java.util.concurrent.Executors
 
