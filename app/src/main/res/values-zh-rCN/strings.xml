@@ -39,11 +39,6 @@
     <string name="create_below">在下方新建</string>
     <string name="delete">删除</string>
 
-    <string name="packageName">包名</string>
-    <string name="versionName">版本名</string>
-    <string name="versionCode">版本号</string>
-    <string name="pinShortcutTile">固定到快捷磁贴</string>
-
     <string name="kill_all_processes">杀死所有进程?</string>
 
     <string name="update_channel">更新渠道</string>
