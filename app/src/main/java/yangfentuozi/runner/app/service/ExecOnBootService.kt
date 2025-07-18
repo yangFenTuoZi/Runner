@@ -41,7 +41,7 @@ class ExecOnBootService : Service() {
                 Log.i(TAG, "Shizuku is ready")
                 Runner.refreshStatus()
                 Runner.tryBindService()
-                if (Runner.waitService((timeout * 3).toLong())) {
+                if (Runner.waitService(timeout * 3)) {
                     Log.i(TAG, "Service is ready")
                     exec()
                 } else {

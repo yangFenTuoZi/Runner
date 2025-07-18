@@ -319,7 +319,7 @@ class SettingsFragment : BaseFragment() {
             savedInstanceState: Bundle?
         ): RecyclerView {
             return super.onCreateRecyclerView(inflater, parent, savedInstanceState).apply {
-                fixEdgeEffect(false, true)
+                fixEdgeEffect(overScrollIfContentScrolls = false)
                 mParentFragment!!.toolbar.setOnClickListener { smoothScrollToPosition(0) }
             }
         }

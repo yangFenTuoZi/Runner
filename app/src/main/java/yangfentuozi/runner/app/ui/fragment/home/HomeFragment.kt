@@ -32,7 +32,7 @@ class HomeFragment : BaseFragment() {
 
         recyclerView = binding!!.list.apply {
             adapter = this@HomeFragment.mAdapter
-            fixEdgeEffect(true, true)
+            fixEdgeEffect()
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
         }

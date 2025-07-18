@@ -33,13 +33,13 @@ class ProcFragment : BaseFragment() {
         mBinding = FragmentProcBinding.inflate(inflater, container, false)
         recyclerView = mBinding.recyclerView
         recyclerView!!.setLayoutManager(LinearLayoutManager(mMainActivity))
-        recyclerView!!.fixEdgeEffect(false, true)
+        recyclerView!!.fixEdgeEffect(overScrollIfContentScrolls = false)
 
         adapter = ProcAdapter(mMainActivity, this)
 
         mBinding.recyclerView.apply {
             layoutManager = LinearLayoutManager(mMainActivity)
-            fixEdgeEffect(true, true)
+            fixEdgeEffect()
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             adapter = this@ProcFragment.adapter

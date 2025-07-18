@@ -34,7 +34,7 @@ class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragmen
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        var processInfo: ProcessInfo? = data?.get(position)
+        val processInfo: ProcessInfo? = data?.get(position)
         if (processInfo == null) return
 
         var niceNameFlag = false
@@ -113,7 +113,7 @@ class ProcAdapter(private val mContext: MainActivity, val mFragment: ProcFragmen
     }
 
     open class GetChildProcesses(val mProcesses: Array<ProcessInfo>) {
-        private var mResult: ArrayList<Int> = ArrayList<Int>()
+        private var mResult = ArrayList<Int>()
         fun find(pid: Int) {
             // 遍历所有进程，查找父进程 ID 匹配的子进程
             for (process in mProcesses) {

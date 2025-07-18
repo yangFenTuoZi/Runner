@@ -1,6 +1,5 @@
 package yangfentuozi.runner.app.ui.activity
 
-import android.R
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -78,7 +77,7 @@ class CrashReportActivity : BaseActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.home) {
+        return if (item.itemId == android.R.id.home) {
             finish()
             true
         } else {

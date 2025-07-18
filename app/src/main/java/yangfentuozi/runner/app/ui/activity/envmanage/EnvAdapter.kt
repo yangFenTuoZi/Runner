@@ -96,7 +96,7 @@ class EnvAdapter(private val mContext: EnvManageActivity) :
                 val mAdapter = ItemAdapter(mContext, binding.value.text.toString())
                 dialogBinding.recyclerView.apply {
                     layoutManager = LinearLayoutManager(mContext)
-                    fixEdgeEffect(true, true)
+                    fixEdgeEffect()
                     addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
                     addEdgeSpacing(16f, 4f, 12f, 0f, TypedValue.COMPLEX_UNIT_DIP)
                     adapter = mAdapter

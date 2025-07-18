@@ -40,7 +40,7 @@ class RunnerFragment : BaseFragment() {
 
         mBinding.recyclerView.apply {
             layoutManager = LinearLayoutManager(mMainActivity)
-            fixEdgeEffect(true, true)
+            fixEdgeEffect()
             addItemSpacing(0f, 4f, 0f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(16f, 4f, 16f, 4f, TypedValue.COMPLEX_UNIT_DIP)
             adapter = this@RunnerFragment.adapter

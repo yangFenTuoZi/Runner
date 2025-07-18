@@ -1,10 +1,8 @@
 package yangfentuozi.runner.app.ui.dialog
 
 import android.animation.ValueAnimator
-import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.content.DialogInterface.OnShowListener
 import android.os.Build
 import android.view.SurfaceControl
 import android.view.SurfaceControl.Transaction
@@ -49,11 +47,11 @@ class BlurBehindDialogBuilder(context: BaseActivity) : BaseDialogBuilder(context
                     }
                 })
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            dialog.setOnShowListener(OnShowListener { d: DialogInterface? ->
+            dialog.setOnShowListener { d: DialogInterface? ->
                 updateWindowForBlurs(
                     window!!, supportBlur
                 )
-            })
+            }
         }
     }
 
@@ -83,7 +81,7 @@ class BlurBehindDialogBuilder(context: BaseActivity) : BaseDialogBuilder(context
                             SurfaceControl::class.java,
                             Int::class.javaPrimitiveType
                         )
-                    animator.addUpdateListener(AnimatorUpdateListener { animation: ValueAnimator? ->
+                    animator.addUpdateListener { animation: ValueAnimator? ->
                         try {
                             val transaction = Transaction()
                             val animatedValue = animation!!.getAnimatedValue()
@@ -97,7 +95,7 @@ class BlurBehindDialogBuilder(context: BaseActivity) : BaseDialogBuilder(context
                             transaction.apply()
                         } catch (_: Throwable) {
                         }
-                    })
+                    }
                 } catch (_: Throwable) {
                 }
                 view.addOnAttachStateChangeListener(object : OnAttachStateChangeListener {

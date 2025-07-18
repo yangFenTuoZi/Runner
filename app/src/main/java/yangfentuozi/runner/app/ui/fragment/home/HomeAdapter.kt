@@ -38,7 +38,7 @@ class HomeAdapter(private val fragment: HomeFragment) : IdBasedRecyclerViewAdapt
         if (position == -1) {
             if (!it) return@ServiceStatusListener
             position = if (findPositionById(ID_GRANT_SHIZUKU_PERM) == -1) 2 else 3
-            addItemAt<HomeFragment>(position, TermExtStatusViewHolder.CREATOR, fragment, ID_TERM_EXT_STATUS)
+            addItemAt(position, TermExtStatusViewHolder.CREATOR, fragment, ID_TERM_EXT_STATUS)
             notifyItemInserted(position)
         } else {
             if (it) return@ServiceStatusListener
@@ -81,7 +81,7 @@ class HomeAdapter(private val fragment: HomeFragment) : IdBasedRecyclerViewAdapt
         }
 
         if (Runner.pingServer()) {
-            addItem<HomeFragment>(TermExtStatusViewHolder.CREATOR, fragment, ID_TERM_EXT_STATUS)
+            addItem(TermExtStatusViewHolder.CREATOR, fragment, ID_TERM_EXT_STATUS)
         }
 
         notifyDataSetChanged()

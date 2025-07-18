@@ -10,7 +10,7 @@ import yangfentuozi.runner.app.App
 
 
 object ThemeUtil {
-    private val colorThemeMap: MutableMap<String?, Int?> = HashMap<String?, Int?>()
+    private val colorThemeMap = HashMap<String?, Int?>()
 
     const val MODE_NIGHT_FOLLOW_SYSTEM: String = "MODE_NIGHT_FOLLOW_SYSTEM"
     const val MODE_NIGHT_NO: String = "MODE_NIGHT_NO"

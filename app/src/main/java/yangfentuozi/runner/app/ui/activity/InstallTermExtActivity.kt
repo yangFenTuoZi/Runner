@@ -62,7 +62,7 @@ class InstallTermExtActivity : BaseActivity() {
     }
 
     private fun handleReceivedFile(uri: Uri) {
-        var input: InputStream? = null
+        var input: InputStream?
         try {
             input = contentResolver.openInputStream(uri)
         } catch (e: FileNotFoundException) {

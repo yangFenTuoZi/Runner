@@ -29,7 +29,7 @@ class EnvManageActivity : BaseActivity() {
 
         mBinding.recyclerView.apply {
             adapter = mAdapter
-            fixEdgeEffect(true, true)
+            fixEdgeEffect()
             addItemSpacing(top = 4f, bottom = 4f, unit = TypedValue.COMPLEX_UNIT_DIP)
             addEdgeSpacing(
                 top = 4f,

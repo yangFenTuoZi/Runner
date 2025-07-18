@@ -13,7 +13,7 @@ import yangfentuozi.runner.databinding.ItemEnvItemBinding
 class ItemAdapter(private val mContext: EnvManageActivity, value: String) :
     RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
     var data: String = ""
-    var dataList: ArrayList<String> = ArrayList<String>()
+    var dataList = ArrayList<String>()
 
     init {
         data = value
@@ -26,7 +26,7 @@ class ItemAdapter(private val mContext: EnvManageActivity, value: String) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var position = holder.bindingAdapterPosition
+        val position = holder.bindingAdapterPosition
         if (position == itemCount - 1) {
             holder.binding.value.visibility = ViewGroup.GONE
             holder.binding.remove.apply {
@@ -69,7 +69,7 @@ class ItemAdapter(private val mContext: EnvManageActivity, value: String) :
                     child.clearFocus()
                 }
             }
-            var position = holder.bindingAdapterPosition
+            val position = holder.bindingAdapterPosition
             dataList.removeAt(position)
             notifyItemRemoved(position)
         }
