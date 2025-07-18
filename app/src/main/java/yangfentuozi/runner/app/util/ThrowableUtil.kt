@@ -9,14 +9,10 @@ import yangfentuozi.runner.R
 object ThrowableUtil {
 
     fun Throwable.toErrorDialog(context: Activity) {
-        stackTraceToString().toErrorDialog(context)
-    }
-
-    fun CharSequence.toErrorDialog(context: Activity) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
-            createDialog(context, this)
+            createDialog(context, stackTraceToString())
         } else {
-            context.runOnUiThread { createDialog(context, this) }
+            context.runOnUiThread { createDialog(context, stackTraceToString()) }
         }
     }
 
