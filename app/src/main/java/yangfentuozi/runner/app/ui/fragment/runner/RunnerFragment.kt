@@ -50,12 +50,12 @@ class RunnerFragment : BaseFragment() {
 
         mBinding.add.setOnClickListener {
             if (mMainActivity.isDialogShowing) return@setOnClickListener
-            showAddCommandDialog(-1)
+            showAddCommandDialog()
         }
         adapter.updateData()
     }
 
-    fun showAddCommandDialog(toPosition: Int) {
+    fun showAddCommandDialog(toPosition: Int = -1) {
         val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mMainActivity))
 
         dialogBinding.apply {

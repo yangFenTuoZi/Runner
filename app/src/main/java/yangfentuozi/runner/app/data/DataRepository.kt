@@ -24,19 +24,19 @@ class DataRepository private constructor(context: Context) {
     fun getAllCommands(): List<CommandInfo> = commandDao.readAll()
     fun addCommand(commandInfo: CommandInfo) {
         commandDao.insert(commandInfo)
-        syncToService()
     }
+    fun addCommand(commandInfo: CommandInfo, position: Int) {
+        commandDao.insertInto(commandInfo, position)
+    }
+
     fun updateCommand(commandInfo: CommandInfo, position: Int) {
         commandDao.edit(commandInfo, position)
-        syncToService()
     }
     fun deleteCommand(position: Int) {
         commandDao.delete(position)
-        syncToService()
     }
     fun moveCommand(fromPosition: Int, toPosition: Int) {
         commandDao.move(fromPosition, toPosition)
-        syncToService()
     }
 
     // Environment Operations

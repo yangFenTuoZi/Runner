@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.base.BaseDialogBuilder
@@ -65,9 +64,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
     }
 
     fun addUnderOne(position: Int, info: CommandInfo) {
-        // This function is not directly supported by the new DAO, will implement later if needed.
-        // For now, just add to the end.
-        dataRepository.addCommand(info)
+        dataRepository.addCommand(info, position)
         commands.add(position, info)
         notifyItemInserted(position)
     }
@@ -209,7 +206,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                 return true
             }
             LONG_CLICK_NEW -> {
-                mFragment.showAddCommandDialog(item.groupId)
+                mFragment.showAddCommandDialog(toPosition = item.groupId)
                 return true
             }
             LONG_CLICK_DEL -> {
@@ -220,42 +217,42 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         return true
     }
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-//        ItemTouchHelper(ItemTouchHelperCallback()).attachToRecyclerView(recyclerView)
-    }
-
-    private inner class ItemTouchHelperCallback() : ItemTouchHelper.Callback() {
-
-        override fun getMovementFlags(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder
-        ): Int {
-            // 允许上下拖动和左右滑动
-            val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-            val swipeFlags = 0
-//            ItemTouchHelper.START or ItemTouchHelper.END
-            return makeMovementFlags(dragFlags, swipeFlags)
-        }
-
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-            val fromPosition = viewHolder.bindingAdapterPosition
-            val toPosition = target.bindingAdapterPosition
-            move(fromPosition, toPosition) // 调用适配器的移动方法
-            return true
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            // 不处理滑动删除
-        }
-
-        override fun isLongPressDragEnabled(): Boolean {
-            return true // 启用长按拖动
-        }
-
-    }
+//    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+//        super.onAttachedToRecyclerView(recyclerView)
+////        ItemTouchHelper(ItemTouchHelperCallback()).attachToRecyclerView(recyclerView)
+//    }
+//
+//    private inner class ItemTouchHelperCallback() : ItemTouchHelper.Callback() {
+//
+//        override fun getMovementFlags(
+//            recyclerView: RecyclerView,
+//            viewHolder: RecyclerView.ViewHolder
+//        ): Int {
+//            // 允许上下拖动和左右滑动
+//            val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+//            val swipeFlags = 0
+////            ItemTouchHelper.START or ItemTouchHelper.END
+//            return makeMovementFlags(dragFlags, swipeFlags)
+//        }
+//
+//        override fun onMove(
+//            recyclerView: RecyclerView,
+//            viewHolder: RecyclerView.ViewHolder,
+//            target: RecyclerView.ViewHolder
+//        ): Boolean {
+//            val fromPosition = viewHolder.bindingAdapterPosition
+//            val toPosition = target.bindingAdapterPosition
+//            move(fromPosition, toPosition) // 调用适配器的移动方法
+//            return true
+//        }
+//
+//        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+//            // 不处理滑动删除
+//        }
+//
+//        override fun isLongPressDragEnabled(): Boolean {
+//            return true // 启用长按拖动
+//        }
+//
+//    }
 }
