@@ -2,9 +2,6 @@ name: App
 
 on:
   push:
-    branches: [ master ]
-    paths-ignore:
-      - '.github/ISSUE_TEMPLATE'
   workflow_dispatch:
 
 jobs:
@@ -39,7 +36,7 @@ jobs:
       - name: Write temporary key
         if: hashFiles('key.jks') == '' && !steps.vars.outputs.HAS_SECRET
         run: |
-          keytool -genkey -alias a -dname CN=_ -storepass passwd -keypass passwd -keystore key.jks
+          keytool -genkey -alias a -dname CN=_ -storepass passwd -keypass passwd -keystore key.jks -keyalg RSA
           echo KEYSTORE_PASSWORD=passwd >> signing.properties
           echo KEYSTORE_ALIAS=a >> signing.properties
           echo KEYSTORE_ALIAS_PASSWORD=passwd >> signing.properties

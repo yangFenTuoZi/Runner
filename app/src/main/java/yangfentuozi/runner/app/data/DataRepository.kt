@@ -1,0 +1,70 @@
+package yangfentuozi.runner.app.data
+
+import android.content.Context
+import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.data.database.CommandDao
+import yangfentuozi.runner.app.data.database.DataDbHelper
+import yangfentuozi.runner.app.data.database.EnvironmentDao
+import yangfentuozi.runner.shared.data.EnvInfo
+import java.util.concurrent.Executors
+
+class DataRepository private constructor(context: Context) {
+
+    private val executor = Executors.newSingleThreadExecutor()
+    private val dbHelper = DataDbHelper(context.applicationContext)
+    private val commandDao = CommandDao(dbHelper.writableDatabase)
+    private val environmentDao = EnvironmentDao(dbHelper.writableDatabase)
+
+    // Command Operations
+    fun getAllCommands(): List<CommandInfo> = commandDao.readAll()
+    fun addCommand(commandInfo: CommandInfo) {
+        commandDao.insert(commandInfo)
+        syncToService()
+    }
+    fun updateCommand(commandInfo: CommandInfo, position: Int) {
+        commandDao.edit(commandInfo, position)
+        syncToService()
+    }
+    fun deleteCommand(position: Int) {
+        commandDao.delete(position)
+        syncToService()
+    }
+    fun moveCommand(fromPosition: Int, toPosition: Int) {
+        commandDao.move(fromPosition, toPosition)
+        syncToService()
+    }
+
+    // Environment Operations
+    fun getAllEnvs(): List<EnvInfo> = environmentDao.all
+    fun addEnv(key: String, value: String) {
+        environmentDao.insert(key, value)
+        syncToService()
+    }
+    fun updateEnv(fromKey: String, fromValue: String, toKey: String, toValue: String) {
+        environmentDao.update(fromKey, fromValue, toKey, toValue)
+        syncToService()
+    }
+    fun deleteEnv(key: String) {
+        environmentDao.delete(key)
+        syncToService()
+    }
+
+    private fun syncToService() {
+        executor.execute {
+            Runner.service?.syncAllData(getAllEnvs())
+        }
+    }
+
+    companion object {
+        @Volatile
+        private var INSTANCE: DataRepository? = null
+
+        fun getInstance(context: Context): DataRepository {
+            return INSTANCE ?: synchronized(this) {
+                val instance = DataRepository(context)
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
+}
