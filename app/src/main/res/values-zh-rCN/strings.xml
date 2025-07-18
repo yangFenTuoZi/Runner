@@ -69,12 +69,6 @@
     <string name="not_app_data">不是此APP的数据</string>
     <string name="data_error">数据错误</string>
     <string name="decode_error">解密数据失败</string>
-    <string name="check_update">更新</string>
-    <string name="connect_update_server_error">无法连接更新服务</string>
-    <string name="parse_json_error">无法解析JSON</string>
-    <string name="json_format_error">JSON格式错误</string>
-    <string name="check_update_msg">本地版本名: %s\n本地版本号: %d\n新版本名: %s\n新版本号: %d\n更新信息: %s</string>
-    <string name="it_is_latest_version">已是最新版本</string>
     <string name="theme">主题</string>
 
     <string name="theme_color">主题颜色</string>

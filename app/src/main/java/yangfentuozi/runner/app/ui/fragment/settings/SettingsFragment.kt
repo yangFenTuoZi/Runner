@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.DynamicColors
 import rikka.core.util.ResourceUtils
 import rikka.material.preference.MaterialSwitchPreference
-import rikka.preference.SimpleMenuPreference
 import rikka.recyclerview.fixEdgeEffect
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.R
@@ -32,7 +31,6 @@ import yangfentuozi.runner.app.data.BackupManager
 import yangfentuozi.runner.app.ui.activity.MainActivity
 import yangfentuozi.runner.app.ui.activity.envmanage.EnvManageActivity
 import yangfentuozi.runner.app.util.ThemeUtil
-import yangfentuozi.runner.app.util.UpdateUtil
 import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.DialogPickBackupBinding
 import yangfentuozi.runner.databinding.FragmentSettingsBinding
@@ -123,58 +121,6 @@ class SettingsFragment : BaseFragment() {
                     BuildConfig.VERSION_NAME,
                     BuildConfig.VERSION_CODE
                 )
-                setOnPreferenceClickListener {
-                    Thread {
-                        if (mMainActivity!!.isDialogShowing) return@Thread
-                        try {
-                            val updateInfo = UpdateUtil.update(
-                                (findPreference<Preference?>("update_channel") as SimpleMenuPreference)
-                                    .value == resources.getStringArray(R.array.update_channel_values)[1]
-                            )
-                            if (updateInfo.versionCode > BuildConfig.VERSION_CODE) {
-                                mMainActivity!!.runOnMainThread {
-                                    try {
-                                        BaseDialogBuilder(mMainActivity!!)
-                                            .setTitle(R.string.check_update)
-                                            .setMessage(
-                                                getString(
-                                                    R.string.check_update_msg,
-                                                    BuildConfig.VERSION_NAME,
-                                                    BuildConfig.VERSION_CODE,
-                                                    updateInfo.versionName,
-                                                    updateInfo.versionCode,
-                                                    updateInfo.updateMsg
-                                                )
-                                            )
-                                            .setPositiveButton(R.string.check_update) { dialog, which -> }
-                                            .show()
-                                    } catch (_: BaseDialogBuilder.DialogShowingException) {
-                                    }
-                                }
-                            } else {
-                                mMainActivity!!.runOnMainThread {
-                                    Toast.makeText(
-                                        mMainActivity,
-                                        R.string.it_is_latest_version,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        } catch (e: UpdateUtil.UpdateException) {
-                            mMainActivity!!.runOnMainThread {
-                                Toast.makeText(
-                                    mMainActivity, when (e.what) {
-                                        UpdateUtil.UpdateException.Companion.WHAT_CAN_NOT_CONNECT_UPDATE_SERVER -> R.string.connect_update_server_error
-                                        UpdateUtil.UpdateException.Companion.WHAT_CAN_NOT_PARSE_JSON -> R.string.parse_json_error
-                                        UpdateUtil.UpdateException.Companion.WHAT_JSON_FORMAT_ERROR -> R.string.json_format_error
-                                        else -> R.string.error
-                                    }, Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }.start()
-                    true
-                }
             }
             val help = findPreference<Preference?>("help")
             help?.setOnPreferenceClickListener {

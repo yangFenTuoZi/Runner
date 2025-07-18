@@ -70,12 +70,6 @@
     <string name="not_app_data">It is not App data</string>
     <string name="data_error">Data error</string>
     <string name="decode_error">Decode data error</string>
-    <string name="check_update">Update</string>
-    <string name="connect_update_server_error">Can not connect update server</string>
-    <string name="parse_json_error">Can not parse JSON</string>
-    <string name="json_format_error">JSON format error</string>
-    <string name="check_update_msg">Local version name: %s\nLocal version code: %d\nNew version name: %s\nNew version code: %d\nUpdate message: %s</string>
-    <string name="it_is_latest_version">It is the latest version</string>
     <string name="theme">Theme</string>
 
     <string name="theme_color">Theme color</string>
