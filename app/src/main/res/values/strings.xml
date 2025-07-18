@@ -145,4 +145,7 @@
     <string name="terminal_home">Terminal Home</string>
     <string name="terminal_usr">Terminal Usr</string>
     <string name="select_backup_data">Select the data to be backed up</string>
+    <string name="backup_started">Backup started in the background.</string>
+    <string name="import_data_confirm">This will overwrite all current settings and data. Are you sure you want to continue?</string>
+    <string name="restore_completed">Restore completed. The app will now restart.</string>
 </resources>

@@ -136,12 +136,12 @@ class EnvAdapter(private val mContext: EnvManageActivity) :
     }
 
     fun onContextItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             LONG_CLICK_DEL -> {
                 remove(item.groupId)
-                return true
+                true
             }
+            else -> false
         }
-        return true
     }
 }

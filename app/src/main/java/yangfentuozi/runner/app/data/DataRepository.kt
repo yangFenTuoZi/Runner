@@ -15,6 +15,10 @@ class DataRepository private constructor(context: Context) {
     private val commandDao = CommandDao(dbHelper.writableDatabase)
     private val environmentDao = EnvironmentDao(dbHelper.writableDatabase)
 
+    private fun close() {
+        dbHelper.close()
+    }
+
     // Command Operations
     fun getAllCommands(): List<CommandInfo> = commandDao.readAll()
     fun addCommand(commandInfo: CommandInfo) {
@@ -65,6 +69,11 @@ class DataRepository private constructor(context: Context) {
                 INSTANCE = instance
                 instance
             }
+        }
+
+        fun destroyInstance() {
+            INSTANCE?.close()
+            INSTANCE = null
         }
     }
 }

@@ -13,6 +13,7 @@ import yangfentuozi.runner.app.ui.activity.CrashReportActivity
 import yangfentuozi.runner.app.util.ThemeUtil
 import java.io.File
 import java.util.LinkedList
+import kotlin.system.exitProcess
 
 
 class App : Application(), Thread.UncaughtExceptionHandler {
@@ -43,11 +44,18 @@ class App : Application(), Thread.UncaughtExceptionHandler {
     fun finishApp() {
         for (activity in activities) activity.finish()
         activities.clear()
+        onTerminate()
+        exitProcess(0)
     }
 
     override fun onTerminate() {
         super.onTerminate()
         Runner.remove()
+    }
+
+    fun reinitializeDataRepository() {
+        DataRepository.destroyInstance()
+        DataRepository.getInstance(this)
     }
 
     private fun crashHandler(t: Thread, e: Throwable) {

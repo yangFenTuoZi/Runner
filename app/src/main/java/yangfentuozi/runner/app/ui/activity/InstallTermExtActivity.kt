@@ -74,7 +74,7 @@ class InstallTermExtActivity : BaseActivity() {
             return
         }
         val termExtCacheDir = File(externalCacheDir, "termExtCache")
-        ServerMain.rmRF(termExtCacheDir)
+        termExtCacheDir.deleteRecursively()
         termExtCacheDir.mkdirs()
         val file = File(termExtCacheDir, "termux_ext.zip")
         try {
@@ -103,7 +103,7 @@ class InstallTermExtActivity : BaseActivity() {
             override fun onExit(isSuccessful: Boolean) {
                 onMessage(if (isSuccessful) "- Installation successful" else "! Installation failed")
                 onMessage("\n- Cleanup temp: ${termExtCacheDir.absolutePath}")
-                ServerMain.rmRF(termExtCacheDir)
+                termExtCacheDir.deleteRecursively()
                 callback = null
             }
         }

@@ -131,17 +131,6 @@ class ServerMain : IService.Stub() {
                 }
             }
         }
-
-        fun rmRF(file: File) {
-            if (file.isDirectory) {
-                file.listFiles()?.forEach { f -> rmRF(f) }
-            }
-            file.delete()
-        }
-
-        fun ifExistsOrMkdirs(file: File) {
-            if (!file.exists()) file.mkdirs()
-        }
     }
 
     val mHandler: Handler
@@ -151,8 +140,8 @@ class ServerMain : IService.Stub() {
     init {
         DdmHandleAppName.setAppName(TAG, Os.getuid())
         Log.i(TAG, "start")
-        ifExistsOrMkdirs(File("$HOME_PATH/.local/bin"))
-        ifExistsOrMkdirs(File("$HOME_PATH/.local/lib"))
+        File("$HOME_PATH/.local/bin").mkdirs()
+        File("$HOME_PATH/.local/lib").mkdirs()
         mHandler = Handler(Looper.getMainLooper())
         var app: ZipFile? = null
         try {
@@ -337,20 +326,24 @@ class ServerMain : IService.Stub() {
         }
     }
 
-    override fun backupData(output: String?, data: Boolean, termHome: Boolean, termUsr: Boolean) {
+    override fun backupData(output: String?, termHome: Boolean, termUsr: Boolean) {
         if (output == null) return
         val outputDir = File(output)
         if (!outputDir.exists()) outputDir.mkdirs()
         try {
             if (termHome) {
                 val homeDir = File(HOME_PATH)
-                val homeTarGz = File(outputDir, "home.tar.gz")
-                tarGzDirectory(homeDir, homeTarGz)
+                if (homeDir.exists()) {
+                    val homeTarGz = File(outputDir, "home.tar.gz")
+                    tarGzDirectory(homeDir, homeTarGz)
+                }
             }
             if (termUsr) {
                 val usrDir = File(USR_PATH)
-                val usrTarGz = File(outputDir, "usr.tar.gz")
-                tarGzDirectory(usrDir, usrTarGz)
+                if (usrDir.exists()) {
+                    val usrTarGz = File(outputDir, "usr.tar.gz")
+                    tarGzDirectory(usrDir, usrTarGz)
+                }
             }
         } catch (e: IOException) {
             Log.e(TAG, "backupData error", e)
@@ -360,26 +353,25 @@ class ServerMain : IService.Stub() {
 
     override fun restoreData(input: String?) {
         if (input == null) return
-        val inputFile = File(input)
-        if (!inputFile.exists()) {
-            Log.e(TAG, "restoreData: input file does not exist: $input")
+        val inputDir = File(input)
+        if (!inputDir.exists()) {
+            Log.e(TAG, "restoreData: input directory does not exist: $input")
             return
         }
-        val home = File(input, "home.tar.gz")
-        if (home.exists()) {
-            try {
-                extractTarGz(home, File(HOME_PATH))
-            } catch (e: IOException) {
-                Log.e(TAG, "restoreData: extract tar gz error", e)
+        try {
+            val homeTarGz = File(inputDir, "home.tar.gz")
+            if (homeTarGz.exists()) {
+                File(HOME_PATH).deleteRecursively()
+                extractTarGz(homeTarGz, File(HOME_PATH))
             }
-        }
-        val usr = File(input, "usr.tar.gz")
-        if (usr.exists()) {
-            try {
-                extractTarGz(usr, File(USR_PATH))
-            } catch (e: IOException) {
-                Log.e(TAG, "restoreData: extract tar gz error", e)
+            val usrTarGz = File(inputDir, "usr.tar.gz")
+            if (usrTarGz.exists()) {
+                File(USR_PATH).deleteRecursively()
+                extractTarGz(usrTarGz, File(USR_PATH))
             }
+        } catch (e: IOException) {
+            Log.e(TAG, "restoreData error", e)
+            throw RemoteException(e.stackTraceToString())
         }
     }
 
@@ -433,7 +425,7 @@ class ServerMain : IService.Stub() {
                 }
                 fun cleanupAndReturn(isSuccessful: Boolean) {
                     callbackWrapper.onMessage("- Cleanup $DATA_PATH/install_temp")
-                    rmRF(File("$DATA_PATH/install_temp"))
+                    File("$DATA_PATH/install_temp").deleteRecursively()
                     callbackWrapper.onExit(isSuccessful)
                 }
                 Log.i(TAG, "unzip files.")
@@ -527,7 +519,7 @@ class ServerMain : IService.Stub() {
 
     override fun removeTermExt() {
         Log.i(TAG, "remove terminal extension")
-        rmRF(File(USR_PATH))
+        File(USR_PATH).deleteRecursively()
         Log.i(TAG, "finish")
     }
 

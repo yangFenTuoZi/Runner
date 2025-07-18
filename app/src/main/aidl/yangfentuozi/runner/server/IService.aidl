@@ -19,7 +19,7 @@ interface IService {
     ProcessInfo[] getProcesses() = 400;
     boolean[] sendSignal(in int[] pid, int signal) = 401;
 
-    void backupData(String output, boolean data, boolean termHome, boolean termUsr) = 500;
+    void backupData(String output, boolean termHome, boolean termUsr) = 500;
     void restoreData(String input) = 501;
 
     void installTermExt(String termExtZip, in IInstallTermExtCallback callback) = 1000;
