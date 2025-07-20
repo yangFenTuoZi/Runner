@@ -13,11 +13,11 @@ import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.util.ThemeUtil
 
 
-open class BaseActivity : MaterialActivity() {
+open class BaseActivity : MaterialActivity(), BaseDialogBuilder.IsDialogShowing {
 
     private val mHandler: Handler = Handler(Looper.getMainLooper())
     private val mUiThread: Thread = Thread.currentThread()
-    var isDialogShowing: Boolean = false
+    override var isDialogShowing: Boolean = false
 
     lateinit var mApp: App
 

@@ -4,7 +4,12 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
 import android.graphics.Typeface
+import android.graphics.drawable.Icon
+import android.os.Build
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
@@ -24,6 +29,7 @@ import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.HomeItemContainerBinding
 import yangfentuozi.runner.databinding.ItemCmdBinding
 import yangfentuozi.runner.shared.data.CommandInfo
+
 
 class CommandAdapter(private val mContext: MainActivity, private val mFragment: RunnerFragment) :
     RecyclerView.Adapter<CommandAdapter.ViewHolder>() {
@@ -113,6 +119,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
             menu.add(position, LONG_CLICK_COPY_NAME, 0, R.string.copy_name)
             menu.add(position, LONG_CLICK_COPY_COMMAND, 0, R.string.copy_command)
             menu.add(position, LONG_CLICK_NEW, 0, R.string.create_below)
+            menu.add(position, LONG_CLICK_ADD_SHORTCUT, 0, R.string.add_shortcut)
             menu.add(position, LONG_CLICK_DEL, 0, R.string.delete)
         }
     }
@@ -180,7 +187,8 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         const val LONG_CLICK_COPY_NAME = 0
         const val LONG_CLICK_COPY_COMMAND = 1
         const val LONG_CLICK_NEW = 2
-        const val LONG_CLICK_DEL = 3
+        const val LONG_CLICK_ADD_SHORTCUT = 3
+        const val LONG_CLICK_DEL = 4
 
         fun isEmpty(info: CommandInfo): BooleanArray {
             val existC = info.command.isNullOrEmpty()
@@ -190,31 +198,55 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
     }
 
     fun onContextItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             LONG_CLICK_COPY_NAME -> {
                 val name = commands[item.groupId].name ?: return false
                 (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                     .setPrimaryClip(ClipData.newPlainText("c", name))
                 Toast.makeText(mContext, mContext.getString(R.string.copied_info) + "\n" + name, Toast.LENGTH_SHORT).show()
-                return true
+                true
             }
             LONG_CLICK_COPY_COMMAND -> {
                 val command = commands[item.groupId].command ?: return false
                 (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                     .setPrimaryClip(ClipData.newPlainText("c", command))
                 Toast.makeText(mContext, mContext.getString(R.string.copied_info) + "\n" + command, Toast.LENGTH_SHORT).show()
-                return true
+                true
             }
             LONG_CLICK_NEW -> {
                 mFragment.showAddCommandDialog(toPosition = item.groupId)
-                return true
+                true
+            }
+            LONG_CLICK_ADD_SHORTCUT -> {
+                val cmdInfo = commands[item.groupId]
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val shortcutManager: ShortcutManager =
+                        mContext.getSystemService(ShortcutManager::class.java)
+
+                    val shortcut = ShortcutInfo.Builder(mContext, "shortcut_id")
+                        .setShortLabel(cmdInfo.name ?: "Command")
+                        .setLongLabel(cmdInfo.name ?: "Command")
+                        .setIcon(Icon.createWithResource(mContext, R.mipmap.ic_launcher))
+                        .setIntent(
+                            Intent(mContext, MainActivity::class.java)
+                                .setAction(Intent.ACTION_VIEW)
+                                .putExtra("data", cmdInfo.toBundle())
+                        )
+                        .build()
+
+                    shortcutManager.requestPinShortcut(shortcut, null)
+                } else {
+                    Toast.makeText(mContext, "Not supported on this Android version", Toast.LENGTH_SHORT).show()
+                }
+                true
             }
             LONG_CLICK_DEL -> {
                 remove(item.groupId)
-                return true
+                true
             }
+            else -> false
         }
-        return true
     }
 
 //    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {

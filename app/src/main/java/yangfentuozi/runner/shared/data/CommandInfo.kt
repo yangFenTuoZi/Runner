@@ -1,5 +1,6 @@
 package yangfentuozi.runner.shared.data
 
+import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 
@@ -18,6 +19,14 @@ open class CommandInfo : Parcelable {
         keepAlive = source.readInt() == 1
         reducePerm = source.readInt() == 1
         targetPerm = source.readString()
+    }
+
+    constructor(bundle: Bundle) : super() {
+        name = bundle.getString("name")
+        command = bundle.getString("command")
+        keepAlive = bundle.getBoolean("keepAlive", false)
+        reducePerm = bundle.getBoolean("reducePerm", false)
+        targetPerm = bundle.getString("targetPerm")
     }
 
     override fun describeContents(): Int {
@@ -42,6 +51,16 @@ open class CommandInfo : Parcelable {
             override fun newArray(size: Int): Array<CommandInfo?> {
                 return arrayOfNulls<CommandInfo>(size)
             }
+        }
+    }
+
+    fun toBundle(): Bundle {
+        return Bundle().apply {
+            putString("name", name)
+            putString("command", command)
+            putBoolean("keepAlive", keepAlive)
+            putBoolean("reducePerm", reducePerm)
+            putString("targetPerm", targetPerm)
         }
     }
 }
