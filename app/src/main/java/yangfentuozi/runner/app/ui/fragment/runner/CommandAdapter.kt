@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.base.BaseDialogBuilder
 import yangfentuozi.runner.app.data.DataRepository
+import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
 import yangfentuozi.runner.app.ui.activity.MainActivity
 import yangfentuozi.runner.app.ui.dialog.ExecDialogBuilder
 import yangfentuozi.runner.databinding.DialogEditBinding
@@ -229,7 +230,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                         .setLongLabel(cmdInfo.name ?: "Command")
                         .setIcon(Icon.createWithResource(mContext, R.mipmap.ic_launcher))
                         .setIntent(
-                            Intent(mContext, MainActivity::class.java)
+                            Intent(mContext, ExecShortcutActivity::class.java)
                                 .setAction(Intent.ACTION_VIEW)
                                 .putExtra("data", cmdInfo.toBundle())
                         )
