@@ -130,8 +130,6 @@
     <string name="import_data_confirm">这将覆盖当前所有的设置和数据，确定要继续吗？</string>
     <string name="restore_completed">还原已完成，应用即将重启。</string>
     <string name="add_shortcut">添加快捷方式</string>
-    <string name="choose_shortcut_icon">选择一个图标</string>
-    <string name="shortcut_icon_execute">执行</string>
-    <string name="shortcut_icon_terminal">终端</string>
     <string name="waiting_service">等待服务…</string>
+    <string name="exec_command">执行命令</string>
 </resources>

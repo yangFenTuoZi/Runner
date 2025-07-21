@@ -27,6 +27,7 @@ class ExecDialogBuilder(val mContext: Activity, val cmdInfo: CommandInfo, val wa
     var binding: DialogExecBinding = DialogExecBinding.inflate(LayoutInflater.from(mContext))
 
     init {
+        setTitle(getString(R.string.executing))
         setView(binding.getRoot())
         setOnDismissListener { dialog: DialogInterface? -> onDestroy() }
     }
@@ -40,7 +41,8 @@ class ExecDialogBuilder(val mContext: Activity, val cmdInfo: CommandInfo, val wa
         }
         if (!Runner.pingServer()){
             if (waitServiceTimeout != -1L) {
-                alertDialog?.setTitle(R.string.waiting_service)
+                alertDialog?.
+                setTitle(R.string.waiting_service)
 
                 if (Runner.waitShizuku(waitServiceTimeout)) {
                     Runner.refreshStatus()
@@ -48,14 +50,18 @@ class ExecDialogBuilder(val mContext: Activity, val cmdInfo: CommandInfo, val wa
                     if (Runner.waitService(waitServiceTimeout)) {
                         exec()
                     } else {
-                        alertDialog?.setMessage("Service is not ready")
+                        alertDialog?.
+                        setMessage("Service is not ready")
                     }
                 } else {
-                    alertDialog?.setMessage("Shizuku is not ready")
+                    alertDialog?.
+                    setMessage("Shizuku is not ready")
                 }
             } else {
-                alertDialog?.setTitle(getString(R.string.error))
-                alertDialog?.setMessage(getString(R.string.service_not_running))
+                alertDialog?.
+                setTitle(getString(R.string.error))
+                alertDialog?.
+                setMessage(getString(R.string.service_not_running))
             }
         } else {
             exec()
@@ -64,7 +70,6 @@ class ExecDialogBuilder(val mContext: Activity, val cmdInfo: CommandInfo, val wa
     }
 
     private fun exec() {
-        alertDialog?.setTitle(getString(R.string.executing))
         h1 = Thread {
             try {
                 h2 = Thread {

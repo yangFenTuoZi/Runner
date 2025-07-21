@@ -16,6 +16,10 @@ object ThrowableUtil {
         }
     }
 
+    fun Throwable.toErrorDialog(context: Context) {
+        createDialog(context, stackTraceToString())
+    }
+
     private fun createDialog(context: Context, errorMsg: CharSequence) {
         MaterialAlertDialogBuilder(context)
             .setTitle(R.string.error)

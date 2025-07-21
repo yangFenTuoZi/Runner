@@ -1,5 +1,6 @@
 package yangfentuozi.runner.shared.data
 
+import android.os.BaseBundle
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -21,7 +22,7 @@ open class CommandInfo : Parcelable {
         targetPerm = source.readString()
     }
 
-    constructor(bundle: Bundle) : super() {
+    constructor(bundle: BaseBundle) : super() {
         name = bundle.getString("name")
         command = bundle.getString("command")
         keepAlive = bundle.getBoolean("keepAlive", false)

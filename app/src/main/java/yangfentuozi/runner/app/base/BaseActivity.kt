@@ -8,12 +8,12 @@ import android.os.Looper
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import rikka.material.app.MaterialActivity
-import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.util.ThemeUtil
 
 
-open class BaseActivity : MaterialActivity(), BaseDialogBuilder.IsDialogShowing {
+open class BaseActivity() : MaterialActivity(),
+    BaseDialogBuilder.IsDialogShowing {
 
     private val mHandler: Handler = Handler(Looper.getMainLooper())
     private val mUiThread: Thread = Thread.currentThread()
@@ -24,7 +24,6 @@ open class BaseActivity : MaterialActivity(), BaseDialogBuilder.IsDialogShowing 
     override fun onCreate(savedInstanceState: Bundle?) {
         mApp = application as App
         mApp.addActivity(this)
-        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
     }
 
@@ -38,19 +37,14 @@ open class BaseActivity : MaterialActivity(), BaseDialogBuilder.IsDialogShowing 
             theme.applyStyle(ThemeUtil.colorThemeStyleRes, true)
         }
         theme.applyStyle(ThemeUtil.getNightThemeStyleRes(this), true)
-        theme.applyStyle(
-            rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
-            true
-        )
     }
 
     override fun computeUserThemeKey(): String? {
-        return ThemeUtil.colorTheme + ThemeUtil.getNightTheme(this)
+        return ThemeUtil.getNightTheme(this) + ThemeUtil.isSystemAccent
     }
 
     override fun onApplyTranslucentSystemBars() {
         super.onApplyTranslucentSystemBars()
-
         // 设置状态栏导航栏透明
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT),

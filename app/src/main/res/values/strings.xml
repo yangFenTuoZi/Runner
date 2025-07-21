@@ -132,8 +132,6 @@
     <string name="import_data_confirm">This will overwrite all current settings and data. Are you sure you want to continue?</string>
     <string name="restore_completed">Restore completed. The app will now restart.</string>
     <string name="add_shortcut">Add a shortcut</string>
-    <string name="choose_shortcut_icon">Choose an icon</string>
-    <string name="shortcut_icon_execute">Execute</string>
-    <string name="shortcut_icon_terminal">Terminal</string>
     <string name="waiting_service">Waiting Service…</string>
+    <string name="exec_command">Exec command</string>
 </resources>

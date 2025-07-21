@@ -1,5 +1,6 @@
 package yangfentuozi.runner.app.ui.activity
 
+import android.content.res.Resources
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import androidx.core.text.HtmlCompat
@@ -101,5 +102,13 @@ class MainActivity : BaseActivity() {
                 .show()
         } catch (_: BaseDialogBuilder.DialogShowingException) {
         }
+    }
+
+    override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
+        super.onApplyUserThemeResource(theme, isDecorView)
+        theme.applyStyle(
+            rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
+            true
+        )
     }
 }

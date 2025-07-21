@@ -25,7 +25,7 @@ import yangfentuozi.runner.app.base.BaseDialogBuilder
 import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
 import yangfentuozi.runner.app.ui.activity.MainActivity
-import yangfentuozi.runner.app.ui.dialog.ExecDialogBuilder
+import yangfentuozi.runner.app.ui.dialog.ExecDialogFragment
 import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.HomeItemContainerBinding
 import yangfentuozi.runner.databinding.ItemCmdBinding
@@ -101,10 +101,8 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
 
         holder.mBindingInner.itemButton.setOnClickListener {
             if (mContext.isDialogShowing) return@setOnClickListener
-            try {
-                ExecDialogBuilder(mContext, info).show()
-            } catch (_: BaseDialogBuilder.DialogShowingException) {
-            }
+            ExecDialogFragment(info).show(
+                mContext.supportFragmentManager, null)
         }
 
         holder.mBindingOuter.root.setOnClickListener {
@@ -232,6 +230,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                         .setIntent(
                             Intent(mContext, ExecShortcutActivity::class.java)
                                 .setAction(Intent.ACTION_VIEW)
+                                .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                                 .putExtra("data", cmdInfo.toBundle())
                         )
                         .build()
