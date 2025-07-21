@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.RemoteException
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import yangfentuozi.runner.R
@@ -111,20 +110,38 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
                     exec()
                 } else {
                     mHandler.post {
+                        binding.execTitle.append(
+                            getString(
+                                R.string.return_info,
+                                -1,
+                                getString(R.string.service_not_running)
+                            )
+                        )
                         alertDialog.setTitle(getString(R.string.error))
-                        alertDialog.setMessage(getString(R.string.service_not_running))
                     }
                 }
             } else {
                 mHandler.post {
+                    binding.execTitle.append(
+                        getString(
+                            R.string.return_info,
+                            -1,
+                            getString(R.string.shizuku_not_running)
+                        )
+                    )
                     alertDialog.setTitle(getString(R.string.error))
-                    alertDialog.setMessage(getString(R.string.shizuku_not_running))
                 }
             }
         } else {
             mHandler.post {
+                binding.execTitle.append(
+                    getString(
+                        R.string.return_info,
+                        -1,
+                        getString(R.string.service_not_running)
+                    )
+                )
                 alertDialog.setTitle(getString(R.string.error))
-                alertDialog.setMessage(getString(R.string.service_not_running))
             }
         }
     }
@@ -136,22 +153,16 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
                     while (true) {
                         if (!Runner.pingServer()) {
                             mHandler.post {
-                                Toast.makeText(
-                                    requireContext,
-                                    R.string.service_not_running,
-                                    Toast.LENGTH_SHORT
-                                ).show()
                                 binding.execTitle.append(
                                     getString(
                                         R.string.return_info,
                                         -1,
-                                        getString(R.string.other_error)
+                                        getString(R.string.service_not_running)
                                     )
                                 )
-                                alertDialog.setTitle(getString(R.string.finish))
+                                alertDialog.setTitle(getString(R.string.error))
                                 isDied = true
                             }
-                            onDestroy()
                             break
                         }
                         (this as Object).wait(100)
