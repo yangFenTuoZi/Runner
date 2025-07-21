@@ -33,9 +33,11 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
     private var serviceMonitor: Thread? = null
     private var pid = -1
     private var isDied = false
+    private var isDismissed = false
     private var callback: IExecResultCallback? = object : IExecResultCallback.Stub() {
         private var firstLine = true
         override fun onOutput(outputs: String) {
+            if (isDismissed) return
             if (firstLine) {
                 val p = outputs.toInt()
                 mHandler.post {
@@ -51,6 +53,7 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
         }
 
         override fun onExit(exitValue: Int) {
+            if (isDismissed) return
             mHandler.post {
                 binding.execTitle.append(
                     getString(
@@ -181,6 +184,7 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
+        isDismissed = true
         (requireContext as? IsDialogShowing)?.isDialogShowing = false
         mainThread.interrupt()
         if (Runner.pingServer()) {
