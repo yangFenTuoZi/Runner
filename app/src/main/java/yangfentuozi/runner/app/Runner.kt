@@ -128,21 +128,29 @@ object Runner {
     }
 
     fun waitShizuku(timeOut: Long): Boolean {
-        val startTime = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTime < timeOut) {
-            if (Shizuku.pingBinder()) return true
-            Thread.sleep(100)
+        try {
+            val startTime = System.currentTimeMillis()
+            while (System.currentTimeMillis() - startTime < timeOut) {
+                if (Shizuku.pingBinder()) return true
+                Thread.sleep(100)
+            }
+            return false
+        } catch (_: InterruptedException) {
+            return false
         }
-        return false
     }
 
     fun waitService(timeOut: Long): Boolean {
-        val startTime = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTime < timeOut) {
-            if (pingServer()) return true
-            Thread.sleep(100)
+        try {
+            val startTime = System.currentTimeMillis()
+            while (System.currentTimeMillis() - startTime < timeOut) {
+                if (pingServer()) return true
+                Thread.sleep(100)
+            }
+            return false
+        } catch (_: InterruptedException) {
+            return false
         }
-        return false
     }
 
     fun init() {
