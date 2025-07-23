@@ -202,11 +202,6 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
         mOnDismissListener?.onDismiss(dialog)
     }
 
-    fun setTitle(title: String): ExecDialogFragment {
-        alertDialog.setTitle(title)
-        return this
-    }
-
     fun setOnDismissListener(onDismissListener: DialogInterface.OnDismissListener?) {
         mOnDismissListener = onDismissListener
     }

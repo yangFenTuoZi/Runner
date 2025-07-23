@@ -3,7 +3,7 @@
 
     <style name="AppTheme" parent="Theme.Light" />
 
-    <style name="Transparent" parent="Theme.Material3.DayNight">
+    <style name="Transparent" parent="AppTheme">
         <item name="android:colorBackground">?colorBackgroundFloating</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
 

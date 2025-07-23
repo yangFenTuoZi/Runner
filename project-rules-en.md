@@ -72,12 +72,12 @@ The project is organized into a standard Android app structure with clear separa
 
 ### 4.1. Command Execution Flow
 1.  **User Action**: User clicks the "run" button for a command in `RunnerFragment`.
-2.  **Dialog**: An `ExecDialogBuilder` is shown, which gets the `IService` instance from `Runner.service`.
+2.  **Dialog**: An `ExecDialogFragment` is shown, which gets the `IService` instance from `Runner.service`.
 3.  **IPC Call**: The dialog calls `service.exec(command, ...)`, passing the command string and a callback (`IExecResultCallback`).
 4.  **Service-Side**: `ServerMain.kt` receives the call. It constructs a `ProcessBuilder` to run the native `starter` executable.
 5.  **Native Execution**: The `starter` executable is run. It first sets the UID/GID if specified, then uses `execvp` to replace itself with `/.../bash`. The actual command script is piped to `bash`'s `stdin`.
 6.  **Output Streaming**: `ServerMain` reads the `stdout` of the `bash` process line-by-line.
-7.  **Callback**: Each line of output is sent back to the client (the `ExecDialogBuilder`) via the `IExecResultCallback.onOutput()` method, which updates the dialog's UI in real-time.
+7.  **Callback**: Each line of output is sent back to the client (the `ExecDialogFragment`) via the `IExecResultCallback.onOutput()` method, which updates the dialog's UI in real-time.
 8.  **Exit Code**: When the process terminates, the exit code is sent back via `IExecResultCallback.onExit()`.
 
 ### 4.2. Database Operations

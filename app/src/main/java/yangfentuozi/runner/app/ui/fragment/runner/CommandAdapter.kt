@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.base.BaseDialogBuilder
 import yangfentuozi.runner.app.data.DataRepository
-import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
+import yangfentuozi.runner.app.ui.activity.BridgeActivity
 import yangfentuozi.runner.app.ui.activity.MainActivity
 import yangfentuozi.runner.app.ui.dialog.ExecDialogFragment
 import yangfentuozi.runner.databinding.DialogEditBinding
@@ -223,19 +223,21 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                     val shortcutManager: ShortcutManager =
                         mContext.getSystemService(ShortcutManager::class.java)
 
-                    val shortcut = ShortcutInfo.Builder(mContext, "shortcut_id")
-                        .setShortLabel(cmdInfo.name ?: "Command")
-                        .setLongLabel(cmdInfo.name ?: "Command")
-                        .setIcon(Icon.createWithResource(mContext, R.mipmap.ic_launcher))
-                        .setIntent(
-                            Intent(mContext, ExecShortcutActivity::class.java)
-                                .setAction(Intent.ACTION_VIEW)
-                                .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                                .putExtra("data", cmdInfo.toBundle())
-                        )
-                        .build()
+                    if (shortcutManager.isRequestPinShortcutSupported) {
+                        val shortcut = ShortcutInfo.Builder(mContext, "shortcut_id")
+                            .setShortLabel(cmdInfo.name ?: "Command")
+                            .setLongLabel(cmdInfo.name ?: "Command")
+                            .setIcon(Icon.createWithResource(mContext, R.mipmap.ic_launcher))
+                            .setIntent(
+                                Intent(mContext, BridgeActivity::class.java)
+                                    .setAction(Intent.ACTION_VIEW)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    .putExtra("data", cmdInfo.toBundle())
+                            )
+                            .build()
 
-                    shortcutManager.requestPinShortcut(shortcut, null)
+                        shortcutManager.requestPinShortcut(shortcut, null)
+                    }
                 } else {
                     Toast.makeText(mContext, "Not supported on this Android version", Toast.LENGTH_SHORT).show()
                 }

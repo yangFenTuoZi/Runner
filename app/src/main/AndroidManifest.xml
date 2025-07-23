@@ -24,12 +24,31 @@
         </activity>
 
         <activity
-            android:name=".app.ui.activity.ExecShortcutActivity"
-            android:exported="true"
-            android:launchMode="standard"
+            android:name=".app.ui.activity.BridgeActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/Transparent"
-            android:label="@string/exec_command"/>
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:theme="@style/Transparent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".app.ui.activity.ExecShortcutActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/exec_command"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:theme="@style/Transparent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".app.ui.activity.envmanage.EnvManageActivity"

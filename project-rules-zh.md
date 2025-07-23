@@ -72,12 +72,12 @@
 
 ### 4.1. 命令执行流程
 1.  **用户操作**: 用户在 `RunnerFragment` 中点击一个命令的“运行”按钮。
-2.  **对话框**: 显示一个 `ExecDialogBuilder` 对话框，它从 `Runner.service` 获取 `IService` 实例。
+2.  **对话框**: 显示一个 `ExecDialogFragment` 对话框，它从 `Runner.service` 获取 `IService` 实例。
 3.  **IPC 调用**: 对话框调用 `service.exec(command, ...)`，传入命令字符串和一个回调 (`IExecResultCallback`)。
 4.  **服务端**: `ServerMain.kt` 接收到调用。它构造一个 `ProcessBuilder` 来运行原生的 `starter` 可执行文件。
 5.  **原生执行**: `starter` 可执行文件被运行。它首先设置 UID/GID（如果已指定），然后使用 `execvp` 将自身替换为 `/.../bash`。实际的命令脚本通过管道传递给 `bash` 的标准输入 (`stdin`)。
 6.  **输出流**: `ServerMain` 逐行读取 `bash` 进程的标准输出 (`stdout`)。
-7.  **回调**: 每一行输出都通过 `IExecResultCallback.onOutput()` 方法发送回客户端（`ExecDialogBuilder`），从而实时更新对话框的 UI。
+7.  **回调**: 每一行输出都通过 `IExecResultCallback.onOutput()` 方法发送回客户端（`ExecDialogFragment`），从而实时更新对话框的 UI。
 8.  **退出码**: 当进程终止时，退出码通过 `IExecResultCallback.onExit()` 发送回来。
 
 ### 4.2. 数据库操作
