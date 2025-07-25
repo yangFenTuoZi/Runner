@@ -27,4 +27,6 @@ interface IService {
     TermExtVersion getTermExtVersion() = 1002;
 
     void syncAllData(in List<EnvInfo> envs) = 600;
+
+    IBinder getShellService() = 30000;
 }

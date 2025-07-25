@@ -3,6 +3,7 @@ package yangfentuozi.runner.server
 import android.ddm.DdmHandleAppName
 import android.os.Build
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.os.RemoteException
 import android.system.ErrnoException
@@ -15,6 +16,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import rikka.hidden.compat.PackageManagerApis
+import rikka.rish.RishService
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.server.callback.ExecResultCallback
 import yangfentuozi.runner.server.callback.IExecResultCallback
@@ -133,8 +135,9 @@ class ServerMain : IService.Stub() {
         }
     }
 
-    val mHandler: Handler
+    private val mHandler: Handler
     private val processUtils = ProcessUtils()
+    private val rishService: RishService
     private var customEnv: List<EnvInfo> = emptyList()
 
     init {
@@ -204,6 +207,9 @@ class ServerMain : IService.Stub() {
                 }
             }
         }
+
+        Log.i(TAG, "start RishService")
+        rishService = RishService()
     }
 
     override fun destroy() {
@@ -301,6 +307,10 @@ class ServerMain : IService.Stub() {
 
     override fun syncAllData(envs: MutableList<EnvInfo>?) {
         customEnv = envs ?: emptyList()
+    }
+
+    override fun getShellService(): IBinder? {
+        return rishService
     }
 
     override fun getProcesses(): Array<ProcessInfo>? {

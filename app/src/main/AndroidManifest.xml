@@ -91,6 +91,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".app.receiver.BinderRequestReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="yangfentuozi.runner.intent.action.REQUEST_BINDER" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"

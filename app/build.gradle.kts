@@ -41,7 +41,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                arguments += listOf("-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
+                arguments += listOf("-DANDROID_STL=none")
             }
         }
     }
@@ -70,14 +70,18 @@ android {
         viewBinding = true
         buildConfig = true
         aidl = true
+        prefab = true
     }
     kotlinOptions {
-        jvmTarget = "21"
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_21
+            targetCompatibility = JavaVersion.VERSION_21
+        }
     }
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.31.6"
+            version = "4.0.3"
         }
     }
     androidResources {
@@ -186,6 +190,7 @@ dependencies {
     implementation("dev.rikka.hidden:compat:4.4.0")
 
     implementation("org.apache.commons:commons-compress:1.27.1")
+    implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
 }
 
 configurations.configureEach {
