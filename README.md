@@ -48,3 +48,8 @@
 2024/10/04: **不再使用Shizuku**
 
 2025/04/21: **重新使用Shizuku**
+
+## 特别鸣谢
+
+- [ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)
+- [Shizuku](https://github.com/RikkaApps/Shizuku)
