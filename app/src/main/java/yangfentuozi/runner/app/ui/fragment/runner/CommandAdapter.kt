@@ -24,12 +24,14 @@ import yangfentuozi.runner.R
 import yangfentuozi.runner.app.base.BaseDialogBuilder
 import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.activity.BridgeActivity
+import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
 import yangfentuozi.runner.app.ui.activity.MainActivity
 import yangfentuozi.runner.app.ui.dialog.ExecDialogFragment
 import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.HomeItemContainerBinding
 import yangfentuozi.runner.databinding.ItemCmdBinding
 import yangfentuozi.runner.shared.data.CommandInfo
+import java.util.UUID
 
 
 class CommandAdapter(private val mContext: MainActivity, private val mFragment: RunnerFragment) :
@@ -102,7 +104,8 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
         holder.mBindingInner.itemButton.setOnClickListener {
             if (mContext.isDialogShowing) return@setOnClickListener
             ExecDialogFragment(info).show(
-                mContext.supportFragmentManager, null)
+                mContext.supportFragmentManager, null
+            )
         }
 
         holder.mBindingOuter.root.setOnClickListener {
@@ -202,20 +205,31 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                 val name = commands[item.groupId].name ?: return false
                 (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                     .setPrimaryClip(ClipData.newPlainText("c", name))
-                Toast.makeText(mContext, mContext.getString(R.string.copied_info) + "\n" + name, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    mContext,
+                    mContext.getString(R.string.copied_info) + "\n" + name,
+                    Toast.LENGTH_SHORT
+                ).show()
                 true
             }
+
             LONG_CLICK_COPY_COMMAND -> {
                 val command = commands[item.groupId].command ?: return false
                 (mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                     .setPrimaryClip(ClipData.newPlainText("c", command))
-                Toast.makeText(mContext, mContext.getString(R.string.copied_info) + "\n" + command, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    mContext,
+                    mContext.getString(R.string.copied_info) + "\n" + command,
+                    Toast.LENGTH_SHORT
+                ).show()
                 true
             }
+
             LONG_CLICK_NEW -> {
                 mFragment.showAddCommandDialog(toPosition = item.groupId)
                 true
             }
+
             LONG_CLICK_ADD_SHORTCUT -> {
                 val cmdInfo = commands[item.groupId]
 
@@ -224,12 +238,16 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                         mContext.getSystemService(ShortcutManager::class.java)
 
                     if (shortcutManager.isRequestPinShortcutSupported) {
-                        val shortcut = ShortcutInfo.Builder(mContext, "shortcut_id")
-                            .setShortLabel(cmdInfo.name ?: "Command")
-                            .setLongLabel(cmdInfo.name ?: "Command")
+                        val label = if (cmdInfo.name.isNullOrEmpty()) "Command" else cmdInfo.name!!
+                        val shortcut = ShortcutInfo.Builder(mContext, UUID.randomUUID().toString())
+                            .setShortLabel(label)
+                            .setLongLabel(label)
                             .setIcon(Icon.createWithResource(mContext, R.mipmap.ic_launcher))
                             .setIntent(
-                                Intent(mContext, BridgeActivity::class.java)
+                                Intent(
+                                    mContext,
+                                    if (isColorOS()) BridgeActivity::class.java else ExecShortcutActivity::class.java
+                                )
                                     .setAction(Intent.ACTION_VIEW)
                                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     .putExtra("data", cmdInfo.toBundle())
@@ -239,16 +257,26 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
                         shortcutManager.requestPinShortcut(shortcut, null)
                     }
                 } else {
-                    Toast.makeText(mContext, "Not supported on this Android version", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        mContext,
+                        "Not supported on this Android version",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 true
             }
+
             LONG_CLICK_DEL -> {
                 remove(item.groupId)
                 true
             }
+
             else -> false
         }
+    }
+
+    fun isColorOS(): Boolean {
+        TODO()
     }
 
 //    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
