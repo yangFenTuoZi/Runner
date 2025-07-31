@@ -16,6 +16,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import rikka.hidden.compat.PackageManagerApis
+import rikka.rish.RishConfig
 import rikka.rish.RishService
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.server.callback.ExecResultCallback
@@ -194,6 +195,22 @@ class ServerMain : IService.Stub() {
                     processUtils.loadLibrary()
                 } else {
                     Log.e(TAG, "libprocessutils.so doesn't exist")
+                }
+                entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/librish.so")
+                if (entry != null) {
+                    Log.i(TAG, "unzip librish.so")
+                    app.getInputStream(entry).use { `in` ->
+                        val file = File("$HOME_PATH/.local/lib/librish.so")
+                        if (!file.exists()) file.createNewFile()
+                        FileOutputStream(file).use { out ->
+                            `in`.copyTo(out, bufferSize =  PAGE_SIZE)
+                        }
+                    }
+                    Os.chmod("$HOME_PATH/.local/lib/librish.so", "500".toInt(8))
+                    RishConfig.setLibraryPath("$HOME_PATH/.local/lib")
+                    RishConfig.init()
+                } else {
+                    Log.e(TAG, "librish.so doesn't exist")
                 }
             } catch (e: IOException) {
                 Log.e(TAG, "unzip error", e)

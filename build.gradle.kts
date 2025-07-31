@@ -2,7 +2,8 @@
 plugins {
     id("com.android.application") version "8.11.1" apply false
     id("org.jetbrains.kotlin.android") version "2.2.0" apply false
-    id("dev.rikka.tools.materialthemebuilder") version "1.5.1"
+    id("dev.rikka.tools.materialthemebuilder") version "1.5.1" apply false
+    id("dev.rikka.tools.refine") version "4.4.0" apply false
 }
 
 val gitCommitId: String = listOf("git", "rev-parse", "--short", "HEAD").execute(project.rootDir).trim()

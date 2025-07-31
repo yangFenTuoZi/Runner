@@ -5,6 +5,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("dev.rikka.tools.materialthemebuilder")
+    id("dev.rikka.tools.refine")
 }
 
 val ksFile = rootProject.file("signing.properties")
@@ -162,8 +163,8 @@ dependencies {
     implementation("dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.3.2")
     implementation("dev.rikka.rikkax.recyclerview:recyclerview-adapter:1.3.0")
     implementation("dev.rikka.rikkax.widget:borderview:1.1.0")
-    implementation("dev.rikka.rikkax.widget:mainswitchbar:1.1.0")
-    implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.3.0")
+//    implementation("dev.rikka.rikkax.widget:mainswitchbar:1.1.0")
+//    implementation("dev.rikka.rikkax.layoutinflater:layoutinflater:1.3.0")
 //    implementation("dev.rikka.rikkax.lifecycle:lifecycle-resource-livedata:1.0.1")
 //    implementation("dev.rikka.rikkax.lifecycle:lifecycle-shared-viewmodel:1.0.1")
 //    implementation("dev.rikka.rikkax.lifecycle:lifecycle-viewmodel-lazy:2.0.0")
@@ -171,8 +172,8 @@ dependencies {
 
     // AndroidX
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.9.2")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.2")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.3")
 //    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.core:core-ktx:1.16.0")
