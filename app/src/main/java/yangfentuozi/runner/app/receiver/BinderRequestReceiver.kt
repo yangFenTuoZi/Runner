@@ -3,7 +3,6 @@ package yangfentuozi.runner.app.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Binder
 import rikka.rish.Rish
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.server.callback.IRequestBinderCallback
@@ -36,7 +35,6 @@ class BinderRequestReceiver: BroadcastReceiver() {
         if (callbackBinder == null) {
             return
         }
-        Binder.getCallingUid()
         IRequestBinderCallback.Stub.asInterface(callbackBinder).onCallback(Runner.service?.shellService, context?.applicationInfo?.sourceDir)
     }
 }
