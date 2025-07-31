@@ -1,5 +1,6 @@
 package rikka.rish;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
@@ -10,14 +11,23 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.system.Os;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 
 import rikka.hidden.compat.ActivityManagerApis;
+import rikka.hidden.compat.adapter.IntentReceiver;
 import stub.dalvik.system.VMRuntimeHidden;
 import yangfentuozi.runner.BuildConfig;
+import yangfentuozi.runner.app.receiver.BinderRequestReceiver;
 import yangfentuozi.runner.server.callback.IRequestBinderCallback;
 
 public class Rish {
+
+    @SuppressLint("SdCardPath")
+    public static final File tokenFile = new File("/data/user/" + (Os.getuid() / 100000) + "/" + BuildConfig.APPLICATION_ID + "/.rish_token");
 
     private static void startShell() {
         try {
@@ -38,6 +48,7 @@ public class Rish {
 
         @Override
         public void onCallback(IBinder binder, String sourceDir) throws RemoteException {
+            tokenFile.delete();
             if (binder != null) {
                 handler.post(() -> onBinderReceived(binder, sourceDir));
             } else {
@@ -48,11 +59,20 @@ public class Rish {
         }
     };
 
-    private static void requestForBinder() throws RemoteException {
+    private static void requestForBinder() throws RemoteException, IOException {
+        String token = UUID.randomUUID().toString();
+        FileWriter fw = new FileWriter(tokenFile);
+        fw.write(token);
+        fw.close();
+        tokenFile.deleteOnExit();
+
         Bundle data = new Bundle();
         data.putBinder("binder", receiverBinder);
+        data.putString("token", token);
 
-        Intent intent = new Intent("yangfentuozi.runner.intent.action.REQUEST_BINDER")
+        Intent intent = new Intent()
+                .setClassName(BuildConfig.APPLICATION_ID, BinderRequestReceiver.class.getName())
+                .setAction("yangfentuozi.runner.intent.action.REQUEST_BINDER")
                 .setPackage(BuildConfig.APPLICATION_ID)
                 .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                 .putExtra("data", data);
@@ -63,7 +83,8 @@ public class Rish {
         //  com.android.server.am.ActivityManagerService.broadcastIntent(ActivityManagerService.java:19703)
         //
         try {
-            ActivityManagerApis.broadcastIntent(intent, Os.getuid() / 100000);
+            ActivityManagerApis.broadcastIntent(intent, null, new IntentReceiver(), 0, null, null,
+                    null, -1, null, true, false, Os.getuid() / 100000);
         } catch (Throwable e) {
             if ((Build.VERSION.SDK_INT != Build.VERSION_CODES.O && Build.VERSION.SDK_INT != Build.VERSION_CODES.O_MR1)
                     || !Objects.equals(e.getMessage(), "Calling application did not provide package name")) {

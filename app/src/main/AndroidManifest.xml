@@ -94,7 +94,8 @@
         <receiver
             android:name=".app.receiver.BinderRequestReceiver"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true"
+            android:permission="yangfentuozi.runner.permission.REQUEST_BINDER">
             <intent-filter>
                 <action android:name="yangfentuozi.runner.intent.action.REQUEST_BINDER" />
             </intent-filter>
