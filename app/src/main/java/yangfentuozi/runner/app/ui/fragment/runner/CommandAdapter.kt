@@ -10,6 +10,7 @@ import android.content.pm.ShortcutManager
 import android.graphics.Typeface
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.SystemProperties
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
@@ -276,7 +277,7 @@ class CommandAdapter(private val mContext: MainActivity, private val mFragment: 
     }
 
     fun isColorOS(): Boolean {
-        TODO()
+        return SystemProperties.get("ro.build.version.oplusrom").isNullOrEmpty().not()
     }
 
 //    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
