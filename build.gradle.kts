@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    id("com.android.application") version "8.11.1" apply false
+    id("com.android.application") version "8.12.0" apply false
     id("org.jetbrains.kotlin.android") version "2.2.0" apply false
     id("dev.rikka.tools.materialthemebuilder") version "1.5.1" apply false
     id("dev.rikka.tools.refine") version "4.4.0" apply false
@@ -12,7 +12,7 @@ val baseVersionName = "1.0.0-rc1"
 
 extra.apply {
     set("compileSdk", 36)
-    set("minSdk", 24)
+    set("minSdk", 26)
     set("targetSdk", 36)
     set("versionCode", gitCommitCount)
     set("versionName", "${baseVersionName}.r${gitCommitCount}.${gitCommitId}")

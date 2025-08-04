@@ -42,8 +42,6 @@ class MainActivity : BaseActivity() {
         val navController = (fragment as NavHostFragment).navController
         NavigationUI.setupWithNavController(binding.toolbar, navController, appBarConfiguration)
         NavigationUI.setupWithNavController(binding.navView, navController)
-        binding.navView.menu.findItem(R.id.navigation_terminal).isEnabled = false
-        binding.navView.menu.findItem(R.id.navigation_terminal).isVisible = false
 
         binding.appBar.setLiftable(true)
         binding.toolbar.inflateMenu(R.menu.menu_home)

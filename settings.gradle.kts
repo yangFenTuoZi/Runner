@@ -18,3 +18,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Runner"
 include(":app")
+include(":terminal:emulatorview", ":terminal:libtermexec")

@@ -190,8 +190,12 @@ dependencies {
     compileOnly("dev.rikka.hidden:stub:4.4.0")
     implementation("dev.rikka.hidden:compat:4.4.0")
 
-    implementation("org.apache.commons:commons-compress:1.27.1")
+    implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
+
+
+    implementation(project(":terminal:emulatorview"))
+    implementation(project(":terminal:libtermexec"))
 }
 
 configurations.configureEach {

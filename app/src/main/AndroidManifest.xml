@@ -3,6 +3,12 @@
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- Required for Terminal -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <application
         android:name=".app.App"
         android:allowBackup="true"
@@ -73,6 +79,16 @@
                 <data android:mimeType="application/zip" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".app.ui.fragment.terminal.TermService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="jackpal.androidterm.action.START_TERM.v1" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
 
         <service
             android:name=".app.service.ExecOnBootService"

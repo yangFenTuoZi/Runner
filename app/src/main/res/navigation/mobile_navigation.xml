@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_terminal"
-        android:name="yangfentuozi.runner.app.ui.fragment.terminal.TerminalFragment"
+        android:name="yangfentuozi.runner.app.ui.fragment.terminal.Term"
         android:label="@string/title_terminal"
         tools:layout="@layout/fragment_terminal" />
 
