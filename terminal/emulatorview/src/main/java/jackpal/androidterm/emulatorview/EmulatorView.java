@@ -1131,6 +1131,11 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
             return true;
         }
 
+        // Check if emulator is initialized
+        if (mEmulator == null) {
+            return true;
+        }
+
         distanceY += mScrollRemainder;
         int deltaRows = (int) (distanceY / mCharacterHeight);
         mScrollRemainder = distanceY - deltaRows * mCharacterHeight;
@@ -1166,14 +1171,21 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
 
     public boolean onJumpTapUp(MotionEvent e1, MotionEvent e2) {
         // Scroll to top
-        mTopRow = -mEmulator.getScreen().getActiveTranscriptRows();
-        invalidate();
+        if (mEmulator != null) {
+            mTopRow = -mEmulator.getScreen().getActiveTranscriptRows();
+            invalidate();
+        }
         return true;
     }
 
     public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX,
                            float velocityY) {
         if (mExtGestureListener != null && mExtGestureListener.onFling(e1, e2, velocityX, velocityY)) {
+            return true;
+        }
+
+        // Check if emulator is initialized
+        if (mEmulator == null) {
             return true;
         }
 

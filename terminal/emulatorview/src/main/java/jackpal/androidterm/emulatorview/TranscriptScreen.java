@@ -298,6 +298,9 @@ class TranscriptScreen implements Screen {
      * @return the count of active rows.
      */
     public int getActiveRows() {
+        if (mData == null) {
+            return 0;
+        }
         return mData.getActiveRows();
     }
 
@@ -307,6 +310,9 @@ class TranscriptScreen implements Screen {
      * @return the count of active transcript rows.
      */
     public int getActiveTranscriptRows() {
+        if (mData == null) {
+            return 0;
+        }
         return mData.getActiveTranscriptRows();
     }
 

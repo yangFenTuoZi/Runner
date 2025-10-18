@@ -1,6 +1,6 @@
 package rikka.rish;
 
-class RishConstants {
+public class RishConstants {
 
     public static final int ATTY_IN = (1);
     public static final int ATTY_OUT = (1 << 1);

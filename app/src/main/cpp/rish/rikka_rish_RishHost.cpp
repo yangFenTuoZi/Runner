@@ -92,11 +92,10 @@ static jintArray RishHost_startHost(
     }
 
     const char *pargBlock = getBytes(env, argBlock);
-    const char **argv = NEW(const char *, argc + 2);
-    argv[0] = "/system/bin/sh";
-    initVectorFromBlock(argv + 1, pargBlock, argc);
+    const char **argv = NEW(const char *, argc + 1);
+    initVectorFromBlock(argv, pargBlock, argc);
 
-    for (int i = 0; i < argc + 2; ++i) {
+    for (int i = 0; i < argc + 1; ++i) {
         LOGD("arg%d=%s", i, argv[i]);
     }
 
@@ -231,14 +230,18 @@ static jintArray RishHost_startHost(
             close(pts);
         }
 
+        // Use the first argument as the program to execute
+        const char *program = argv[0] ? argv[0] : "/system/bin/sh";
+        LOGD("execvp: %s", program);
+        
         if (envv) {
-            if (execvpe("/system/bin/sh", (char *const *) argv, (char *const *) envv) == -1) {
-                PLOGE("execv");
+            if (execvpe(program, (char *const *) argv, (char *const *) envv) == -1) {
+                PLOGE("execvpe %s", program);
                 exit(1);
             }
         } else {
-            if (execvp("/system/bin/sh", (char *const *) argv) == -1) {
-                PLOGE("execv");
+            if (execvp(program, (char *const *) argv) == -1) {
+                PLOGE("execvp %s", program);
                 exit(1);
             }
         }

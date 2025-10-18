@@ -67,8 +67,8 @@ import java.util.Locale;
 import jackpal.androidterm.emulatorview.EmulatorView;
 import jackpal.androidterm.emulatorview.TermSession;
 import jackpal.androidterm.emulatorview.UpdateCallback;
-import rikka.rish.Rish;
 import yangfentuozi.runner.R;
+import yangfentuozi.runner.app.Runner;
 import yangfentuozi.runner.app.ui.fragment.terminal.util.SessionList;
 import yangfentuozi.runner.databinding.FragmentTerminalBinding;
 
@@ -357,10 +357,23 @@ public class Term extends Fragment implements UpdateCallback {
     }
 
     protected static TermSession createTermSession(Context context) throws IOException {
-        GenericTermSession session = new ShellTermSession(String.format("/system/bin/app_process -Djava.class.path=%s / %s", context.getApplicationInfo().sourceDir, Rish.class.getName()), "");
-        // XXX We should really be able to fetch this from within TermSession
-        session.setProcessExitMessage(context.getString(R.string.process_exit_message));
-
+        RishTermSession session = null;
+        
+        // Try to use RishTermSession if service is available, otherwise fall back to ShellTermSession
+        if (Runner.INSTANCE.getService() != null) {
+            try {
+                // Use RishTermSession to connect directly to server with TTY
+                // Use bash
+//                String[] args = new String[]{"/data/local/tmp/runner/usr/bin/bash", "-l", "--nice-name", "term"};
+                String[] args = new String[]{"/system/bin/sh", "-l"};
+                String workingDir = "/data/local/tmp/runner/home";
+                session = new RishTermSession(args, workingDir);
+                session.setProcessExitMessage(context.getString(R.string.process_exit_message));
+                Log.i(TermDebug.LOG_TAG, "Using RishTermSession (server mode) with " + args[0]);
+            } catch (Exception e) {
+                Log.w(TermDebug.LOG_TAG, "Failed to create RishTermSession, falling back to ShellTermSession", e);
+            }
+        }
         return session;
     }
 
