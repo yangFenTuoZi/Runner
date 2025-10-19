@@ -40,10 +40,6 @@ public class TermSettings {
     private int mFnKeyId;
     private int mUseCookedIME;
     private String mTermType;
-    private boolean mVerifyPath;
-    private boolean mDoPathExtensions;
-    private boolean mAllowPathPrepend;
-    private String mHomePath;
 
     private boolean mAltSendsEsc;
 
@@ -154,10 +150,6 @@ public class TermSettings {
         mFnKeyId = Integer.parseInt(res.getString(R.string.pref_fnkey_default));
         mUseCookedIME = Integer.parseInt(res.getString(R.string.pref_ime_default));
         mTermType = res.getString(R.string.pref_termtype_default);
-        mVerifyPath = res.getBoolean(R.bool.pref_verify_path_default);
-        mDoPathExtensions = res.getBoolean(R.bool.pref_do_path_extensions_default);
-        mAllowPathPrepend = res.getBoolean(R.bool.pref_allow_prepend_path_default);
-        // the mHomePath default is set dynamically in readPrefs()
         mAltSendsEsc = res.getBoolean(R.bool.pref_alt_sends_esc_default);
         mMouseTracking = res.getBoolean(R.bool.pref_mouse_tracking_default);
         mUseKeyboardShortcuts = res.getBoolean(R.bool.pref_use_keyboard_shortcuts_default);
@@ -179,10 +171,6 @@ public class TermSettings {
                 FN_KEY_SCHEMES.length - 1);
         mUseCookedIME = readIntPref(IME_KEY, mUseCookedIME, 1);
         mTermType = readStringPref(TERMTYPE_KEY, mTermType);
-        mVerifyPath = readBooleanPref(VERIFYPATH_KEY, mVerifyPath);
-        mDoPathExtensions = readBooleanPref(PATHEXTENSIONS_KEY, mDoPathExtensions);
-        mAllowPathPrepend = readBooleanPref(PATHPREPEND_KEY, mAllowPathPrepend);
-        mHomePath = readStringPref(HOMEPATH_KEY, mHomePath);
         mAltSendsEsc = readBooleanPref(ALT_SENDS_ESC, mAltSendsEsc);
         mMouseTracking = readBooleanPref(MOUSE_TRACKING, mMouseTracking);
         mUseKeyboardShortcuts = readBooleanPref(USE_KEYBOARD_SHORTCUTS,
@@ -288,25 +276,5 @@ public class TermSettings {
 
     public String getTermType() {
         return mTermType;
-    }
-
-    public boolean verifyPath() {
-        return mVerifyPath;
-    }
-
-    public boolean doPathExtensions() {
-        return mDoPathExtensions;
-    }
-
-    public boolean allowPathPrepend() {
-        return mAllowPathPrepend;
-    }
-
-    public void setHomePath(String homePath) {
-        mHomePath = homePath;
-    }
-
-    public String getHomePath() {
-        return mHomePath;
     }
 }

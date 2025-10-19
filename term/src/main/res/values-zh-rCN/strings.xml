@@ -100,18 +100,6 @@
     <string name="summary_termtype_preference">设置 Shell 的终端类型</string>
     <string name="dialog_title_termtype_preference">终端类型</string>
 
-    <string name="title_verify_path_preference">验证 PATH 路径</string>
-    <string name="summary_verify_path_preference">是否将 PATH 中无效的路径清除</string>
-
-    <string name="title_do_path_extensions_preference">允许 PATH 后扩</string>
-    <string name="summary_do_path_extensions_preference">是否允许程序添加额外命令到 PATH</string>
-
-    <string name="title_allow_prepend_path_preference">允许 PATH 前置</string>
-    <string name="summary_allow_prepend_path_preference">是否允许程序覆盖 PATH 中已有命令</string>
-
-    <string name="title_home_path_preference">HOME 文件夹</string>
-    <string name="summary_home_path_preference">用作 HOME 的可写文件夹路径</string>
-
     <string name="control_key_dialog_title">Ctrl 与 Fn 键</string>
     <string name="control_key_dialog_control_text">CTRLKEY Space : Control-@ (NUL)\nCTRLKEY A..Z : Control-A..Z\nCTRLKEY 5 : Control-]\nCTRLKEY 6 : Control-^\nCTRLKEY 7 : Control-_\nCTRLKEY 9 : F11\nCTRLKEY 0 : F12</string>
     <string name="control_key_dialog_control_disabled_text">未设置 Ctrl 键</string>

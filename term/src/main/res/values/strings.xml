@@ -100,18 +100,6 @@
     <string name="summary_termtype_preference">What terminal type to report to the shell.</string>
     <string name="dialog_title_termtype_preference">Terminal type</string>
 
-    <string name="title_verify_path_preference">Verify PATH entries</string>
-    <string name="summary_verify_path_preference">Whether inaccessible directories should be removed from the PATH.</string>
-
-    <string name="title_do_path_extensions_preference">Allow PATH extensions</string>
-    <string name="summary_do_path_extensions_preference">Whether other apps should be allowed to provide additional commands (add to PATH).</string>
-
-    <string name="title_allow_prepend_path_preference">Allow PATH prepend</string>
-    <string name="summary_allow_prepend_path_preference">Whether other apps should be allowed to override existing commands (add to the beginning of PATH).</string>
-
-    <string name="title_home_path_preference">HOME folder</string>
-    <string name="summary_home_path_preference">Path to a writable folder to be used as HOME.</string>
-
     <string name="control_key_dialog_title">Control and Function Keys</string>
     <!-- The word CTRLKEY should be left un-translated. It will be replaced at run-time with the
          actual control key key name. -->
