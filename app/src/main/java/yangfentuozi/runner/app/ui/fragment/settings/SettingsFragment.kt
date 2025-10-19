@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,7 +29,6 @@ import yangfentuozi.runner.app.data.BackupManager
 import yangfentuozi.runner.app.ui.activity.MainActivity
 import yangfentuozi.runner.app.ui.activity.envmanage.EnvManageActivity
 import yangfentuozi.runner.app.util.ThemeUtil
-import yangfentuozi.runner.databinding.DialogEditBinding
 import yangfentuozi.runner.databinding.DialogPickBackupBinding
 import yangfentuozi.runner.databinding.FragmentSettingsBinding
 
@@ -172,75 +170,6 @@ class SettingsFragment : BaseFragment() {
             }
             findPreference<Preference>("env_configs")?.setOnPreferenceClickListener {
                 startActivity(Intent(mMainActivity, EnvManageActivity::class.java))
-                true
-            }
-            findPreference<Preference>("startup_script")?.setOnPreferenceClickListener {
-                val sharedPreferences = App.Companion.preferences
-                val dialogBinding = DialogEditBinding.inflate(LayoutInflater.from(mMainActivity))
-
-                dialogBinding.apply {
-                    command.setText(sharedPreferences.getString("startup_script_command", ""))
-                    reducePerm.isChecked =
-                        sharedPreferences.getBoolean("startup_script_reduce_perm", false) == true
-                    targetPerm.setText(
-                        sharedPreferences.getString(
-                            "startup_script_target_perm",
-                            ""
-                        )
-                    )
-
-                    name.apply {
-                        isEnabled = false
-                        parent.let {
-                            if (it is ViewGroup)
-                                it.visibility = View.GONE
-                        }
-                    }
-
-                    keepAlive.apply {
-                        isEnabled = false
-                        parent.let {
-                            if (it is ViewGroup)
-                                it.visibility = View.GONE
-                        }
-                    }
-                    targetPermParent.visibility =
-                        if (reducePerm.isChecked) View.VISIBLE else View.GONE
-                    reducePerm.setOnCheckedChangeListener { _, isChecked ->
-                        targetPermParent.visibility = if (isChecked) View.VISIBLE else View.GONE
-                    }
-
-                    name.requestFocus()
-                    name.postDelayed({
-                        (mMainActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                            .showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
-                    }, 200)
-                }
-
-                try {
-                    BaseDialogBuilder(mMainActivity!!)
-                        .setTitle(R.string.edit)
-                        .setView(dialogBinding.root)
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            sharedPreferences.edit()?.apply {
-                                putString(
-                                    "startup_script_command",
-                                    dialogBinding.command.text.toString()
-                                )
-                                putBoolean(
-                                    "startup_script_reduce_perm",
-                                    dialogBinding.reducePerm.isChecked
-                                )
-                                putString(
-                                    "startup_script_target_perm",
-                                    if (dialogBinding.reducePerm.isChecked) dialogBinding.targetPerm.text.toString() else null
-                                )
-                                apply()
-                            }
-                        }
-                        .show()
-                } catch (_: BaseDialogBuilder.DialogShowingException) {
-                }
                 true
             }
         }

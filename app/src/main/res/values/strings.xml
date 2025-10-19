@@ -119,10 +119,6 @@
     <string name="more" translatable="false">...</string>
     <string name="value">Value</string>
     <string name="key">Key</string>
-    <string name="auto_start_exec">Start on boot and run commands</string>
-    <string name="auto_start_exec_summary">Launch at startup and auto-run commands upon service connection</string>
-    <string name="startup_script">The command to be executed</string>
-    <string name="click_edit">Click and edit</string>
     <string name="app_settings">App Settings</string>
     <string name="database">Database</string>
     <string name="terminal_home">Terminal Home</string>

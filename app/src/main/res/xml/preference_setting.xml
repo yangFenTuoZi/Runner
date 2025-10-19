@@ -23,19 +23,6 @@
             android:key="kill_child_processes"
             android:summary="@string/kill_child_processes_summary"
             android:title="@string/kill_child_processes" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_play_arrow"
-            android:key="auto_start_exec"
-            android:summary="@string/auto_start_exec_summary"
-            android:title="@string/auto_start_exec" />
-        <Preference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_empty_icon_24"
-            android:key="startup_script"
-            android:summary="@string/click_edit"
-            android:title="@string/startup_script" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/theme">

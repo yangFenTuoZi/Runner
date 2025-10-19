@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <!-- Required for Terminal -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
     <application
         android:name=".app.App"
         android:allowBackup="true"
@@ -80,33 +72,6 @@
                 <data android:mimeType="application/zip" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".app.ui.fragment.terminal.TermService"
-            android:foregroundServiceType="dataSync"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="jackpal.androidterm.action.START_TERM.v1" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".app.service.ExecOnBootService"
-            android:exported="false" />
-
-        <receiver
-            android:name=".app.receiver.BootCompleteReceiver"
-            android:directBootAware="true"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
