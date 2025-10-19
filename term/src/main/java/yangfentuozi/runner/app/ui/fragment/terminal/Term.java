@@ -223,6 +223,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private View mRootView;
+    private View mEmptyStateView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -255,6 +256,13 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         mViewFlipper = view.findViewById(VIEW_FLIPPER);
         if (mWinListAdapter != null)
             mWinListAdapter.setTermViewFlipper(mViewFlipper);
+
+        // Setup empty state view
+        mEmptyStateView = view.findViewById(R.id.empty_state_view);
+        mEmptyStateView.setOnClickListener(v -> {
+            // Create new session when empty state view is clicked
+            doCreateNewWindow();
+        });
 
         // Setup bottom toolbar
         setupBottomToolbar();
@@ -400,14 +408,12 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         if (mTermService != null) {
             mTermSessions = mTermService.getSessions();
 
+            // Don't automatically create a session when empty
+            // Instead, show the empty state view
             if (mTermSessions.isEmpty()) {
-                try {
-                    mTermSessions.add(createTermSession());
-                } catch (IOException e) {
-                    Toast.makeText(requireContext(), "Failed to start terminal session", Toast.LENGTH_LONG).show();
-                    requireActivity().finish();
-                    return;
-                }
+                updateEmptyStateVisibility();
+                mTermSessions.addCallback(this);
+                return;
             }
 
             mTermSessions.addCallback(this);
@@ -424,6 +430,8 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
                 onResumeSelectWindow = -1;
             }
             mViewFlipper.onResume();
+            
+            updateEmptyStateVisibility();
         }
     }
 
@@ -620,6 +628,9 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
             mViewFlipper.addView(view);
             mViewFlipper.setDisplayedChild(mViewFlipper.getChildCount() - 1);
+            
+            // Update empty state visibility
+            updateEmptyStateVisibility();
         } catch (IOException e) {
             Toast.makeText(requireContext(), "Failed to create a session", Toast.LENGTH_SHORT).show();
         }
@@ -654,6 +665,9 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         if (!mTermSessions.isEmpty()) {
             mViewFlipper.showNext();
         }
+        
+        // Update empty state visibility when closing last session
+        updateEmptyStateVisibility();
     }
 
 
@@ -710,9 +724,8 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         }
 
         if (sessions.isEmpty()) {
-            mStopServiceOnFinish = true;
-            // TODO shouldn't finish
-//            requireActivity().finish();
+            // Show empty state instead of finishing
+            updateEmptyStateVisibility();
         } else if (sessions.size() < mViewFlipper.getChildCount()) {
             for (int i = 0; i < mViewFlipper.getChildCount(); ++i) {
                 EmulatorView v = (EmulatorView) mViewFlipper.getChildAt(i);
@@ -722,6 +735,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
                     --i;
                 }
             }
+            updateEmptyStateVisibility();
         }
     }
 
@@ -829,5 +843,35 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         List<ResolveInfo> handlers = pm.queryIntentActivities(openLink, 0);
         if (!handlers.isEmpty())
             startActivity(openLink);
+    }
+
+    /**
+     * Update the visibility of empty state view and bottom toolbar based on session count
+     */
+    private void updateEmptyStateVisibility() {
+        if (mEmptyStateView == null || mTermSessions == null) {
+            return;
+        }
+
+        View toolbar = mRootView.findViewById(R.id.bottom_toolbar);
+        
+        if (mTermSessions.isEmpty()) {
+            // Show empty state, hide toolbar
+            mEmptyStateView.setVisibility(View.VISIBLE);
+            toolbar.setVisibility(View.GONE);
+            mViewFlipper.setBottomToolbarHeight(0);
+        } else {
+            // Hide empty state, show toolbar
+            mEmptyStateView.setVisibility(View.GONE);
+            toolbar.setVisibility(View.VISIBLE);
+            
+            // Restore toolbar height
+            toolbar.post(() -> {
+                int toolbarHeight = toolbar.getHeight();
+                if (toolbarHeight > 0) {
+                    mViewFlipper.setBottomToolbarHeight(toolbarHeight);
+                }
+            });
+        }
     }
 }

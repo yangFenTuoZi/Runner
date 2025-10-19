@@ -42,7 +42,7 @@
 
     <string name="service_notify_text">Terminal session is running</string>
 
-    <string name="process_exit_message">Terminal session finished%1$s</string>
+    <string name="process_exit_message">Terminal session finished%1$s - Press Enter to close</string>
 
     <!-- Preference dialog -->
     <string name="screen_preferences">Screen</string>
@@ -100,9 +100,6 @@
     <string name="summary_termtype_preference">What terminal type to report to the shell.</string>
     <string name="dialog_title_termtype_preference">Terminal type</string>
 
-    <string name="title_close_window_on_process_exit_preference">Close window on exit</string>
-    <string name="summary_close_window_on_process_exit_preference">Whether a window should close when its shell exits.</string>
-
     <string name="title_verify_path_preference">Verify PATH entries</string>
     <string name="summary_verify_path_preference">Whether inaccessible directories should be removed from the PATH.</string>
 
@@ -137,6 +134,8 @@
     <string name="title_use_keyboard_shortcuts">Use Keyboard Shortcuts</string>
     <string name="use_keyboard_shortcuts_summary_on">Ctrl-Tab: cycle window, Ctrl-Shift-N: new window, Ctrl-Shift-V: paste.</string>
     <string name="use_keyboard_shortcuts_summary_off">Keyboard shortcuts disabled.</string>
+
+    <string name="empty_state_message">Tap anywhere to create a new session</string>
 
     <!-- Arrays from arrays.xml -->
     <string-array name="entries_statusbar_preference">

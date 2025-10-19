@@ -18,14 +18,11 @@ package yangfentuozi.runner.app.ui.fragment.terminal;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -57,21 +54,11 @@ public class RishTermSession extends TermSession {
     private int pid;
 
     private final long createdAt;
-    private String mHandle;
     private String mProcessExitMessage;
+    private boolean mProcessExited = false;
 
     private static final int PROCESS_EXITED = 1;
-    private final Handler mMsgHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            if (!isRunning()) {
-                return;
-            }
-            if (msg.what == PROCESS_EXITED) {
-                onProcessExit((Integer) msg.obj);
-            }
-        }
-    };
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     TermSettings mSettings;
 
@@ -191,10 +178,15 @@ public class RishTermSession extends TermSession {
                 }
 
                 Log.i(TAG, "Process exited with code: " + exitCode);
-                mMsgHandler.sendMessage(mMsgHandler.obtainMessage(PROCESS_EXITED, exitCode));
+                if (isRunning()) {
+                    int finalExitCode = exitCode;
+                    mHandler.post(() -> onProcessExit(finalExitCode));
+                }
             } catch (Exception e) {
                 Log.e(TAG, "Error in watcher thread", e);
-                mMsgHandler.sendMessage(mMsgHandler.obtainMessage(PROCESS_EXITED, -1));
+                if (isRunning()) {
+                    mHandler.post(() -> onProcessExit(Integer.MIN_VALUE));
+                }
             }
         });
         mWatcherThread.setName("RishTermSession watcher");
@@ -249,10 +241,8 @@ public class RishTermSession extends TermSession {
     }
 
     protected void onProcessExit(int result) {
-        if (mSettings.closeWindowOnProcessExit()) {
-            finish();
-        } else if (mProcessExitMessage != null) {
-
+        mProcessExited = true;
+        if (mProcessExitMessage != null) {
             byte[] msg = ("\r\n[" + String.format(mProcessExitMessage, result == 0 ? "" : (" (error " + result + ")")) + "]").getBytes(StandardCharsets.UTF_8);
             appendToEmulator(msg, 0, msg.length);
             notifyUpdate();
@@ -261,6 +251,34 @@ public class RishTermSession extends TermSession {
 
     public void setProcessExitMessage(String message) {
         mProcessExitMessage = message;
+    }
+
+    @Override
+    public void write(byte[] data, int offset, int count) {
+        if (mProcessExited) {
+            for (int i = offset; i < offset + count; i++) {
+                if (data[i] == '\r' || data[i] == '\n') {
+                    Log.d(TAG, "Enter key pressed after process exit, closing session");
+                    mHandler.post(this::finish);
+                    return;
+                }
+            }
+            return;
+        }
+        super.write(data, offset, count);
+    }
+
+    @Override
+    public void write(int codePoint) {
+        if (mProcessExited) {
+            if (codePoint == '\r' || codePoint == '\n') {
+                Log.d(TAG, "Enter key pressed after process exit, closing session");
+                mHandler.post(this::finish);
+                return;
+            }
+            return;
+        }
+        super.write(codePoint);
     }
 
     @Override
@@ -273,10 +291,6 @@ public class RishTermSession extends TermSession {
         closeFd(mStdout, 0);
 
         Log.d(TAG, "Session finished");
-    }
-
-    public String getHandle() {
-        return mHandle;
     }
 
     public long getCreatedAt() {

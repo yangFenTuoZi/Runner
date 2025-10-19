@@ -20,12 +20,47 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <yangfentuozi.runner.app.ui.fragment.terminal.TermViewFlipper
-        android:id="@+id/view_flipper"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@android:color/black" />
+        android:layout_weight="1">
+
+        <yangfentuozi.runner.app.ui.fragment.terminal.TermViewFlipper
+            android:id="@+id/view_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black" />
+
+        <!-- Empty state view -->
+        <LinearLayout
+            android:id="@+id/empty_state_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+"
+                android:textColor="#666666"
+                android:textSize="64sp"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_state_message"
+                android:textColor="#999999"
+                android:textSize="16sp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/bottom_toolbar"

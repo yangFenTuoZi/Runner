@@ -40,7 +40,6 @@ public class TermSettings {
     private int mFnKeyId;
     private int mUseCookedIME;
     private String mTermType;
-    private boolean mCloseOnExit;
     private boolean mVerifyPath;
     private boolean mDoPathExtensions;
     private boolean mAllowPathPrepend;
@@ -62,7 +61,6 @@ public class TermSettings {
     private static final String FNKEY_KEY = "fnkey";
     private static final String IME_KEY = "ime";
     private static final String TERMTYPE_KEY = "termtype";
-    private static final String CLOSEONEXIT_KEY = "close_window_on_process_exit";
     private static final String VERIFYPATH_KEY = "verify_path";
     private static final String PATHEXTENSIONS_KEY = "do_path_extensions";
     private static final String PATHPREPEND_KEY = "allow_prepend_path";
@@ -156,7 +154,6 @@ public class TermSettings {
         mFnKeyId = Integer.parseInt(res.getString(R.string.pref_fnkey_default));
         mUseCookedIME = Integer.parseInt(res.getString(R.string.pref_ime_default));
         mTermType = res.getString(R.string.pref_termtype_default);
-        mCloseOnExit = res.getBoolean(R.bool.pref_close_window_on_process_exit_default);
         mVerifyPath = res.getBoolean(R.bool.pref_verify_path_default);
         mDoPathExtensions = res.getBoolean(R.bool.pref_do_path_extensions_default);
         mAllowPathPrepend = res.getBoolean(R.bool.pref_allow_prepend_path_default);
@@ -182,7 +179,6 @@ public class TermSettings {
                 FN_KEY_SCHEMES.length - 1);
         mUseCookedIME = readIntPref(IME_KEY, mUseCookedIME, 1);
         mTermType = readStringPref(TERMTYPE_KEY, mTermType);
-        mCloseOnExit = readBooleanPref(CLOSEONEXIT_KEY, mCloseOnExit);
         mVerifyPath = readBooleanPref(VERIFYPATH_KEY, mVerifyPath);
         mDoPathExtensions = readBooleanPref(PATHEXTENSIONS_KEY, mDoPathExtensions);
         mAllowPathPrepend = readBooleanPref(PATHPREPEND_KEY, mAllowPathPrepend);
@@ -292,10 +288,6 @@ public class TermSettings {
 
     public String getTermType() {
         return mTermType;
-    }
-
-    public boolean closeWindowOnProcessExit() {
-        return mCloseOnExit;
     }
 
     public boolean verifyPath() {

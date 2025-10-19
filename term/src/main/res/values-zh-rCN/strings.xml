@@ -42,7 +42,7 @@
 
     <string name="service_notify_text">会话正在运行</string>
 
-    <string name="process_exit_message">会话已结束%1$s</string>
+    <string name="process_exit_message">会话已结束%1$s - 按回车关闭</string>
 
     <!-- Preference dialog -->
     <string name="screen_preferences">屏幕</string>
@@ -100,9 +100,6 @@
     <string name="summary_termtype_preference">设置 Shell 的终端类型</string>
     <string name="dialog_title_termtype_preference">终端类型</string>
 
-    <string name="title_close_window_on_process_exit_preference">退出时关闭窗口</string>
-    <string name="summary_close_window_on_process_exit_preference">退出 Shell 时是否关闭窗口</string>
-
     <string name="title_verify_path_preference">验证 PATH 路径</string>
     <string name="summary_verify_path_preference">是否将 PATH 中无效的路径清除</string>
 
@@ -129,6 +126,8 @@
 
     <string name="title_mouse_tracking_preference">发送鼠标事件</string>
     <string name="summary_mouse_tracking_preference">触摸与滚屏事件是否被终端忽略</string>
+
+    <string name="empty_state_message">点击任意位置创建新会话</string>
 
     <!-- Arrays from arrays.xml -->
     <string-array name="entries_statusbar_preference">
