@@ -9,5 +9,5 @@ class ProcessUtils : JniUtilsBase() {
     external fun getProcesses(): Array<ProcessInfo>?
 
     override val jniPath: String
-        get() = ServerMain.JNI_PROCESS_UTILS
+        get() = ServerMain.LIB_PROCESS_UTILS
 }

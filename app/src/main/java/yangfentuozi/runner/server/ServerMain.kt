@@ -41,8 +41,8 @@ class ServerMain : IService.Stub() {
         const val DATA_PATH = "/data/local/tmp/runner"
         const val USR_PATH = "$DATA_PATH/usr"
         const val HOME_PATH = "$DATA_PATH/home"
-        const val STARTER = "$HOME_PATH/.local/bin/starter"
-        const val JNI_PROCESS_UTILS = "$HOME_PATH/.local/lib/libprocessutils.so"
+        const val BIN_STARTER = "$HOME_PATH/.local/bin/starter"
+        const val LIB_PROCESS_UTILS = "$HOME_PATH/.local/lib/libprocessutils.so"
         val PAGE_SIZE: Int = Os.sysconf(OsConstants._SC_PAGESIZE).toInt()
 
         fun tarGzDirectory(srcDir: File, tarGzFile: File) {
@@ -140,11 +140,19 @@ class ServerMain : IService.Stub() {
     private var customEnv: List<EnvInfo> = emptyList()
 
     init {
+        // 设置进程名
         DdmHandleAppName.setAppName(TAG, Os.getuid())
+
         Log.i(TAG, "start")
+
+        // 确保数据文件夹存在
         File("$HOME_PATH/.local/bin").mkdirs()
         File("$HOME_PATH/.local/lib").mkdirs()
+
+        // 准备 Handler
         mHandler = Handler(Looper.getMainLooper())
+
+        // 解压所需的库文件
         var app: ZipFile? = null
         try {
             app = ZipFile(
@@ -164,65 +172,54 @@ class ServerMain : IService.Stub() {
         if (app == null) {
             Log.w(TAG, "ignore unzip library from app zip file")
         } else {
+            fun releaseLibFromApp(name: String, isBin: Boolean): Boolean {
+                val entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/lib${name}.so")
+                return if (entry != null) {
+                    Log.i(TAG, "unzip $name")
+                    val out = if (isBin)
+                        "$HOME_PATH/.local/bin/$name"
+                    else
+                        "$HOME_PATH/.local/lib/lib${name}.so"
+                    val perm = if (isBin) "700" else "500"
+
+                    try {
+                        app.getInputStream(entry).use { `in` ->
+                            val file = File(out)
+                            if (!file.exists()) file.createNewFile()
+                            FileOutputStream(file).use { fos ->
+                                `in`.copyTo(fos, bufferSize = PAGE_SIZE)
+                            }
+                        }
+                        Os.chmod(out, perm.toInt(8))
+                        true
+                    } catch (e: IOException) {
+                        Log.e(TAG, "unzip lib${name}.so error", e)
+                        false
+                    } catch (e: ErrnoException) {
+                        Log.e(TAG, "set permission error", e)
+                        false
+                    }
+                } else {
+                    Log.e(TAG, "lib${name}.so doesn't exist")
+                    false
+                }
+            }
+
+            releaseLibFromApp("starter", true)
+            releaseLibFromApp("processutils", false)
+            if (releaseLibFromApp("rish", false)) {
+                // 初始化 Rish
+                RishConfig.setLibraryPath("$HOME_PATH/.local/lib")
+                RishConfig.init()
+            }
             try {
-                var entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libstarter.so")
-                if (entry != null) {
-                    Log.i(TAG, "unzip starter")
-                    app.getInputStream(entry).use { `in` ->
-                        val file = File(STARTER)
-                        if (!file.exists()) file.createNewFile()
-                        FileOutputStream(file).use { out ->
-                            `in`.copyTo(out, bufferSize =  PAGE_SIZE)
-                        }
-                    }
-                    Os.chmod(STARTER, "700".toInt(8))
-                } else {
-                    Log.e(TAG, "libstarter.so doesn't exist")
-                }
-                entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/libprocessutils.so")
-                if (entry != null) {
-                    Log.i(TAG, "unzip libprocessutils.so")
-                    app.getInputStream(entry).use { `in` ->
-                        val file = File(JNI_PROCESS_UTILS)
-                        if (!file.exists()) file.createNewFile()
-                        FileOutputStream(file).use { out ->
-                            `in`.copyTo(out, bufferSize =  PAGE_SIZE)
-                        }
-                    }
-                    Os.chmod(JNI_PROCESS_UTILS, "500".toInt(8))
-                    processUtils.loadLibrary()
-                } else {
-                    Log.e(TAG, "libprocessutils.so doesn't exist")
-                }
-                entry = app.getEntry("lib/" + Build.SUPPORTED_ABIS[0] + "/librish.so")
-                if (entry != null) {
-                    Log.i(TAG, "unzip librish.so")
-                    app.getInputStream(entry).use { `in` ->
-                        val file = File("$HOME_PATH/.local/lib/librish.so")
-                        if (!file.exists()) file.createNewFile()
-                        FileOutputStream(file).use { out ->
-                            `in`.copyTo(out, bufferSize =  PAGE_SIZE)
-                        }
-                    }
-                    Os.chmod("$HOME_PATH/.local/lib/librish.so", "500".toInt(8))
-                    RishConfig.setLibraryPath("$HOME_PATH/.local/lib")
-                    RishConfig.init()
-                } else {
-                    Log.e(TAG, "librish.so doesn't exist")
-                }
+                app.close()
             } catch (e: IOException) {
-                Log.e(TAG, "unzip error", e)
-            } catch (e: ErrnoException) {
-                Log.e(TAG, "set permission error", e)
-            } finally {
-                try {
-                    app.close()
-                } catch (e: IOException) {
-                    Log.e(TAG, "close apk zip file error", e)
-                }
+                Log.e(TAG, "close apk zip file error", e)
             }
         }
 
+        // 启动 RishService
         Log.i(TAG, "start RishService")
         rishService = RishService()
     }
@@ -258,6 +255,7 @@ class ServerMain : IService.Stub() {
                     Log.e(TAG, "write output error", e)
                 }
             }
+
             fun exit(code: Int) {
                 try {
                     writer.close()
@@ -270,7 +268,7 @@ class ServerMain : IService.Stub() {
                 }
             }
             try {
-                if (!File(STARTER).exists()) {
+                if (!File(BIN_STARTER).exists()) {
                     Log.e(TAG, "starter not found")
                     writeOutput("-1")
                     writeOutput("starter not found")
@@ -284,14 +282,14 @@ class ServerMain : IService.Stub() {
                     return@Thread
                 }
                 try {
-                    Os.chmod(STARTER, "700".toInt(8))
+                    Os.chmod(BIN_STARTER, "700".toInt(8))
                     Os.chmod("$USR_PATH/bin/bash", "700".toInt(8))
                 } catch (e: ErrnoException) {
                     Log.w(TAG, "set permission error", e)
                 }
                 val finalIds = if (ids.isNullOrEmpty()) "-1" else ids
                 val finalProcName = if (procName.isNullOrEmpty()) "execTask" else procName
-                val processBuilder = ProcessBuilder(STARTER, finalIds, finalProcName)
+                val processBuilder = ProcessBuilder(BIN_STARTER, finalIds, finalProcName)
                 val processEnv = processBuilder.environment()
                 processEnv["PREFIX"] = USR_PATH
                 processEnv["HOME"] = HOME_PATH
@@ -437,6 +435,7 @@ class ServerMain : IService.Stub() {
                     Log.e(TAG, "write output error", e)
                 }
             }
+
             fun exit(isSuccessful: Boolean) {
                 try {
                     writer.close()
