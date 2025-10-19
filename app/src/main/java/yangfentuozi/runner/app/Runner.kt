@@ -5,12 +5,14 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.IBinder
 import android.os.RemoteException
+import rikka.rish.IRishService
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.OnBinderDeadListener
 import rikka.shizuku.Shizuku.OnBinderReceivedListener
 import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
 import rikka.shizuku.Shizuku.UserServiceArgs
 import yangfentuozi.runner.BuildConfig
+import yangfentuozi.runner.app.ui.fragment.terminal.RishBinderHolder
 import yangfentuozi.runner.server.IService
 import yangfentuozi.runner.server.ServerMain
 
@@ -40,6 +42,7 @@ object Runner {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             if (iBinder != null && iBinder.pingBinder()) {
                 service = IService.Stub.asInterface(iBinder.also { binder = it })
+                RishBinderHolder.service = IRishService.Stub.asInterface(service?.shellService)
                 serviceVersion = try {
                     service!!.version()
                 } catch (_: RemoteException) {
@@ -52,6 +55,7 @@ object Runner {
         override fun onServiceDisconnected(componentName: ComponentName?) {
             binder = null
             service = null
+            RishBinderHolder.service = null
             serviceVersion = -1
             scheduleServiceStatusListener(false)
         }
@@ -93,6 +97,7 @@ object Runner {
         serviceVersion = -1
         binder = null
         service = null
+        RishBinderHolder.service = null
         scheduleServiceStatusListener(false)
         scheduleShizukuStatusListener(false)
     }

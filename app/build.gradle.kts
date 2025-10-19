@@ -29,7 +29,9 @@ if (ksFile.canRead()) {
 
 android {
     namespace = "yangfentuozi.runner"
-    compileSdk = rootProject.ext["compileSdk"] as Int
+    compileSdk {
+        version = release(rootProject.ext["compileSdk"] as Int)
+    }
 
     defaultConfig {
         applicationId = "yangfentuozi.runner"
@@ -73,11 +75,8 @@ android {
         aidl = true
         prefab = true
     }
-    kotlinOptions {
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_21
-            targetCompatibility = JavaVersion.VERSION_21
-        }
+    kotlin {
+        jvmToolchain(21)
     }
     externalNativeBuild {
         cmake {
@@ -171,12 +170,12 @@ dependencies {
 //    implementation("dev.rikka.rikkax.html:html-ktx:1.1.2")
 
     // AndroidX
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.9.3")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.3")
+    implementation("com.google.android.material:material:1.13.0")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.5")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.5")
 //    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.core:core-ktx:1.16.0")
+    implementation("androidx.core:core-ktx:1.17.0")
 //    implementation("androidx.activity:activity:1.10.1")
 //    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
 //    implementation("androidx.coordinatorlayout:coordinatorlayout:1.3.0")
@@ -194,8 +193,9 @@ dependencies {
     implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
 
 
-    implementation(project(":terminal:emulatorview"))
-    implementation(project(":terminal:libtermexec"))
+    implementation(project(":emulatorview"))
+    implementation(project(":term"))
+    implementation(project(":rish"))
 }
 
 configurations.configureEach {

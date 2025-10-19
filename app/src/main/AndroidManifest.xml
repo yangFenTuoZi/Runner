@@ -21,6 +21,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".app.ui.activity.MainActivity"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -104,16 +105,6 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".app.receiver.BinderRequestReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="yangfentuozi.runner.permission.REQUEST_BINDER">
-            <intent-filter>
-                <action android:name="yangfentuozi.runner.intent.action.REQUEST_BINDER" />
             </intent-filter>
         </receiver>
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 
-project("runner")
+project("rish")
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -19,16 +19,15 @@ endif ()
 
 find_package(cxx REQUIRED CONFIG)
 
-# starter
-add_executable(starter
-        server/starter.c)
+# librish
+add_library(rish SHARED
+        main.cpp
+        pts.cpp
+        rikka_rish_RishHost.cpp)
 
-set_target_properties(starter PROPERTIES PREFIX "lib")
-set_target_properties(starter PROPERTIES SUFFIX ".so")
+target_link_libraries(rish log cxx::cxx)
 
-# libprocessutils
-add_library(processutils SHARED
-        server/processutils.c)
-
-set_target_properties(processutils PROPERTIES PREFIX "lib")
-set_target_properties(processutils PROPERTIES SUFFIX ".so")
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_custom_command(TARGET rish POST_BUILD
+            COMMAND ${CMAKE_STRIP} --remove-section=.comment "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/librish.so")
+endif ()
