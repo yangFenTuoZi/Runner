@@ -206,7 +206,10 @@ class ServerMain : IService.Stub() {
             }
 
             releaseLibFromApp("starter", true)
-            releaseLibFromApp("processutils", false)
+            if (releaseLibFromApp("processutils", false)) {
+                // 初始化 ProcessUtils
+                processUtils.loadLibrary()
+            }
             if (releaseLibFromApp("rish", false)) {
                 // 初始化 Rish
                 RishConfig.setLibraryPath("$HOME_PATH/.local/lib")
