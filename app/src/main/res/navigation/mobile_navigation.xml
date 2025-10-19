@@ -21,7 +21,7 @@
         android:id="@+id/navigation_terminal"
         android:name="yangfentuozi.runner.app.ui.fragment.terminal.Term"
         android:label="@string/title_terminal"
-        tools:layout="@layout/fragment_terminal" />
+        tools:layout="@layout/term_activity" />
 
     <fragment
         android:id="@+id/navigation_proc"
