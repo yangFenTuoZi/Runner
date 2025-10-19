@@ -119,10 +119,29 @@ public class RishTermSession extends TermSession {
         setTermOut(new ParcelFileDescriptor.AutoCloseOutputStream(ParcelFileDescriptor.dup(mStdin[1])));
         setTermIn(new ParcelFileDescriptor.AutoCloseInputStream(ParcelFileDescriptor.dup(mStdout[0])));
 
-        // Get current environment
+        // Get current environment and add TERM variable
+        String termType = mSettings != null ? mSettings.getTermType() : "xterm-256color";
         String[] env = System.getenv().entrySet().stream()
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .toArray(String[]::new);
+        
+        // Add or replace TERM environment variable
+        boolean termSet = false;
+        for (int i = 0; i < env.length; i++) {
+            if (env[i].startsWith("TERM=")) {
+                env[i] = "TERM=" + termType;
+                termSet = true;
+                break;
+            }
+        }
+        if (!termSet) {
+            String[] newEnv = new String[env.length + 1];
+            System.arraycopy(env, 0, newEnv, 0, env.length);
+            newEnv[env.length] = "TERM=" + termType;
+            env = newEnv;
+        }
+        
+        Log.d(TAG, "TERM environment variable set to: " + termType);
 
         // Create host on server side with TTY mode enabled for all streams
         byte tty = (byte) (RishConstants.ATTY_IN | RishConstants.ATTY_OUT | RishConstants.ATTY_ERR);
