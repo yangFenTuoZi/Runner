@@ -45,24 +45,6 @@
     <string name="process_exit_message">会话已结束%1$s - 按回车关闭</string>
 
     <!-- Preference dialog -->
-    <string name="screen_preferences">屏幕</string>
-
-    <string name="title_statusbar_preference">状态栏</string>
-    <string name="summary_statusbar_preference">显示/隐藏状态栏。</string>
-    <string name="dialog_title_statusbar_preference">状态栏</string>
-
-    <string name="title_orientation_preference">屏幕方位</string>
-    <string name="summary_orientation_preference">选择屏幕方位行为</string>
-    <string name="dialog_title_orientation_preference">屏幕方位行为</string>
-
-    <string name="title_cursorstyle_preference">光标样式</string>
-    <string name="summary_cursorstyle_preference">选择光标样式</string>
-    <string name="dialog_title_cursorstyle_preference">光标样式</string>
-
-    <string name="title_cursorblink_preference">光标闪烁</string>
-    <string name="summary_cursorblink_preference">选择光标闪烁模式</string>
-    <string name="dialog_title_cursorblink_preference">光标闪烁</string>
-
     <string name="text_preferences">文本</string>
 
     <string name="title_utf8_by_default_preference">默认 UTF-8</string>
@@ -78,18 +60,6 @@
 
     <string name="keyboard_preferences">键盘</string>
 
-    <string name="title_backaction_preference">返回键行为</string>
-    <string name="summary_backaction_preference">选择返回键行为</string>
-    <string name="dialog_title_backaction_preference">返回键行为</string>
-
-    <string name="title_controlkey_preference">Ctrl 键</string>
-    <string name="summary_controlkey_preference">设置 Ctrl 键</string>
-    <string name="dialog_title_controlkey_preference">Ctrl 键</string>
-
-    <string name="title_fnkey_preference">Fn 键</string>
-    <string name="summary_fnkey_preference">设置 Fn 键</string>
-    <string name="dialog_title_fnkey_preference">Fn 键</string>
-
     <string name="title_ime_preference">输入方式</string>
     <string name="summary_ime_preference">选择输入方式或软键盘</string>
     <string name="dialog_title_ime_preference">输入方式</string>
@@ -100,46 +70,11 @@
     <string name="summary_termtype_preference">设置 Shell 的终端类型</string>
     <string name="dialog_title_termtype_preference">终端类型</string>
 
-    <string name="control_key_dialog_title">Ctrl 与 Fn 键</string>
-    <string name="control_key_dialog_control_text">CTRLKEY Space : Control-@ (NUL)\nCTRLKEY A..Z : Control-A..Z\nCTRLKEY 5 : Control-]\nCTRLKEY 6 : Control-^\nCTRLKEY 7 : Control-_\nCTRLKEY 9 : F11\nCTRLKEY 0 : F12</string>
-    <string name="control_key_dialog_control_disabled_text">未设置 Ctrl 键</string>
-    <string name="control_key_dialog_fn_text">FNKEY 1..9 : F1-F9\nFNKEY 0 : F10\nFNKEY W : Up\nFNKEY A : Left\nFNKEY S : Down\nFNKEY D : Right\nFNKEY P : PageUp\nFNKEY N : PageDown\nFNKEY T : Tab\nFNKEY L : | (pipe)\nFNKEY U : _ (underscore)\nFNKEY E : Control-[ (ESC)\nFNKEY X : Delete\nFNKEY I : Insert\nFNKEY H : Home\nFNKEY F : End\nFNKEY . : Control-\\\n</string>
-    <string name="control_key_dialog_fn_disabled_text">未设置 Fn 键</string>
-
     <string name="confirm_window_close_message">关闭窗口吗？</string>
-
-    <string name="alt_sends_esc">Alt 键发送 ESC</string>
-    <string name="alt_sends_esc_summary_on">开启 Alt 键发送 ESC</string>
-    <string name="alt_sends_esc_summary_off">关闭 Alt 键发送 ESC</string>
-
-    <string name="title_mouse_tracking_preference">发送鼠标事件</string>
-    <string name="summary_mouse_tracking_preference">触摸与滚屏事件是否被终端忽略</string>
 
     <string name="empty_state_message">点击任意位置创建新会话</string>
 
     <!-- Arrays from arrays.xml -->
-    <string-array name="entries_statusbar_preference">
-        <item>显示状态栏</item>
-        <item>隐藏状态栏</item>
-    </string-array>
-
-    <string-array name="entries_orientation_preference">
-        <item>自动</item>
-        <item>横屏</item>
-        <item>竖屏</item>
-    </string-array>
-
-    <string-array name="entries_cursorblink_preference">
-        <item>非闪烁光标</item>
-        <item>闪烁光标</item>
-    </string-array>
-
-    <string-array name="entries_cursorstyle_preference">
-        <item>方块</item>
-        <item>下划线</item>
-        <item>竖线</item>
-    </string-array>
-
     <string-array name="entries_fontsize_preference">
         <item>4 x 8 像素</item>
         <item>6 磅</item>
@@ -177,62 +112,8 @@
         <item>Linux 终端</item>
     </string-array>
 
-    <string-array name="entries_backaction_preference">
-        <item>关闭所有窗口</item>
-        <item>关闭当前窗口</item>
-        <item>关闭当前实例，保留正在运行的会话</item>
-        <item>给终端发送 ESC</item>
-        <item>给终端发送 TAB</item>
-    </string-array>
-
-    <string-array name="entries_controlkey_preference">
-        <item>轨迹球</item>
-        <item>\@ 键</item>
-        <item>左 Alt 键</item>
-        <item>右 Alt 键</item>
-        <item>提升音量键</item>
-        <item>降低音量键</item>
-        <item>相机快门键</item>
-        <item>无</item>
-    </string-array>
-
-    <string-array name="entries_fnkey_preference">
-        <item>轨迹球</item>
-        <item>\@ 键</item>
-        <item>左 Alt 键</item>
-        <item>右 Alt 键</item>
-        <item>提升音量键</item>
-        <item>降低音量键</item>
-        <item>相机快门键</item>
-        <item>无</item>
-    </string-array>
-
     <string-array name="entries_ime_preference">
         <item>字本</item>
         <item>词本</item>
-    </string-array>
-
-    <!-- These are the 'short' names for the control keys. They are used in the special keys dialog. -->
-    <string-array name="control_keys_short_names">
-        <item>Ball</item>
-        <item>\@</item>
-        <item>Left-Alt</item>
-        <item>Right-Alt</item>
-        <item>Vol-Up</item>
-        <item>Vol-Dn</item>
-        <item>Camera</item>
-        <item>None</item>
-    </string-array>
-
-    <!-- These are the 'short' names for the Fn keys. They are used in the special keys dialog. -->
-    <string-array name="fn_keys_short_names">
-        <item>Ball</item>
-        <item>\@</item>
-        <item>Left-Alt</item>
-        <item>Right-Alt</item>
-        <item>Vol-Up</item>
-        <item>Vol-Dn</item>
-        <item>Camera</item>
-        <item>None</item>
     </string-array>
 </resources>

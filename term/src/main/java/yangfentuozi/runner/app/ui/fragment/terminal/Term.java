@@ -24,11 +24,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -165,61 +163,6 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
             }
         }
     }
-
-    /**
-     * Should we use keyboard shortcuts?
-     */
-    private boolean mUseKeyboardShortcuts;
-
-    /**
-     * Intercepts keys before the view/terminal gets it.
-     */
-    private View.OnKeyListener mKeyListener = new View.OnKeyListener() {
-        public boolean onKey(View v, int keyCode, android.view.KeyEvent event) {
-            return backkeyInterceptor(keyCode, event) || keyboardShortcuts(keyCode, event);
-        }
-
-        /**
-         * Keyboard shortcuts (tab management, paste)
-         */
-        private boolean keyboardShortcuts(int keyCode, android.view.KeyEvent event) {
-            if (event.getAction() != android.view.KeyEvent.ACTION_DOWN) {
-                return false;
-            }
-            if (!mUseKeyboardShortcuts) {
-                return false;
-            }
-            boolean isCtrlPressed = (event.getMetaState() & KeyEvent.META_CTRL_ON) != 0;
-            boolean isShiftPressed = (event.getMetaState() & KeyEvent.META_SHIFT_ON) != 0;
-
-            if (keyCode == KeyEvent.KEYCODE_TAB && isCtrlPressed) {
-                if (isShiftPressed) {
-                    mViewFlipper.showPrevious();
-                } else {
-                    mViewFlipper.showNext();
-                }
-
-                return true;
-            } else if (keyCode == KeyEvent.KEYCODE_N && isCtrlPressed && isShiftPressed) {
-                doCreateNewWindow();
-
-                return true;
-            } else if (keyCode == KeyEvent.KEYCODE_V && isCtrlPressed && isShiftPressed) {
-                doPaste();
-
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        /**
-         * Make sure the back button always leaves the application.
-         */
-        private boolean backkeyInterceptor(int keyCode, android.view.KeyEvent event) {
-            return false;
-        }
-    };
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private View mRootView;
@@ -503,7 +446,6 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         TermView emulatorView = new TermView(requireContext(), session, metrics);
 
         emulatorView.setExtGestureListener(new EmulatorViewGestureListener(emulatorView));
-        emulatorView.setOnKeyListener(mKeyListener);
         registerForContextMenu(emulatorView);
 
         // Set keyboard visibility listener
@@ -531,8 +473,6 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     }
 
     private void updatePrefs() {
-        mUseKeyboardShortcuts = mSettings.getUseKeyboardShortcutsFlag();
-
         DisplayMetrics metrics = new DisplayMetrics();
         requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -548,19 +488,6 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
                 ((RishTermSession) session).updatePrefs(mSettings);
             }
         }
-
-        int orientation = mSettings.getScreenOrientation();
-        int o = 0;
-        if (orientation == 0) {
-            o = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-        } else if (orientation == 1) {
-            o = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-        } else if (orientation == 2) {
-            o = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        } else {
-            /* Shouldn't be happened. */
-        }
-        requireActivity().setRequestedOrientation(o);
     }
 
     @Override
@@ -778,36 +705,6 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
     private void doSendFnKey() {
         getCurrentEmulatorView().sendFnKey();
-    }
-
-    private void doDocumentKeys() {
-        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(requireContext());
-        Resources r = getResources();
-        dialog.setTitle(r.getString(R.string.control_key_dialog_title));
-        dialog.setMessage(
-                formatMessage(mSettings.getControlKeyId(), TermSettings.CONTROL_KEY_ID_NONE,
-                        r, R.array.control_keys_short_names,
-                        R.string.control_key_dialog_control_text,
-                        R.string.control_key_dialog_control_disabled_text, "CTRLKEY")
-                        + "\n\n" +
-                        formatMessage(mSettings.getFnKeyId(), TermSettings.FN_KEY_ID_NONE,
-                                r, R.array.fn_keys_short_names,
-                                R.string.control_key_dialog_fn_text,
-                                R.string.control_key_dialog_fn_disabled_text, "FNKEY"));
-        dialog.show();
-    }
-
-    private String formatMessage(int keyId, int disabledKeyId,
-                                 Resources r, int arrayId,
-                                 int enabledId,
-                                 int disabledId, String regex) {
-        if (keyId == disabledKeyId) {
-            return r.getString(disabledId);
-        }
-        String[] keyNames = r.getStringArray(arrayId);
-        String keyName = keyNames[keyId];
-        String template = r.getString(enabledId);
-        return template.replaceAll(regex, keyName);
     }
 
     private void doToggleSoftKeyboard() {

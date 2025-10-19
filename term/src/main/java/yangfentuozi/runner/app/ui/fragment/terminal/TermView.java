@@ -93,12 +93,14 @@ public class TermView extends EmulatorView {
         setTextSize(settings.getFontSize());
         setUseCookedIME(settings.useCookedIME());
         setColorScheme(scheme);
-        setBackKeyCharacter(settings.getBackKeyCharacter());
-        setAltSendsEsc(settings.getAltSendsEscFlag());
-        setControlKeyCode(settings.getControlKeyCode());
-        setFnKeyCode(settings.getFnKeyCode());
+        // TODO 彻底移除它
+        setBackKeyCharacter(0);
+        setAltSendsEsc(false);
+        setControlKeyCode(-1);
+        setFnKeyCode(-1);
+        setMouseTracking(false);
+
         setTermType(settings.getTermType());
-        setMouseTracking(settings.getMouseTrackingFlag());
     }
 
     public void updatePrefs(TermSettings settings) {
