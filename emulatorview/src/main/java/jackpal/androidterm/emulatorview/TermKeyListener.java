@@ -135,7 +135,20 @@ public class TermKeyListener {
         mKeyMap.put(KEYMOD_ALT | KEYCODE_INSERT, "\033[2;3~");
         mKeyMap.put(KEYMOD_CTRL | KEYCODE_INSERT, "\033[2;5~");
 
+        //^[[5~ and ^[[6~ - Page Up/Down with modifiers
+        mKeyMap.put(KEYMOD_SHIFT | KEYCODE_PAGE_UP, "\033[5;2~");
+        mKeyMap.put(KEYMOD_ALT | KEYCODE_PAGE_UP, "\033[5;3~");
+        mKeyMap.put(KEYMOD_CTRL | KEYCODE_PAGE_UP, "\033[5;5~");
+        mKeyMap.put(KEYMOD_SHIFT | KEYCODE_PAGE_DOWN, "\033[6;2~");
+        mKeyMap.put(KEYMOD_ALT | KEYCODE_PAGE_DOWN, "\033[6;3~");
+        mKeyMap.put(KEYMOD_CTRL | KEYCODE_PAGE_DOWN, "\033[6;5~");
+
+        // Home/End with modifiers (for xterm-style terminals)
+        mKeyMap.put(KEYMOD_SHIFT | KEYCODE_MOVE_HOME, "\033[1;2H");
+        mKeyMap.put(KEYMOD_ALT | KEYCODE_MOVE_HOME, "\033[1;3H");
         mKeyMap.put(KEYMOD_CTRL | KEYCODE_MOVE_HOME, "\033[1;5H");
+        mKeyMap.put(KEYMOD_SHIFT | KEYCODE_MOVE_END, "\033[1;2F");
+        mKeyMap.put(KEYMOD_ALT | KEYCODE_MOVE_END, "\033[1;3F");
         mKeyMap.put(KEYMOD_CTRL | KEYCODE_MOVE_END, "\033[1;5F");
 
         mKeyMap.put(KEYMOD_ALT | KEYCODE_ENTER, "\033\r");
@@ -416,7 +429,10 @@ public class TermKeyListener {
 
     private void setFnKeys(String termType) {
         // These key assignments taken from the debian squeeze terminfo database.
-        if (termType.equals("xterm")) {
+        // Match xterm and all its variants (xterm-256color, xterm-color, etc.)
+        // Also match screen variants (screen-256color, etc.) which use the same sequences
+        if (termType.equals("xterm") || termType.startsWith("xterm-") ||
+                termType.equals("screen") || termType.startsWith("screen-")) {
             mKeyCodes[KEYCODE_NUMPAD_7] = mKeyCodes[KEYCODE_MOVE_HOME] = "\033OH";
             mKeyCodes[KEYCODE_NUMPAD_1] = mKeyCodes[KEYCODE_MOVE_END] = "\033OF";
         } else {

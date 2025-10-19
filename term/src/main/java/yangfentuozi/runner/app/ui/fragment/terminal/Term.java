@@ -263,22 +263,22 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     }
 
     private void setupBottomToolbar() {
-        // First row buttons
-        mRootView.findViewById(R.id.btn_esc).setOnClickListener(v -> sendKey("\u001b"));
-        mRootView.findViewById(R.id.btn_tab).setOnClickListener(v -> sendKey("\t"));
-        mRootView.findViewById(R.id.btn_pgup).setOnClickListener(v -> sendKey("\u001b[5~"));
-        mRootView.findViewById(R.id.btn_home).setOnClickListener(v -> sendKey("\u001b[1~"));
-        mRootView.findViewById(R.id.btn_up).setOnClickListener(v -> sendKey("\u001b[A"));
-        mRootView.findViewById(R.id.btn_end).setOnClickListener(v -> sendKey("\u001b[4~"));
+        // First row buttons - using physical key codes
+        mRootView.findViewById(R.id.btn_esc).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_ESCAPE));
+        mRootView.findViewById(R.id.btn_tab).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_TAB));
+        mRootView.findViewById(R.id.btn_pgup).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_PAGE_UP));
+        mRootView.findViewById(R.id.btn_home).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_MOVE_HOME));
+        mRootView.findViewById(R.id.btn_up).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_UP));
+        mRootView.findViewById(R.id.btn_end).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_MOVE_END));
         mRootView.findViewById(R.id.btn_toggle_toolbar).setOnClickListener(v -> toggleBottomToolbar());
 
-        // Second row buttons
+        // Second row buttons - using physical key codes
         mRootView.findViewById(R.id.btn_ctrl).setOnClickListener(v -> doSendControlKey());
         mRootView.findViewById(R.id.btn_alt).setOnClickListener(v -> doSendAltKey());
-        mRootView.findViewById(R.id.btn_pgdn).setOnClickListener(v -> sendKey("\u001b[6~"));
-        mRootView.findViewById(R.id.btn_left).setOnClickListener(v -> sendKey("\u001b[D"));
-        mRootView.findViewById(R.id.btn_down).setOnClickListener(v -> sendKey("\u001b[B"));
-        mRootView.findViewById(R.id.btn_right).setOnClickListener(v -> sendKey("\u001b[C"));
+        mRootView.findViewById(R.id.btn_pgdn).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_PAGE_DOWN));
+        mRootView.findViewById(R.id.btn_left).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_LEFT));
+        mRootView.findViewById(R.id.btn_down).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_DOWN));
+        mRootView.findViewById(R.id.btn_right).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_RIGHT));
         mRootView.findViewById(R.id.btn_switch_window).setOnClickListener(v -> showWindowList());
 
         // Measure and set the bottom toolbar height to TermViewFlipper
@@ -319,6 +319,24 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         TermSession session = getCurrentTermSession();
         if (session != null) {
             session.write(key);
+        }
+    }
+
+    /**
+     * Send a key code to the terminal, processed by TermKeyListener.handleKeyCode()
+     * This simulates physical key press and respects terminal type settings.
+     */
+    private void sendKeyCode(int keyCode) {
+        EmulatorView view = getCurrentEmulatorView();
+        if (view != null) {
+            try {
+                // Get the key listener from the emulator view
+                // This will properly handle the key code based on terminal type
+                view.onKeyDown(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                view.onKeyUp(keyCode, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+            } catch (Exception e) {
+                Log.w(TermDebug.LOG_TAG, "Failed to send key code " + keyCode, e);
+            }
         }
     }
 
