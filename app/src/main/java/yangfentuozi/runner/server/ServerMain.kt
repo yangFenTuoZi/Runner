@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.system.ErrnoException
 import android.system.Os
@@ -19,10 +20,7 @@ import rikka.hidden.compat.PackageManagerApis
 import rikka.rish.RishConfig
 import rikka.rish.RishService
 import yangfentuozi.runner.BuildConfig
-import yangfentuozi.runner.server.callback.ExecResultCallback
-import yangfentuozi.runner.server.callback.IExecResultCallback
-import yangfentuozi.runner.server.callback.IInstallTermExtCallback
-import yangfentuozi.runner.server.callback.InstallTermExtCallback
+import yangfentuozi.runner.server.callback.IExitCallback
 import yangfentuozi.runner.server.util.ProcessUtils
 import yangfentuozi.runner.shared.data.EnvInfo
 import yangfentuozi.runner.shared.data.ProcessInfo
@@ -246,22 +244,43 @@ class ServerMain : IService.Stub() {
         cmd: String?,
         ids: String?,
         procName: String?,
-        callback: IExecResultCallback?
+        callback: IExitCallback?,
+        stdout: ParcelFileDescriptor
     ) {
         Thread {
-            val callbackWrapper = ExecResultCallback(callback)
+            val writer = ParcelFileDescriptor.AutoCloseOutputStream(stdout).bufferedWriter()
+            fun writeOutput(line: String?) {
+                try {
+                    writer.write(line)
+                    writer.newLine()
+                    writer.flush()
+                } catch (e: IOException) {
+                    Log.e(TAG, "write output error", e)
+                }
+            }
+            fun exit(code: Int) {
+                try {
+                    writer.close()
+                } catch (e: IOException) {
+                    Log.e(TAG, "close writer error", e)
+                }
+                try {
+                    callback?.onExit(code)
+                } catch (_: RemoteException) {
+                }
+            }
             try {
                 if (!File(STARTER).exists()) {
                     Log.e(TAG, "starter not found")
-                    callbackWrapper.onOutput("-1")
-                    callbackWrapper.onOutput("starter not found")
-                    callbackWrapper.onExit(127)
+                    writeOutput("-1")
+                    writeOutput("starter not found")
+                    exit(127)
                     return@Thread
                 } else if (!File("$USR_PATH/bin/bash").exists()) {
                     Log.e(TAG, "bash not found")
-                    callbackWrapper.onOutput("-1")
-                    callbackWrapper.onOutput("bash not found, may be you don't install terminal extension")
-                    callbackWrapper.onExit(127)
+                    writeOutput("-1")
+                    writeOutput("bash not found, may be you don't install terminal extension")
+                    exit(127)
                     return@Thread
                 }
                 try {
@@ -302,7 +321,7 @@ class ServerMain : IService.Stub() {
                 val out = p.outputStream
                 out.write(
                     """
-                    echo $$;. $USR_PATH/etc/profile;${cmd ?: ""};exit
+                    echo $$;. $USR_PATH/etc/profile;${cmd};exit
                     """.trimIndent().toByteArray()
                 )
                 out.flush()
@@ -310,14 +329,14 @@ class ServerMain : IService.Stub() {
                 val bufferedReader = BufferedReader(InputStreamReader(p.inputStream))
                 var line: String?
                 while (bufferedReader.readLine().also { line = it } != null) {
-                    callbackWrapper.onOutput(line)
+                    writeOutput(line)
                 }
-                callbackWrapper.onExit(p.waitFor())
+                exit(p.waitFor())
             } catch (e: Exception) {
                 Log.e(TAG, e.stackTraceToString())
-                callbackWrapper.onOutput("-1")
-                callbackWrapper.onOutput("! Exception: ${e.stackTraceToString()}")
-                callbackWrapper.onExit(255)
+                writeOutput("-1")
+                writeOutput("! Exception: ${e.stackTraceToString()}")
+                exit(255)
             }
         }.start()
     }
@@ -402,25 +421,49 @@ class ServerMain : IService.Stub() {
         }
     }
 
-    override fun installTermExt(termExtZip: String?, callback: IInstallTermExtCallback?) {
+    override fun installTermExt(
+        termExtZip: String?,
+        callback: IExitCallback?,
+        stdout: ParcelFileDescriptor
+    ) {
         Thread {
-            val callbackWrapper = InstallTermExtCallback(callback)
+            val writer = ParcelFileDescriptor.AutoCloseOutputStream(stdout).bufferedWriter()
+            fun writeOutput(line: String?) {
+                try {
+                    writer.write(line)
+                    writer.newLine()
+                    writer.flush()
+                } catch (e: IOException) {
+                    Log.e(TAG, "write output error", e)
+                }
+            }
+            fun exit(isSuccessful: Boolean) {
+                try {
+                    writer.close()
+                } catch (e: IOException) {
+                    Log.e(TAG, "close writer error", e)
+                }
+                try {
+                    callback?.onExit(if (isSuccessful) 0 else 1)
+                } catch (_: RemoteException) {
+                }
+            }
             try {
                 Log.i(TAG, "install terminal extension: $termExtZip")
-                callbackWrapper.onMessage("- Install terminal extension: $termExtZip")
+                writeOutput("- Install terminal extension: $termExtZip")
                 val app = ZipFile(termExtZip)
                 val buildPropEntry = app.getEntry("build.prop")
                 val installShEntry = app.getEntry("install.sh")
                 if (buildPropEntry == null) {
                     Log.e(TAG, "'build.prop' doesn't exist")
-                    callbackWrapper.onMessage(" ! 'build.prop' doesn't exist")
-                    callbackWrapper.onExit(false)
+                    writeOutput(" ! 'build.prop' doesn't exist")
+                    exit(false)
                     return@Thread
                 }
                 if (installShEntry == null) {
                     Log.e(TAG, "'install.sh' doesn't exist")
-                    callbackWrapper.onMessage(" ! 'install.sh' doesn't exist")
-                    callbackWrapper.onExit(false)
+                    writeOutput(" ! 'install.sh' doesn't exist")
+                    exit(false)
                     return@Thread
                 }
                 val buildProp = app.getInputStream(buildPropEntry)
@@ -433,7 +476,7 @@ class ServerMain : IService.Stub() {
                         abi: ${termExtVersion.abi}
                     """.trimIndent()
                 )
-                callbackWrapper.onMessage(
+                writeOutput(
                     """
                        - Terminal extension:
                        - Version: ${termExtVersion.versionName} (${termExtVersion.versionCode})
@@ -443,20 +486,20 @@ class ServerMain : IService.Stub() {
                 val indexOf = Build.SUPPORTED_ABIS.indexOf(termExtVersion.abi)
                 if (indexOf == -1) {
                     Log.e(TAG, "unsupported ABI: ${termExtVersion.abi}")
-                    callbackWrapper.onMessage("! Unsupported ABI: ${termExtVersion.abi}")
-                    callbackWrapper.onExit(false)
+                    writeOutput("! Unsupported ABI: ${termExtVersion.abi}")
+                    exit(false)
                     return@Thread
                 } else if (indexOf != 0) {
                     Log.w(TAG, "ABI is not preferred: ${termExtVersion.abi}")
-                    callbackWrapper.onMessage("- ABI is not preferred: ${termExtVersion.abi}")
+                    writeOutput("- ABI is not preferred: ${termExtVersion.abi}")
                 }
                 fun cleanupAndReturn(isSuccessful: Boolean) {
-                    callbackWrapper.onMessage("- Cleanup $DATA_PATH/install_temp")
+                    writeOutput("- Cleanup $DATA_PATH/install_temp")
                     File("$DATA_PATH/install_temp").deleteRecursively()
-                    callbackWrapper.onExit(isSuccessful)
+                    exit(isSuccessful)
                 }
                 Log.i(TAG, "unzip files.")
-                callbackWrapper.onMessage("- Unzip files.")
+                writeOutput("- Unzip files.")
                 val entries = app.entries()
                 while (entries.hasMoreElements()) {
                     val zipEntry = entries.nextElement()
@@ -466,13 +509,13 @@ class ServerMain : IService.Stub() {
                                 TAG,
                                 "unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'"
                             )
-                            callbackWrapper.onMessage("- Unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'")
+                            writeOutput("- Unzip '${zipEntry.name}' to '$DATA_PATH/install_temp/${zipEntry.name}'")
                             val file = File("$DATA_PATH/install_temp/${zipEntry.name}")
                             if (!file.exists()) file.mkdirs()
                         } else {
                             val file = File("$DATA_PATH/install_temp/${zipEntry.name}")
                             Log.i(TAG, "unzip '${zipEntry.name}' to '${file.absolutePath}'")
-                            callbackWrapper.onMessage("- Unzip '${zipEntry.name}' to '${file.absolutePath}'")
+                            writeOutput("- Unzip '${zipEntry.name}' to '${file.absolutePath}'")
                             file.parentFile?.let { if (!it.exists()) it.mkdirs() }
                             if (!file.exists()) file.createNewFile()
                             app.getInputStream(zipEntry).use { input ->
@@ -483,7 +526,7 @@ class ServerMain : IService.Stub() {
                         }
                     } catch (e: IOException) {
                         Log.e(TAG, "unable to unzip file: ${zipEntry.name}", e)
-                        callbackWrapper.onMessage(
+                        writeOutput(
                             "! Unable to unzip file: ${zipEntry.name}\n${e.stackTraceToString()}"
                         )
                         cleanupAndReturn(false)
@@ -491,16 +534,16 @@ class ServerMain : IService.Stub() {
                     }
                 }
                 Log.i(TAG, "complete unzipping")
-                callbackWrapper.onMessage("- Complete unzipping")
+                writeOutput("- Complete unzipping")
                 val installScript = "$DATA_PATH/install_temp/install.sh"
                 if (!File(installScript).setExecutable(true)) {
                     Log.e(TAG, "unable to set executable")
-                    callbackWrapper.onMessage("! Unable to set executable")
+                    writeOutput("! Unable to set executable")
                     cleanupAndReturn(false)
                     return@Thread
                 }
                 Log.i(TAG, "execute install script")
-                callbackWrapper.onMessage("- Execute install script")
+                writeOutput("- Execute install script")
                 try {
                     val process = Runtime.getRuntime().exec("/system/bin/sh")
                     val out = process.outputStream
@@ -511,34 +554,34 @@ class ServerMain : IService.Stub() {
                     var line: String?
                     while (br.readLine().also { line = it } != null) {
                         Log.i(TAG, "output: $line")
-                        callbackWrapper.onMessage("- ScriptOuts: $line")
+                        writeOutput("- ScriptOuts: $line")
                     }
                     br.close()
                     val ev = process.waitFor()
                     if (ev == 0) {
                         Log.i(TAG, "exit with 0")
-                        callbackWrapper.onMessage("- Install script exit successfully")
+                        writeOutput("- Install script exit successfully")
                     } else {
                         Log.e(TAG, "exit with non-zero value $ev")
-                        callbackWrapper.onMessage("! Install script exit with non-zero value $ev")
+                        writeOutput("! Install script exit with non-zero value $ev")
                         cleanupAndReturn(false)
                         return@Thread
                     }
                 } catch (e: Exception) {
-                    callbackWrapper.onMessage("! ${e.stackTraceToString()}")
+                    writeOutput("! ${e.stackTraceToString()}")
                     cleanupAndReturn(false)
                     return@Thread
                 }
-                callbackWrapper.onMessage("- Finish")
+                writeOutput("- Finish")
                 Log.i(TAG, "finish")
                 cleanupAndReturn(true)
                 return@Thread
             } catch (e: IOException) {
                 Log.e(TAG, "read terminal extension file error!", e)
-                callbackWrapper.onMessage(
+                writeOutput(
                     "! Read terminal extension file error!\n${e.stackTraceToString()}"
                 )
-                callbackWrapper.onExit(false)
+                exit(false)
                 return@Thread
             }
         }.start()

@@ -8,7 +8,6 @@ import android.os.Looper
 import android.util.Log
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
-import yangfentuozi.runner.server.callback.IExecResultCallback
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -66,20 +65,20 @@ class ExecOnBootService : Service() {
             return
         }
         Log.i(TAG, "exec: $command")
-        Runner.service?.exec(
-            command,
-            targetPerm ?: "",
-            "ExecOnBootTask",
-            object : IExecResultCallback.Stub() {
-                override fun onOutput(outputs: String?) {
-                    Log.i(TAG, "onOutput: $outputs")
-                }
-
-                override fun onExit(exitValue: Int) {
-                    Log.i(TAG, "exit with $exitValue")
-                    stopSelf()
-                }
-            })
+//        Runner.service?.exec(
+//            command,
+//            targetPerm ?: "",
+//            "ExecOnBootTask",
+//            object : IExecResultCallback.Stub() {
+//                override fun onOutput(outputs: String?) {
+//                    Log.i(TAG, "onOutput: $outputs")
+//                }
+//
+//                override fun onExit(exitValue: Int) {
+//                    Log.i(TAG, "exit with $exitValue")
+//                    stopSelf()
+//                }
+//            })
     }
 
     override fun onDestroy() {

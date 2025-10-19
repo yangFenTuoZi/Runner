@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.view.MenuItem
 import android.widget.ScrollView
 import android.widget.Toast
@@ -13,7 +14,7 @@ import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.base.BaseActivity
 import yangfentuozi.runner.databinding.ActivityStreamActivityBinding
 import yangfentuozi.runner.server.ServerMain
-import yangfentuozi.runner.server.callback.IInstallTermExtCallback
+import yangfentuozi.runner.server.callback.IExitCallback
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -23,10 +24,16 @@ import java.io.InputStream
 
 class InstallTermExtActivity : BaseActivity() {
     private lateinit var binding: ActivityStreamActivityBinding
-    private var callback: IInstallTermExtCallback? = null
+    private var callback: IExitCallback? = null
+    private var pipe: Array<ParcelFileDescriptor>? = null
+    private var readThread: Thread? = null
+    private lateinit var termExtCacheDir: File
+    private var breakRead = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        termExtCacheDir = File(externalCacheDir, "termExtCache")
+
         binding = ActivityStreamActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.appBar.setLiftable(true)
@@ -34,7 +41,7 @@ class InstallTermExtActivity : BaseActivity() {
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
         }
-        binding.text1.typeface = Typeface.MONOSPACE
+        binding.text1.typeface = Typeface.createFromAsset(assets, "Mono.ttf")
 
         val action = intent.action
         val type = intent.type
@@ -73,7 +80,6 @@ class InstallTermExtActivity : BaseActivity() {
             onMessage("! Failed to open file")
             return
         }
-        val termExtCacheDir = File(externalCacheDir, "termExtCache")
         termExtCacheDir.deleteRecursively()
         termExtCacheDir.mkdirs()
         val file = File(termExtCacheDir, "termux_ext.zip")
@@ -95,20 +101,40 @@ class InstallTermExtActivity : BaseActivity() {
             finish()
         }
 
-        callback = object : IInstallTermExtCallback.Stub() {
-            override fun onMessage(message: String?) {
-                this@InstallTermExtActivity.onMessage(message)
-            }
+        callback = object : IExitCallback.Stub() {
 
-            override fun onExit(isSuccessful: Boolean) {
-                onMessage(if (isSuccessful) "- Installation successful" else "! Installation failed")
-                onMessage("\n- Cleanup temp: ${termExtCacheDir.absolutePath}")
-                termExtCacheDir.deleteRecursively()
-                callback = null
+            override fun onExit(exitValue: Int) {
+                Thread {
+                    Thread.sleep(100)
+                    stopAndClean()
+                    onMessage(if (exitValue == 0) "- Installation successful" else "! Installation failed")
+                    onMessage("\n- Cleanup temp: ${termExtCacheDir.absolutePath}")
+                }.start()
             }
         }
 
-        Runner.service?.installTermExt(file.absolutePath, callback)
+        pipe = ParcelFileDescriptor.createPipe()
+
+        readThread = Thread {
+            try {
+                val reader = ParcelFileDescriptor.AutoCloseInputStream(pipe?.get(0)).bufferedReader()
+                var line: String?
+                while (reader.readLine().also { line = it } != null && !breakRead) {
+                    onMessage(line)
+                }
+            } catch (e: IOException) {
+                if (breakRead) return@Thread
+                onMessage("! Pipe read error:\n" + e.stackTraceToString())
+            } finally {
+                try {
+                    pipe?.get(0)?.close()
+                    pipe?.get(1)?.close()
+                } catch (_: IOException) {
+                }
+            }
+        }.apply { start() }
+
+        Runner.service?.installTermExt(file.absolutePath, callback, pipe!![1])
     }
 
     private fun onMessage(message: String?) {
@@ -129,7 +155,17 @@ class InstallTermExtActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        stopAndClean()
+    }
+
+    fun stopAndClean() {
+        breakRead = true
         callback = null
+        Thread.sleep(100)
+        readThread?.interrupt()
+        pipe?.get(0)?.close()
+        pipe?.get(1)?.close()
+        termExtCacheDir.deleteRecursively()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

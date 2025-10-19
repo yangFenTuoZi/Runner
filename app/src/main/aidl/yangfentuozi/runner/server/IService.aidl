@@ -4,8 +4,7 @@ import yangfentuozi.runner.shared.data.TermExtVersion;
 import yangfentuozi.runner.shared.data.ProcessInfo;
 import yangfentuozi.runner.shared.data.EnvInfo;
 
-import yangfentuozi.runner.server.callback.IExecResultCallback;
-import yangfentuozi.runner.server.callback.IInstallTermExtCallback;
+import yangfentuozi.runner.server.callback.IExitCallback;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ interface IService {
     void exit() = 1;
     int version() = 2;
 
-    void exec(String command, String ids, String procName, in IExecResultCallback callback) = 100;
+    void exec(String command, String ids, String procName, in IExitCallback callback, in ParcelFileDescriptor stdout) = 100;
 
     ProcessInfo[] getProcesses() = 400;
     boolean[] sendSignal(in int[] pid, int signal) = 401;
@@ -22,7 +21,7 @@ interface IService {
     void backupData(String output, boolean termHome, boolean termUsr) = 500;
     void restoreData(String input) = 501;
 
-    void installTermExt(String termExtZip, in IInstallTermExtCallback callback) = 1000;
+    void installTermExt(String termExtZip, in IExitCallback callback, in ParcelFileDescriptor stdout) = 1000;
     void removeTermExt() = 1001;
     TermExtVersion getTermExtVersion() = 1002;
 

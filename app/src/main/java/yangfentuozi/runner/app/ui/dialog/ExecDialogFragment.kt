@@ -3,9 +3,11 @@ package yangfentuozi.runner.app.ui.dialog
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -16,8 +18,9 @@ import yangfentuozi.runner.app.base.BaseDialogBuilder.IsDialogShowing
 import yangfentuozi.runner.app.ui.fragment.proc.ProcAdapter
 import yangfentuozi.runner.app.util.ThrowableUtil.toErrorDialog
 import yangfentuozi.runner.databinding.DialogExecBinding
-import yangfentuozi.runner.server.callback.IExecResultCallback
+import yangfentuozi.runner.server.callback.IExitCallback
 import yangfentuozi.runner.shared.data.CommandInfo
+import java.io.IOException
 
 class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeout: Long = -1L) :
     DialogFragment() {
@@ -34,24 +37,8 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
     private var pid = -1
     private var isDied = false
     private var isDismissed = false
-    private var callback: IExecResultCallback? = object : IExecResultCallback.Stub() {
-        private var firstLine = true
-        override fun onOutput(outputs: String) {
-            if (isDismissed) return
-            if (firstLine) {
-                val p = outputs.toInt()
-                mHandler.post {
-                    binding.execTitle.append("${getString(R.string.pid_info, p)}\n")
-                }
-                firstLine = false
-                pid = p
-            } else {
-                mHandler.post {
-                    binding.execMsg.append(outputs + "\n")
-                }
-            }
-        }
-
+    private var breakRead = false
+    private var callback: IExitCallback? = object : IExitCallback.Stub() {
         override fun onExit(exitValue: Int) {
             if (isDismissed) return
             mHandler.post {
@@ -70,9 +57,55 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
                 )
                 alertDialog.setTitle(getString(R.string.finish))
             }
-            callback = null
             isDied = true
+            stopAndClean()
         }
+    }
+    private var pipe: Array<ParcelFileDescriptor>? = ParcelFileDescriptor.createPipe()
+    private var readThread: Thread? = Thread {
+        try {
+            val reader = ParcelFileDescriptor.AutoCloseInputStream(pipe?.get(0)).bufferedReader()
+            var line: String?
+            while (reader.readLine().also { line = it } != null && !breakRead) {
+                onMessage(line)
+            }
+        } catch (e: IOException) {
+            if (breakRead) return@Thread
+            onMessage("! Pipe read error:\n" + e.stackTraceToString())
+        } finally {
+            try {
+                pipe?.get(0)?.close()
+                pipe?.get(1)?.close()
+            } catch (_: IOException) {
+            }
+        }
+    }
+    private var firstLine = true
+    private fun onMessage(message: String?) {
+        if (isDismissed) return
+        if (firstLine) {
+            val p = message?.toInt() ?: -1
+            mHandler.post {
+                binding.execTitle.append("${getString(R.string.pid_info, p)}\n")
+            }
+            firstLine = false
+            pid = p
+        } else {
+            mHandler.post {
+                binding.execMsg.append(message + "\n")
+            }
+        }
+    }
+
+    fun stopAndClean() {
+        Thread {
+            breakRead = true
+            callback = null
+            Thread.sleep(100)
+            readThread?.interrupt()
+            pipe?.get(0)?.close()
+            pipe?.get(1)?.close()
+        }.start()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,6 +114,7 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = DialogExecBinding.inflate(layoutInflater)
+        binding.execMsg.typeface = Typeface.createFromAsset(requireContext.assets, "Mono.ttf")
         alertDialog = BaseDialogBuilder(requireContext).apply {
             setTitle(getString(R.string.executing))
             setView(binding.getRoot())
@@ -174,7 +208,8 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
                 }
             }.apply { start() }
             try {
-                Runner.service?.exec(cmdInfo.command, cmdInfo.targetPerm, cmdInfo.name, callback)
+                readThread?.start()
+                Runner.service?.exec(cmdInfo.command, cmdInfo.targetPerm, cmdInfo.name, callback, pipe!![1])
             } catch (e: RemoteException) {
                 e.toErrorDialog(requireContext)
             }
@@ -198,7 +233,7 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
                 throw RuntimeException(e)
             }
         }
-        callback = null
+        stopAndClean()
         mOnDismissListener?.onDismiss(dialog)
     }
 

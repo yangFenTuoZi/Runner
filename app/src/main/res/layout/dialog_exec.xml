@@ -31,7 +31,6 @@
                 android:layout_height="wrap_content"
                 android:textIsSelectable="true"
                 android:textSize="10sp"
-                android:typeface="monospace"
                 tools:ignore="SmallSp" />
 
         </HorizontalScrollView>

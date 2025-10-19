@@ -1,6 +1,5 @@
 package yangfentuozi.runner.server.callback;
 
-interface IExecResultCallback {
-    void onOutput(String outputs);
+interface IExitCallback {
     void onExit(int exitValue);
 }
