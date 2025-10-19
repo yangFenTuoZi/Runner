@@ -21,13 +21,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
 
 import jackpal.androidterm.emulatorview.TermSession;
 import yangfentuozi.runner.app.ui.fragment.terminal.util.SessionList;
@@ -62,14 +60,6 @@ public class TermService extends Service implements TermSession.FinishCallback {
 
     @Override
     public void onCreate() {
-        // should really belong to the Application class, but we don't use one...
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = prefs.edit();
-        String defValue = getDir("HOME", MODE_PRIVATE).getAbsolutePath();
-        String homePath = prefs.getString("home_path", defValue);
-        editor.putString("home_path", homePath);
-        editor.apply();
-
         mTermSessions = new SessionList();
 
         // Create a notification channel for the service.
