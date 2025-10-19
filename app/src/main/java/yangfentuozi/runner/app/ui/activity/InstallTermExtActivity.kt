@@ -17,9 +17,8 @@ import yangfentuozi.runner.server.ServerMain
 import yangfentuozi.runner.server.callback.IExitCallback
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 class InstallTermExtActivity : BaseActivity() {
@@ -28,7 +27,7 @@ class InstallTermExtActivity : BaseActivity() {
     private var pipe: Array<ParcelFileDescriptor>? = null
     private var readThread: Thread? = null
     private lateinit var termExtCacheDir: File
-    private var breakRead = false
+    private val isStopped = AtomicBoolean(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,113 +35,131 @@ class InstallTermExtActivity : BaseActivity() {
 
         binding = ActivityStreamActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.appBar.setLiftable(true)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-        }
+        setupToolbar()
         binding.text1.typeface = Typeface.createFromAsset(assets, "Mono.ttf")
 
-        val action = intent.action
-        val type = intent.type
-
-        if (Intent.ACTION_VIEW == action && type != null) {
-            val uri = intent.data
-            if (uri != null)
-                handleReceivedFile(uri)
-            else {
-                onMessage("! Invalid file")
-                return
-            }
-        } else if (Intent.ACTION_SEND == action && type != null) {
-            val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-            if (uri != null)
-                handleReceivedFile(uri)
-            else {
-                onMessage("! Invalid file")
-                return
-            }
+        val uri = when (intent.action) {
+            Intent.ACTION_VIEW -> intent.data
+            Intent.ACTION_SEND -> intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            else -> null
+        }
+        if (uri != null) {
+            handleReceivedFile(uri)
         } else {
-            onMessage("! Invalid intent")
-            return
+            showErrorAndFinish("! Invalid intent or file")
         }
     }
 
+    private fun setupToolbar() {
+        binding.appBar.setLiftable(true)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
     private fun handleReceivedFile(uri: Uri) {
-        var input: InputStream?
-        try {
-            input = contentResolver.openInputStream(uri)
-        } catch (e: FileNotFoundException) {
-            onMessage("! File not found:\n" + e.stackTraceToString())
-            return
-        }
-        if (input == null) {
-            onMessage("! Failed to open file")
-            return
-        }
-        termExtCacheDir.deleteRecursively()
-        termExtCacheDir.mkdirs()
-        val file = File(termExtCacheDir, "termux_ext.zip")
-        try {
-            if (!file.exists()) {
-                file.createNewFile()
-            }
-            val output = FileOutputStream(file)
-            input.copyTo(output, bufferSize = ServerMain.PAGE_SIZE)
-            input.close()
-            output.close()
-        } catch (_: IOException) {
-            onMessage("! Failed to copy file")
-            return
-        }
+        val cacheFile = copyUriToCache(uri) ?: return
 
         if (!Runner.pingServer()) {
             showErrAndFinish(R.string.service_not_running)
-            finish()
+            return
         }
 
-        callback = object : IExitCallback.Stub() {
+        setupInstallation(cacheFile)
+    }
 
-            override fun onExit(exitValue: Int) {
-                Thread {
-                    Thread.sleep(100)
-                    stopAndClean()
-                    onMessage(if (exitValue == 0) "- Installation successful" else "! Installation failed")
-                    onMessage("\n- Cleanup temp: ${termExtCacheDir.absolutePath}")
-                }.start()
+    private fun copyUriToCache(uri: Uri): File? {
+        try {
+            val input = contentResolver.openInputStream(uri)
+            if (input == null) {
+                showErrorAndFinish("! Failed to open file")
+                return null
             }
-        }
 
+            // 清理并创建缓存目录
+            termExtCacheDir.deleteRecursively()
+            termExtCacheDir.mkdirs()
+
+            val cacheFile = File(termExtCacheDir, "termux_ext.zip")
+            input.use { inputStream ->
+                cacheFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream, bufferSize = ServerMain.PAGE_SIZE)
+                }
+            }
+            return cacheFile
+        } catch (e: FileNotFoundException) {
+            showErrorAndFinish("! File not found:\n${e.message}")
+            return null
+        } catch (e: IOException) {
+            showErrorAndFinish("! Failed to copy file:\n${e.message}")
+            return null
+        }
+    }
+
+    private fun setupInstallation(cacheFile: File) {
+        callback = createExitCallback()
         pipe = ParcelFileDescriptor.createPipe()
 
         readThread = Thread {
             try {
-                val reader = ParcelFileDescriptor.AutoCloseInputStream(pipe?.get(0)).bufferedReader()
-                var line: String?
-                while (reader.readLine().also { line = it } != null && !breakRead) {
-                    onMessage(line)
+                pipe?.get(0)?.let { readPipe ->
+                    ParcelFileDescriptor.AutoCloseInputStream(readPipe).bufferedReader().use { reader ->
+                        while (!isStopped.get()) {
+                            val line = reader.readLine() ?: break
+                            onMessage(line)
+                        }
+                    }
                 }
             } catch (e: IOException) {
-                if (breakRead) return@Thread
-                onMessage("! Pipe read error:\n" + e.stackTraceToString())
-            } finally {
-                try {
-                    pipe?.get(0)?.close()
-                    pipe?.get(1)?.close()
-                } catch (_: IOException) {
+                if (!isStopped.get()) {
+                    onMessage("! Pipe read error: ${e.message}")
                 }
             }
         }.apply { start() }
+        
+        val service = Runner.service
+        if (service == null) {
+            showErrAndFinish(R.string.service_not_running)
+            return
+        }
+        
+        pipe?.get(1)?.let { writePipe ->
+            service.installTermExt(cacheFile.absolutePath, callback, writePipe)
+        }
+    }
 
-        Runner.service?.installTermExt(file.absolutePath, callback, pipe!![1])
+    private fun createExitCallback() = object : IExitCallback.Stub() {
+        override fun onExit(exitValue: Int) {
+            if (isStopped.get()) return
+
+            // 延迟，确保所有输出都已读取
+            binding.root.postDelayed({
+                val message = if (exitValue == 0) {
+                    "- Installation successful"
+                } else {
+                    "! Installation failed (exit code: $exitValue)"
+                }
+                onMessage(message)
+                onMessage("- Cleanup temp: ${termExtCacheDir.absolutePath}")
+                cleanup()
+            }, 200)
+        }
     }
 
     private fun onMessage(message: String?) {
+        if (message == null) return
         runOnMainThread {
-            binding.text1.append(message + "\n")
+            binding.text1.append("$message\n")
             binding.scrollView.post {
                 binding.scrollView.fullScroll(ScrollView.FOCUS_DOWN)
             }
+        }
+    }
+
+    private fun showErrorAndFinish(message: String) {
+        runOnMainThread {
+            onMessage(message)
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 
@@ -155,17 +172,44 @@ class InstallTermExtActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopAndClean()
+        cleanup()
     }
 
-    fun stopAndClean() {
-        breakRead = true
+    private fun cleanup() {
+        if (!isStopped.compareAndSet(false, true)) {
+            return // 已经清理过了
+        }
+
         callback = null
-        Thread.sleep(100)
+        
+        // 中断读取线程
         readThread?.interrupt()
-        pipe?.get(0)?.close()
-        pipe?.get(1)?.close()
-        termExtCacheDir.deleteRecursively()
+        
+        // 安全地关闭管道
+        closePipeSafely()
+        
+        // 清理缓存目录（在后台线程中执行）
+        Thread {
+            try {
+                termExtCacheDir.deleteRecursively()
+            } catch (e: Exception) {
+                // 忽略清理错误
+            }
+        }.start()
+    }
+
+    private fun closePipeSafely() {
+        pipe?.let { pipes ->
+            try {
+                pipes[0].close()
+            } catch (_: IOException) {
+            }
+            try {
+                pipes[1].close()
+            } catch (_: IOException) {
+            }
+        }
+        pipe = null
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

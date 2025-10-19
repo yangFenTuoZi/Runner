@@ -21,6 +21,7 @@ import yangfentuozi.runner.databinding.DialogExecBinding
 import yangfentuozi.runner.server.callback.IExitCallback
 import yangfentuozi.runner.shared.data.CommandInfo
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeout: Long = -1L) :
     DialogFragment() {
@@ -37,87 +38,18 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
     private var pid = -1
     private var isDied = false
     private var isDismissed = false
-    private var breakRead = false
-    private var callback: IExitCallback? = object : IExitCallback.Stub() {
-        override fun onExit(exitValue: Int) {
-            if (isDismissed) return
-            mHandler.post {
-                binding.execTitle.append(
-                    getString(
-                        R.string.return_info, exitValue, getString(
-                            when (exitValue) {
-                                0 -> R.string.normal
-                                127 -> R.string.command_not_found
-                                130 -> R.string.ctrl_c_exit
-                                139 -> R.string.segmentation_error
-                                else -> R.string.other_error
-                            }
-                        )
-                    )
-                )
-                alertDialog.setTitle(getString(R.string.finish))
-            }
-            isDied = true
-            stopAndClean()
-        }
-    }
-    private var pipe: Array<ParcelFileDescriptor>? = ParcelFileDescriptor.createPipe()
-    private var readThread: Thread? = Thread {
-        try {
-            val reader = ParcelFileDescriptor.AutoCloseInputStream(pipe?.get(0)).bufferedReader()
-            var line: String?
-            while (reader.readLine().also { line = it } != null && !breakRead) {
-                onMessage(line)
-            }
-        } catch (e: IOException) {
-            if (breakRead) return@Thread
-            onMessage("! Pipe read error:\n" + e.stackTraceToString())
-        } finally {
-            try {
-                pipe?.get(0)?.close()
-                pipe?.get(1)?.close()
-            } catch (_: IOException) {
-            }
-        }
-    }
+    private val isStopped = AtomicBoolean(false)
+    private var callback: IExitCallback? = null
+    private var pipe: Array<ParcelFileDescriptor>? = null
+    private var readThread: Thread? = null
     private var firstLine = true
-    private fun onMessage(message: String?) {
-        if (isDismissed) return
-        if (firstLine) {
-            val p = message?.toInt() ?: -1
-            mHandler.post {
-                binding.execTitle.append("${getString(R.string.pid_info, p)}\n")
-            }
-            firstLine = false
-            pid = p
-        } else {
-            mHandler.post {
-                binding.execMsg.append(message + "\n")
-            }
-        }
-    }
-
-    fun stopAndClean() {
-        Thread {
-            breakRead = true
-            callback = null
-            Thread.sleep(100)
-            readThread?.interrupt()
-            pipe?.get(0)?.close()
-            pipe?.get(1)?.close()
-        }.start()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = DialogExecBinding.inflate(layoutInflater)
         binding.execMsg.typeface = Typeface.createFromAsset(requireContext.assets, "Mono.ttf")
         alertDialog = BaseDialogBuilder(requireContext).apply {
             setTitle(getString(R.string.executing))
-            setView(binding.getRoot())
+            setView(binding.root)
         }.create()
         return alertDialog
     }
@@ -125,16 +57,45 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
     override fun onStart() {
         super.onStart()
         (requireContext as? IsDialogShowing)?.isDialogShowing = true
+        
+        // 初始化管道和回调
+        pipe = ParcelFileDescriptor.createPipe()
+        callback = object : IExitCallback.Stub() {
+            override fun onExit(exitValue: Int) {
+                if (isDismissed || isStopped.get()) return
+                
+                mHandler.post {
+                    binding.execTitle.append(
+                        getString(
+                            R.string.return_info, exitValue, getString(
+                                when (exitValue) {
+                                    0 -> R.string.normal
+                                    127 -> R.string.command_not_found
+                                    130 -> R.string.ctrl_c_exit
+                                    139 -> R.string.segmentation_error
+                                    else -> R.string.other_error
+                                }
+                            )
+                        )
+                    )
+                    alertDialog.setTitle(getString(R.string.finish))
+                    isDied = true
+                }
+                cleanup()
+            }
+        }
+        
+        // 启动主线程
         mainThread = Thread {
             if (Runner.pingServer()) {
-                exec()
+                executeCommand()
             } else {
-                waitService()
+                waitForService()
             }
         }.apply { start() }
     }
 
-    fun waitService() {
+    private fun waitForService() {
         if (waitServiceTimeout != -1L) {
             mHandler.post {
                 alertDialog.setTitle(R.string.waiting_service)
@@ -144,76 +105,95 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
                 Runner.refreshStatus()
                 Runner.tryBindService()
                 if (Runner.waitService(waitServiceTimeout)) {
-                    exec()
+                    executeCommand()
                 } else {
-                    mHandler.post {
-                        binding.execTitle.append(
-                            getString(
-                                R.string.return_info,
-                                -1,
-                                getString(R.string.service_not_running)
-                            )
-                        )
-                        alertDialog.setTitle(getString(R.string.error))
-                    }
+                    showError(getString(R.string.service_not_running))
                 }
             } else {
-                mHandler.post {
-                    binding.execTitle.append(
-                        getString(
-                            R.string.return_info,
-                            -1,
-                            getString(R.string.shizuku_not_running)
-                        )
-                    )
-                    alertDialog.setTitle(getString(R.string.error))
-                }
+                showError(getString(R.string.shizuku_not_running))
             }
         } else {
-            mHandler.post {
-                binding.execTitle.append(
-                    getString(
-                        R.string.return_info,
-                        -1,
-                        getString(R.string.service_not_running)
-                    )
-                )
-                alertDialog.setTitle(getString(R.string.error))
-            }
+            showError(getString(R.string.service_not_running))
         }
     }
 
-    fun exec() {
+    private fun executeCommand() {
         try {
+            // 启动服务监控线程
             serviceMonitor = Thread {
                 try {
-                    while (true) {
+                    while (!isStopped.get()) {
                         if (!Runner.pingServer()) {
                             mHandler.post {
-                                binding.execTitle.append(
-                                    getString(
-                                        R.string.return_info,
-                                        -1,
-                                        getString(R.string.service_not_running)
-                                    )
-                                )
-                                alertDialog.setTitle(getString(R.string.error))
+                                showError(getString(R.string.service_not_running))
                                 isDied = true
                             }
                             break
                         }
-                        (this as Object).wait(100)
+                        Thread.sleep(100)
                     }
+                } catch (_: InterruptedException) {
+                    // 线程被中断，正常退出
                 } catch (_: Exception) {
                 }
             }.apply { start() }
-            try {
-                readThread?.start()
-                Runner.service?.exec(cmdInfo.command, cmdInfo.targetPerm, cmdInfo.name, callback, pipe!![1])
-            } catch (e: RemoteException) {
-                e.toErrorDialog(requireContext)
+
+            // 启动输出读取线程
+            readThread = Thread {
+                try {
+                    pipe?.get(0)?.let { readPipe ->
+                        ParcelFileDescriptor.AutoCloseInputStream(readPipe).bufferedReader().use { reader ->
+                            while (!isStopped.get()) {
+                                val line = reader.readLine() ?: break
+                                handleOutputLine(line)
+                            }
+                        }
+                    }
+                } catch (e: IOException) {
+                    if (!isStopped.get()) {
+                        mHandler.post {
+                            binding.execMsg.append("! Pipe read error: ${e.message}\n")
+                        }
+                    }
+                }
+            }.apply { start() }
+
+            // 执行命令
+            val service = Runner.service
+            val writePipe = pipe?.get(1)
+            if (service != null && writePipe != null) {
+                service.exec(cmdInfo.command, cmdInfo.targetPerm, cmdInfo.name, callback, writePipe)
+            } else {
+                showError(getString(R.string.service_not_running))
             }
-        } catch (_: RemoteException) {
+        } catch (e: RemoteException) {
+            e.toErrorDialog(requireContext)
+        }
+    }
+
+    private fun handleOutputLine(line: String) {
+        if (isDismissed) return
+        
+        if (firstLine) {
+            val p = line.toIntOrNull() ?: -1
+            pid = p
+            firstLine = false
+            mHandler.post {
+                binding.execTitle.append("${getString(R.string.pid_info, p)}\n")
+            }
+        } else {
+            mHandler.post {
+                binding.execMsg.append("$line\n")
+            }
+        }
+    }
+
+    private fun showError(errorMsg: String) {
+        mHandler.post {
+            binding.execTitle.append(
+                getString(R.string.return_info, -1, errorMsg)
+            )
+            alertDialog.setTitle(getString(R.string.error))
         }
     }
 
@@ -221,20 +201,48 @@ class ExecDialogFragment(private val cmdInfo: CommandInfo, val waitServiceTimeou
         super.onDismiss(dialog)
         isDismissed = true
         (requireContext as? IsDialogShowing)?.isDialogShowing = false
+        
+        // 中断主线程
         mainThread.interrupt()
-        if (Runner.pingServer()) {
+        
+        // 如果进程还在运行且不需要保持存活，则杀死进程
+        if (Runner.pingServer() && !cmdInfo.keepAlive && !isDied && pid > 0) {
             try {
-                if (!cmdInfo.keepAlive && !isDied) {
-                    Thread {
-                        ProcAdapter.Companion.killPIDs(intArrayOf(pid))
-                    }.start()
-                }
+                Thread {
+                    ProcAdapter.Companion.killPIDs(intArrayOf(pid))
+                }.start()
             } catch (e: Exception) {
-                throw RuntimeException(e)
+                // 忽略杀进程错误
             }
         }
-        stopAndClean()
+        
+        cleanup()
         mOnDismissListener?.onDismiss(dialog)
+    }
+
+    private fun cleanup() {
+        if (!isStopped.compareAndSet(false, true)) {
+            return // 已经清理过了
+        }
+
+        callback = null
+        
+        // 中断所有线程
+        readThread?.interrupt()
+        serviceMonitor?.interrupt()
+        
+        // 安全地关闭管道
+        pipe?.let { pipes ->
+            try {
+                pipes[0].close()
+            } catch (_: IOException) {
+            }
+            try {
+                pipes[1].close()
+            } catch (_: IOException) {
+            }
+        }
+        pipe = null
     }
 
     fun setOnDismissListener(onDismissListener: DialogInterface.OnDismissListener?) {
