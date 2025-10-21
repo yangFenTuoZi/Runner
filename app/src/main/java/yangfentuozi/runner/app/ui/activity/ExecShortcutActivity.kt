@@ -3,17 +3,13 @@ package yangfentuozi.runner.app.ui.activity
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import yangfentuozi.runner.app.base.BaseDialogBuilder
-import yangfentuozi.runner.app.ui.dialog.ExecDialogFragment
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import yangfentuozi.runner.app.ui.dialogs.ExecDialog
+import yangfentuozi.runner.app.ui.theme.RunnerTheme
 import yangfentuozi.runner.shared.data.CommandInfo
 
-class ExecShortcutActivity : AppCompatActivity(), BaseDialogBuilder.IsDialogShowing {
-
-    override var isDialogShowing: Boolean
-        get() = false
-        set(value) {}
-    val timeout: Long = 5_000L
+class ExecShortcutActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +20,15 @@ class ExecShortcutActivity : AppCompatActivity(), BaseDialogBuilder.IsDialogShow
             return
         }
 
-        ExecDialogFragment(CommandInfo(data), waitServiceTimeout = timeout).apply {
-            setOnDismissListener { finish() }
-            show(supportFragmentManager, null)
+        val commandInfo = CommandInfo(data)
+        
+        setContent {
+            RunnerTheme {
+                ExecDialog(
+                    command = commandInfo,
+                    onDismiss = { finish() }
+                )
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
-
 # Runner 安卓应用项目规则
 
 本文档旨在为AI编程助手提供对 Runner 安卓应用的架构、编码规范和关键逻辑的全面概述，以便更好地理解项目规则和上下文。
