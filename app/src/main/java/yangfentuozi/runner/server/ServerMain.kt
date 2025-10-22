@@ -314,22 +314,17 @@ class ServerMain : IService.Stub() {
                 
                 val envp = envMap.map { "${it.key}=${it.value}" }.toTypedArray()
                 
-                // 准备命令参数
+                // 准备命令参数（不使用 -c，通过 stdin 传递命令）
                 val argv = arrayOf(
                     "bash",
                     "--nice-name",
-                    if (procName.isNullOrEmpty()) "execTask" else procName,
-                    "-c",
-                    ". $USR_PATH/etc/profile; $cmd; exit"
+                    if (procName.isNullOrEmpty()) "execTask" else procName
                 )
                 
                 // 创建管道用于 stdin
                 val stdinPipe = ParcelFileDescriptor.createPipe()
                 val stdinRead = stdinPipe[0]
                 val stdinWrite = stdinPipe[1]
-                
-                // 立即关闭 stdin 写端（不需要输入）
-                stdinWrite.close()
                 
                 // 使用 JNI 执行命令
                 val pid = execUtils.exec(
@@ -340,6 +335,16 @@ class ServerMain : IService.Stub() {
                     stdout.fd,
                     stdout.detachFd()
                 )
+                
+                // 通过 stdin 传递命令
+                try {
+                    ParcelFileDescriptor.AutoCloseOutputStream(stdinWrite).use { stream ->
+                        stream.write(". $USR_PATH/etc/profile; $cmd; exit\n".toByteArray())
+                        stream.flush()
+                    }
+                } catch (e: IOException) {
+                    Log.w(TAG, "write to stdin error", e)
+                }
                 
                 if (pid < 0) {
                     Log.e(TAG, "exec failed")
