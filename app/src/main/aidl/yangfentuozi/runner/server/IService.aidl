@@ -13,7 +13,7 @@ interface IService {
     void exit() = 1;
     int version() = 2;
 
-    void exec(String command, String ids, String procName, in IExitCallback callback, in ParcelFileDescriptor stdout) = 100;
+    void exec(String command, String procName, in IExitCallback callback, in ParcelFileDescriptor stdout) = 100;
 
     ProcessInfo[] getProcesses() = 400;
     boolean[] sendSignal(in int[] pid, int signal) = 401;

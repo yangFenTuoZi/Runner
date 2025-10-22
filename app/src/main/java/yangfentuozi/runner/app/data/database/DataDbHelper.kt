@@ -28,17 +28,13 @@ class DataDbHelper(context: Context) :
         const val COLUMN_NAME: String = "name"
         const val COLUMN_COMMAND: String = "command"
         const val COLUMN_KEEP_ALIVE: String = "keep_alive"
-        const val COLUMN_REDUCE_PERM: String = "reduce_perm"
-        const val COLUMN_TARGET_PERM: String = "target_perm"
 
         private const val TABLE_COMMANDS_CREATE = "CREATE TABLE " + TABLE_COMMANDS + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_POSITION + " INTEGER NOT NULL, " +
                 COLUMN_NAME + " TEXT NOT NULL, " +
                 COLUMN_COMMAND + " TEXT NOT NULL, " +
-                COLUMN_KEEP_ALIVE + " INTEGER NOT NULL DEFAULT 0, " +
-                COLUMN_REDUCE_PERM + " INTEGER NOT NULL DEFAULT 0, " +
-                COLUMN_TARGET_PERM + " TEXT);"
+                COLUMN_KEEP_ALIVE + " INTEGER NOT NULL DEFAULT 0);"
 
         // environment 表
         const val TABLE_ENVIRONMENT: String = "environment"

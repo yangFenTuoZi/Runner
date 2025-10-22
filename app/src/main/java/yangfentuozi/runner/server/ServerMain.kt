@@ -21,6 +21,7 @@ import rikka.rish.RishConfig
 import rikka.rish.RishService
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.server.callback.IExitCallback
+import yangfentuozi.runner.server.util.ExecUtils
 import yangfentuozi.runner.server.util.ProcessUtils
 import yangfentuozi.runner.shared.data.EnvInfo
 import yangfentuozi.runner.shared.data.ProcessInfo
@@ -41,8 +42,8 @@ class ServerMain : IService.Stub() {
         const val DATA_PATH = "/data/local/tmp/runner"
         const val USR_PATH = "$DATA_PATH/usr"
         const val HOME_PATH = "$DATA_PATH/home"
-        const val BIN_STARTER = "$HOME_PATH/.local/bin/starter"
         const val LIB_PROCESS_UTILS = "$HOME_PATH/.local/lib/libprocessutils.so"
+        const val LIB_EXEC_UTILS = "$HOME_PATH/.local/lib/libexecutils.so"
         val PAGE_SIZE: Int = Os.sysconf(OsConstants._SC_PAGESIZE).toInt()
 
         fun tarGzDirectory(srcDir: File, tarGzFile: File) {
@@ -136,6 +137,7 @@ class ServerMain : IService.Stub() {
 
     private val mHandler: Handler
     private val processUtils = ProcessUtils()
+    private val execUtils = ExecUtils()
     private val rishService: RishService
     private var customEnv: List<EnvInfo> = emptyList()
 
@@ -205,10 +207,13 @@ class ServerMain : IService.Stub() {
                 }
             }
 
-            releaseLibFromApp("starter", true)
             if (releaseLibFromApp("processutils", false)) {
                 // 初始化 ProcessUtils
                 processUtils.loadLibrary()
+            }
+            if (releaseLibFromApp("executils", false)) {
+                // 初始化 ExecUtils
+                execUtils.loadLibrary()
             }
             if (releaseLibFromApp("rish", false)) {
                 // 初始化 Rish
@@ -242,101 +247,117 @@ class ServerMain : IService.Stub() {
 
     override fun exec(
         cmd: String?,
-        ids: String?,
         procName: String?,
         callback: IExitCallback?,
         stdout: ParcelFileDescriptor
     ) {
         Thread {
-            val writer = ParcelFileDescriptor.AutoCloseOutputStream(stdout).bufferedWriter()
-            fun writeOutput(line: String?) {
+            fun errOutput(line: String?) {
                 try {
-                    writer.write(line)
-                    writer.newLine()
-                    writer.flush()
-                } catch (e: IOException) {
-                    Log.e(TAG, "write output error", e)
+                    callback?.errorMessage(line)
+                } catch (_: RemoteException) {
                 }
             }
 
             fun exit(code: Int) {
                 try {
-                    writer.close()
-                } catch (e: IOException) {
-                    Log.e(TAG, "close writer error", e)
-                }
-                try {
                     callback?.onExit(code)
                 } catch (_: RemoteException) {
                 }
             }
+            
             try {
-                if (!File(BIN_STARTER).exists()) {
-                    Log.e(TAG, "starter not found")
-                    writeOutput("-1")
-                    writeOutput("starter not found")
+                if (!execUtils.isLibraryLoaded) {
+                    Log.e(TAG, "executils library not loaded")
+                    errOutput("-1")
+                    errOutput("executils library not loaded")
                     exit(127)
                     return@Thread
-                } else if (!File("$USR_PATH/bin/bash").exists()) {
+                }
+                if (!File("$USR_PATH/bin/bash").exists()) {
                     Log.e(TAG, "bash not found")
-                    writeOutput("-1")
-                    writeOutput("bash not found, may be you don't install terminal extension")
+                    errOutput("-1")
+                    errOutput("bash not found, may be you don't install terminal extension")
                     exit(127)
                     return@Thread
                 }
                 try {
-                    Os.chmod(BIN_STARTER, "700".toInt(8))
                     Os.chmod("$USR_PATH/bin/bash", "700".toInt(8))
                 } catch (e: ErrnoException) {
                     Log.w(TAG, "set permission error", e)
                 }
-                val finalIds = if (ids.isNullOrEmpty()) "-1" else ids
-                val finalProcName = if (procName.isNullOrEmpty()) "execTask" else procName
-                val processBuilder = ProcessBuilder(BIN_STARTER, finalIds, finalProcName)
-                val processEnv = processBuilder.environment()
-                processEnv["PREFIX"] = USR_PATH
-                processEnv["HOME"] = HOME_PATH
-                processEnv["TMPDIR"] = "$USR_PATH/tmp"
-                processEnv.merge(
-                    "PATH",
-                    "$HOME_PATH/.local/bin:$USR_PATH/bin:$USR_PATH/bin/applets"
-                ) { old, new -> "$new:$old" }
-                processEnv.merge(
-                    "LD_LIBRARY_PATH",
-                    "$HOME_PATH/.local/lib:$USR_PATH/lib"
-                ) { old, new -> "$new:$old" }
+                
+                // 准备环境变量
+                val envMap = mutableMapOf<String, String>()
+                envMap["PREFIX"] = USR_PATH
+                envMap["HOME"] = HOME_PATH
+                envMap["TMPDIR"] = "$USR_PATH/tmp"
+                envMap["PATH"] = "$HOME_PATH/.local/bin:$USR_PATH/bin:$USR_PATH/bin/applets"
+                envMap["LD_LIBRARY_PATH"] = "$HOME_PATH/.local/lib:$USR_PATH/lib"
+                
+                // 添加自定义环境变量
                 for (entry in customEnv) {
                     entry.key?.let { key ->
                         entry.value?.let { value ->
-                            processEnv.merge(key, value) { old, new ->
-                                new.replace(
+                            val oldValue = envMap[key]
+                            envMap[key] = if (oldValue != null) {
+                                value.replace(
                                     Regex("\\$(${Pattern.quote(key)}|\\{${Pattern.quote(key)}\\})"),
-                                    old
+                                    oldValue
                                 )
+                            } else {
+                                value
                             }
                         }
                     }
                 }
-                processBuilder.redirectErrorStream(true)
-                val p = processBuilder.start()
-                val out = p.outputStream
-                out.write(
-                    """
-                    echo $$;. $USR_PATH/etc/profile;${cmd};exit
-                    """.trimIndent().toByteArray()
+                
+                val envp = envMap.map { "${it.key}=${it.value}" }.toTypedArray()
+                
+                // 准备命令参数
+                val argv = arrayOf(
+                    "bash",
+                    "--nice-name",
+                    if (procName.isNullOrEmpty()) "execTask" else procName,
+                    "-c",
+                    ". $USR_PATH/etc/profile; $cmd; exit"
                 )
-                out.flush()
-                out.close()
-                val bufferedReader = BufferedReader(InputStreamReader(p.inputStream))
-                var line: String?
-                while (bufferedReader.readLine().also { line = it } != null) {
-                    writeOutput(line)
+                
+                // 创建管道用于 stdin
+                val stdinPipe = ParcelFileDescriptor.createPipe()
+                val stdinRead = stdinPipe[0]
+                val stdinWrite = stdinPipe[1]
+                
+                // 立即关闭 stdin 写端（不需要输入）
+                stdinWrite.close()
+                
+                // 使用 JNI 执行命令
+                val pid = execUtils.exec(
+                    "$USR_PATH/bin/bash",  // 可执行文件路径
+                    argv,
+                    envp,
+                    stdinRead.detachFd(),
+                    stdout.fd,
+                    stdout.detachFd()
+                )
+                
+                if (pid < 0) {
+                    Log.e(TAG, "exec failed")
+                    errOutput("-1")
+                    errOutput("exec failed")
+                    exit(127)
+                    return@Thread
                 }
-                exit(p.waitFor())
+                
+                Log.i(TAG, "Process started with PID: $pid")
+                
+                // 等待进程结束
+                val exitCode = execUtils.waitpid(pid)
+                exit(exitCode)
             } catch (e: Exception) {
                 Log.e(TAG, e.stackTraceToString())
-                writeOutput("-1")
-                writeOutput("! Exception: ${e.stackTraceToString()}")
+                errOutput("-1")
+                errOutput("! Exception: ${e.stackTraceToString()}")
                 exit(255)
             }
         }.start()

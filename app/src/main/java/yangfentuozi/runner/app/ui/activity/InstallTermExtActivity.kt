@@ -143,6 +143,9 @@ class InstallTermExtActivity : BaseActivity() {
                 cleanup()
             }, 200)
         }
+
+        override fun errorMessage(message: String?) {
+        }
     }
 
     private fun onMessage(message: String?) {

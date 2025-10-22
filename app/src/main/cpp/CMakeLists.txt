@@ -19,16 +19,17 @@ endif ()
 
 find_package(cxx REQUIRED CONFIG)
 
-# starter
-add_executable(starter
-        server/starter.c)
-
-set_target_properties(starter PROPERTIES PREFIX "lib")
-set_target_properties(starter PROPERTIES SUFFIX ".so")
-
 # libprocessutils
 add_library(processutils SHARED
         server/processutils.c)
 
 set_target_properties(processutils PROPERTIES PREFIX "lib")
 set_target_properties(processutils PROPERTIES SUFFIX ".so")
+
+# libexecutils
+add_library(executils SHARED
+        server/executils.c)
+
+set_target_properties(executils PROPERTIES PREFIX "lib")
+set_target_properties(executils PROPERTIES SUFFIX ".so")
+target_link_libraries(executils log)

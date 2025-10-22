@@ -9,8 +9,6 @@ open class CommandInfo : Parcelable {
     var name: String? = null
     var command: String? = null
     var keepAlive: Boolean = false
-    var reducePerm: Boolean = false
-    var targetPerm: String? = null
 
     constructor()
 
@@ -18,16 +16,12 @@ open class CommandInfo : Parcelable {
         name = source.readString()
         command = source.readString()
         keepAlive = source.readInt() == 1
-        reducePerm = source.readInt() == 1
-        targetPerm = source.readString()
     }
 
     constructor(bundle: BaseBundle) : super() {
         name = bundle.getString("name")
         command = bundle.getString("command")
         keepAlive = bundle.getBoolean("keepAlive", false)
-        reducePerm = bundle.getBoolean("reducePerm", false)
-        targetPerm = bundle.getString("targetPerm")
     }
 
     override fun describeContents(): Int {
@@ -38,8 +32,6 @@ open class CommandInfo : Parcelable {
         dest.writeString(name)
         dest.writeString(command)
         dest.writeInt(if (keepAlive) 1 else 0)
-        dest.writeInt(if (reducePerm) 1 else 0)
-        dest.writeString(targetPerm)
     }
 
     companion object {
@@ -60,8 +52,6 @@ open class CommandInfo : Parcelable {
             putString("name", name)
             putString("command", command)
             putBoolean("keepAlive", keepAlive)
-            putBoolean("reducePerm", reducePerm)
-            putString("targetPerm", targetPerm)
         }
     }
 }

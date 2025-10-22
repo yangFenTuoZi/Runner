@@ -30,8 +30,6 @@ fun EditCommandDialog(
     var name by remember { mutableStateOf(command?.name ?: "") }
     var commandText by remember { mutableStateOf(command?.command ?: "") }
     var keepAlive by remember { mutableStateOf(command?.keepAlive ?: false) }
-    var reducePerm by remember { mutableStateOf(command?.reducePerm ?: false) }
-    var targetPerm by remember { mutableStateOf(command?.targetPerm ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -73,30 +71,6 @@ fun EditCommandDialog(
                         onCheckedChange = { keepAlive = it }
                     )
                 }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.reduce_perm),
-                        modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically)
-                    )
-                    Switch(
-                        checked = reducePerm,
-                        onCheckedChange = { reducePerm = it }
-                    )
-                }
-
-                if (reducePerm) {
-                    OutlinedTextField(
-                        value = targetPerm,
-                        onValueChange = { targetPerm = it },
-                        label = { Text(stringResource(R.string.target_perm_hint)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-                }
             }
         },
         confirmButton = {
@@ -106,8 +80,6 @@ fun EditCommandDialog(
                         this.name = name
                         this.command = commandText
                         this.keepAlive = keepAlive
-                        this.reducePerm = reducePerm
-                        this.targetPerm = if (reducePerm) targetPerm else null
                     }
                     onConfirm(newCommand)
                 }
