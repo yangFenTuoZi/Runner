@@ -1,5 +1,6 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.envmanager
 
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -292,7 +293,7 @@ private fun EditEnvDialog(
 
 // 创建一个独立的 Activity 用于环境管理
 class EnvManageActivityCompose : ComponentActivity() {
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             RunnerTheme {

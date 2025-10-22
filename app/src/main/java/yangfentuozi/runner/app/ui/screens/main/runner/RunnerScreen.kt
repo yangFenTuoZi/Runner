@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.main.runner
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -57,6 +56,7 @@ import yangfentuozi.runner.R
 import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.activity.BridgeActivity
 import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
+import yangfentuozi.runner.app.ui.components.BeautifulCard
 import yangfentuozi.runner.app.ui.dialogs.EditCommandDialog
 import yangfentuozi.runner.app.ui.dialogs.ExecDialog
 import yangfentuozi.runner.shared.data.CommandInfo
@@ -105,7 +105,7 @@ fun RunnerScreen(activity: ComponentActivity) {
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 4.dp)
             ) {
                 itemsIndexed(
@@ -225,7 +225,7 @@ private fun CommandItem(
     var showMenu by remember { mutableStateOf(false) }
     val isEmpty = command.command.isNullOrEmpty() && command.name.isNullOrEmpty()
 
-    Card(
+    BeautifulCard(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(
@@ -235,8 +235,7 @@ private fun CommandItem(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -262,12 +261,14 @@ private fun CommandItem(
 
                 Text(
                     text = nameText,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
                 )
                 Text(
                     text = commandText,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
                 )
             }
 

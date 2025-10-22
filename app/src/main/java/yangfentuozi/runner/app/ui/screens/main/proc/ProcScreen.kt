@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.main.proc
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement

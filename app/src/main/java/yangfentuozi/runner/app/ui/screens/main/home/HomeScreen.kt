@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.main.home
 
 import android.app.Activity
 import android.content.Intent
@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.activity.InstallTermExtActivity
+import yangfentuozi.runner.shared.data.TermExtVersion
 
 @Composable
 fun HomeScreen() {
@@ -201,7 +202,7 @@ private fun GrantShizukuPermCard() {
 
 @Composable
 private fun TermExtStatusCard(onInstallTermExt: () -> Unit) {
-    var termExtVersion by remember { mutableStateOf<yangfentuozi.runner.shared.data.TermExtVersion?>(null) }
+    var termExtVersion by remember { mutableStateOf<TermExtVersion?>(null) }
 
     LaunchedEffect(Unit) {
         try {

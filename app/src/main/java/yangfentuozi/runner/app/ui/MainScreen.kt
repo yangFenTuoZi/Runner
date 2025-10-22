@@ -31,11 +31,11 @@ import androidx.navigation.compose.rememberNavController
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.navigation.Screen
-import yangfentuozi.runner.app.ui.screens.HomeScreen
-import yangfentuozi.runner.app.ui.screens.ProcScreen
-import yangfentuozi.runner.app.ui.screens.RunnerScreen
-import yangfentuozi.runner.app.ui.screens.SettingsScreen
-import yangfentuozi.runner.app.ui.screens.TerminalScreen
+import yangfentuozi.runner.app.ui.screens.main.home.HomeScreen
+import yangfentuozi.runner.app.ui.screens.main.proc.ProcScreen
+import yangfentuozi.runner.app.ui.screens.main.runner.RunnerScreen
+import yangfentuozi.runner.app.ui.screens.main.settings.SettingsScreen
+import yangfentuozi.runner.app.ui.screens.main.term.TerminalScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

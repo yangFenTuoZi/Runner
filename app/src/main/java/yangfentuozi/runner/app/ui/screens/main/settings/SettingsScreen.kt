@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.main.settings
 
 import android.content.Intent
 import android.widget.Toast

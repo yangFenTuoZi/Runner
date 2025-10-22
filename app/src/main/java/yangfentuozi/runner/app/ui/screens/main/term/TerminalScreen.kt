@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.main.term
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
