@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -37,9 +38,8 @@ fun EditCommandDialog(
         text = {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedTextField(
                     value = name,
@@ -54,17 +54,21 @@ fun EditCommandDialog(
                     onValueChange = { commandText = it },
                     label = { Text(stringResource(R.string.command)) },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
-                    maxLines = 5
+                    minLines = 2,
+                    maxLines = 4
                 )
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(
+                        start = 8.dp,
+                        end = 8.dp
+                    ),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = stringResource(R.string.keep_alive),
-                        modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically)
+                        modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically),
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Switch(
                         checked = keepAlive,
