@@ -211,7 +211,7 @@ private fun TermExtStatusCard(onInstallTermExt: () -> Unit) {
         }
     }
 
-    val isInstalled = termExtVersion != null
+    val isInstalled = (termExtVersion?.versionCode ?: -1) != -1
     val versionText = termExtVersion?.versionName ?: ""
 
     BeautifulCard(
