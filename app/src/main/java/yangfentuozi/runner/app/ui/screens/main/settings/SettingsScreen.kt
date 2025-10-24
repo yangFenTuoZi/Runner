@@ -1,6 +1,5 @@
 package yangfentuozi.runner.app.ui.screens.main.settings
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -8,15 +7,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -32,11 +35,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import com.google.android.material.color.DynamicColors
+import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
@@ -44,20 +60,19 @@ import yangfentuozi.runner.app.data.BackupManager
 import yangfentuozi.runner.app.ui.activity.envmanage.EnvManageActivity
 import yangfentuozi.runner.app.ui.components.BeautifulCard
 import yangfentuozi.runner.app.ui.theme.ThemeManager
+import kotlin.math.roundToInt
 
-@SuppressLint("UseKtx")
 @Composable
 fun SettingsScreen(
-    activity: ComponentActivity,
-    onShowAbout: () -> Unit
+    activity: ComponentActivity
 ) {
     val context = LocalContext.current
     var showDarkThemeDialog by remember { mutableStateOf(false) }
     var showBackupDialog by remember { mutableStateOf(false) }
-    var showImportDialog by remember { mutableStateOf(false) }
-    
-    val blackDarkTheme = remember { 
-        mutableStateOf(App.preferences.getBoolean("black_dark_theme", false)) 
+    var showAboutDialog by remember { mutableStateOf(false) }
+
+    val blackDarkTheme = remember {
+        mutableStateOf(App.preferences.getBoolean("black_dark_theme", false))
     }
     val followSystemAccent = remember {
         mutableStateOf(App.preferences.getBoolean("follow_system_accent", true))
@@ -93,7 +108,8 @@ fun SettingsScreen(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
-            showImportDialog = true
+            // TODO 导入功能
+//            showImportDialog = true
         }
     }
 
@@ -125,7 +141,7 @@ fun SettingsScreen(
                     checked = followSystemAccent.value,
                     onCheckedChange = {
                         followSystemAccent.value = it
-                        App.preferences.edit { putBoolean("follow_system_accent", it)}
+                        App.preferences.edit { putBoolean("follow_system_accent", it) }
                         // 不需要 recreate,主题会自动更新
                     }
                 )
@@ -195,7 +211,7 @@ fun SettingsScreen(
                 checked = forceKill.value,
                 onCheckedChange = {
                     forceKill.value = it
-                    App.preferences.edit {putBoolean("force_kill", it)}
+                    App.preferences.edit { putBoolean("force_kill", it) }
                 }
             )
         }
@@ -207,7 +223,7 @@ fun SettingsScreen(
                 checked = killChildProcesses.value,
                 onCheckedChange = {
                     killChildProcesses.value = it
-                    App.preferences.edit().putBoolean("kill_child_processes", it).apply()
+                    App.preferences.edit { putBoolean("kill_child_processes", it) }
                 }
             )
         }
@@ -220,7 +236,7 @@ fun SettingsScreen(
         item {
             PreferenceItem(
                 title = stringResource(R.string.about),
-                onClick = onShowAbout
+                onClick = { showAboutDialog = true }
             )
         }
 
@@ -254,6 +270,12 @@ fun SettingsScreen(
             }
         )
     }
+
+    if (showAboutDialog) {
+        AboutDialog(
+            onDismiss = { showAboutDialog = false }
+        )
+    }
 }
 
 @Composable
@@ -272,7 +294,7 @@ private fun PreferenceItem(
     summary: String? = null,
     onClick: () -> Unit
 ) {
-    BeautifulCard (
+    BeautifulCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
@@ -303,7 +325,7 @@ private fun SwitchPreferenceItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    BeautifulCard (
+    BeautifulCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!checked) }
@@ -388,7 +410,7 @@ private fun BackupDialog(
     var termUsr by remember { mutableStateOf(true) }
 
     val restricted = !Runner.pingServer()
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.select_backup_data)) },
@@ -458,8 +480,117 @@ private fun CheckboxItem(
         Spacer(modifier = Modifier.width(5.dp))
         Text(
             text = title,
-            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                alpha = 0.5f
+            )
         )
     }
+}
+
+@Composable
+private fun AboutDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
+        ),
+        confirmButton = { },
+        text = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.Top
+            ) {
+
+                // 应用图标
+                val drawable = context.applicationInfo.loadIcon(context.packageManager)
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .drawBehind {
+                            drawIntoCanvas { canvas ->
+                                drawable?.let {
+                                    it.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
+                                    it.draw(canvas.nativeCanvas)
+                                }
+                            }
+                        }
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // 文本信息列
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // 应用名称
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+
+                    // 版本信息
+                    Text(
+                        text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    // 源码链接
+                    val sourceCodeText = buildAnnotatedString {
+                        val template = stringResource(R.string.about_view_source_code)
+                        val parts = template.split("%1\$s")
+
+                        append(parts.getOrNull(0) ?: "")
+
+                        pushStringAnnotation(
+                            tag = "URL",
+                            annotation = "https://github.com/yangFenTuoZi/Runner"
+                        )
+                        withStyle(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        ) {
+                            append("GitHub")
+                        }
+                        pop()
+
+                        append(parts.getOrNull(1) ?: "")
+                    }
+
+                    Text(
+                        text = sourceCodeText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.clickable {
+                            sourceCodeText.getStringAnnotations(
+                                tag = "URL",
+                                start = 0,
+                                end = sourceCodeText.length
+                            ).firstOrNull()?.let { annotation ->
+                                val intent = Intent(Intent.ACTION_VIEW, annotation.item.toUri())
+                                context.startActivity(intent)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    )
 }
 

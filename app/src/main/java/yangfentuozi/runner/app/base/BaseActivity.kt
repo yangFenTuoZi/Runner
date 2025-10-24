@@ -8,9 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import yangfentuozi.runner.app.App
 
 
-open class BaseActivity() : ComponentActivity(),
-    BaseDialogBuilder.IsDialogShowing {
-    override var isDialogShowing: Boolean = false
+open class BaseActivity() : ComponentActivity() {
 
     lateinit var mApp: App
 

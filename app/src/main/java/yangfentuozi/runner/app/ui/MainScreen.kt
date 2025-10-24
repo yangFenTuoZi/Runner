@@ -40,8 +40,7 @@ import yangfentuozi.runner.app.ui.screens.main.term.TerminalScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    activity: ComponentActivity,
-    onShowAbout: () -> Unit
+    activity: ComponentActivity
 ) {
     val navController = rememberNavController()
     var showStopServerDialog by remember { mutableStateOf(false) }
@@ -125,7 +124,7 @@ fun MainScreen(
                 ProcScreen(activity)
             }
             composable(Screen.Settings.route) {
-                SettingsScreen(activity, onShowAbout)
+                SettingsScreen(activity)
             }
         }
     }
