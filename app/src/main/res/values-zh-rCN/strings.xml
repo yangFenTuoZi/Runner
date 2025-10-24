@@ -66,25 +66,6 @@
     <string name="pure_black_dark_theme">纯黑主题</string>
     <string name="pure_black_dark_theme_summary">当深色主题启用时使用纯黑主题</string>
 
-    <string name="color_red">红色</string>
-    <string name="color_pink">粉色</string>
-    <string name="color_purple">紫色</string>
-    <string name="color_deep_purple">深紫</string>
-    <string name="color_indigo">靛青</string>
-    <string name="color_blue">蓝色</string>
-    <string name="color_light_blue">浅蓝</string>
-    <string name="color_cyan">青色</string>
-    <string name="color_teal">青绿</string>
-    <string name="color_green">绿色</string>
-    <string name="color_light_green">浅绿</string>
-    <string name="color_lime">黄绿</string>
-    <string name="color_yellow">黄色</string>
-    <string name="color_amber">琥珀</string>
-    <string name="color_orange">橙色</string>
-    <string name="color_deep_orange">深橙</string>
-    <string name="color_brown">棕色</string>
-    <string name="color_blue_grey">灰蓝</string>
-
     <string name="stop_server">停止服务</string>
     <string name="about">关于</string>
 
@@ -129,4 +110,14 @@
     <string name="waiting_service">等待服务…</string>
     <string name="exec_command">执行命令</string>
 
+    <string name="term_ext_installed">终端扩展包已安装</string>
+    <string name="term_ext_not_installed">终端扩展包未安装</string>
+    <string name="no_processes">没有运行的进程</string>
+    <string name="data_db">数据库</string>
+    <string name="term_home">终端 Home</string>
+    <string name="term_usr">终端 Usr</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="dark">永夜</string>
+    <string name="light">永昼</string>
+    <string name="dark_theme">暗黑模式</string>
 </resources>

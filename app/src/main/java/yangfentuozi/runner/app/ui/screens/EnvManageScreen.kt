@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens.envmanager
+package yangfentuozi.runner.app.ui.screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

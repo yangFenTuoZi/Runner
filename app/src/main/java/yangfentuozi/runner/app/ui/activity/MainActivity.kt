@@ -1,6 +1,5 @@
 package yangfentuozi.runner.app.ui.activity
 
-import android.content.res.Resources
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import androidx.activity.compose.setContent
@@ -52,10 +51,5 @@ class MainActivity : BaseActivity() {
                 .show()
         } catch (_: BaseDialogBuilder.DialogShowingException) {
         }
-    }
-
-    override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
-        super.onApplyUserThemeResource(theme, isDecorView)
-        // Compose 不需要应用 Preference 主题
     }
 }

@@ -1,11 +1,11 @@
 package yangfentuozi.runner.app.ui.screens.main.settings
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -26,6 +25,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,14 +35,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import com.google.android.material.color.DynamicColors
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.data.BackupManager
 import yangfentuozi.runner.app.ui.activity.envmanage.EnvManageActivity
-import yangfentuozi.runner.app.util.ThemeUtil
+import yangfentuozi.runner.app.ui.components.BeautifulCard
+import yangfentuozi.runner.app.ui.theme.ThemeManager
 
+@SuppressLint("UseKtx")
 @Composable
 fun SettingsScreen(
     activity: ComponentActivity,
@@ -50,7 +53,6 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     var showDarkThemeDialog by remember { mutableStateOf(false) }
-    var showColorThemeDialog by remember { mutableStateOf(false) }
     var showBackupDialog by remember { mutableStateOf(false) }
     var showImportDialog by remember { mutableStateOf(false) }
     
@@ -99,8 +101,8 @@ fun SettingsScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = PaddingValues(vertical = 8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 4.dp)
     ) {
         // 主题设置
         item {
@@ -108,9 +110,10 @@ fun SettingsScreen(
         }
 
         item {
+            val currentThemeMode by ThemeManager.themeMode.collectAsState()
             PreferenceItem(
                 title = stringResource(R.string.dark_theme),
-                summary = getDarkThemeString(),
+                summary = stringResource(ThemeManager.getThemeModeName(currentThemeMode)),
                 onClick = { showDarkThemeDialog = true }
             )
         }
@@ -122,22 +125,16 @@ fun SettingsScreen(
                     checked = followSystemAccent.value,
                     onCheckedChange = {
                         followSystemAccent.value = it
-                        App.preferences.edit().putBoolean("follow_system_accent", it).apply()
-                        activity.recreate()
+                        App.preferences.edit { putBoolean("follow_system_accent", it)}
+                        // 不需要 recreate,主题会自动更新
                     }
                 )
             }
         }
 
-        if (!followSystemAccent.value || !DynamicColors.isDynamicColorAvailable()) {
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.theme_color),
-                    summary = getColorThemeString(),
-                    onClick = { showColorThemeDialog = true }
-                )
-            }
-        }
+        // TODO 颜色选择
+//        if (!followSystemAccent.value || !DynamicColors.isDynamicColorAvailable()) {
+//        }
 
         item {
             SwitchPreferenceItem(
@@ -146,8 +143,8 @@ fun SettingsScreen(
                 checked = blackDarkTheme.value,
                 onCheckedChange = {
                     blackDarkTheme.value = it
-                    App.preferences.edit().putBoolean("black_dark_theme", it).apply()
-                    activity.recreate()
+                    App.preferences.edit { putBoolean("black_dark_theme", it) }
+                    // 不需要 recreate,主题会自动更新
                 }
             )
         }
@@ -198,7 +195,7 @@ fun SettingsScreen(
                 checked = forceKill.value,
                 onCheckedChange = {
                     forceKill.value = it
-                    App.preferences.edit().putBoolean("force_kill", it).apply()
+                    App.preferences.edit {putBoolean("force_kill", it)}
                 }
             )
         }
@@ -241,20 +238,8 @@ fun SettingsScreen(
         DarkThemeDialog(
             onDismiss = { showDarkThemeDialog = false },
             onSelect = { mode ->
-                App.preferences.edit().putString("dark_theme", mode).apply()
-                AppCompatDelegate.setDefaultNightMode(ThemeUtil.getDarkTheme(mode))
+                ThemeManager.setThemeMode(mode)
                 showDarkThemeDialog = false
-            }
-        )
-    }
-
-    if (showColorThemeDialog) {
-        ColorThemeDialog(
-            onDismiss = { showColorThemeDialog = false },
-            onSelect = { color ->
-                App.preferences.edit().putString("theme_color", color).apply()
-                activity.recreate()
-                showColorThemeDialog = false
             }
         )
     }
@@ -287,7 +272,7 @@ private fun PreferenceItem(
     summary: String? = null,
     onClick: () -> Unit
 ) {
-    Card(
+    BeautifulCard (
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
@@ -295,7 +280,6 @@ private fun PreferenceItem(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
         ) {
             Text(
                 text = title,
@@ -319,15 +303,14 @@ private fun SwitchPreferenceItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Card(
+    BeautifulCard (
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!checked) }
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -355,13 +338,13 @@ private fun SwitchPreferenceItem(
 @Composable
 private fun DarkThemeDialog(
     onDismiss: () -> Unit,
-    onSelect: (String) -> Unit
+    onSelect: (ThemeManager.ThemeMode) -> Unit
 ) {
-    val current = App.preferences.getString("dark_theme", ThemeUtil.MODE_NIGHT_FOLLOW_SYSTEM)!!
+    val currentThemeMode by ThemeManager.themeMode.collectAsState()
     val options = listOf(
-        ThemeUtil.MODE_NIGHT_FOLLOW_SYSTEM to stringResource(R.string.follow_system),
-        ThemeUtil.MODE_NIGHT_YES to stringResource(R.string.dark),
-        ThemeUtil.MODE_NIGHT_NO to stringResource(R.string.light)
+        ThemeManager.ThemeMode.SYSTEM to stringResource(R.string.follow_system),
+        ThemeManager.ThemeMode.DARK to stringResource(R.string.dark),
+        ThemeManager.ThemeMode.LIGHT to stringResource(R.string.light)
     )
 
     AlertDialog(
@@ -369,78 +352,18 @@ private fun DarkThemeDialog(
         title = { Text(stringResource(R.string.dark_theme)) },
         text = {
             Column {
-                options.forEach { (value, label) ->
+                options.forEach { (mode, label) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onSelect(value) }
-                            .padding(vertical = 12.dp),
+                            .clickable { onSelect(mode) },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = current == value,
-                            onClick = { onSelect(value) }
+                            selected = currentThemeMode == mode,
+                            onClick = { onSelect(mode) }
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(label)
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
-        }
-    )
-}
-
-@Composable
-private fun ColorThemeDialog(
-    onDismiss: () -> Unit,
-    onSelect: (String) -> Unit
-) {
-    val current = App.preferences.getString("theme_color", "COLOR_BLUE")!!
-    val colors = listOf(
-        "MATERIAL_RED" to stringResource(R.string.color_red),
-        "MATERIAL_PINK" to stringResource(R.string.color_pink),
-        "MATERIAL_PURPLE" to stringResource(R.string.color_purple),
-        "MATERIAL_DEEP_PURPLE" to stringResource(R.string.color_deep_purple),
-        "MATERIAL_INDIGO" to stringResource(R.string.color_indigo),
-        "MATERIAL_BLUE" to stringResource(R.string.color_blue),
-        "MATERIAL_LIGHT_BLUE" to stringResource(R.string.color_light_blue),
-        "MATERIAL_CYAN" to stringResource(R.string.color_cyan),
-        "MATERIAL_TEAL" to stringResource(R.string.color_teal),
-        "MATERIAL_GREEN" to stringResource(R.string.color_green),
-        "MATERIAL_LIGHT_GREEN" to stringResource(R.string.color_light_green),
-        "MATERIAL_LIME" to stringResource(R.string.color_lime),
-        "MATERIAL_YELLOW" to stringResource(R.string.color_yellow),
-        "MATERIAL_AMBER" to stringResource(R.string.color_amber),
-        "MATERIAL_ORANGE" to stringResource(R.string.color_orange),
-        "MATERIAL_DEEP_ORANGE" to stringResource(R.string.color_deep_orange),
-        "MATERIAL_BROWN" to stringResource(R.string.color_brown),
-        "MATERIAL_BLUE_GREY" to stringResource(R.string.color_blue_grey)
-    )
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.theme_color)) },
-        text = {
-            LazyColumn {
-                items(colors.size) { index ->
-                    val (value, label) = colors[index]
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onSelect(value) }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = current == value,
-                            onClick = { onSelect(value) }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(label)
                     }
                 }
@@ -524,8 +447,7 @@ private fun CheckboxItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = enabled) { onCheckedChange(!checked) }
-            .padding(vertical = 8.dp),
+            .clickable(enabled = enabled) { onCheckedChange(!checked) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
@@ -533,46 +455,11 @@ private fun CheckboxItem(
             onCheckedChange = onCheckedChange,
             enabled = enabled
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(5.dp))
         Text(
             text = title,
             color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )
-    }
-}
-
-@Composable
-private fun getDarkThemeString(): String {
-    return when (App.preferences.getString("dark_theme", ThemeUtil.MODE_NIGHT_FOLLOW_SYSTEM)) {
-        ThemeUtil.MODE_NIGHT_YES -> stringResource(R.string.dark)
-        ThemeUtil.MODE_NIGHT_NO -> stringResource(R.string.light)
-        else -> stringResource(R.string.follow_system)
-    }
-}
-
-@Composable
-private fun getColorThemeString(): String {
-    val colorTheme = App.preferences.getString("theme_color", "COLOR_BLUE")!!
-    return when (colorTheme) {
-        "MATERIAL_RED" -> stringResource(R.string.color_red)
-        "MATERIAL_PINK" -> stringResource(R.string.color_pink)
-        "MATERIAL_PURPLE" -> stringResource(R.string.color_purple)
-        "MATERIAL_DEEP_PURPLE" -> stringResource(R.string.color_deep_purple)
-        "MATERIAL_INDIGO" -> stringResource(R.string.color_indigo)
-        "MATERIAL_BLUE" -> stringResource(R.string.color_blue)
-        "MATERIAL_LIGHT_BLUE" -> stringResource(R.string.color_light_blue)
-        "MATERIAL_CYAN" -> stringResource(R.string.color_cyan)
-        "MATERIAL_TEAL" -> stringResource(R.string.color_teal)
-        "MATERIAL_GREEN" -> stringResource(R.string.color_green)
-        "MATERIAL_LIGHT_GREEN" -> stringResource(R.string.color_light_green)
-        "MATERIAL_LIME" -> stringResource(R.string.color_lime)
-        "MATERIAL_YELLOW" -> stringResource(R.string.color_yellow)
-        "MATERIAL_AMBER" -> stringResource(R.string.color_amber)
-        "MATERIAL_ORANGE" -> stringResource(R.string.color_orange)
-        "MATERIAL_DEEP_ORANGE" -> stringResource(R.string.color_deep_orange)
-        "MATERIAL_BROWN" -> stringResource(R.string.color_brown)
-        "MATERIAL_BLUE_GREY" -> stringResource(R.string.color_blue_grey)
-        else -> stringResource(R.string.color_blue)
     }
 }
 

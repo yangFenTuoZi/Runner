@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.activity.InstallTermExtActivity
+import yangfentuozi.runner.app.ui.components.BeautifulCard
 import yangfentuozi.runner.shared.data.TermExtVersion
 
 @Composable
@@ -165,7 +165,7 @@ private fun ShizukuStatusCard() {
 
 @Composable
 private fun GrantShizukuPermCard() {
-    Card(
+    BeautifulCard (
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
@@ -174,8 +174,7 @@ private fun GrantShizukuPermCard() {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -215,7 +214,7 @@ private fun TermExtStatusCard(onInstallTermExt: () -> Unit) {
     val isInstalled = termExtVersion != null
     val versionText = termExtVersion?.versionName ?: ""
 
-    Card(
+    BeautifulCard(
         modifier = Modifier
             .fillMaxWidth()
             .then(
@@ -228,8 +227,7 @@ private fun TermExtStatusCard(onInstallTermExt: () -> Unit) {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -273,7 +271,7 @@ private fun StatusCard(
     summary: String? = null,
     onClick: (() -> Unit)? = null
 ) {
-    Card(
+    BeautifulCard (
         modifier = Modifier
             .fillMaxWidth()
             .then(
@@ -286,8 +284,7 @@ private fun StatusCard(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
