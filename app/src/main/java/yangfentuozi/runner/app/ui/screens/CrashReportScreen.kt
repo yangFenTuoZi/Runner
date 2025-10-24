@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.ui.theme.RunnerTheme
 import yangfentuozi.runner.app.ui.theme.monoFontFamily
-import yangfentuozi.runner.app.util.ThrowableUtil.toErrorDialog
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -96,8 +95,7 @@ fun CrashReportScreen(
                 FileOutputStream(crashFile).use { out ->
                     out.write(fullCrashInfo.text.toByteArray())
                 }
-            } catch (e: IOException) {
-                e.toErrorDialog(context)
+            } catch (_: IOException) {
             }
         }
     }
