@@ -1,5 +1,6 @@
 package yangfentuozi.runner.app.ui.screens.main.home.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,7 @@ import yangfentuozi.runner.R
 import yangfentuozi.runner.app.ui.components.BeautifulCard
 import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun TermExtStatusCard(
     onInstallTermExt: () -> Unit,
@@ -35,7 +37,6 @@ fun TermExtStatusCard(
     val termExtVersion by viewModel.termExtVersion.collectAsState()
 
     val isInstalled = (termExtVersion?.versionCode ?: -1) != -1
-    val versionText = termExtVersion?.versionName ?: ""
 
     BeautifulCard(
         modifier = Modifier
@@ -60,9 +61,9 @@ fun TermExtStatusCard(
                     text = stringResource(if (isInstalled) R.string.term_ext_installed else R.string.term_ext_not_installed),
                     style = MaterialTheme.typography.titleMedium
                 )
-                if (isInstalled && versionText.isNotEmpty()) {
+                if (isInstalled) {
                     Text(
-                        text = versionText,
+                        text = "%s (%d)".format(termExtVersion?.versionName ?: "", termExtVersion?.versionCode ?: 0),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
