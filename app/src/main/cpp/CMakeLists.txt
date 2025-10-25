@@ -21,14 +21,14 @@ find_package(cxx REQUIRED CONFIG)
 
 # libprocessutils
 add_library(processutils SHARED
-        server/processutils.c)
+        processutils.c)
 
 set_target_properties(processutils PROPERTIES PREFIX "lib")
 set_target_properties(processutils PROPERTIES SUFFIX ".so")
 
 # libexecutils
 add_library(executils SHARED
-        server/executils.c)
+        executils.c)
 
 set_target_properties(executils PROPERTIES PREFIX "lib")
 set_target_properties(executils PROPERTIES SUFFIX ".so")
