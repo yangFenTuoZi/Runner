@@ -1,0 +1,90 @@
+package yangfentuozi.runner.app.ui.screens.main.home
+
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import yangfentuozi.runner.R
+import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.ui.activity.InstallTermExtActivity
+import yangfentuozi.runner.app.ui.screens.main.home.components.GrantShizukuPermCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.ServiceStatusCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.ShizukuStatusCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.TermExtStatusCard
+import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
+
+@Composable
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val refreshTrigger by viewModel.refreshTrigger.collectAsState()
+
+    // 文件选择器用于安装 Term Ext
+    val pickFileLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val mimeType = context.contentResolver.getType(uri)
+                if (mimeType == "application/zip") {
+                    val installIntent = Intent(context, InstallTermExtActivity::class.java).apply {
+                        action = Intent.ACTION_VIEW
+                        setDataAndType(uri, "application/zip")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(installIntent)
+                }
+            }
+        }
+    }
+
+    val onInstallTermExt = {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/zip"
+        }
+        pickFileLauncher.launch(Intent.createChooser(intent, context.getString(R.string.pick_term_ext)))
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        contentPadding = PaddingValues(vertical = 4.dp)
+    ) {
+        item(key = "service_status_$refreshTrigger") {
+            ServiceStatusCard(viewModel)
+        }
+        item(key = "shizuku_status_$refreshTrigger") {
+            ShizukuStatusCard()
+        }
+        if (!Runner.shizukuPermission) {
+            item(key = "grant_perm_$refreshTrigger") {
+                GrantShizukuPermCard(viewModel)
+            }
+        }
+        if (Runner.pingServer()) {
+            item(key = "term_ext_$refreshTrigger") {
+                TermExtStatusCard(
+                    onInstallTermExt = onInstallTermExt,
+                    viewModel = viewModel
+                )
+            }
+        }
+    }
+}
+

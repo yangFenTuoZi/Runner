@@ -6,11 +6,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Environment
 import android.os.Looper
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.activity.CrashReportActivity
-import yangfentuozi.runner.app.util.ThemeUtil
 import java.io.File
 import java.util.LinkedList
 import kotlin.system.exitProcess
@@ -25,7 +23,6 @@ class App : Application(), Thread.UncaughtExceptionHandler {
         Thread.setDefaultUncaughtExceptionHandler(this)
         instance = this
         pref = PreferenceManager.getDefaultSharedPreferences(this)
-        AppCompatDelegate.setDefaultNightMode(ThemeUtil.darkTheme)
 
         Runner.init()
         Runner.addServiceStatusListener {

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "yangfentuozi.runner.app.ui.fragment.terminal"
+    namespace = "yangfentuozi.runner.term"
     compileSdk {
         version = release(rootProject.ext["compileSdk"] as Int)
     }

@@ -1,112 +1,22 @@
 package yangfentuozi.runner.app.ui.activity
 
-import android.content.res.Resources
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
-import androidx.core.text.HtmlCompat
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.MaterialToolbar
-import yangfentuozi.runner.BuildConfig
-import yangfentuozi.runner.R
-import yangfentuozi.runner.app.Runner
+import androidx.activity.compose.setContent
 import yangfentuozi.runner.app.base.BaseActivity
-import yangfentuozi.runner.app.base.BaseDialogBuilder
-import yangfentuozi.runner.app.util.ThrowableUtil.toErrorDialog
-import yangfentuozi.runner.databinding.ActivityMainBinding
-import yangfentuozi.runner.databinding.DialogAboutBinding
-import java.util.Locale
+import yangfentuozi.runner.app.ui.screens.main.MainScreen
+import yangfentuozi.runner.app.ui.theme.RunnerTheme
 
 class MainActivity : BaseActivity() {
-
-    lateinit var appBar: AppBarLayout
-    lateinit var toolbar: MaterialToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        val appBarConfiguration = AppBarConfiguration.Builder(
-            R.id.navigation_home,
-            R.id.navigation_runner,
-            R.id.navigation_terminal,
-            R.id.navigation_proc,
-            R.id.navigation_settings
-        ).build()
-
-        val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main)
-        val navController = (fragment as NavHostFragment).navController
-        NavigationUI.setupWithNavController(binding.toolbar, navController, appBarConfiguration)
-        NavigationUI.setupWithNavController(binding.navView, navController)
-
-        binding.appBar.setLiftable(true)
-        binding.toolbar.inflateMenu(R.menu.menu_home)
-
-        binding.toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.menu_stop_server -> {
-                    if (!Runner.pingServer()) return@setOnMenuItemClickListener true
-                    try {
-                        BaseDialogBuilder(this)
-                            .setTitle(R.string.warning)
-                            .setMessage(R.string.confirm_stop_server)
-                            .setPositiveButton(android.R.string.ok) { _, _ ->
-                                Thread {
-                                    try {
-                                        Runner.tryUnbindService(true)
-                                    } catch (e: Exception) {
-                                        e.toErrorDialog(this)
-                                    }
-                                }.start()
-                            }
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .show()
-                    } catch (_: BaseDialogBuilder.DialogShowingException) {
-                    }
-                    true
-                }
-                else -> true
+        setContent {
+            RunnerTheme {
+                MainScreen(
+                    activity = this
+                )
             }
         }
-
-        toolbar = binding.toolbar
-        appBar = binding.appBar
-    }
-
-    fun showAbout() {
-        val binding = DialogAboutBinding.inflate(layoutInflater, null, false)
-        binding.designAboutTitle.setText(R.string.app_name)
-        binding.designAboutInfo.movementMethod = LinkMovementMethod.getInstance()
-        binding.designAboutInfo.text = HtmlCompat.fromHtml(
-            getString(
-                R.string.about_view_source_code,
-                "<b><a href=\"https://github.com/yangFenTuoZi/Runner\">GitHub</a></b>"
-            ), HtmlCompat.FROM_HTML_MODE_LEGACY
-        )
-        binding.designAboutVersion.text = String.format(
-            Locale.getDefault(),
-            "%s (%d)",
-            BuildConfig.VERSION_NAME,
-            BuildConfig.VERSION_CODE
-        )
-
-        try {
-            BaseDialogBuilder(this)
-                .setView(binding.root)
-                .show()
-        } catch (_: BaseDialogBuilder.DialogShowingException) {
-        }
-    }
-
-    override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
-        super.onApplyUserThemeResource(theme, isDecorView)
-        theme.applyStyle(
-            rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
-            true
-        )
     }
 }

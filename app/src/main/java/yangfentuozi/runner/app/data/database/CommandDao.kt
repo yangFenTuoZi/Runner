@@ -32,10 +32,6 @@ class CommandDao(private val db: SQLiteDatabase) {
                     cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_COMMAND))
                 info.keepAlive =
                     cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEEP_ALIVE)) == 1
-                info.reducePerm =
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_REDUCE_PERM)) == 1
-                info.targetPerm =
-                    cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_TARGET_PERM))
                 commands.add(info)
             }
             return commands
@@ -57,10 +53,6 @@ class CommandDao(private val db: SQLiteDatabase) {
                     cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_COMMAND))
                 info.keepAlive =
                     cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEEP_ALIVE)) == 1
-                info.reducePerm =
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_REDUCE_PERM)) == 1
-                info.targetPerm =
-                    cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_TARGET_PERM))
                 return info
             }
             return null
@@ -73,8 +65,6 @@ class CommandDao(private val db: SQLiteDatabase) {
         values.put(DataDbHelper.COLUMN_NAME, commandInfo.name)
         values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command)
         values.put(DataDbHelper.COLUMN_KEEP_ALIVE, if (commandInfo.keepAlive) 1 else 0)
-        values.put(DataDbHelper.COLUMN_REDUCE_PERM, if (commandInfo.reducePerm) 1 else 0)
-        values.put(DataDbHelper.COLUMN_TARGET_PERM, commandInfo.targetPerm)
 
         return db.insert(DataDbHelper.TABLE_COMMANDS, null, values)
     }
@@ -93,8 +83,6 @@ class CommandDao(private val db: SQLiteDatabase) {
             values.put(DataDbHelper.COLUMN_NAME, commandInfo.name)
             values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command)
             values.put(DataDbHelper.COLUMN_KEEP_ALIVE, if (commandInfo.keepAlive) 1 else 0)
-            values.put(DataDbHelper.COLUMN_REDUCE_PERM, if (commandInfo.reducePerm) 1 else 0)
-            values.put(DataDbHelper.COLUMN_TARGET_PERM, commandInfo.targetPerm)
 
             insert(DataDbHelper.TABLE_COMMANDS, null, values)
         }
@@ -105,8 +93,6 @@ class CommandDao(private val db: SQLiteDatabase) {
         values.put(DataDbHelper.COLUMN_NAME, commandInfo.name)
         values.put(DataDbHelper.COLUMN_COMMAND, commandInfo.command)
         values.put(DataDbHelper.COLUMN_KEEP_ALIVE, if (commandInfo.keepAlive) 1 else 0)
-        values.put(DataDbHelper.COLUMN_REDUCE_PERM, if (commandInfo.reducePerm) 1 else 0)
-        values.put(DataDbHelper.COLUMN_TARGET_PERM, commandInfo.targetPerm)
 
         db.update(
             DataDbHelper.TABLE_COMMANDS, values,
