@@ -1,10 +1,7 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.crashreport
 
 import android.os.Build
-import android.os.Bundle
 import android.os.SystemProperties
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.app.App
-import yangfentuozi.runner.app.ui.theme.RunnerTheme
 import yangfentuozi.runner.app.ui.theme.monoFontFamily
 import java.io.FileOutputStream
 import java.io.IOException
@@ -170,24 +166,3 @@ fun CrashReportScreen(
         }
     }
 }
-
-// 创建一个独立的 Activity 用于崩溃报告
-class CrashReportActivityCompose : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val crashFile = intent.getStringExtra("crash_file")
-        val crashInfo = intent.getStringExtra("crash_info")
-
-        setContent {
-            RunnerTheme {
-                CrashReportScreen(
-                    crashFile = crashFile,
-                    crashInfo = crashInfo,
-                    onNavigateBack = { finish() }
-                )
-            }
-        }
-    }
-}
-

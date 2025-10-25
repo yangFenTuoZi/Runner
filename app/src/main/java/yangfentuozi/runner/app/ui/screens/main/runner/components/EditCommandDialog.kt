@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.dialogs
+package yangfentuozi.runner.app.ui.screens.main.runner.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -67,7 +68,7 @@ fun EditCommandDialog(
                 ) {
                     Text(
                         text = stringResource(R.string.keep_alive),
-                        modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically),
+                        modifier = Modifier.align(Alignment.CenterVertically),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Switch(

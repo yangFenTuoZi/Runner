@@ -4,39 +4,25 @@ import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.activity.InstallTermExtActivity
-import yangfentuozi.runner.app.ui.components.BeautifulCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.GrantShizukuPermCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.ServiceStatusCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.ShizukuStatusCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.TermExtStatusCard
 import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
 
 @Composable
@@ -97,180 +83,6 @@ fun HomeScreen(
                     onInstallTermExt = onInstallTermExt,
                     viewModel = viewModel
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ServiceStatusCard(viewModel: HomeViewModel) {
-    val isRunning = Runner.pingServer()
-    val version = Runner.serviceVersion
-
-    StatusCard(
-        icon = if (isRunning) R.drawable.ic_check_circle_outline_24 else R.drawable.ic_error_outline_24,
-        title = stringResource(if (isRunning) R.string.service_is_running else R.string.service_not_running),
-        summary = if (isRunning) stringResource(R.string.service_version, version) else null,
-        onClick = if (!isRunning) {
-            { viewModel.tryBindService() }
-        } else null
-    )
-}
-
-@Composable
-private fun ShizukuStatusCard() {
-    val isRunning = Runner.shizukuStatus
-    val isRoot = Runner.shizukuUid == 0
-    val apiVersion = Runner.shizukuApiVersion
-    val patchVersion = Runner.shizukuPatchVersion
-
-    val user = if (isRoot) "root" else "adb"
-    
-    StatusCard(
-        icon = if (isRunning) R.drawable.ic_check_circle_outline_24 else R.drawable.ic_error_outline_24,
-        title = stringResource(if (isRunning) R.string.shizuku_is_running else R.string.shizuku_not_running),
-        summary = if (isRunning) stringResource(R.string.shizuku_version, user, "$apiVersion.$patchVersion") else null
-    )
-}
-
-@Composable
-private fun GrantShizukuPermCard(viewModel: HomeViewModel) {
-    BeautifulCard (
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                viewModel.requestPermission()
-            }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_error_outline_24),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.error
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.grant_shizuku_permission),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = stringResource(R.string.grant_shizuku_permission_summary),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun TermExtStatusCard(
-    onInstallTermExt: () -> Unit,
-    viewModel: HomeViewModel
-) {
-    val termExtVersion by viewModel.termExtVersion.collectAsState()
-
-    val isInstalled = (termExtVersion?.versionCode ?: -1) != -1
-    val versionText = termExtVersion?.versionName ?: ""
-
-    BeautifulCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (!isInstalled) {
-                    Modifier.clickable { onInstallTermExt() }
-                } else {
-                    Modifier
-                }
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(
-                    if (isInstalled) R.drawable.ic_check_circle_outline_24 else R.drawable.ic_error_outline_24
-                ),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = if (isInstalled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(if (isInstalled) R.string.term_ext_installed else R.string.term_ext_not_installed),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                if (isInstalled && versionText.isNotEmpty()) {
-                    Text(
-                        text = versionText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            if (!isInstalled) {
-                IconButton(onClick = onInstallTermExt) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.install_term_ext)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusCard(
-    icon: Int,
-    title: String,
-    summary: String? = null,
-    onClick: (() -> Unit)? = null
-) {
-    BeautifulCard (
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(onClick = onClick)
-                } else {
-                    Modifier
-                }
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(icon),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                if (summary != null && summary.isNotEmpty()) {
-                    Text(
-                        text = summary,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
             }
         }
     }

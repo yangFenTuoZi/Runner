@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens
+package yangfentuozi.runner.app.ui.screens.installtermext
 
 import android.net.Uri
 import androidx.compose.foundation.horizontalScroll

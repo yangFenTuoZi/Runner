@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui
+package yangfentuozi.runner.app.ui.screens.main
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +30,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
-import yangfentuozi.runner.app.ui.navigation.Screen
 import yangfentuozi.runner.app.ui.screens.main.home.HomeScreen
 import yangfentuozi.runner.app.ui.screens.main.proc.ProcScreen
 import yangfentuozi.runner.app.ui.screens.main.runner.RunnerScreen
@@ -115,16 +114,16 @@ fun MainScreen(
                 HomeScreen()
             }
             composable(Screen.Runner.route) {
-                RunnerScreen(activity)
+                RunnerScreen()
             }
             composable(Screen.Terminal.route) {
                 TerminalScreen()
             }
             composable(Screen.Proc.route) {
-                ProcScreen(activity)
+                ProcScreen()
             }
             composable(Screen.Settings.route) {
-                SettingsScreen(activity)
+                SettingsScreen()
             }
         }
     }
@@ -182,3 +181,10 @@ private val bottomNavItems = listOf(
     BottomNavItem(Screen.Settings.route, R.drawable.ic_settings_outline_24, R.string.title_settings)
 )
 
+sealed class Screen(val route: String) {
+    data object Home : Screen("home")
+    data object Runner : Screen("runner")
+    data object Terminal : Screen("terminal")
+    data object Proc : Screen("proc")
+    data object Settings : Screen("settings")
+}

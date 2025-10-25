@@ -3,7 +3,7 @@ package yangfentuozi.runner.app.ui.activity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import yangfentuozi.runner.app.base.BaseActivity
-import yangfentuozi.runner.app.ui.screens.CrashReportScreen
+import yangfentuozi.runner.app.ui.screens.crashreport.CrashReportScreen
 import yangfentuozi.runner.app.ui.theme.RunnerTheme
 
 class CrashReportActivity : BaseActivity() {

@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.dialogs
+package yangfentuozi.runner.app.ui.components
 
 import android.os.ParcelFileDescriptor
 import androidx.compose.foundation.layout.Column

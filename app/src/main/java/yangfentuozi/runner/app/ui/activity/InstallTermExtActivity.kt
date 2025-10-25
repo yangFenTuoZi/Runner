@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import yangfentuozi.runner.app.base.BaseActivity
-import yangfentuozi.runner.app.ui.screens.InstallTermExtScreen
+import yangfentuozi.runner.app.ui.screens.installtermext.InstallTermExtScreen
 import yangfentuozi.runner.app.ui.theme.RunnerTheme
 
 class InstallTermExtActivity : BaseActivity() {
