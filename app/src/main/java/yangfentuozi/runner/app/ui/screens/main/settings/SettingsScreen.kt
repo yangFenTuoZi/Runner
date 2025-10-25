@@ -1,6 +1,5 @@
 package yangfentuozi.runner.app.ui.screens.main.settings
 
-import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,7 +19,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.material.color.DynamicColors
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.data.BackupManager
-import yangfentuozi.runner.app.ui.activity.envmanage.EnvManageActivity
 import yangfentuozi.runner.app.ui.screens.main.settings.components.AboutDialog
 import yangfentuozi.runner.app.ui.screens.main.settings.components.BackupDialog
 import yangfentuozi.runner.app.ui.screens.main.settings.components.DarkThemeDialog
@@ -32,6 +30,7 @@ import yangfentuozi.runner.app.ui.viewmodels.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
+    onNavigateToEnvManage: () -> Unit,
     viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -149,9 +148,7 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.env_manage),
                 summary = stringResource(R.string.env_manage_summary),
-                onClick = {
-                    context.startActivity(Intent(context, EnvManageActivity::class.java))
-                }
+                onClick = onNavigateToEnvManage
             )
         }
 

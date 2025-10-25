@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens.envmanage
+package yangfentuozi.runner.app.ui.screens.main.envmanage
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,20 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,14 +22,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.ui.screens.envmanage.components.EditEnvDialog
-import yangfentuozi.runner.app.ui.screens.envmanage.components.EnvItem
+import yangfentuozi.runner.app.ui.screens.main.envmanage.components.EditEnvDialog
+import yangfentuozi.runner.app.ui.screens.main.envmanage.components.EnvItem
 import yangfentuozi.runner.app.ui.viewmodels.EnvManageViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnvManageScreen(
-    onNavigateBack: () -> Unit,
     viewModel: EnvManageViewModel = viewModel()
 ) {
     val envList by viewModel.envList.collectAsState()
@@ -46,64 +37,43 @@ fun EnvManageScreen(
     val envToEdit by viewModel.envToEdit.collectAsState()
     val envToDelete by viewModel.envToDelete.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.env_manage)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.showAddDialog() }) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
-            }
+    if (isRefreshing) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
-    ) { paddingValues ->
-        if (isRefreshing) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (envList.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.empty),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+    } else if (envList.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.empty),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            contentPadding = PaddingValues(vertical = 4.dp)
+        ) {
+            itemsIndexed(
+                items = envList,
+                key = { index, item -> item.key ?: index }
+            ) { index, env ->
+                EnvItem(
+                    env = env,
+                    onEdit = { viewModel.showEditDialog(env) },
+                    onDelete = { viewModel.showDeleteDialog(env) }
                 )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                contentPadding = PaddingValues(vertical = 4.dp)
-            ) {
-                itemsIndexed(
-                    items = envList,
-                    key = { index, item -> item.key ?: index }
-                ) { index, env ->
-                    EnvItem(
-                        env = env,
-                        onEdit = { viewModel.showEditDialog(env) },
-                        onDelete = { viewModel.showDeleteDialog(env) }
-                    )
-                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.screens.envmanage.components
+package yangfentuozi.runner.app.ui.screens.main.envmanage.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable

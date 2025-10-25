@@ -13,9 +13,7 @@ class MainActivity : BaseActivity() {
 
         setContent {
             RunnerTheme {
-                MainScreen(
-                    activity = this
-                )
+                MainScreen()
             }
         }
     }

@@ -1,7 +1,7 @@
 package yangfentuozi.runner.app.ui.screens.main.home
 
-import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.activity.InstallTermExtActivity
 import yangfentuozi.runner.app.ui.screens.main.home.components.GrantShizukuPermCard
@@ -32,7 +31,8 @@ import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = viewModel(),
+    onNavigateToInstallTermExt: ((Uri) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val refreshTrigger by viewModel.refreshTrigger.collectAsState()
@@ -64,12 +64,16 @@ fun HomeScreen(
 
     // 文件选择器用于安装 Term Ext
     val pickFileLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                val mimeType = context.contentResolver.getType(uri)
-                if (mimeType == "application/zip") {
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            val mimeType = context.contentResolver.getType(uri)
+            if (mimeType == "application/zip") {
+                if (onNavigateToInstallTermExt != null) {
+                    // 使用导航方式
+                    onNavigateToInstallTermExt(uri)
+                } else {
+                    // 回退到 Activity 方式（用于独立页面）
                     val installIntent = Intent(context, InstallTermExtActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
                         setDataAndType(uri, "application/zip")
@@ -82,16 +86,7 @@ fun HomeScreen(
     }
 
     val onInstallTermExt = {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/zip"
-        }
-        pickFileLauncher.launch(
-            Intent.createChooser(
-                intent,
-                context.getString(R.string.pick_term_ext)
-            )
-        )
+        pickFileLauncher.launch("application/zip")
     }
 
     val onRemoveTermExt = {

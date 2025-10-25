@@ -38,6 +38,9 @@ class InstallTermExtViewModel(application: Application) : AndroidViewModel(appli
             return
         }
 
+        // 在启动协程之前就设置安装状态，确保 BackHandler 能立即生效
+        _isInstalling.value = true
+
         viewModelScope.launch(Dispatchers.IO) {
             // 复制文件到缓存
             val cacheFile = try {
@@ -45,6 +48,7 @@ class InstallTermExtViewModel(application: Application) : AndroidViewModel(appli
                 if (input == null) {
                     appendOutput("! Failed to open file\n")
                     _hasError.value = true
+                    _isInstalling.value = false
                     return@launch
                 }
 
@@ -63,10 +67,12 @@ class InstallTermExtViewModel(application: Application) : AndroidViewModel(appli
             } catch (e: FileNotFoundException) {
                 appendOutput("! File not found:\n${e.message}\n")
                 _hasError.value = true
+                _isInstalling.value = false
                 return@launch
             } catch (e: IOException) {
                 appendOutput("! Failed to copy file:\n${e.message}\n")
                 _hasError.value = true
+                _isInstalling.value = false
                 return@launch
             }
 
@@ -74,6 +80,7 @@ class InstallTermExtViewModel(application: Application) : AndroidViewModel(appli
             if (!Runner.pingServer()) {
                 appendOutput("! Service not running\n")
                 _hasError.value = true
+                _isInstalling.value = false
                 return@launch
             }
 
@@ -81,11 +88,11 @@ class InstallTermExtViewModel(application: Application) : AndroidViewModel(appli
             if (service == null) {
                 appendOutput("! Service not available\n")
                 _hasError.value = true
+                _isInstalling.value = false
                 return@launch
             }
 
-            // 开始安装
-            _isInstalling.value = true
+            // 开始安装（状态已经在函数开始时设置为 true）
             appendOutput("- Starting installation...\n")
 
             var pipe: Array<ParcelFileDescriptor>? = null
