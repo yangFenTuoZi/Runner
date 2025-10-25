@@ -18,6 +18,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _termExtVersion = MutableStateFlow<TermExtVersion?>(null)
     val termExtVersion: StateFlow<TermExtVersion?> = _termExtVersion.asStateFlow()
 
+    private val _showRemoveTermExtConfirmDialog = MutableStateFlow(false)
+    val showRemoveTermExtConfirmDialog: StateFlow<Boolean> = _showRemoveTermExtConfirmDialog.asStateFlow()
+
     // Shizuku 权限监听器
     private val shizukuPermissionListener = Runner.ShizukuPermissionListener {
         triggerRefresh()
@@ -82,6 +85,25 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         Runner.removeShizukuPermissionListener(shizukuPermissionListener)
         Runner.removeShizukuStatusListener(shizukuStatusListener)
         Runner.removeServiceStatusListener(serviceStatusListener)
+    }
+
+    fun removeTermExt() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                Runner.service?.removeTermExt()
+                loadTermExtVersion()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun showRemoveTermExtConfirmDialog() {
+        _showRemoveTermExtConfirmDialog.value = true
+    }
+
+    fun hideRemoveTermExtConfirmDialog() {
+        _showRemoveTermExtConfirmDialog.value = false
     }
 }
 

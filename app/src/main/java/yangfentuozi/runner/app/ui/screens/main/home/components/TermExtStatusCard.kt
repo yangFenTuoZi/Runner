@@ -1,6 +1,5 @@
 package yangfentuozi.runner.app.ui.screens.main.home.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +29,7 @@ import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
 @Composable
 fun TermExtStatusCard(
     onInstallTermExt: () -> Unit,
+    onRemoveTermExt: () -> Unit,
     viewModel: HomeViewModel
 ) {
     val termExtVersion by viewModel.termExtVersion.collectAsState()
@@ -39,13 +40,6 @@ fun TermExtStatusCard(
     BeautifulCard(
         modifier = Modifier
             .fillMaxWidth()
-            .then(
-                if (!isInstalled) {
-                    Modifier.clickable { onInstallTermExt() }
-                } else {
-                    Modifier
-                }
-            )
     ) {
         Row(
             modifier = Modifier
@@ -77,8 +71,15 @@ fun TermExtStatusCard(
             if (!isInstalled) {
                 IconButton(onClick = onInstallTermExt) {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Outlined.Folder,
                         contentDescription = stringResource(R.string.install_term_ext)
+                    )
+                }
+            } else {
+                IconButton(onClick = onRemoveTermExt) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.remove_term_ext)
                     )
                 }
             }

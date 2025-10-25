@@ -94,7 +94,8 @@
     <string name="empty">空</string>
     <string name="pick_term_ext">选择终端扩展包</string>
     <string name="install_term_ext">安装终端扩展包</string>
-    <string name="will_remove_term_ext">移除终端扩展包？</string>
+    <string name="remove_term_ext">移除终端扩展包</string>
+    <string name="will_remove_term_ext">要移除终端扩展包吗？</string>
     <string name="failed_to_get_the_process_list">获取进程列表失败</string>
     <string name="value">值</string>
     <string name="key">键</string>

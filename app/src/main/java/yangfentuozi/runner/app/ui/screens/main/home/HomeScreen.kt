@@ -10,16 +10,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.activity.InstallTermExtActivity
 import yangfentuozi.runner.app.ui.screens.main.home.components.GrantShizukuPermCard
+import yangfentuozi.runner.app.ui.screens.main.home.components.RemoveTermExtConfirmDialog
 import yangfentuozi.runner.app.ui.screens.main.home.components.ServiceStatusCard
 import yangfentuozi.runner.app.ui.screens.main.home.components.ShizukuStatusCard
 import yangfentuozi.runner.app.ui.screens.main.home.components.TermExtStatusCard
@@ -31,6 +36,31 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val refreshTrigger by viewModel.refreshTrigger.collectAsState()
+    val showRemoveTermExtConfirmDialog by viewModel.showRemoveTermExtConfirmDialog.collectAsState()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // 监听生命周期事件
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    viewModel.triggerRefresh()
+                    viewModel.loadTermExtVersion()
+                }
+
+                Lifecycle.Event.ON_STOP -> {
+                }
+
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     // 文件选择器用于安装 Term Ext
     val pickFileLauncher = rememberLauncherForActivityResult(
@@ -56,7 +86,16 @@ fun HomeScreen(
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/zip"
         }
-        pickFileLauncher.launch(Intent.createChooser(intent, context.getString(R.string.pick_term_ext)))
+        pickFileLauncher.launch(
+            Intent.createChooser(
+                intent,
+                context.getString(R.string.pick_term_ext)
+            )
+        )
+    }
+
+    val onRemoveTermExt = {
+        viewModel.showRemoveTermExtConfirmDialog()
     }
 
     LazyColumn(
@@ -81,10 +120,22 @@ fun HomeScreen(
             item(key = "term_ext_$refreshTrigger") {
                 TermExtStatusCard(
                     onInstallTermExt = onInstallTermExt,
+                    onRemoveTermExt = onRemoveTermExt,
                     viewModel = viewModel
                 )
             }
         }
+    }
+
+    if (showRemoveTermExtConfirmDialog) {
+        RemoveTermExtConfirmDialog(
+            onDismissRequest = {
+                viewModel.hideRemoveTermExtConfirmDialog()
+            },
+            onConfirmRequest = {
+                viewModel.removeTermExt()
+            }
+        )
     }
 }
 
