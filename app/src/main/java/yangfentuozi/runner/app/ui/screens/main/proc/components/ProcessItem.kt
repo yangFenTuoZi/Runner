@@ -34,16 +34,14 @@ fun ProcessItem(
 
     // 查找 nice name
     val niceName = remember(process) {
-        var niceNameFlag = false
-        var result: String? = null
-        process.args?.forEach { arg ->
-            if (niceNameFlag) {
-                result = arg
-                return@forEach
+        process.args?.let{ args ->
+            val index = args.indexOf("--nice-name")
+            if (index != -1 && index + 1 < args.size) {
+                args[index + 1]
+            } else {
+                null
             }
-            if (arg == "--nice-name") niceNameFlag = true
         }
-        result
     }
 
     Card(
