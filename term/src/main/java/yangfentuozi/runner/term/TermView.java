@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 import jackpal.androidterm.emulatorview.ColorScheme;
 import jackpal.androidterm.emulatorview.EmulatorView;
 import jackpal.androidterm.emulatorview.TermSession;
-import yangfentuozi.runner.app.ui.fragment.terminal.util.TermSettings;
+import yangfentuozi.runner.term.util.TermSettings;
 
 public class TermView extends EmulatorView {
     private KeyboardVisibilityListener mKeyboardListener;

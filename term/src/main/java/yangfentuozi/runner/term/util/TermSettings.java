@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal.util;
+package yangfentuozi.runner.term.util;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 
-import yangfentuozi.runner.app.ui.fragment.terminal.R;
+import yangfentuozi.runner.term.R;
 
 /**
  * Terminal emulator settings

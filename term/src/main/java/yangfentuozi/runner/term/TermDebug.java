@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 /**
  * Debug settings.

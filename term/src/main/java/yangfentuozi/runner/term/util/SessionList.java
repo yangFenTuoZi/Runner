@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal.util;
+package yangfentuozi.runner.term.util;
 
 import androidx.annotation.NonNull;
 

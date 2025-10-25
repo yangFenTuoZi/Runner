@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -63,8 +63,8 @@ import java.util.Locale;
 import jackpal.androidterm.emulatorview.EmulatorView;
 import jackpal.androidterm.emulatorview.TermSession;
 import jackpal.androidterm.emulatorview.UpdateCallback;
-import yangfentuozi.runner.app.ui.fragment.terminal.util.SessionList;
-import yangfentuozi.runner.app.ui.fragment.terminal.util.TermSettings;
+import yangfentuozi.runner.term.util.SessionList;
+import yangfentuozi.runner.term.util.TermSettings;
 
 /**
  * A terminal emulator fragment.

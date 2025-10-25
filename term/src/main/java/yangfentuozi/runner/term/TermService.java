@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -28,7 +28,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import jackpal.androidterm.emulatorview.TermSession;
-import yangfentuozi.runner.app.ui.fragment.terminal.util.SessionList;
+import yangfentuozi.runner.term.util.SessionList;
 
 public class TermService extends Service implements TermSession.FinishCallback {
 

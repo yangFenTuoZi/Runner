@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 import android.app.Activity;
 import android.content.Context;
@@ -30,7 +30,7 @@ import com.google.android.material.radiobutton.MaterialRadioButton;
 
 import jackpal.androidterm.emulatorview.TermSession;
 import jackpal.androidterm.emulatorview.UpdateCallback;
-import yangfentuozi.runner.app.ui.fragment.terminal.util.SessionList;
+import yangfentuozi.runner.term.util.SessionList;
 
 public class WindowListAdapter extends BaseAdapter implements UpdateCallback {
     private SessionList mSessions;

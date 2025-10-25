@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -37,7 +37,7 @@ import java.util.LinkedList;
 import jackpal.androidterm.emulatorview.EmulatorView;
 import jackpal.androidterm.emulatorview.TermSession;
 import jackpal.androidterm.emulatorview.UpdateCallback;
-import yangfentuozi.runner.app.ui.fragment.terminal.util.TermSettings;
+import yangfentuozi.runner.term.util.TermSettings;
 
 public class TermViewFlipper extends ViewFlipper implements Iterable<View> {
     private Context context;

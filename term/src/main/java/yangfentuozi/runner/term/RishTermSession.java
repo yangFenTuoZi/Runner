@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -32,7 +32,7 @@ import jackpal.androidterm.emulatorview.ColorScheme;
 import jackpal.androidterm.emulatorview.TermSession;
 import rikka.rish.IRishService;
 import rikka.rish.RishConstants;
-import yangfentuozi.runner.app.ui.fragment.terminal.util.TermSettings;
+import yangfentuozi.runner.term.util.TermSettings;
 
 /**
  * A terminal session that connects to the server via RishService.

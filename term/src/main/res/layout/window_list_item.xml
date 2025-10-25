@@ -41,7 +41,7 @@
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceListItem" />
 
-    <yangfentuozi.runner.app.ui.fragment.terminal.WindowListCloseButton
+    <yangfentuozi.runner.term.WindowListCloseButton
         android:id="@+id/window_list_close"
         style="?attr/materialIconButtonStyle"
         android:layout_width="wrap_content"

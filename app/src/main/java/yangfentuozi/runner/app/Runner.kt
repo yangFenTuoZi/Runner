@@ -12,9 +12,9 @@ import rikka.shizuku.Shizuku.OnBinderReceivedListener
 import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
 import rikka.shizuku.Shizuku.UserServiceArgs
 import yangfentuozi.runner.BuildConfig
-import yangfentuozi.runner.app.ui.fragment.terminal.RishBinderHolder
 import yangfentuozi.runner.server.IService
 import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.term.RishBinderHolder
 
 
 object Runner {

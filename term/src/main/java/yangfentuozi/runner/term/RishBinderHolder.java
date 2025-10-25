@@ -1,4 +1,4 @@
-package yangfentuozi.runner.app.ui.fragment.terminal;
+package yangfentuozi.runner.term;
 
 import rikka.rish.IRishService;
 

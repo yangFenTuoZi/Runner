@@ -9,7 +9,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.ui.fragment.terminal.Term
+import yangfentuozi.runner.term.Term
 
 /**
  * Terminal Screen - 使用 AndroidView 兼容层保持 term 模块的 XML 视图
