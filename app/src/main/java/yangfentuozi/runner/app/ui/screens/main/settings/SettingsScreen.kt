@@ -49,42 +49,33 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.material.color.DynamicColors
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.data.BackupManager
 import yangfentuozi.runner.app.ui.activity.envmanage.EnvManageActivity
 import yangfentuozi.runner.app.ui.components.BeautifulCard
 import yangfentuozi.runner.app.ui.theme.ThemeManager
+import yangfentuozi.runner.app.ui.viewmodels.SettingsViewModel
 import kotlin.math.roundToInt
 
 @Composable
 fun SettingsScreen(
-    activity: ComponentActivity
+    activity: ComponentActivity,
+    viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    var showDarkThemeDialog by remember { mutableStateOf(false) }
-    var showBackupDialog by remember { mutableStateOf(false) }
-    var showAboutDialog by remember { mutableStateOf(false) }
-
-    val blackDarkTheme = remember {
-        mutableStateOf(App.preferences.getBoolean("black_dark_theme", false))
-    }
-    val followSystemAccent = remember {
-        mutableStateOf(App.preferences.getBoolean("follow_system_accent", true))
-    }
-    val forceKill = remember {
-        mutableStateOf(App.preferences.getBoolean("force_kill", false))
-    }
-    val killChildProcesses = remember {
-        mutableStateOf(App.preferences.getBoolean("kill_child_processes", false))
-    }
-
-    var lastBackupArgs by remember { mutableStateOf<BooleanArray?>(null) }
+    val showDarkThemeDialog by viewModel.showDarkThemeDialog.collectAsState()
+    val showBackupDialog by viewModel.showBackupDialog.collectAsState()
+    val showAboutDialog by viewModel.showAboutDialog.collectAsState()
+    val blackDarkTheme by viewModel.blackDarkTheme.collectAsState()
+    val followSystemAccent by viewModel.followSystemAccent.collectAsState()
+    val forceKill by viewModel.forceKill.collectAsState()
+    val killChildProcesses by viewModel.killChildProcesses.collectAsState()
+    val lastBackupArgs by viewModel.lastBackupArgs.collectAsState()
 
     val saveFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/x-tar")
@@ -130,7 +121,7 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.dark_theme),
                 summary = stringResource(ThemeManager.getThemeModeName(currentThemeMode)),
-                onClick = { showDarkThemeDialog = true }
+                onClick = { viewModel.showDarkThemeDialog() }
             )
         }
 
@@ -138,10 +129,9 @@ fun SettingsScreen(
             item {
                 SwitchPreferenceItem(
                     title = stringResource(R.string.theme_color_system),
-                    checked = followSystemAccent.value,
+                    checked = followSystemAccent,
                     onCheckedChange = {
-                        followSystemAccent.value = it
-                        App.preferences.edit { putBoolean("follow_system_accent", it) }
+                        viewModel.setFollowSystemAccent(it)
                         // 不需要 recreate,主题会自动更新
                     }
                 )
@@ -156,10 +146,9 @@ fun SettingsScreen(
             SwitchPreferenceItem(
                 title = stringResource(R.string.pure_black_dark_theme),
                 summary = stringResource(R.string.pure_black_dark_theme_summary),
-                checked = blackDarkTheme.value,
+                checked = blackDarkTheme,
                 onCheckedChange = {
-                    blackDarkTheme.value = it
-                    App.preferences.edit { putBoolean("black_dark_theme", it) }
+                    viewModel.setBlackDarkTheme(it)
                     // 不需要 recreate,主题会自动更新
                 }
             )
@@ -174,7 +163,7 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.export_data),
                 summary = stringResource(R.string.export_data_summary),
-                onClick = { showBackupDialog = true }
+                onClick = { viewModel.showBackupDialog() }
             )
         }
 
@@ -208,10 +197,9 @@ fun SettingsScreen(
             SwitchPreferenceItem(
                 title = stringResource(R.string.force_kill),
                 summary = stringResource(R.string.force_kill_summary),
-                checked = forceKill.value,
+                checked = forceKill,
                 onCheckedChange = {
-                    forceKill.value = it
-                    App.preferences.edit { putBoolean("force_kill", it) }
+                    viewModel.setForceKill(it)
                 }
             )
         }
@@ -220,10 +208,9 @@ fun SettingsScreen(
             SwitchPreferenceItem(
                 title = stringResource(R.string.kill_child_processes),
                 summary = stringResource(R.string.kill_child_processes_summary),
-                checked = killChildProcesses.value,
+                checked = killChildProcesses,
                 onCheckedChange = {
-                    killChildProcesses.value = it
-                    App.preferences.edit { putBoolean("kill_child_processes", it) }
+                    viewModel.setKillChildProcesses(it)
                 }
             )
         }
@@ -236,7 +223,7 @@ fun SettingsScreen(
         item {
             PreferenceItem(
                 title = stringResource(R.string.about),
-                onClick = { showAboutDialog = true }
+                onClick = { viewModel.showAboutDialog() }
             )
         }
 
@@ -252,28 +239,28 @@ fun SettingsScreen(
 
     if (showDarkThemeDialog) {
         DarkThemeDialog(
-            onDismiss = { showDarkThemeDialog = false },
+            onDismiss = { viewModel.hideDarkThemeDialog() },
             onSelect = { mode ->
                 ThemeManager.setThemeMode(mode)
-                showDarkThemeDialog = false
+                viewModel.hideDarkThemeDialog()
             }
         )
     }
 
     if (showBackupDialog) {
         BackupDialog(
-            onDismiss = { showBackupDialog = false },
+            onDismiss = { viewModel.hideBackupDialog() },
             onConfirm = { args ->
-                lastBackupArgs = args
+                viewModel.setLastBackupArgs(args)
                 saveFileLauncher.launch("runner_backup_${System.currentTimeMillis()}.tar")
-                showBackupDialog = false
+                viewModel.hideBackupDialog()
             }
         )
     }
 
     if (showAboutDialog) {
         AboutDialog(
-            onDismiss = { showAboutDialog = false }
+            onDismiss = { viewModel.hideAboutDialog() }
         )
     }
 }

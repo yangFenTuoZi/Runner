@@ -36,7 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,40 +52,33 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.activity.BridgeActivity
 import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
 import yangfentuozi.runner.app.ui.components.BeautifulCard
 import yangfentuozi.runner.app.ui.dialogs.EditCommandDialog
 import yangfentuozi.runner.app.ui.dialogs.ExecDialog
+import yangfentuozi.runner.app.ui.viewmodels.RunnerViewModel
 import yangfentuozi.runner.shared.data.CommandInfo
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RunnerScreen(activity: ComponentActivity) {
+fun RunnerScreen(
+    activity: ComponentActivity,
+    viewModel: RunnerViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val dataRepository = remember { DataRepository.getInstance(context) }
-    var commands by remember { mutableStateOf(listOf<CommandInfo>()) }
-    var isRefreshing by remember { mutableStateOf(false) }
-    var showAddDialog by remember { mutableStateOf(false) }
-    var commandToExec by remember { mutableStateOf<CommandInfo?>(null) }
-    var commandToEdit by remember { mutableStateOf<Pair<CommandInfo, Int>?>(null) }
-
-    val loadCommands = {
-        isRefreshing = true
-        commands = dataRepository.getAllCommands()
-        isRefreshing = false
-    }
-
-    LaunchedEffect(Unit) {
-        loadCommands()
-    }
+    val commands by viewModel.commands.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val showAddDialog by viewModel.showAddDialog.collectAsState()
+    val commandToExec by viewModel.commandToExec.collectAsState()
+    val commandToEdit by viewModel.commandToEdit.collectAsState()
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            FloatingActionButton(onClick = { viewModel.showAddDialog() }) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
             }
         }
@@ -115,11 +108,10 @@ fun RunnerScreen(activity: ComponentActivity) {
                     CommandItem(
                         command = command,
                         position = index,
-                        onRun = { commandToExec = command },
-                        onEdit = { commandToEdit = command to index },
+                        onRun = { viewModel.showExecDialog(command) },
+                        onEdit = { viewModel.showEditDialog(command, index) },
                         onDelete = {
-                            dataRepository.deleteCommand(index)
-                            loadCommands()
+                            viewModel.deleteCommand(index)
                         },
                         onCopyName = {
                             command.name?.let { name ->
@@ -181,11 +173,10 @@ fun RunnerScreen(activity: ComponentActivity) {
     if (showAddDialog) {
         EditCommandDialog(
             command = null,
-            onDismiss = { showAddDialog = false },
+            onDismiss = { viewModel.hideAddDialog() },
             onConfirm = { newCommand ->
-                dataRepository.addCommand(newCommand)
-                loadCommands()
-                showAddDialog = false
+                viewModel.addCommand(newCommand)
+                viewModel.hideAddDialog()
             }
         )
     }
@@ -193,11 +184,10 @@ fun RunnerScreen(activity: ComponentActivity) {
     commandToEdit?.let { (command, position) ->
         EditCommandDialog(
             command = command,
-            onDismiss = { commandToEdit = null },
+            onDismiss = { viewModel.hideEditDialog() },
             onConfirm = { updatedCommand ->
-                dataRepository.updateCommand(updatedCommand, position)
-                loadCommands()
-                commandToEdit = null
+                viewModel.updateCommand(updatedCommand, position)
+                viewModel.hideEditDialog()
             }
         )
     }
@@ -205,7 +195,7 @@ fun RunnerScreen(activity: ComponentActivity) {
     commandToExec?.let { command ->
         ExecDialog(
             command = command,
-            onDismiss = { commandToExec = null }
+            onDismiss = { viewModel.hideExecDialog() }
         )
     }
 }

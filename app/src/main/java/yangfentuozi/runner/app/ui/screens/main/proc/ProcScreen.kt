@@ -25,7 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,49 +33,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.app.ui.viewmodels.ProcViewModel
 import yangfentuozi.runner.shared.data.ProcessInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProcScreen(activity: ComponentActivity) {
-    val context = LocalContext.current
-    var processes by remember { mutableStateOf(listOf<ProcessInfo>()) }
-    var isRefreshing by remember { mutableStateOf(false) }
-    var showKillAllDialog by remember { mutableStateOf(false) }
-
-    val loadProcesses = {
-        isRefreshing = true
-        processes = if (Runner.pingServer()) {
-            try {
-                val allProcesses = Runner.service?.processes
-                allProcesses?.filter { it.exe == ServerMain.USR_PATH + "/bin/bash" } ?: emptyList()
-            } catch (e: Exception) {
-                emptyList()
-            }
-        } else {
-            emptyList()
-        }
-        isRefreshing = false
-    }
-
-    LaunchedEffect(Unit) {
-        loadProcesses()
-    }
+fun ProcScreen(
+    activity: ComponentActivity,
+    viewModel: ProcViewModel = viewModel()
+) {
+    val processes by viewModel.processes.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val showKillAllDialog by viewModel.showKillAllDialog.collectAsState()
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     if (Runner.pingServer() && processes.isNotEmpty()) {
-                        showKillAllDialog = true
+                        viewModel.showKillAllDialog()
                     }
                 }
             ) {
@@ -122,8 +104,7 @@ fun ProcScreen(activity: ComponentActivity) {
                     ProcessItem(
                         process = process,
                         onKill = {
-                            killPIDs(intArrayOf(process.pid))
-                            loadProcesses()
+                            viewModel.killProcess(process.pid)
                         }
                     )
                 }
@@ -133,26 +114,20 @@ fun ProcScreen(activity: ComponentActivity) {
 
     if (showKillAllDialog) {
         AlertDialog(
-            onDismissRequest = { showKillAllDialog = false },
+            onDismissRequest = { viewModel.hideKillAllDialog() },
             title = { Text(stringResource(R.string.kill_all_processes)) },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showKillAllDialog = false
-                        Thread {
-                            val pids = processes.map { it.pid }.toIntArray()
-                            killPIDs(pids)
-                            activity.runOnUiThread {
-                                loadProcesses()
-                            }
-                        }.start()
+                        viewModel.hideKillAllDialog()
+                        viewModel.killAllProcesses()
                     }
                 ) {
                     Text(stringResource(android.R.string.ok))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showKillAllDialog = false }) {
+                TextButton(onClick = { viewModel.hideKillAllDialog() }) {
                     Text(stringResource(android.R.string.cancel))
                 }
             }
@@ -236,38 +211,5 @@ private fun ProcessItem(
             }
         )
     }
-}
-
-private fun killPIDs(pids: IntArray) {
-    if (Runner.pingServer()) {
-        try {
-            val signal = if (App.preferences.getBoolean("force_kill", false)) 9 else 15
-            if (App.preferences.getBoolean("kill_child_processes", false)) {
-                val processes = Runner.service?.processes
-                if (processes == null) {
-                    Runner.service?.sendSignal(pids, signal)
-                } else {
-                    val childPids = mutableSetOf<Int>()
-                    pids.forEach { pid ->
-                        childPids.addAll(findChildProcesses(processes, pid))
-                    }
-                    Runner.service?.sendSignal((pids.toList() + childPids).toIntArray(), signal)
-                }
-            } else {
-                Runner.service?.sendSignal(pids, signal)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
-
-private fun findChildProcesses(processes: Array<ProcessInfo>, pid: Int): List<Int> {
-    val result = mutableListOf<Int>()
-    processes.filter { it.ppid == pid }.forEach { child ->
-        result.add(child.pid)
-        result.addAll(findChildProcesses(processes, child.pid))
-    }
-    return result.distinct()
 }
 

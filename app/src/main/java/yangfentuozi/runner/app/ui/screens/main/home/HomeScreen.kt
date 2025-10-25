@@ -23,13 +23,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,43 +32,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.activity.InstallTermExtActivity
 import yangfentuozi.runner.app.ui.components.BeautifulCard
-import yangfentuozi.runner.shared.data.TermExtVersion
+import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel()
+) {
     val context = LocalContext.current
-    var refreshTrigger by remember { mutableIntStateOf(0) }
-    
-    // 监听 Runner 状态变化
-    LaunchedEffect(Unit) {
-        Runner.refreshStatus()
-    }
-
-    DisposableEffect(Unit) {
-        val shizukuPermissionListener = Runner.ShizukuPermissionListener {
-            refreshTrigger++
-        }
-        val shizukuStatusListener = Runner.ShizukuStatusListener {
-            refreshTrigger++
-        }
-        val serviceStatusListener = Runner.ServiceStatusListener {
-            refreshTrigger++
-        }
-
-        Runner.addShizukuPermissionListener(shizukuPermissionListener)
-        Runner.addShizukuStatusListener(shizukuStatusListener)
-        Runner.addServiceStatusListener(serviceStatusListener)
-
-        onDispose {
-            Runner.removeShizukuPermissionListener(shizukuPermissionListener)
-            Runner.removeShizukuStatusListener(shizukuStatusListener)
-            Runner.removeServiceStatusListener(serviceStatusListener)
-        }
-    }
+    val refreshTrigger by viewModel.refreshTrigger.collectAsState()
 
     // 文件选择器用于安装 Term Ext
     val pickFileLauncher = rememberLauncherForActivityResult(
@@ -110,26 +81,29 @@ fun HomeScreen() {
         contentPadding = PaddingValues(vertical = 4.dp)
     ) {
         item(key = "service_status_$refreshTrigger") {
-            ServiceStatusCard()
+            ServiceStatusCard(viewModel)
         }
         item(key = "shizuku_status_$refreshTrigger") {
             ShizukuStatusCard()
         }
         if (!Runner.shizukuPermission) {
             item(key = "grant_perm_$refreshTrigger") {
-                GrantShizukuPermCard()
+                GrantShizukuPermCard(viewModel)
             }
         }
         if (Runner.pingServer()) {
             item(key = "term_ext_$refreshTrigger") {
-                TermExtStatusCard(onInstallTermExt)
+                TermExtStatusCard(
+                    onInstallTermExt = onInstallTermExt,
+                    viewModel = viewModel
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ServiceStatusCard() {
+private fun ServiceStatusCard(viewModel: HomeViewModel) {
     val isRunning = Runner.pingServer()
     val version = Runner.serviceVersion
 
@@ -138,11 +112,7 @@ private fun ServiceStatusCard() {
         title = stringResource(if (isRunning) R.string.service_is_running else R.string.service_not_running),
         summary = if (isRunning) stringResource(R.string.service_version, version) else null,
         onClick = if (!isRunning) {
-            {
-                Thread {
-                    Runner.tryBindService()
-                }.start()
-            }
+            { viewModel.tryBindService() }
         } else null
     )
 }
@@ -164,12 +134,12 @@ private fun ShizukuStatusCard() {
 }
 
 @Composable
-private fun GrantShizukuPermCard() {
+private fun GrantShizukuPermCard(viewModel: HomeViewModel) {
     BeautifulCard (
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                Runner.requestPermission()
+                viewModel.requestPermission()
             }
     ) {
         Row(
@@ -200,16 +170,11 @@ private fun GrantShizukuPermCard() {
 }
 
 @Composable
-private fun TermExtStatusCard(onInstallTermExt: () -> Unit) {
-    var termExtVersion by remember { mutableStateOf<TermExtVersion?>(null) }
-
-    LaunchedEffect(Unit) {
-        try {
-            termExtVersion = Runner.service?.termExtVersion
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+private fun TermExtStatusCard(
+    onInstallTermExt: () -> Unit,
+    viewModel: HomeViewModel
+) {
+    val termExtVersion by viewModel.termExtVersion.collectAsState()
 
     val isInstalled = (termExtVersion?.versionCode ?: -1) != -1
     val versionText = termExtVersion?.versionName ?: ""

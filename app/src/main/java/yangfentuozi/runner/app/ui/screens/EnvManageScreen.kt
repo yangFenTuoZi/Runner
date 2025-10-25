@@ -34,43 +34,32 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.data.DataRepository
 import yangfentuozi.runner.app.ui.theme.RunnerTheme
+import yangfentuozi.runner.app.ui.viewmodels.EnvManageViewModel
 import yangfentuozi.runner.shared.data.EnvInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnvManageScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: EnvManageViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    val dataRepository = remember { DataRepository.getInstance(context) }
-    var envList by remember { mutableStateOf(listOf<EnvInfo>()) }
-    var isRefreshing by remember { mutableStateOf(false) }
-    var showAddDialog by remember { mutableStateOf(false) }
-    var envToEdit by remember { mutableStateOf<EnvInfo?>(null) }
-    var envToDelete by remember { mutableStateOf<EnvInfo?>(null) }
-
-    val loadEnvs = {
-        isRefreshing = true
-        envList = dataRepository.getAllEnvs()
-        isRefreshing = false
-    }
-
-    LaunchedEffect(Unit) {
-        loadEnvs()
-    }
+    val envList by viewModel.envList.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val showAddDialog by viewModel.showAddDialog.collectAsState()
+    val envToEdit by viewModel.envToEdit.collectAsState()
+    val envToDelete by viewModel.envToDelete.collectAsState()
 
     Scaffold(
         topBar = {
@@ -84,7 +73,7 @@ fun EnvManageScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            FloatingActionButton(onClick = { viewModel.showAddDialog() }) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
             }
         }
@@ -126,8 +115,8 @@ fun EnvManageScreen(
                 ) { index, env ->
                     EnvItem(
                         env = env,
-                        onEdit = { envToEdit = env },
-                        onDelete = { envToDelete = env }
+                        onEdit = { viewModel.showEditDialog(env) },
+                        onDelete = { viewModel.showDeleteDialog(env) }
                     )
                 }
             }
@@ -137,11 +126,10 @@ fun EnvManageScreen(
     if (showAddDialog) {
         EditEnvDialog(
             env = null,
-            onDismiss = { showAddDialog = false },
+            onDismiss = { viewModel.hideAddDialog() },
             onConfirm = { key, value ->
-                dataRepository.addEnv(key, value)
-                loadEnvs()
-                showAddDialog = false
+                viewModel.addEnv(key, value)
+                viewModel.hideAddDialog()
             }
         )
     }
@@ -149,33 +137,31 @@ fun EnvManageScreen(
     envToEdit?.let { env ->
         EditEnvDialog(
             env = env,
-            onDismiss = { envToEdit = null },
+            onDismiss = { viewModel.hideEditDialog() },
             onConfirm = { key, value ->
-                dataRepository.updateEnv(env.key!!, env.value!!, key, value)
-                loadEnvs()
-                envToEdit = null
+                viewModel.updateEnv(env.key!!, env.value!!, key, value)
+                viewModel.hideEditDialog()
             }
         )
     }
 
     envToDelete?.let { env ->
         AlertDialog(
-            onDismissRequest = { envToDelete = null },
+            onDismissRequest = { viewModel.hideDeleteDialog() },
             title = { Text(stringResource(R.string.delete)) },
             text = { Text("Delete ${env.key}?") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        dataRepository.deleteEnv(env.key!!)
-                        loadEnvs()
-                        envToDelete = null
+                        viewModel.deleteEnv(env.key!!)
+                        viewModel.hideDeleteDialog()
                     }
                 ) {
                     Text(stringResource(android.R.string.ok))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { envToDelete = null }) {
+                TextButton(onClick = { viewModel.hideDeleteDialog() }) {
                     Text(stringResource(android.R.string.cancel))
                 }
             }
