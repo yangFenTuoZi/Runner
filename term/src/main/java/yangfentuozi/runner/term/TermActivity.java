@@ -55,10 +55,7 @@ import androidx.preference.PreferenceManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.IOException;
-import java.text.Collator;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import jackpal.androidterm.emulatorview.EmulatorView;
 import jackpal.androidterm.emulatorview.TermSession;
@@ -171,8 +168,8 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this,
-                SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
-                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT));
+                SystemBarStyle.dark(Color.TRANSPARENT),
+                SystemBarStyle.dark(Color.TRANSPARENT));
 
         Log.v(TermDebug.LOG_TAG, "onCreate");
 
@@ -298,28 +295,6 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
                     .setPositiveButton(android.R.string.cancel, null)
                     .show();
         }
-    }
-
-    private String makePathFromBundle(Bundle extras) {
-        if (extras == null || extras.isEmpty()) {
-            return "";
-        }
-
-        String[] keys = new String[extras.size()];
-        keys = extras.keySet().toArray(keys);
-        Collator collator = Collator.getInstance(Locale.US);
-        Arrays.sort(keys, collator);
-
-        StringBuilder path = new StringBuilder();
-        for (String key : keys) {
-            String dir = extras.getString(key);
-            if (dir != null && !dir.isEmpty()) {
-                path.append(dir);
-                path.append(":");
-            }
-        }
-
-        return path.substring(0, path.length() - 1);
     }
 
     @Override
