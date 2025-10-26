@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import yangfentuozi.runner.app.App
+import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+class SettingsViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
     private val _showDarkThemeDialog = MutableStateFlow(false)
     val showDarkThemeDialog: StateFlow<Boolean> = _showDarkThemeDialog.asStateFlow()
 
@@ -79,6 +80,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setLastBackupArgs(args: BooleanArray) {
         _lastBackupArgs.value = args
+    }
+
+    override fun hideAllDialogs() {
+        hideAboutDialog()
+        hideBackupDialog()
+        hideDarkThemeDialog()
     }
 }
 

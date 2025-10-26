@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import yangfentuozi.runner.app.data.DataRepository
+import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.shared.data.CommandInfo
 
-class RunnerViewModel(application: Application) : AndroidViewModel(application) {
+class RunnerViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
     private val dataRepository = DataRepository.getInstance(application)
 
     private val _commands = MutableStateFlow<List<CommandInfo>>(emptyList())
@@ -88,6 +89,12 @@ class RunnerViewModel(application: Application) : AndroidViewModel(application) 
             dataRepository.deleteCommand(position)
             loadCommands()
         }
+    }
+
+    override fun hideAllDialogs() {
+        hideExecDialog()
+        hideAddDialog()
+        hideEditDialog()
     }
 }
 

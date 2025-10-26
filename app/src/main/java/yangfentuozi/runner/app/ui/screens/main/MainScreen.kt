@@ -268,3 +268,7 @@ sealed class Screen(val route: String) {
     data object EnvManage : Screen("envmanage")
     data object InstallTermExt : Screen("installtermext")
 }
+
+interface HideAllDialogs {
+    fun hideAllDialogs()
+}

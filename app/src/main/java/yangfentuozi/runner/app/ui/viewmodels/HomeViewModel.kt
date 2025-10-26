@@ -9,9 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.shared.data.TermExtVersion
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+class HomeViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
     private val _refreshTrigger = MutableStateFlow(0)
     val refreshTrigger: StateFlow<Int> = _refreshTrigger.asStateFlow()
 
@@ -104,6 +105,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun hideRemoveTermExtConfirmDialog() {
         _showRemoveTermExtConfirmDialog.value = false
+    }
+
+    override fun hideAllDialogs() {
+        hideRemoveTermExtConfirmDialog()
     }
 }
 

@@ -50,6 +50,7 @@ fun HomeScreen(
                 }
 
                 Lifecycle.Event.ON_STOP -> {
+                    viewModel.hideAllDialogs()
                 }
 
                 else -> {}

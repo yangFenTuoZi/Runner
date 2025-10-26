@@ -11,10 +11,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.server.ServerMain
 import yangfentuozi.runner.shared.data.ProcessInfo
 
-class ProcViewModel(application: Application) : AndroidViewModel(application) {
+class ProcViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
     private val _processes = MutableStateFlow<List<ProcessInfo>>(emptyList())
     val processes: StateFlow<List<ProcessInfo>> = _processes.asStateFlow()
 
@@ -23,6 +24,9 @@ class ProcViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _showKillAllDialog = MutableStateFlow(false)
     val showKillAllDialog: StateFlow<Boolean> = _showKillAllDialog.asStateFlow()
+
+    private val _showKillDialog = MutableStateFlow(-1)
+    val showKillDialog: StateFlow<Int> = _showKillDialog.asStateFlow()
 
     init {
         loadProcesses()
@@ -54,6 +58,14 @@ class ProcViewModel(application: Application) : AndroidViewModel(application) {
 
     fun hideKillAllDialog() {
         _showKillAllDialog.value = false
+    }
+
+    fun showKillDialog(pid: Int) {
+        _showKillDialog.value = pid
+    }
+
+    fun hideKillDialog() {
+        _showKillDialog.value = -1
     }
 
     fun killProcess(pid: Int) {
@@ -102,6 +114,11 @@ class ProcViewModel(application: Application) : AndroidViewModel(application) {
             result.addAll(findChildProcesses(processes, child.pid))
         }
         return result.distinct()
+    }
+
+    override fun hideAllDialogs() {
+        hideKillAllDialog()
+        hideKillDialog()
     }
 }
 

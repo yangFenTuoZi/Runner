@@ -43,6 +43,7 @@ fun ProcScreen(
     val processes by viewModel.processes.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val showKillAllDialog by viewModel.showKillAllDialog.collectAsState()
+    val showKillDialog by viewModel.showKillDialog.collectAsState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -55,6 +56,7 @@ fun ProcScreen(
                 }
 
                 Lifecycle.Event.ON_STOP -> {
+                    viewModel.hideAllDialogs()
                 }
 
                 else -> {}
@@ -118,9 +120,7 @@ fun ProcScreen(
                 items(processes) { process ->
                     ProcessItem(
                         process = process,
-                        onKill = {
-                            viewModel.killProcess(process.pid)
-                        }
+                        viewModel = viewModel
                     )
                 }
             }
@@ -143,6 +143,29 @@ fun ProcScreen(
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideKillAllDialog() }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            }
+        )
+    }
+    if (showKillDialog != -1) {
+        AlertDialog(
+            onDismissRequest = { viewModel.hideKillDialog() },
+            title = { Text(stringResource(R.string.kill_process_ask)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.hideKillDialog()
+                        Thread {
+                            viewModel.killProcess(showKillDialog)
+                        }.start()
+                    }
+                ) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.hideKillDialog() }) {
                     Text(stringResource(android.R.string.cancel))
                 }
             }

@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import yangfentuozi.runner.app.data.DataRepository
+import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.shared.data.EnvInfo
 
-class EnvManageViewModel(application: Application) : AndroidViewModel(application) {
+class EnvManageViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
     private val dataRepository = DataRepository.getInstance(application)
 
     private val _envList = MutableStateFlow<List<EnvInfo>>(emptyList())
@@ -88,6 +89,12 @@ class EnvManageViewModel(application: Application) : AndroidViewModel(applicatio
             dataRepository.deleteEnv(key)
             loadEnvs()
         }
+    }
+
+    override fun hideAllDialogs() {
+        hideAddDialog()
+        hideEditDialog()
+        hideDeleteDialog()
     }
 }
 
