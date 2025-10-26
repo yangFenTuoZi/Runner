@@ -230,6 +230,7 @@ class ServerMain : IService.Stub() {
         // 启动 RishService
         Log.i(TAG, "start RishService")
         rishService = RishService()
+        updateRishServiceEnv()
     }
 
     override fun destroy() {
@@ -265,7 +266,7 @@ class ServerMain : IService.Stub() {
                 } catch (_: RemoteException) {
                 }
             }
-            
+
             try {
                 if (!execUtils.isLibraryLoaded) {
                     Log.e(TAG, "executils library not loaded")
@@ -286,46 +287,21 @@ class ServerMain : IService.Stub() {
                 } catch (e: ErrnoException) {
                     Log.w(TAG, "set permission error", e)
                 }
-                
-                // 准备环境变量
-                val envMap = mutableMapOf<String, String>()
-                envMap["PREFIX"] = USR_PATH
-                envMap["HOME"] = HOME_PATH
-                envMap["TMPDIR"] = "$USR_PATH/tmp"
-                envMap["PATH"] = "$HOME_PATH/.local/bin:$USR_PATH/bin:$USR_PATH/bin/applets"
-                envMap["LD_LIBRARY_PATH"] = "$HOME_PATH/.local/lib:$USR_PATH/lib"
-                
-                // 添加自定义环境变量
-                for (entry in customEnv) {
-                    entry.key?.let { key ->
-                        entry.value?.let { value ->
-                            val oldValue = envMap[key]
-                            envMap[key] = if (oldValue != null) {
-                                value.replace(
-                                    Regex("\\$(${Pattern.quote(key)}|\\{${Pattern.quote(key)}\\})"),
-                                    oldValue
-                                )
-                            } else {
-                                value
-                            }
-                        }
-                    }
-                }
-                
-                val envp = envMap.map { "${it.key}=${it.value}" }.toTypedArray()
-                
+
+                val envp = mergedEnv
+
                 // 准备命令参数（不使用 -c，通过 stdin 传递命令）
                 val argv = arrayOf(
                     "bash",
                     "--nice-name",
                     if (procName.isNullOrEmpty()) "execTask" else procName
                 )
-                
+
                 // 创建管道用于 stdin
                 val stdinPipe = ParcelFileDescriptor.createPipe()
                 val stdinRead = stdinPipe[0]
                 val stdinWrite = stdinPipe[1]
-                
+
                 // 使用 JNI 执行命令
                 val pid = execUtils.exec(
                     "$USR_PATH/bin/bash",  // 可执行文件路径
@@ -335,7 +311,7 @@ class ServerMain : IService.Stub() {
                     stdout.fd,
                     stdout.detachFd()
                 )
-                
+
                 // 通过 stdin 传递命令
                 try {
                     ParcelFileDescriptor.AutoCloseOutputStream(stdinWrite).use { stream ->
@@ -345,7 +321,7 @@ class ServerMain : IService.Stub() {
                 } catch (e: IOException) {
                     Log.w(TAG, "write to stdin error", e)
                 }
-                
+
                 if (pid < 0) {
                     Log.e(TAG, "exec failed")
                     errOutput("-1")
@@ -353,9 +329,9 @@ class ServerMain : IService.Stub() {
                     exit(127)
                     return@Thread
                 }
-                
+
                 Log.i(TAG, "Process started with PID: $pid")
-                
+
                 // 等待进程结束
                 val exitCode = execUtils.waitpid(pid)
                 exit(exitCode)
@@ -370,6 +346,7 @@ class ServerMain : IService.Stub() {
 
     override fun syncAllData(envs: MutableList<EnvInfo>?) {
         customEnv = envs ?: emptyList()
+        updateRishServiceEnv()
     }
 
     override fun getShellService(): IBinder? {
@@ -635,5 +612,39 @@ class ServerMain : IService.Stub() {
             }
         }
         return result ?: TermExtVersion("", -1, "")
+    }
+
+    val mergedEnv: Array<String>
+        get() {
+            // 准备环境变量
+            val envMap = mutableMapOf<String, String>()
+            envMap["PREFIX"] = USR_PATH
+            envMap["HOME"] = HOME_PATH
+            envMap["TMPDIR"] = "$USR_PATH/tmp"
+            envMap["PATH"] = "$HOME_PATH/.local/bin:$USR_PATH/bin:$USR_PATH/bin/applets"
+            envMap["LD_LIBRARY_PATH"] = "$HOME_PATH/.local/lib:$USR_PATH/lib"
+
+            // 添加自定义环境变量
+            for (entry in customEnv) {
+                entry.key?.let { key ->
+                    entry.value?.let { value ->
+                        val oldValue = envMap[key]
+                        envMap[key] = if (oldValue != null) {
+                            value.replace(
+                                Regex("\\$(${Pattern.quote(key)}|\\{${Pattern.quote(key)}\\})"),
+                                oldValue
+                            )
+                        } else {
+                            value
+                        }
+                    }
+                }
+            }
+
+            return envMap.map { "${it.key}=${it.value}" }.toTypedArray()
+        }
+
+    fun updateRishServiceEnv() {
+        rishService.updateEnv(mergedEnv)
     }
 }

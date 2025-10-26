@@ -42,5 +42,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.annotation:annotation:1.9.1")
     implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
+    implementation(project(":shared"))
 }

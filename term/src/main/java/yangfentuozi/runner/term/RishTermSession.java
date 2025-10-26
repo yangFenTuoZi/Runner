@@ -108,25 +108,6 @@ public class RishTermSession extends TermSession {
 
         // Get current environment and add TERM variable
         String termType = mSettings != null ? mSettings.getTermType() : "xterm-256color";
-        String[] env = System.getenv().entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + entry.getValue())
-                .toArray(String[]::new);
-        
-        // Add or replace TERM environment variable
-        boolean termSet = false;
-        for (int i = 0; i < env.length; i++) {
-            if (env[i].startsWith("TERM=")) {
-                env[i] = "TERM=" + termType;
-                termSet = true;
-                break;
-            }
-        }
-        if (!termSet) {
-            String[] newEnv = new String[env.length + 1];
-            System.arraycopy(env, 0, newEnv, 0, env.length);
-            newEnv[env.length] = "TERM=" + termType;
-            env = newEnv;
-        }
         
         Log.d(TAG, "TERM environment variable set to: " + termType);
 
@@ -139,7 +120,7 @@ public class RishTermSession extends TermSession {
             // Pass read end of stdin and write end of stdout to server
             pid = mRishService.createHost(
                     args,
-                    env,
+                    termType,
                     workingDir,
                     tty,
                     ParcelFileDescriptor.dup(mStdin[0]),

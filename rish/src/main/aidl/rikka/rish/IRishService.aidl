@@ -2,7 +2,7 @@ package rikka.rish;
 
 interface IRishService {
     int createHost(
-            in String[] args, in String[] env, in String dir,
+            in String[] args, String term, in String dir,
             byte tty,
             in ParcelFileDescriptor stdin, in ParcelFileDescriptor stdout, in ParcelFileDescriptor stderr) = 0;
 

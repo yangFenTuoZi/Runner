@@ -5,6 +5,10 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,35 +18,20 @@ public class RishService extends IRishService.Stub {
 
     private static final Map<Integer, RishHost> HOSTS = new HashMap<>();
 
-    private static final boolean IS_ROOT = Os.getuid() == 0;
+    @NonNull
+    private String[] customEnv = new String[0];
 
     @Override
     public int createHost(
-            String[] args, String[] env, String dir,
+            String[] args, String term, String dir,
             byte tty,
             ParcelFileDescriptor stdin, ParcelFileDescriptor stdout, ParcelFileDescriptor stderr) {
 
-        // Termux app set PATH and LD_PRELOAD to Termux's internal path.
-        // Adb does not have sufficient permissions to access such places.
-
-        // Under adb, users need to set RISH_PRESERVE_ENV=1 to preserve env.
-        // Under root, keep env unless RISH_PRESERVE_ENV=0 is set.
-
-        boolean allowEnv = IS_ROOT;
-        for (String e : env) {
-            if ("RISH_PRESERVE_ENV=1".equals(e)) {
-                allowEnv = true;
-                break;
-            } else if ("RISH_PRESERVE_ENV=0".equals(e)) {
-                allowEnv = false;
-                break;
-            }
-        }
-        if (!allowEnv) {
-            env = null;
-        }
-
-        RishHost host = new RishHost(args, env, dir, tty, stdin, stdout, stderr);
+        ArrayList<String> finalEnv = new ArrayList<>(customEnv.length + 1);
+        finalEnv.addAll(Arrays.asList(customEnv));
+        finalEnv.removeIf(s -> s.startsWith("TERM="));
+        finalEnv.add("TERM=" + term);
+        RishHost host = new RishHost(args, finalEnv.toArray(new String[0]), dir, tty, stdin, stdout, stderr);
         host.start();
         Log.d(TAG, "Forked " + host.getPid());
 
@@ -98,5 +87,9 @@ public class RishService extends IRishService.Stub {
             }
         }
         HOSTS.remove(hostPid);
+    }
+
+    public void updateEnv(@NonNull String[] envs) {
+        customEnv = envs;
     }
 }
