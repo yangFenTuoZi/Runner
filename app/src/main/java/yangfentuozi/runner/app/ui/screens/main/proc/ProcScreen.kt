@@ -12,10 +12,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,6 +30,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.ui.components.BlockWithAutoHideFloatActionButton
 import yangfentuozi.runner.app.ui.screens.main.proc.components.ProcessItem
 import yangfentuozi.runner.app.ui.viewmodels.ProcViewModel
 
@@ -69,63 +68,59 @@ fun ProcScreen(
         }
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (Runner.pingServer() && processes.isNotEmpty()) {
-                        viewModel.showKillAllDialog()
-                    }
+    BlockWithAutoHideFloatActionButton(
+        content = {
+            if (isRefreshing) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-            ) {
-                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.kill_all_processes))
-            }
-        }
-    ) { paddingValues ->
-        if (isRefreshing) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (processes.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = if (!Runner.pingServer()) {
-                        stringResource(R.string.service_not_running)
-                    } else {
-                        stringResource(R.string.no_processes)
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                contentPadding = PaddingValues(vertical = 4.dp)
-            ) {
-                items(processes) { process ->
-                    ProcessItem(
-                        process = process,
-                        viewModel = viewModel
+            } else if (processes.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (!Runner.pingServer()) {
+                            stringResource(R.string.service_not_running)
+                        } else {
+                            stringResource(R.string.no_processes)
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(vertical = 4.dp)
+                ) {
+                    items(processes) { process ->
+                        ProcessItem(
+                            process = process,
+                            viewModel = viewModel
+                        )
+                    }
+                }
             }
+        },
+        onClickFAB = {
+            if (Runner.pingServer() && processes.isNotEmpty()) {
+                viewModel.showKillAllDialog()
+            }
+        },
+        contentFAB = {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.kill_all_processes)
+            )
         }
-    }
+    )
 
     if (showKillAllDialog) {
         AlertDialog(

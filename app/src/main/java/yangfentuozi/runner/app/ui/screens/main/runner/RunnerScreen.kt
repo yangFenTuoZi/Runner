@@ -21,9 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.ui.activity.BridgeActivity
 import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
+import yangfentuozi.runner.app.ui.components.BlockWithAutoHideFloatActionButton
 import yangfentuozi.runner.app.ui.components.ExecDialog
 import yangfentuozi.runner.app.ui.screens.main.runner.components.CommandItem
 import yangfentuozi.runner.app.ui.screens.main.runner.components.EditCommandDialog
@@ -81,99 +80,108 @@ fun RunnerScreen(
         }
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.showAddDialog() }) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
-            }
-        }
-    ) { paddingValues ->
-        if (isRefreshing) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 4.dp)
-            ) {
-                itemsIndexed(
-                    items = commands,
-                    key = { index, _ -> index }
-                ) { index, command ->
-                    CommandItem(
-                        command = command,
-                        position = index,
-                        onRun = { viewModel.showExecDialog(command) },
-                        onEdit = { viewModel.showEditDialog(command, index) },
-                        onDelete = {
-                            viewModel.deleteCommand(index)
-                        },
-                        onCopyName = {
-                            command.name?.let { name ->
-                                (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
-                                    .setPrimaryClip(ClipData.newPlainText("c", name))
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.copied_info) + "\n" + name,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        onCopyCommand = {
-                            command.command?.let { cmd ->
-                                (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
-                                    .setPrimaryClip(ClipData.newPlainText("c", cmd))
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.copied_info) + "\n" + cmd,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        onAddShortcut = {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                val shortcutManager = context.getSystemService(ShortcutManager::class.java)
-                                if (shortcutManager.isRequestPinShortcutSupported) {
-                                    val label = if (command.name.isNullOrEmpty()) "Command" else command.name!!
-                                    val shortcut = ShortcutInfo.Builder(context, UUID.randomUUID().toString())
-                                        .setShortLabel(label)
-                                        .setLongLabel(label)
-                                        .setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                                        .setIntent(
-                                            Intent(
-                                                context,
-                                                if (isColorOS()) BridgeActivity::class.java else ExecShortcutActivity::class.java
-                                            )
-                                                .setAction(Intent.ACTION_VIEW)
-                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                .putExtra("data", command.toBundle())
-                                        )
-                                        .build()
-                                    shortcutManager.requestPinShortcut(shortcut, null)
+    BlockWithAutoHideFloatActionButton(
+        content = {
+            if (isRefreshing) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 4.dp)
+                ) {
+                    itemsIndexed(
+                        items = commands,
+                        key = { index, _ -> index }
+                    ) { index, command ->
+                        CommandItem(
+                            command = command,
+                            position = index,
+                            onRun = { viewModel.showExecDialog(command) },
+                            onEdit = { viewModel.showEditDialog(command, index) },
+                            onDelete = {
+                                viewModel.deleteCommand(index)
+                            },
+                            onCopyName = {
+                                command.name?.let { name ->
+                                    (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                                        .setPrimaryClip(ClipData.newPlainText("c", name))
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.copied_info) + "\n" + name,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Not supported on this Android version",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            },
+                            onCopyCommand = {
+                                command.command?.let { cmd ->
+                                    (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                                        .setPrimaryClip(ClipData.newPlainText("c", cmd))
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.copied_info) + "\n" + cmd,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            onAddShortcut = {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    val shortcutManager =
+                                        context.getSystemService(ShortcutManager::class.java)
+                                    if (shortcutManager.isRequestPinShortcutSupported) {
+                                        val label =
+                                            if (command.name.isNullOrEmpty()) "Command" else command.name!!
+                                        val shortcut = ShortcutInfo.Builder(
+                                            context,
+                                            UUID.randomUUID().toString()
+                                        )
+                                            .setShortLabel(label)
+                                            .setLongLabel(label)
+                                            .setIcon(
+                                                Icon.createWithResource(
+                                                    context,
+                                                    R.mipmap.ic_launcher
+                                                )
+                                            )
+                                            .setIntent(
+                                                Intent(
+                                                    context,
+                                                    if (isColorOS()) BridgeActivity::class.java else ExecShortcutActivity::class.java
+                                                )
+                                                    .setAction(Intent.ACTION_VIEW)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                    .putExtra("data", command.toBundle())
+                                            )
+                                            .build()
+                                        shortcutManager.requestPinShortcut(shortcut, null)
+                                    }
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Not supported on this Android version",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
+        },
+        onClickFAB = {
+            viewModel.showAddDialog()
+        },
+        contentFAB = {
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
         }
-    }
+    )
 
     if (showAddDialog) {
         EditCommandDialog(
