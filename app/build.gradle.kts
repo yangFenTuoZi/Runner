@@ -131,23 +131,16 @@ dependencies {
     implementation("androidx.compose.material:material")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.activity:activity-compose:1.11.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
     implementation("androidx.navigation:navigation-compose:2.9.5")
     implementation("androidx.compose.runtime:runtime-livedata")
     debugImplementation("androidx.compose.ui:ui-tooling")
-    
-    // RikkaX (保留核心功能)
-//    implementation("dev.rikka.rikkax.appcompat:appcompat:1.6.1")
-//    implementation("dev.rikka.rikkax.core:core:1.4.1")
-//    implementation("dev.rikka.rikkax.insets:insets:1.3.0")
-//    implementation("dev.rikka.rikkax.material:material:2.7.2")
-    
+
     // AndroidX
     implementation("com.google.android.material:material:1.13.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.core:core-ktx:1.17.0")
-//    implementation("androidx.appcompat:appcompat:1.7.1")
 
     // Shizuku
     val shizukuVersion = "13.1.5"
@@ -159,8 +152,6 @@ dependencies {
     implementation("dev.rikka.hidden:compat:4.4.0")
 
     implementation("org.apache.commons:commons-compress:1.28.0")
-    implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
-
 
     implementation(project(":emulatorview"))
     implementation(project(":term"))
