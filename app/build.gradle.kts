@@ -165,4 +165,5 @@ dependencies {
     implementation(project(":emulatorview"))
     implementation(project(":term"))
     implementation(project(":rish"))
+    implementation(project(":shared"))
 }
