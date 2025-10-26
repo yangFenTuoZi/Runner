@@ -111,13 +111,10 @@ public class WindowListAdapter extends BaseAdapter implements UpdateCallback {
     }
 
     private static Activity findActivityFromContext(Context context) {
-        if (context == null) {
-            return null;
-        } else if (context instanceof Activity) {
-            return (Activity) context;
-        } else if (context instanceof ContextWrapper cw) {
-            return findActivityFromContext(cw.getBaseContext());
-        }
-        return null;
+        return switch (context) {
+            case Activity activity -> activity;
+            case ContextWrapper cw -> findActivityFromContext(cw.getBaseContext());
+            case null, default -> null;
+        };
     }
 }

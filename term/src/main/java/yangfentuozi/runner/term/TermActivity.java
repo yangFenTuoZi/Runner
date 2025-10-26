@@ -39,17 +39,14 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -67,10 +64,10 @@ import yangfentuozi.runner.term.util.SessionList;
 import yangfentuozi.runner.term.util.TermSettings;
 
 /**
- * A terminal emulator fragment.
+ * A terminal emulator activity.
  */
 
-public class Term extends Fragment implements UpdateCallback, SharedPreferences.OnSharedPreferenceChangeListener {
+public class TermActivity extends AppCompatActivity implements UpdateCallback, SharedPreferences.OnSharedPreferenceChangeListener {
     /**
      * The ViewFlipper which holds the collection of EmulatorView widgets.
      */
@@ -100,6 +97,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
     private PowerManager.WakeLock mWakeLock;
 
+    private boolean mIsInitializing = false;
 
     private TermService mTermService;
     private ServiceConnection mTSConnection = new ServiceConnection() {
@@ -166,74 +164,56 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private View mRootView;
-    private View mEmptyStateView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Log.v(TermDebug.LOG_TAG, "onCreate");
 
-        final SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        setContentView(R.layout.term_activity);
+
+        final SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mSettings = new TermSettings(getResources(), mPrefs);
         mPrefs.registerOnSharedPreferenceChangeListener(this);
 
-        TSIntent = new Intent(requireContext(), TermService.class);
-        requireActivity().startService(TSIntent);
+        TSIntent = new Intent(this, TermService.class);
+        startService(TSIntent);
 
-        PowerManager pm = (PowerManager) requireActivity().getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TermDebug.LOG_TAG);
-    }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.term_activity, container, false);
-        return mRootView;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        mViewFlipper = view.findViewById(VIEW_FLIPPER);
+        // Initialize views
+        mRootView = findViewById(android.R.id.content);
+        mViewFlipper = findViewById(VIEW_FLIPPER);
         if (mWinListAdapter != null)
             mWinListAdapter.setTermViewFlipper(mViewFlipper);
 
-        // Setup empty state view
-        mEmptyStateView = view.findViewById(R.id.empty_state_view);
-        mEmptyStateView.setOnClickListener(v -> {
-            // Create new session when empty state view is clicked
-            doCreateNewWindow();
-        });
-
         // Setup bottom toolbar
         setupBottomToolbar();
-
-        updatePrefs();
     }
 
     private void setupBottomToolbar() {
         // First row buttons - using physical key codes
-        mRootView.findViewById(R.id.btn_esc).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_ESCAPE));
-        mRootView.findViewById(R.id.btn_tab).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_TAB));
-        mRootView.findViewById(R.id.btn_pgup).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_PAGE_UP));
-        mRootView.findViewById(R.id.btn_home).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_MOVE_HOME));
-        mRootView.findViewById(R.id.btn_up).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_UP));
-        mRootView.findViewById(R.id.btn_end).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_MOVE_END));
-        mRootView.findViewById(R.id.btn_toggle_toolbar).setOnClickListener(v -> toggleBottomToolbar());
+        findViewById(R.id.btn_esc).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_ESCAPE));
+        findViewById(R.id.btn_tab).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_TAB));
+        findViewById(R.id.btn_pgup).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_PAGE_UP));
+        findViewById(R.id.btn_home).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_MOVE_HOME));
+        findViewById(R.id.btn_up).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_UP));
+        findViewById(R.id.btn_end).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_MOVE_END));
+        findViewById(R.id.btn_toggle_toolbar).setOnClickListener(v -> toggleBottomToolbar());
 
         // Second row buttons - using physical key codes
-        mRootView.findViewById(R.id.btn_ctrl).setOnClickListener(v -> doSendControlKey());
-        mRootView.findViewById(R.id.btn_alt).setOnClickListener(v -> doSendAltKey());
-        mRootView.findViewById(R.id.btn_pgdn).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_PAGE_DOWN));
-        mRootView.findViewById(R.id.btn_left).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_LEFT));
-        mRootView.findViewById(R.id.btn_down).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_DOWN));
-        mRootView.findViewById(R.id.btn_right).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_RIGHT));
-        mRootView.findViewById(R.id.btn_switch_window).setOnClickListener(v -> showWindowList());
+        findViewById(R.id.btn_ctrl).setOnClickListener(v -> doSendControlKey());
+        findViewById(R.id.btn_alt).setOnClickListener(v -> doSendAltKey());
+        findViewById(R.id.btn_pgdn).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_PAGE_DOWN));
+        findViewById(R.id.btn_left).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_LEFT));
+        findViewById(R.id.btn_down).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_DOWN));
+        findViewById(R.id.btn_right).setOnClickListener(v -> sendKeyCode(KeyEvent.KEYCODE_DPAD_RIGHT));
+        findViewById(R.id.btn_switch_window).setOnClickListener(v -> showWindowList());
 
         // Measure and set the bottom toolbar height to TermViewFlipper
-        View toolbar = mRootView.findViewById(R.id.bottom_toolbar);
+        View toolbar = findViewById(R.id.bottom_toolbar);
         toolbar.post(() -> {
             int toolbarHeight = toolbar.getHeight();
             if (toolbarHeight > 0) {
@@ -243,7 +223,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     }
 
     private void toggleBottomToolbar() {
-        View toolbar = mRootView.findViewById(R.id.bottom_toolbar);
+        View toolbar = findViewById(R.id.bottom_toolbar);
 
         if (toolbar.getVisibility() == View.VISIBLE) {
             // Hide toolbar - will be restored on keyboard show or activity restart
@@ -253,7 +233,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     }
 
     private void restoreBottomToolbar() {
-        View toolbar = mRootView.findViewById(R.id.bottom_toolbar);
+        View toolbar = findViewById(R.id.bottom_toolbar);
         if (toolbar.getVisibility() != View.VISIBLE) {
             toolbar.setVisibility(View.VISIBLE);
 
@@ -301,7 +281,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     private void showWindowList() {
         if (mWinListAdapter != null) {
             mWinListAdapter.onUpdate();
-            new MaterialAlertDialogBuilder(requireContext())
+            new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.window_list)
                     .setAdapter(mWinListAdapter, (dialog, which) -> {
                         mViewFlipper.setDisplayedChild(which);
@@ -339,10 +319,10 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     }
 
     @Override
-    public void onStart() {
+    protected void onStart() {
         super.onStart();
 
-        if (!requireActivity().bindService(TSIntent, mTSConnection, Context.BIND_AUTO_CREATE)) {
+        if (!bindService(TSIntent, mTSConnection, Context.BIND_AUTO_CREATE)) {
             throw new IllegalStateException("Failed to bind to TermService!");
         }
     }
@@ -351,16 +331,23 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         if (mTermService != null) {
             mTermSessions = mTermService.getSessions();
 
-            // Don't automatically create a session when empty
-            // Instead, show the empty state view
+            // Mark that we're initializing to prevent premature finish()
+            mIsInitializing = true;
+
+            // If no sessions exist, create one automatically
             if (mTermSessions.isEmpty()) {
-                updateEmptyStateVisibility();
-                mTermSessions.addCallback(this);
-                return;
+                try {
+                    TermSession session = createTermSession();
+                    mTermSessions.add(session);
+                } catch (IOException e) {
+                    Toast.makeText(this, "Failed to create a session", Toast.LENGTH_SHORT).show();
+                    mIsInitializing = false;
+                    finish();
+                    return;
+                }
             }
 
-            mTermSessions.addCallback(this);
-
+            // Create views for all sessions
             for (TermSession session : mTermSessions) {
                 EmulatorView view = createEmulatorView(session);
                 mViewFlipper.addView(view);
@@ -373,8 +360,13 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
                 onResumeSelectWindow = -1;
             }
             mViewFlipper.onResume();
+
+            // Now that everything is set up, register the callback
+            // This will trigger onUpdate() but mIsInitializing prevents premature finish
+            mTermSessions.addCallback(this);
             
-            updateEmptyStateVisibility();
+            // Initialization complete
+            mIsInitializing = false;
         }
     }
 
@@ -384,26 +376,22 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
             if (mWinListAdapter == null) {
                 mWinListAdapter = new WindowListAdapter(mTermSessions);
                 mWinListAdapter.setTermViewFlipper(mViewFlipper);
-
-//                mActionBar.setListNavigationCallbacks(mWinListAdapter, mWinListItemSelected);
             } else {
                 mWinListAdapter.setSessions(mTermSessions);
             }
             mViewFlipper.addCallback(mWinListAdapter);
-
-//            mActionBar.setSelectedNavigationItem(position);
         }
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
 
-        PreferenceManager.getDefaultSharedPreferences(requireContext())
+        PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(this);
 
         if (mStopServiceOnFinish) {
-            requireActivity().stopService(TSIntent);
+            stopService(TSIntent);
         }
         mTermService = null;
         mTSConnection = null;
@@ -435,15 +423,15 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
     private TermSession createTermSession() throws IOException {
         TermSettings settings = mSettings;
-        TermSession session = createTermSession(requireContext(), settings);
+        TermSession session = createTermSession(this, settings);
         session.setFinishCallback(mTermService);
         return session;
     }
 
     private TermView createEmulatorView(TermSession session) {
         DisplayMetrics metrics = new DisplayMetrics();
-        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        TermView emulatorView = new TermView(requireContext(), session, metrics);
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        TermView emulatorView = new TermView(this, session, metrics);
 
         emulatorView.setExtGestureListener(new EmulatorViewGestureListener(emulatorView));
         registerForContextMenu(emulatorView);
@@ -474,7 +462,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
     private void updatePrefs() {
         DisplayMetrics metrics = new DisplayMetrics();
-        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         mViewFlipper.updatePrefs(mSettings);
 
@@ -491,7 +479,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
 
         /* Explicitly close the input method
@@ -499,13 +487,13 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
            our place */
         final IBinder token = mViewFlipper.getWindowToken();
         new Thread(() -> {
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(token, 0);
         }).start();
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         mViewFlipper.onPause();
         if (mTermSessions != null) {
             mTermSessions.removeCallback(this);
@@ -519,7 +507,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
         mViewFlipper.removeAllViews();
 
-        requireActivity().unbindService(mTSConnection);
+        unbindService(mTSConnection);
 
         super.onStop();
     }
@@ -555,16 +543,13 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
             mViewFlipper.addView(view);
             mViewFlipper.setDisplayedChild(mViewFlipper.getChildCount() - 1);
-            
-            // Update empty state visibility
-            updateEmptyStateVisibility();
         } catch (IOException e) {
-            Toast.makeText(requireContext(), "Failed to create a session", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Failed to create a session", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void confirmCloseWindow() {
-        final MaterialAlertDialogBuilder b = new MaterialAlertDialogBuilder(requireContext());
+        final MaterialAlertDialogBuilder b = new MaterialAlertDialogBuilder(this);
         b.setIcon(android.R.drawable.ic_dialog_alert);
         b.setMessage(R.string.confirm_window_close_message);
         final Runnable closeWindow = this::doCloseWindow;
@@ -589,12 +574,13 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         view.onPause();
         session.finish();
         mViewFlipper.removeView(view);
-        if (!mTermSessions.isEmpty()) {
+        
+        if (mTermSessions.isEmpty()) {
+            // Close activity when last session is closed
+            finish();
+        } else {
             mViewFlipper.showNext();
         }
-        
-        // Update empty state visibility when closing last session
-        updateEmptyStateVisibility();
     }
 
 
@@ -640,19 +626,21 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         };
     }
 
-    // Fragment doesn't handle onKeyUp - moved to Activity level or use OnBackPressedCallback
-    // Can be re-implemented using requireActivity().getOnBackPressedDispatcher() if needed
-
     // Called when the list of sessions changes
     public void onUpdate() {
+        // Don't finish during initialization
+        if (mIsInitializing) {
+            return;
+        }
+
         SessionList sessions = mTermSessions;
         if (sessions == null) {
             return;
         }
 
         if (sessions.isEmpty()) {
-            // Show empty state instead of finishing
-            updateEmptyStateVisibility();
+            // Close activity when no sessions remain
+            finish();
         } else if (sessions.size() < mViewFlipper.getChildCount()) {
             for (int i = 0; i < mViewFlipper.getChildCount(); ++i) {
                 EmulatorView v = (EmulatorView) mViewFlipper.getChildAt(i);
@@ -662,18 +650,17 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
                     --i;
                 }
             }
-            updateEmptyStateVisibility();
         }
     }
 
     private boolean canPaste() {
-        var clip = requireActivity().getSystemService(ClipboardManager.class);
+        var clip = getSystemService(ClipboardManager.class);
         var clipDescription = clip.getPrimaryClipDescription();
         return clip.hasPrimaryClip() && clipDescription != null && clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN);
     }
 
     private void doPreferences() {
-        startActivity(new Intent(requireContext(), TermPreferences.class));
+        startActivity(new Intent(this, TermPreferences.class));
     }
 
     private void doResetTerminal() {
@@ -684,7 +671,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     }
 
     private void doCopyAll() {
-        requireActivity().getSystemService(ClipboardManager.class)
+        getSystemService(ClipboardManager.class)
                 .setPrimaryClip(ClipData.newPlainText("terminalText", getCurrentTermSession().getTranscriptText().trim()));
     }
 
@@ -692,7 +679,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         if (!canPaste()) {
             return;
         }
-        var primaryClip = requireActivity().getSystemService(ClipboardManager.class).getPrimaryClip();
+        var primaryClip = getSystemService(ClipboardManager.class).getPrimaryClip();
         if (primaryClip != null && primaryClip.getItemCount() > 0) {
             ClipData.Item item = primaryClip.getItemAt(0);
             getCurrentTermSession().write(item.getText().toString());
@@ -709,7 +696,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
 
     private void doToggleSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager)
-                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
     }
@@ -720,7 +707,7 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
         } else {
             mWakeLock.acquire();
         }
-        requireActivity().invalidateOptionsMenu();
+        invalidateOptionsMenu();
     }
 
     private void doUIToggle(int x, int y, int width, int height) {
@@ -736,39 +723,10 @@ public class Term extends Fragment implements UpdateCallback, SharedPreferences.
     private void execURL(String link) {
         Uri webLink = Uri.parse(link);
         Intent openLink = new Intent(Intent.ACTION_VIEW, webLink);
-        PackageManager pm = requireActivity().getPackageManager();
+        PackageManager pm = getPackageManager();
         List<ResolveInfo> handlers = pm.queryIntentActivities(openLink, 0);
         if (!handlers.isEmpty())
             startActivity(openLink);
     }
-
-    /**
-     * Update the visibility of empty state view and bottom toolbar based on session count
-     */
-    private void updateEmptyStateVisibility() {
-        if (mEmptyStateView == null || mTermSessions == null) {
-            return;
-        }
-
-        View toolbar = mRootView.findViewById(R.id.bottom_toolbar);
-        
-        if (mTermSessions.isEmpty()) {
-            // Show empty state, hide toolbar
-            mEmptyStateView.setVisibility(View.VISIBLE);
-            toolbar.setVisibility(View.GONE);
-            mViewFlipper.setBottomToolbarHeight(0);
-        } else {
-            // Hide empty state, show toolbar
-            mEmptyStateView.setVisibility(View.GONE);
-            toolbar.setVisibility(View.VISIBLE);
-            
-            // Restore toolbar height
-            toolbar.post(() -> {
-                int toolbarHeight = toolbar.getHeight();
-                if (toolbarHeight > 0) {
-                    mViewFlipper.setBottomToolbarHeight(toolbarHeight);
-                }
-            });
-        }
-    }
 }
+

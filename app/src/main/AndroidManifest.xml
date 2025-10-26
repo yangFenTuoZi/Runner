@@ -74,6 +74,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="yangfentuozi.runner.term.TermActivity"
+            android:exported="false"
+            android:label="@string/title_terminal"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
+
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"

@@ -31,5 +31,5 @@ public class TermDebug {
      * from other messages in the log. Public because it's used by several
      * classes.
      */
-    public static final String LOG_TAG = "Term";
+    public static final String LOG_TAG = "TermActivity";
 }

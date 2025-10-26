@@ -75,7 +75,7 @@ public class TermService extends Service implements TermSession.FinishCallback {
         nb.setPriority(NotificationCompat.PRIORITY_LOW);
         nb.setCategory(NotificationCompat.CATEGORY_SERVICE);
 
-        Intent notifyIntent = new Intent(this, Term.class);
+        Intent notifyIntent = new Intent(this, TermActivity.class);
         notifyIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE);
 

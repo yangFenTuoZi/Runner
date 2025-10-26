@@ -1,5 +1,6 @@
 package yangfentuozi.runner.app.ui.screens.main
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,8 +43,8 @@ import yangfentuozi.runner.app.ui.screens.main.installtermext.InstallTermExtScre
 import yangfentuozi.runner.app.ui.screens.main.proc.ProcScreen
 import yangfentuozi.runner.app.ui.screens.main.runner.RunnerScreen
 import yangfentuozi.runner.app.ui.screens.main.settings.SettingsScreen
-import yangfentuozi.runner.app.ui.screens.main.term.TerminalScreen
 import yangfentuozi.runner.app.ui.viewmodels.MainViewModel
+import yangfentuozi.runner.term.TermActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,12 +132,19 @@ fun MainScreen() {
                             label = { Text(stringResource(item.labelRes)) },
                             selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                             onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+                                // 如果是 Terminal，启动独立 Activity
+                                if (item.route == Screen.Terminal.route) {
+                                    val intent = Intent(context, TermActivity::class.java)
+                                    context.startActivity(intent)
+                                } else {
+                                    // 其他页面使用导航
+                                    navController.navigate(item.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
-                                    launchSingleTop = true
-                                    restoreState = true
                                 }
                             }
                         )
@@ -162,9 +170,6 @@ fun MainScreen() {
             }
             composable(Screen.Runner.route) {
                 RunnerScreen()
-            }
-            composable(Screen.Terminal.route) {
-                TerminalScreen()
             }
             composable(Screen.Proc.route) {
                 ProcScreen()
