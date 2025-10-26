@@ -303,7 +303,12 @@ public class TermViewFlipper extends ViewFlipper implements Iterable<View> {
         Rect visible = mVisibleRect;
         int width = visible.width();
         // Subtract bottom toolbar height from available height
+        // When IME (keyboard) is visible, the system already adjusts the visible rect,
+        // so we only subtract toolbar height when IME is not showing
         int height = visible.height();
+        if (mLastImeHeight == 0 && mBottomToolbarHeight > 0) {
+            height = Math.max(0, height - mBottomToolbarHeight);
+        }
 
         if (mCurWidth != width || mCurHeight != height) {
             mCurWidth = width;
