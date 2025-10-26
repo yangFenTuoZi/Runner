@@ -27,6 +27,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,6 +46,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.SystemBarStyle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
@@ -163,11 +166,13 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
     }
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
-    private View mRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this,
+                SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT));
 
         Log.v(TermDebug.LOG_TAG, "onCreate");
 
@@ -184,7 +189,6 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TermDebug.LOG_TAG);
 
         // Initialize views
-        mRootView = findViewById(android.R.id.content);
         mViewFlipper = findViewById(VIEW_FLIPPER);
         if (mWinListAdapter != null)
             mWinListAdapter.setTermViewFlipper(mViewFlipper);
@@ -487,7 +491,7 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
            our place */
         final IBinder token = mViewFlipper.getWindowToken();
         new Thread(() -> {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(token, 0);
         }).start();
     }
@@ -574,11 +578,7 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
         view.onPause();
         session.finish();
         mViewFlipper.removeView(view);
-        
-        if (mTermSessions.isEmpty()) {
-            // Close activity when last session is closed
-            finish();
-        } else {
+        if (!mTermSessions.isEmpty()) {
             mViewFlipper.showNext();
         }
     }
@@ -628,18 +628,13 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
 
     // Called when the list of sessions changes
     public void onUpdate() {
-        // Don't finish during initialization
-        if (mIsInitializing) {
-            return;
-        }
-
         SessionList sessions = mTermSessions;
         if (sessions == null) {
             return;
         }
 
         if (sessions.isEmpty()) {
-            // Close activity when no sessions remain
+            mStopServiceOnFinish = true;
             finish();
         } else if (sessions.size() < mViewFlipper.getChildCount()) {
             for (int i = 0; i < mViewFlipper.getChildCount(); ++i) {
@@ -729,4 +724,3 @@ public class TermActivity extends AppCompatActivity implements UpdateCallback, S
             startActivity(openLink);
     }
 }
-

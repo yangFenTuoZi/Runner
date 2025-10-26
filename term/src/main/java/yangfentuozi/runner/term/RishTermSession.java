@@ -158,7 +158,7 @@ public class RishTermSession extends TermSession {
         mWatcherThread = new Thread(() -> {
             try {
                 Log.i(TAG, "Waiting for process to exit...");
-                int exitCode = Integer.MAX_VALUE;
+                int exitCode = mRishService.getExitCode(pid);
                 // Poll for exit code (getExitCode returns Integer.MAX_VALUE while process is running)
                 while (isRunning() && exitCode == Integer.MAX_VALUE) {
                     try {
@@ -284,6 +284,16 @@ public class RishTermSession extends TermSession {
     @Override
     public void finish() {
         Log.d(TAG, "finish() called");
+
+        if (!mProcessExited) {
+            try {
+                Log.d(TAG, "Killing remote process with pid " + pid);
+                mRishService.releaseHost(pid);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Failed to kill remote process", e);
+            }
+        }
+
         super.finish();
 
         // Clean up file descriptors
