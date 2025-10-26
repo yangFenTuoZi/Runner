@@ -40,35 +40,21 @@ public class TermView extends EmulatorView {
         super(context, session, metrics);
         setupKeyboardListener();
     }
-    
+
     private void setupKeyboardListener() {
         getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             Rect r = new Rect();
             getWindowVisibleDisplayFrame(r);
 
-            // 使用视图自己的高度，而不是 root view 的高度
-            // 这样可以正确处理有 Toolbar 和 BottomNavigation 的情况
-            int viewHeight = getHeight();
-            
-            // 获取视图在屏幕上的位置
-            int[] location = new int[2];
-            getLocationOnScreen(location);
-            int viewTop = location[1];
-            
-            // 计算键盘高度：视图底部到可见区域底部的距离
-            int viewBottom = viewTop + viewHeight;
-            int keypadHeight = viewBottom - r.bottom;
+            int screenHeight = getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
 
-            // 键盘可见的判断：键盘高度超过视图高度的 15%
-            boolean isKeyboardVisible = keypadHeight > viewHeight * 0.15;
+            boolean isKeyboardVisible = keypadHeight > screenHeight * 0.15;
 
-            Log.d("TermView", "GlobalLayout - viewHeight: " + viewHeight +
-                ", viewTop: " + viewTop +
-                ", viewBottom: " + viewBottom +
-                ", r.bottom: " + r.bottom +
-                ", keypadHeight: " + keypadHeight +
-                ", isKeyboardVisible: " + isKeyboardVisible +
-                ", wasVisible: " + mWasKeyboardVisible);
+            Log.d("TermView", "GlobalLayout - screenHeight: " + screenHeight +
+                    ", keypadHeight: " + keypadHeight +
+                    ", isKeyboardVisible: " + isKeyboardVisible +
+                    ", wasVisible: " + mWasKeyboardVisible);
 
             if (isKeyboardVisible != mWasKeyboardVisible) {
                 mWasKeyboardVisible = isKeyboardVisible;
