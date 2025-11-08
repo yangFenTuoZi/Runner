@@ -25,6 +25,9 @@ class RunnerViewModel(application: Application) : AndroidViewModel(application),
     private val _showAddDialog = MutableStateFlow(false)
     val showAddDialog: StateFlow<Boolean> = _showAddDialog.asStateFlow()
 
+    private val _showDeleteDialog = MutableStateFlow(-1)
+    val showDeleteDialog: StateFlow<Int> = _showDeleteDialog.asStateFlow()
+
     private val _commandToExec = MutableStateFlow<CommandInfo?>(null)
     val commandToExec: StateFlow<CommandInfo?> = _commandToExec.asStateFlow()
 
@@ -52,6 +55,14 @@ class RunnerViewModel(application: Application) : AndroidViewModel(application),
 
     fun hideAddDialog() {
         _showAddDialog.value = false
+    }
+
+    fun showDeleteDialog(position: Int) {
+        _showDeleteDialog.value = position
+    }
+
+    fun hideDeleteDialog() {
+        _showDeleteDialog.value = -1
     }
 
     fun showExecDialog(command: CommandInfo) {

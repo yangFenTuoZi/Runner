@@ -110,6 +110,7 @@
     <string name="backup_started">已开始在后台备份。</string>
     <string name="import_data_confirm">这将覆盖当前所有的设置和数据，确定要继续吗？</string>
     <string name="restore_completed">还原已完成，应用即将重启。</string>
+    <string name="restore_started">已开始在后台还原。</string>
     <string name="add_shortcut">添加快捷方式</string>
     <string name="waiting_service">等待服务…</string>
     <string name="exec_command">执行命令</string>
@@ -125,4 +126,5 @@
     <string name="dark">永夜</string>
     <string name="light">永昼</string>
     <string name="dark_theme">暗黑模式</string>
+    <string name="runtime">运行时</string>
 </resources>

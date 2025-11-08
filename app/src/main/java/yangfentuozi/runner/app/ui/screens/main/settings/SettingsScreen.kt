@@ -1,5 +1,6 @@
 package yangfentuozi.runner.app.ui.screens.main.settings
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,6 +32,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.material.color.DynamicColors
 import yangfentuozi.runner.R
+import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.data.BackupManager
 import yangfentuozi.runner.app.ui.screens.main.settings.components.AboutDialog
 import yangfentuozi.runner.app.ui.screens.main.settings.components.BackupDialog
@@ -102,8 +104,13 @@ fun SettingsScreen(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
-            // TODO 导入功能
-//            showImportDialog = true
+            Toast.makeText(context, R.string.restore_started, Toast.LENGTH_SHORT).show()
+            BackupManager.restore(context = context, uri = uri) {
+                (context as? Activity)?.runOnUiThread {
+                    Toast.makeText(context, R.string.restore_completed, Toast.LENGTH_SHORT).show()
+                }
+                (context.applicationContext as? App)?.finishApp()
+            }
         }
     }
 
@@ -134,6 +141,19 @@ fun SettingsScreen(
             )
         }
 
+        item {
+            SwitchPreferenceItem(
+                title = stringResource(R.string.pure_black_dark_theme),
+                subtitle = stringResource(R.string.pure_black_dark_theme_summary),
+                checked = blackDarkTheme,
+                onCheckedChange = {
+                    viewModel.setBlackDarkTheme(it)
+                    // 不需要 recreate,主题会自动更新
+                },
+                icon = Icons.Default.InvertColors
+            )
+        }
+
         if (DynamicColors.isDynamicColorAvailable()) {
             item {
                 SwitchPreferenceItem(
@@ -152,19 +172,6 @@ fun SettingsScreen(
         // TODO 颜色选择
 //        if (!followSystemAccent.value || !DynamicColors.isDynamicColorAvailable()) {
 //        }
-
-        item {
-            SwitchPreferenceItem(
-                title = stringResource(R.string.pure_black_dark_theme),
-                subtitle = stringResource(R.string.pure_black_dark_theme_summary),
-                checked = blackDarkTheme,
-                onCheckedChange = {
-                    viewModel.setBlackDarkTheme(it)
-                    // 不需要 recreate,主题会自动更新
-                },
-                icon = Icons.Default.InvertColors
-            )
-        }
 
         // 备份设置
         item {
@@ -185,15 +192,17 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.import_data),
                 subtitle = stringResource(R.string.import_data_summary),
-                onClick = {
-                    pickFileLauncher.launch(arrayOf("application/x-tar"))
-                },
+                onClick = { pickFileLauncher.launch(arrayOf("application/x-tar")) },
                 icon = Icons.Default.Restore,
                 showArrow = true
             )
         }
 
         // 环境设置
+        item {
+            PreferenceCategory(title = stringResource(R.string.runtime))
+        }
+
         item {
             PreferenceItem(
                 title = stringResource(R.string.env_manage),

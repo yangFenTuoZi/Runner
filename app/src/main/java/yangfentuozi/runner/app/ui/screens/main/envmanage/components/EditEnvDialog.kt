@@ -52,7 +52,7 @@ fun EditEnvDialog(
                     onValueChange = { value = it },
                     label = { Text(stringResource(R.string.value)) },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
+                    minLines = 1,
                     maxLines = 5
                 )
             }

@@ -150,7 +150,7 @@ fun EnvManageScreen(
         AlertDialog(
             onDismissRequest = { viewModel.hideDeleteDialog() },
             title = { Text(stringResource(R.string.delete)) },
-            text = { Text("Delete ${env.key}?") },
+            text = { Text("${env.key}") },
             confirmButton = {
                 TextButton(
                     onClick = {

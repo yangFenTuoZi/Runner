@@ -15,9 +15,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -50,6 +53,7 @@ fun RunnerScreen(
     val commands by viewModel.commands.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val showAddDialog by viewModel.showAddDialog.collectAsState()
+    val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
     val commandToExec by viewModel.commandToExec.collectAsState()
     val commandToEdit by viewModel.commandToEdit.collectAsState()
 
@@ -106,7 +110,7 @@ fun RunnerScreen(
                             onRun = { viewModel.showExecDialog(command) },
                             onEdit = { viewModel.showEditDialog(command, index) },
                             onDelete = {
-                                viewModel.deleteCommand(index)
+                                viewModel.showDeleteDialog(index)
                             },
                             onAddShortcut = {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -167,6 +171,29 @@ fun RunnerScreen(
             onConfirm = { newCommand ->
                 viewModel.addCommand(newCommand)
                 viewModel.hideAddDialog()
+            }
+        )
+    }
+
+    if (showDeleteDialog != -1) {
+
+        AlertDialog(
+            onDismissRequest = { viewModel.hideDeleteDialog() },
+            title = { Text(stringResource(R.string.delete)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteCommand(showDeleteDialog)
+                        viewModel.hideDeleteDialog()
+                    }
+                ) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.hideDeleteDialog() }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
             }
         )
     }

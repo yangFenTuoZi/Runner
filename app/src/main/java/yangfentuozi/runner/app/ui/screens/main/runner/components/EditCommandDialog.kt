@@ -56,7 +56,7 @@ fun EditCommandDialog(
                     label = { Text(stringResource(R.string.command)) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 1,
-                    maxLines = 4
+                    maxLines = 5
                 )
 
                 Row(
