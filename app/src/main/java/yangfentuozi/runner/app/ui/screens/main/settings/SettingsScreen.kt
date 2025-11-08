@@ -56,6 +56,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.material.color.DynamicColors
+import com.kyant.capsule.ContinuousRoundedRectangle
+import roro.stellar.manager.ui.components.G2RoundedCorners.g2
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.data.BackupManager
@@ -381,7 +383,7 @@ private fun ThemeSelectorWithAnimation(
                     .height(40.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
-                        shape = AppShape.shapes.iconSmall
+                        shape = ContinuousRoundedRectangle(12.dp, continuity = g2)
                     )
             )
         }

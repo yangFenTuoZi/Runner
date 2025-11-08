@@ -17,7 +17,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,15 +42,27 @@ fun ModernStatusCard(
     content: @Composable ColumnScope.() -> Unit = {}
 ) {
     val backgroundColor = if (isPositive) {
-        MaterialTheme.colorScheme.primaryContainer
+        MaterialTheme.colorScheme.surfaceContainer
     } else {
         MaterialTheme.colorScheme.errorContainer
     }
 
     val contentColor = if (isPositive) {
-        MaterialTheme.colorScheme.onPrimaryContainer
+        MaterialTheme.colorScheme.onSurface
     } else {
         MaterialTheme.colorScheme.onErrorContainer
+    }
+
+    val iconBackgroundColor = if (isPositive) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        contentColor.copy(alpha = 0.15f)
+    }
+
+    val iconTint = if (isPositive) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        contentColor
     }
 
     Card(
@@ -59,7 +70,9 @@ fun ModernStatusCard(
         shape = AppShape.shapes.cardLarge,
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
-        )
+        ),
+        enabled = true,
+        onClick = {}
     ) {
         Column(
             modifier = Modifier
@@ -79,13 +92,13 @@ fun ModernStatusCard(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(AppShape.shapes.iconSmall)
-                            .background(color = contentColor.copy(alpha = 0.15f)),
+                            .background(color = iconBackgroundColor),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = contentColor,
+                            tint = iconTint,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -109,15 +122,16 @@ fun ModernStatusCard(
                     }
                 }
 
-                Surface(
+                Card(
                     shape = AppShape.shapes.iconSmall,
-                    color = contentColor.copy(alpha = 0.15f)
+                    colors = CardDefaults.cardColors(containerColor = iconBackgroundColor),
+                    enabled = true,
+                    onClick = {}
                 ) {
                     Text(
                         text = statusText,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
-                        color = contentColor,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
@@ -147,7 +161,9 @@ fun ModernActionCard(
         shape = AppShape.shapes.cardLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+        ),
+        enabled = true,
+        onClick = {}
     ) {
         Column(
             modifier = Modifier

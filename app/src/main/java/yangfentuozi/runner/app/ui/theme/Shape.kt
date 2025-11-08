@@ -1,5 +1,7 @@
 package yangfentuozi.runner.app.ui.theme
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
@@ -16,9 +18,8 @@ data class AppShapes(
     val buttonMedium: ContinuousRoundedRectangle = ContinuousRoundedRectangle(16.dp, continuity = g2),
     val inputField: ContinuousRoundedRectangle = ContinuousRoundedRectangle(16.dp, continuity = g2),
     val buttonSmall14: ContinuousRoundedRectangle = ContinuousRoundedRectangle(14.dp, continuity = g2),
-    val iconSmall: ContinuousRoundedRectangle = ContinuousRoundedRectangle(12.dp, continuity = g2),
-    val cardSmall: ContinuousRoundedRectangle = ContinuousRoundedRectangle(16.dp, continuity = g2),
-//    val iconSmall: RoundedCornerShape = CircleShape
+    val iconSmall: RoundedCornerShape = CircleShape,
+    val cardSmall: ContinuousRoundedRectangle = ContinuousRoundedRectangle(16.dp, continuity = g2)
 )
 
 object AppShape {
