@@ -10,8 +10,6 @@ import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
-    private val _showDarkThemeDialog = MutableStateFlow(false)
-    val showDarkThemeDialog: StateFlow<Boolean> = _showDarkThemeDialog.asStateFlow()
 
     private val _showBackupDialog = MutableStateFlow(false)
     val showBackupDialog: StateFlow<Boolean> = _showBackupDialog.asStateFlow()
@@ -33,14 +31,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val _lastBackupArgs = MutableStateFlow<BooleanArray?>(null)
     val lastBackupArgs: StateFlow<BooleanArray?> = _lastBackupArgs.asStateFlow()
-
-    fun showDarkThemeDialog() {
-        _showDarkThemeDialog.value = true
-    }
-
-    fun hideDarkThemeDialog() {
-        _showDarkThemeDialog.value = false
-    }
 
     fun showBackupDialog() {
         _showBackupDialog.value = true
@@ -85,7 +75,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     override fun hideAllDialogs() {
         hideAboutDialog()
         hideBackupDialog()
-        hideDarkThemeDialog()
     }
 }
 

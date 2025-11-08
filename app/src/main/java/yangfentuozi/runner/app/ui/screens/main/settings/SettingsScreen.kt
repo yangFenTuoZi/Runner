@@ -61,7 +61,6 @@ import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.data.BackupManager
 import yangfentuozi.runner.app.ui.screens.main.settings.components.AboutDialog
 import yangfentuozi.runner.app.ui.screens.main.settings.components.BackupDialog
-import yangfentuozi.runner.app.ui.screens.main.settings.components.DarkThemeDialog
 import yangfentuozi.runner.app.ui.screens.main.settings.components.PreferenceCategory
 import yangfentuozi.runner.app.ui.screens.main.settings.components.PreferenceItem
 import yangfentuozi.runner.app.ui.screens.main.settings.components.SwitchPreferenceItem
@@ -77,7 +76,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val showDarkThemeDialog by viewModel.showDarkThemeDialog.collectAsState()
     val showBackupDialog by viewModel.showBackupDialog.collectAsState()
     val showAboutDialog by viewModel.showAboutDialog.collectAsState()
     val blackDarkTheme by viewModel.blackDarkTheme.collectAsState()
@@ -307,16 +305,6 @@ fun SettingsScreen(
                 showArrow = false
             )
         }
-    }
-
-    if (showDarkThemeDialog) {
-        DarkThemeDialog(
-            onDismiss = { viewModel.hideDarkThemeDialog() },
-            onSelect = { mode ->
-                ThemeManager.setThemeMode(mode)
-                viewModel.hideDarkThemeDialog()
-            }
-        )
     }
 
     if (showBackupDialog) {
