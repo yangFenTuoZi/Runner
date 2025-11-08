@@ -88,16 +88,7 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
             try {
                 val signal = if (App.preferences.getBoolean("force_kill", false)) 9 else 15
                 if (App.preferences.getBoolean("kill_child_processes", false)) {
-                    val processes = Runner.service?.processes
-                    if (processes == null) {
-                        Runner.service?.sendSignal(pids, signal)
-                    } else {
-                        val childPids = mutableSetOf<Int>()
-                        pids.forEach { pid ->
-                            childPids.addAll(findChildProcesses(processes, pid))
-                        }
-                        Runner.service?.sendSignal((pids.toList() + childPids).toIntArray(), signal)
-                    }
+                    Runner.service?.sendSignal(IntArray(pids.size) { i -> -pids[i] }, signal)
                 } else {
                     Runner.service?.sendSignal(pids, signal)
                 }
@@ -105,15 +96,6 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
                 e.printStackTrace()
             }
         }
-    }
-
-    private fun findChildProcesses(processes: Array<ProcessInfo>, pid: Int): List<Int> {
-        val result = mutableListOf<Int>()
-        processes.filter { it.ppid == pid }.forEach { child ->
-            result.add(child.pid)
-            result.addAll(findChildProcesses(processes, child.pid))
-        }
-        return result.distinct()
     }
 
     override fun hideAllDialogs() {

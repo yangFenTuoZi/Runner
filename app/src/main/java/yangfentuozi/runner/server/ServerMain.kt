@@ -367,8 +367,14 @@ class ServerMain : IService.Stub() {
         if (pid == null) return null
         return if (processUtils.isLibraryLoaded) {
             BooleanArray(pid.size) { i ->
-                Log.i(TAG, "kill process: ${pid[i]}")
-                processUtils.sendSignal(pid[i], signal)
+                val isGroup = if (pid[i] < 0) " group" else ""
+                if (pid[i] <= 1 && pid[i] >= -1) {
+                    Log.w(TAG, "skip killing process$isGroup: ${pid[i]}")
+                    true
+                } else {
+                    Log.i(TAG, "kill process$isGroup: ${pid[i]}")
+                    processUtils.sendSignal(pid[i], signal)
+                }
             }
         } else {
             Log.e(TAG, "process utils library not loaded")

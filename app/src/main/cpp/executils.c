@@ -99,6 +99,12 @@ Java_yangfentuozi_runner_server_util_ExecUtils_exec(
     
     if (pid == 0) {
         // 子进程
+
+        // 创建新会话
+        if (setsid() < 0) {
+            LOGE("setsid: %s", strerror(errno));
+            exit(1);
+        }
         
         // 重定向文件描述符
         if (stdinFd >= 0) {
