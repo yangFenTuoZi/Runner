@@ -4,9 +4,23 @@ import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
@@ -19,13 +33,24 @@ import androidx.compose.material.icons.filled.InvertColors
 import androidx.compose.material.icons.filled.LayersClear
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.StopCircle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -40,9 +65,11 @@ import yangfentuozi.runner.app.ui.screens.main.settings.components.DarkThemeDial
 import yangfentuozi.runner.app.ui.screens.main.settings.components.PreferenceCategory
 import yangfentuozi.runner.app.ui.screens.main.settings.components.PreferenceItem
 import yangfentuozi.runner.app.ui.screens.main.settings.components.SwitchPreferenceItem
+import yangfentuozi.runner.app.ui.theme.AppShape
 import yangfentuozi.runner.app.ui.theme.AppSpacing
 import yangfentuozi.runner.app.ui.theme.ThemeManager
 import yangfentuozi.runner.app.ui.viewmodels.SettingsViewModel
+import kotlin.math.roundToInt
 
 @Composable
 fun SettingsScreen(
@@ -134,10 +161,22 @@ fun SettingsScreen(
             val currentThemeMode by ThemeManager.themeMode.collectAsState()
             PreferenceItem(
                 title = stringResource(R.string.dark_theme),
-                subtitle = stringResource(ThemeManager.getThemeModeName(currentThemeMode)),
-                onClick = { viewModel.showDarkThemeDialog() },
+                subtitle = "",
+                onClick = {},
                 icon = Icons.Default.DarkMode,
-                showArrow = false
+                showArrow = false,
+                contentColumn = {
+                    Box(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                    ) {
+                        ThemeSelectorWithAnimation(
+                            currentMode = currentThemeMode,
+                            onModeChange = { mode ->
+                                ThemeManager.setThemeMode(mode)
+                            }
+                        )
+                    }
+                }
             )
         }
 
@@ -295,5 +334,102 @@ fun SettingsScreen(
         AboutDialog(
             onDismiss = { viewModel.hideAboutDialog() }
         )
+    }
+}
+
+@Composable
+private fun ThemeSelectorWithAnimation(
+    currentMode: ThemeManager.ThemeMode,
+    onModeChange: (ThemeManager.ThemeMode) -> Unit
+) {
+    val density = LocalDensity.current
+    val themeCount = ThemeManager.ThemeMode.entries.size
+    val currentIndex = ThemeManager.ThemeMode.entries.indexOf(currentMode)
+
+    var innerWidth by remember { mutableStateOf(0) }
+
+    val spacing = 4.dp
+    val spacingPx = with(density) { spacing.toPx() }
+
+    val animatedIndex by animateFloatAsState(
+        targetValue = currentIndex.toFloat(),
+        animationSpec = tween(durationMillis = 300),
+        label = "theme_index"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = AppShape.shapes.cardMedium
+            )
+            .padding(6.dp)
+    ) {
+        // 计算内部可用宽度
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onSizeChanged { size ->
+                    innerWidth = size.width
+                },
+            horizontalArrangement = Arrangement.spacedBy(spacing)
+        ) {
+            ThemeManager.ThemeMode.entries.forEach { _ ->
+                Spacer(modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp))
+            }
+        }
+
+        if (innerWidth > 0) {
+            val itemWidth = (innerWidth - spacingPx * (themeCount - 1)) / themeCount
+            val offsetX = animatedIndex * (itemWidth + spacingPx)
+
+            Box(
+                modifier = Modifier
+                    .offset { IntOffset(offsetX.roundToInt(), 0) }
+                    .width(with(density) { itemWidth.toDp() })
+                    .height(40.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = AppShape.shapes.iconSmall
+                    )
+            )
+        }
+
+        // 文字选项
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp),
+            horizontalArrangement = Arrangement.spacedBy(spacing)
+        ) {
+            ThemeManager.ThemeMode.entries.forEach { mode ->
+                val isSelected = currentMode == mode
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clickable(
+                            onClick = { onModeChange(mode) },
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(ThemeManager.getThemeModeName(mode)),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    )
+                }
+            }
+        }
     }
 }

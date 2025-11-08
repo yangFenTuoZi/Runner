@@ -46,6 +46,8 @@ fun PreferenceItem(
     title: String,
     subtitle: String,
     onClick: (() -> Unit)?,
+    contentRow: @Composable () -> Unit = {},
+    contentColumn: @Composable () -> Unit = {},
     modifier: Modifier = Modifier,
     showArrow: Boolean = true,
     iconBackgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
@@ -61,53 +63,59 @@ fun PreferenceItem(
             containerColor = cardBackgroundColor
         )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
+        Column {
+            Row(
                 modifier = Modifier
-                    .size(42.dp)
-                    .clip(AppShape.shapes.iconSmall)
-                    .background(color = iconBackgroundColor),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconTint,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(AppShape.shapes.iconSmall)
+                        .background(color = iconBackgroundColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
 
-            Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                if (subtitle.isNotEmpty()) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (subtitle.isNotEmpty()) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                contentRow()
+
+                if (showArrow) {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            if (showArrow) {
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            contentColumn()
         }
     }
 }
@@ -127,57 +135,21 @@ fun SwitchPreferenceItem(
     iconTint: Color = MaterialTheme.colorScheme.primary,
     cardBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = AppShape.shapes.cardLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = cardBackgroundColor
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(AppShape.shapes.iconSmall)
-                    .background(color = iconBackgroundColor),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconTint,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                if (subtitle.isNotEmpty()) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
+    PreferenceItem(
+        icon = icon,
+        title = title,
+        subtitle = subtitle,
+        onClick = {},
+        contentRow = {
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange
             )
-        }
-    }
+        },
+        modifier = modifier,
+        showArrow = false,
+        iconBackgroundColor = iconBackgroundColor,
+        iconTint = iconTint,
+        cardBackgroundColor = cardBackgroundColor
+    )
 }
