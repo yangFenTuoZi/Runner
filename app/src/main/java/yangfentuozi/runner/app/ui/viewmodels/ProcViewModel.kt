@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.server.ServerMain
@@ -21,9 +20,6 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
-
-    private val _showKillAllDialog = MutableStateFlow(false)
-    val showKillAllDialog: StateFlow<Boolean> = _showKillAllDialog.asStateFlow()
 
     private val _showKillDialog = MutableStateFlow(-1)
     val showKillDialog: StateFlow<Int> = _showKillDialog.asStateFlow()
@@ -39,7 +35,8 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
                 if (Runner.pingServer()) {
                     try {
                         val allProcesses = Runner.service?.processes
-                        allProcesses?.filter { it.exe == ServerMain.USR_PATH + "/bin/bash" } ?: emptyList()
+                        allProcesses?.filter { it.exe == ServerMain.USR_PATH + "/bin/bash" }
+                            ?: emptyList()
                     } catch (e: Exception) {
                         emptyList()
                     }
@@ -52,14 +49,6 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
         }
     }
 
-    fun showKillAllDialog() {
-        _showKillAllDialog.value = true
-    }
-
-    fun hideKillAllDialog() {
-        _showKillAllDialog.value = false
-    }
-
     fun showKillDialog(pid: Int) {
         _showKillDialog.value = pid
     }
@@ -68,26 +57,34 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
         _showKillDialog.value = -1
     }
 
-    fun killProcess(pid: Int) {
+    fun killProcess(
+        pid: Int,
+        forceKill: Boolean = false,
+        killChildren: Boolean = false
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            killPIDs(intArrayOf(pid))
+            killPIDs(
+                pids = if (pid == -1010) {
+                    _processes.value.map { it.pid }.toIntArray()
+                } else {
+                    intArrayOf(pid)
+                },
+                forceKill = forceKill,
+                killChildren = killChildren
+            )
             loadProcesses()
         }
     }
 
-    fun killAllProcesses() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val pids = _processes.value.map { it.pid }.toIntArray()
-            killPIDs(pids)
-            loadProcesses()
-        }
-    }
-
-    private fun killPIDs(pids: IntArray) {
+    private fun killPIDs(
+        pids: IntArray,
+        forceKill: Boolean = false,
+        killChildren: Boolean = false
+    ) {
         if (Runner.pingServer()) {
             try {
-                val signal = if (App.preferences.getBoolean("force_kill", false)) 9 else 15
-                if (App.preferences.getBoolean("kill_child_processes", false)) {
+                val signal = if (forceKill) 9 else 15
+                if (killChildren) {
                     Runner.service?.sendSignal(IntArray(pids.size) { i -> -pids[i] }, signal)
                 } else {
                     Runner.service?.sendSignal(pids, signal)
@@ -99,7 +96,6 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
     }
 
     override fun hideAllDialogs() {
-        hideKillAllDialog()
         hideKillDialog()
     }
 }

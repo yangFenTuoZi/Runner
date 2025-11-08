@@ -2,6 +2,7 @@ package yangfentuozi.runner.app.ui.screens.main.proc
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,9 +31,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
+import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.components.ContentWithAutoHideFloatActionButton
 import yangfentuozi.runner.app.ui.screens.main.proc.components.ProcessItem
+import yangfentuozi.runner.app.ui.screens.main.settings.components.CheckboxItem
 import yangfentuozi.runner.app.ui.theme.AppSpacing
 import yangfentuozi.runner.app.ui.viewmodels.ProcViewModel
 
@@ -40,7 +46,6 @@ fun ProcScreen(
 ) {
     val processes by viewModel.processes.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val showKillAllDialog by viewModel.showKillAllDialog.collectAsState()
     val showKillDialog by viewModel.showKillDialog.collectAsState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -114,7 +119,7 @@ fun ProcScreen(
         },
         onClickFAB = {
             if (Runner.pingServer() && processes.isNotEmpty()) {
-                viewModel.showKillAllDialog()
+                viewModel.showKillDialog(-1010)
             }
         },
         contentFAB = {
@@ -125,37 +130,53 @@ fun ProcScreen(
         }
     )
 
-    if (showKillAllDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.hideKillAllDialog() },
-            title = { Text(stringResource(R.string.kill_all_processes)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.hideKillAllDialog()
-                        viewModel.killAllProcesses()
-                    }
-                ) {
-                    Text(stringResource(android.R.string.ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.hideKillAllDialog() }) {
-                    Text(stringResource(android.R.string.cancel))
-                }
-            }
-        )
-    }
     if (showKillDialog != -1) {
+        var forceKill by remember {
+            mutableStateOf(
+                App.preferences.getBoolean(
+                    "force_kill",
+                    false
+                )
+            )
+        }
+        var killChildren by remember {
+            mutableStateOf(
+                App.preferences.getBoolean(
+                    "kill_child_processes",
+                    false
+                )
+            )
+        }
+
         AlertDialog(
             onDismissRequest = { viewModel.hideKillDialog() },
-            title = { Text(stringResource(R.string.kill_process_ask)) },
+            title = { Text(stringResource(if (showKillDialog == -1010) R.string.kill_all_processes_ask else R.string.kill_process_ask)) },
+            text = {
+                Column {
+                    CheckboxItem(
+                        title = stringResource(R.string.force_kill),
+                        checked = forceKill,
+                        onCheckedChange = { forceKill = it },
+                        enabled = true
+                    )
+                    CheckboxItem(
+                        title = stringResource(R.string.kill_child_processes),
+                        checked = killChildren,
+                        onCheckedChange = { killChildren = it },
+                        enabled = true
+                    )
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.hideKillDialog()
                         Thread {
-                            viewModel.killProcess(showKillDialog)
+                            viewModel.killProcess(
+                                pid = showKillDialog,
+                                forceKill = forceKill,
+                                killChildren = killChildren
+                            )
                         }.start()
                     }
                 ) {

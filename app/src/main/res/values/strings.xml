@@ -44,7 +44,7 @@
     <string name="create_below">Create below</string>
     <string name="delete">Delete</string>
 
-    <string name="kill_all_processes">Kill all processes?</string>
+    <string name="kill_all_processes_ask">Kill all processes?</string>
 
     <string name="backup">Backup</string>
     <string name="export_data">Export Data</string>
@@ -129,5 +129,6 @@
     <string name="light">Light</string>
     <string name="dark_theme">Dark theme</string>
     <string name="runtime">Runtime</string>
+    <string name="kill_all_processes">Kill all processes</string>
 
 </resources>

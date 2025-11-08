@@ -13,7 +13,7 @@
     <string name="keep_alive">保活</string>
     <string name="target_perm_hint" translatable="false">UID[,GID[,Groups...]]</string>
     <string name="kill">杀死</string>
-    <string name="kill_process_ask">杀死这个进程吗?</string>
+    <string name="kill_process_ask">杀死这个进程?</string>
 
     <string name="executing">执行中…</string>
     <string name="finish">结束</string>
@@ -43,7 +43,7 @@
     <string name="create_below">在下方新建</string>
     <string name="delete">删除</string>
 
-    <string name="kill_all_processes">杀死所有进程?</string>
+    <string name="kill_all_processes_ask">杀死所有进程?</string>
 
     <string name="backup">备份</string>
     <string name="export_data">导出数据</string>
@@ -127,4 +127,5 @@
     <string name="light">永昼</string>
     <string name="dark_theme">暗黑模式</string>
     <string name="runtime">运行时</string>
+    <string name="kill_all_processes">杀死所有进程</string>
 </resources>
