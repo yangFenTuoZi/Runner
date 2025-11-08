@@ -6,8 +6,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.InvertColors
+import androidx.compose.material.icons.filled.LayersClear
+import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.StopCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -15,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -29,6 +38,7 @@ import yangfentuozi.runner.app.ui.screens.main.settings.components.DarkThemeDial
 import yangfentuozi.runner.app.ui.screens.main.settings.components.PreferenceCategory
 import yangfentuozi.runner.app.ui.screens.main.settings.components.PreferenceItem
 import yangfentuozi.runner.app.ui.screens.main.settings.components.SwitchPreferenceItem
+import yangfentuozi.runner.app.ui.theme.AppSpacing
 import yangfentuozi.runner.app.ui.theme.ThemeManager
 import yangfentuozi.runner.app.ui.viewmodels.SettingsViewModel
 
@@ -99,10 +109,14 @@ fun SettingsScreen(
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(vertical = 4.dp)
+            .fillMaxSize(),
+        contentPadding = PaddingValues(
+            top = AppSpacing.topBarContentSpacing,
+            bottom = AppSpacing.screenBottomPadding,
+            start = AppSpacing.screenHorizontalPadding,
+            end = AppSpacing.screenHorizontalPadding
+        ),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.cardSpacing)
     ) {
         // 主题设置
         item {
@@ -113,8 +127,10 @@ fun SettingsScreen(
             val currentThemeMode by ThemeManager.themeMode.collectAsState()
             PreferenceItem(
                 title = stringResource(R.string.dark_theme),
-                summary = stringResource(ThemeManager.getThemeModeName(currentThemeMode)),
-                onClick = { viewModel.showDarkThemeDialog() }
+                subtitle = stringResource(ThemeManager.getThemeModeName(currentThemeMode)),
+                onClick = { viewModel.showDarkThemeDialog() },
+                icon = Icons.Default.DarkMode,
+                showArrow = false
             )
         }
 
@@ -122,11 +138,13 @@ fun SettingsScreen(
             item {
                 SwitchPreferenceItem(
                     title = stringResource(R.string.theme_color_system),
+                    subtitle = "",
                     checked = followSystemAccent,
                     onCheckedChange = {
                         viewModel.setFollowSystemAccent(it)
                         // 不需要 recreate,主题会自动更新
-                    }
+                    },
+                    icon = Icons.Default.ColorLens
                 )
             }
         }
@@ -138,12 +156,13 @@ fun SettingsScreen(
         item {
             SwitchPreferenceItem(
                 title = stringResource(R.string.pure_black_dark_theme),
-                summary = stringResource(R.string.pure_black_dark_theme_summary),
+                subtitle = stringResource(R.string.pure_black_dark_theme_summary),
                 checked = blackDarkTheme,
                 onCheckedChange = {
                     viewModel.setBlackDarkTheme(it)
                     // 不需要 recreate,主题会自动更新
-                }
+                },
+                icon = Icons.Default.InvertColors
             )
         }
 
@@ -155,18 +174,22 @@ fun SettingsScreen(
         item {
             PreferenceItem(
                 title = stringResource(R.string.export_data),
-                summary = stringResource(R.string.export_data_summary),
-                onClick = { viewModel.showBackupDialog() }
+                subtitle = stringResource(R.string.export_data_summary),
+                onClick = { viewModel.showBackupDialog() },
+                icon = Icons.Default.Backup,
+                showArrow = true
             )
         }
 
         item {
             PreferenceItem(
                 title = stringResource(R.string.import_data),
-                summary = stringResource(R.string.import_data_summary),
+                subtitle = stringResource(R.string.import_data_summary),
                 onClick = {
                     pickFileLauncher.launch(arrayOf("application/x-tar"))
-                }
+                },
+                icon = Icons.Default.Restore,
+                showArrow = true
             )
         }
 
@@ -174,8 +197,10 @@ fun SettingsScreen(
         item {
             PreferenceItem(
                 title = stringResource(R.string.env_manage),
-                summary = stringResource(R.string.env_manage_summary),
-                onClick = onNavigateToEnvManage
+                subtitle = stringResource(R.string.env_manage_summary),
+                onClick = onNavigateToEnvManage,
+                icon = Icons.AutoMirrored.Filled.Article,
+                showArrow = true
             )
         }
 
@@ -187,22 +212,24 @@ fun SettingsScreen(
         item {
             SwitchPreferenceItem(
                 title = stringResource(R.string.force_kill),
-                summary = stringResource(R.string.force_kill_summary),
+                subtitle = stringResource(R.string.force_kill_summary),
                 checked = forceKill,
                 onCheckedChange = {
                     viewModel.setForceKill(it)
-                }
+                },
+                icon = Icons.Default.StopCircle
             )
         }
 
         item {
             SwitchPreferenceItem(
                 title = stringResource(R.string.kill_child_processes),
-                summary = stringResource(R.string.kill_child_processes_summary),
+                subtitle = stringResource(R.string.kill_child_processes_summary),
                 checked = killChildProcesses,
                 onCheckedChange = {
                     viewModel.setKillChildProcesses(it)
-                }
+                },
+                icon = Icons.Default.LayersClear
             )
         }
 
@@ -214,16 +241,22 @@ fun SettingsScreen(
         item {
             PreferenceItem(
                 title = stringResource(R.string.about),
-                onClick = { viewModel.showAboutDialog() }
+                subtitle = "",
+                onClick = { viewModel.showAboutDialog() },
+                icon = Icons.Default.Info,
+                showArrow = false
             )
         }
 
         item {
             PreferenceItem(
                 title = stringResource(R.string.help),
+                subtitle = "",
                 onClick = {
                     Toast.makeText(context, "没做", Toast.LENGTH_SHORT).show()
-                }
+                },
+                icon = Icons.AutoMirrored.Filled.Help,
+                showArrow = false
             )
         }
     }

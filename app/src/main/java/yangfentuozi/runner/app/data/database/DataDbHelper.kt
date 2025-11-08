@@ -40,10 +40,12 @@ class DataDbHelper(context: Context) :
         const val TABLE_ENVIRONMENT: String = "environment"
         const val COLUMN_KEY: String = "env_key"
         const val COLUMN_VALUE: String = "env_value"
+        const val COLUMN_ENABLED: String = "env_enabled"
 
         private const val TABLE_ENVIRONMENT_CREATE = "CREATE TABLE " + TABLE_ENVIRONMENT + " (" +
                 COLUMN_KEY + " TEXT NOT NULL, " +
                 COLUMN_VALUE + " TEXT NOT NULL, " +
+                COLUMN_ENABLED + " INTEGER NOT NULL DEFAULT 1, " +
                 "PRIMARY KEY (" + COLUMN_KEY + "));"
     }
 }

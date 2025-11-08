@@ -84,24 +84,22 @@ fun AboutDialog(onDismiss: () -> Unit) {
                     Text(
                         text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleMedium,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Bold,
                     )
 
                     // 版本信息
                     Text(
                         text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                         style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // 源码链接
                     val sourceCodeText = buildAnnotatedString {
                         val template = stringResource(R.string.about_view_source_code)
-                        val parts = template.split("%1\$s")
+                        val parts = template.split($$"%1$s")
 
                         append(parts.getOrNull(0) ?: "")
 

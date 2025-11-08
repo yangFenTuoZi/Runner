@@ -632,6 +632,10 @@ class ServerMain : IService.Stub() {
 
             // 添加自定义环境变量
             for (entry in customEnv) {
+
+                // 跳过未启用的
+                if (!entry.enabled) continue
+
                 entry.key?.let { key ->
                     entry.value?.let { value ->
                         val oldValue = envMap[key]

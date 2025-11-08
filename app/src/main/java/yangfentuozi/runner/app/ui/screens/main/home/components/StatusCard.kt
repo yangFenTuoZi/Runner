@@ -1,101 +1,72 @@
 package yangfentuozi.runner.app.ui.screens.main.home.components
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
-import yangfentuozi.runner.app.ui.components.BeautifulCard
-import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
+import yangfentuozi.runner.app.ui.components.ModernStatusCard
 
 @Composable
-fun ServiceStatusCard(viewModel: HomeViewModel) {
+fun ServiceStatusCard() {
     val isRunning = Runner.pingServer()
-    val version = Runner.serviceVersion
 
-    StatusCard(
-        icon = if (isRunning) R.drawable.ic_check_circle_outline_24 else R.drawable.ic_error_outline_24,
-        title = stringResource(if (isRunning) R.string.service_is_running else R.string.service_not_running),
-        summary = if (isRunning) stringResource(R.string.service_version, version) else null,
-        onClick = if (!isRunning) {
-            { viewModel.tryBindService() }
-        } else null
-    )
+    ModernStatusCard(
+        icon = if (isRunning) Icons.Default.CheckCircle else Icons.Default.Error,
+        title = stringResource(R.string.user_service),
+        subtitle = "",
+        statusText = stringResource(if (isRunning) R.string.running else R.string.stopped),
+        isPositive = isRunning
+    ) {
+        if (isRunning) {
+            val contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+
+            Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = contentColor.copy(alpha = 0.2f))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            InfoRow(stringResource(R.string.version), "${Runner.serviceVersion}", contentColor)
+        }
+    }
 }
 
 @Composable
-fun ShizukuStatusCard() {
-    val isRunning = Runner.shizukuStatus
-    val isRoot = Runner.shizukuUid == 0
-    val apiVersion = Runner.shizukuApiVersion
-    val patchVersion = Runner.shizukuPatchVersion
-
-    val user = if (isRoot) "root" else "adb"
-
-    StatusCard(
-        icon = if (isRunning) R.drawable.ic_check_circle_outline_24 else R.drawable.ic_error_outline_24,
-        title = stringResource(if (isRunning) R.string.shizuku_is_running else R.string.shizuku_not_running),
-        summary = if (isRunning) stringResource(R.string.shizuku_version, user, "$apiVersion.$patchVersion") else null
-    )
-}
-
-@Composable
-fun StatusCard(
-    icon: Int,
-    title: String,
-    summary: String? = null,
-    onClick: (() -> Unit)? = null
+fun InfoRow(
+    label: String,
+    value: String,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
-    BeautifulCard (
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(onClick = onClick)
-                } else {
-                    Modifier
-                }
-            )
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(icon),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                if (summary != null && summary.isNotEmpty()) {
-                    Text(
-                        text = summary,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = contentColor.copy(alpha = 0.7f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = contentColor
+        )
     }
 }

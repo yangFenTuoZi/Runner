@@ -27,7 +27,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BlockWithAutoHideFloatActionButton(
+fun ContentWithAutoHideFloatActionButton(
     content: @Composable () -> Unit,
     onClickFAB: () -> Unit,
     contentFAB: @Composable () -> Unit,

@@ -77,9 +77,16 @@ class EnvManageViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun updateEnv(oldKey: String, oldValue: String, newKey: String, newValue: String) {
+    fun updateEnv(key: String, value: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            dataRepository.updateEnv(oldKey, oldValue, newKey, newValue)
+            dataRepository.updateEnv(key, value)
+            loadEnvs()
+        }
+    }
+
+    fun updateEnv(key: String, enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataRepository.updateEnv(key, enabled)
             loadEnvs()
         }
     }

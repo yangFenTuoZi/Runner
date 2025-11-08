@@ -153,6 +153,7 @@ dependencies {
 
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
+    implementation ("com.github.Kyant0:Capsule:2.1.0")
 
     implementation(project(":emulatorview"))
     implementation(project(":term"))

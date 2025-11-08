@@ -33,10 +33,14 @@
     <string name="shizuku_not_running">Shizuku is not running</string>
     <string name="shizuku_version">Version %2$s, %1$s</string>
 
-    <string name="copied_info">Copied to clipboard:</string>
+    <string name="running">Running</string>
+    <string name="stopped">Stopped</string>
+    <string name="user_service">UserService</string>
+    <string name="shizuku">Shizuku</string>
+    <string name="version">Version</string>
 
-    <string name="copy_name">Copy Name</string>
-    <string name="copy_command">Copy Command</string>
+    <string name="start_with_shizuku">Start with Shizuku</string>
+
     <string name="create_below">Create below</string>
     <string name="delete">Delete</string>
 
@@ -95,7 +99,6 @@
     <string name="empty">Empty</string>
     <string name="pick_term_ext">Pick terminal extension</string>
     <string name="install_term_ext">Install terminal extension</string>
-    <string name="remove_term_ext">Remove terminal extension</string>
     <string name="will_remove_term_ext">Remove terminal extension?</string>
     <string name="failed_to_get_the_process_list">Failed to get the process list</string>
     <string name="more" translatable="false">...</string>
@@ -112,9 +115,10 @@
     <string name="add_shortcut">Add a shortcut</string>
     <string name="waiting_service">Waiting Service…</string>
     <string name="exec_command">Exec command</string>
-    
-    <string name="term_ext_installed">Terminal extension installed</string>
-    <string name="term_ext_not_installed">Terminal extension not installed</string>
+
+    <string name="term_ext">Terminal Extension</string>
+    <string name="installed">Installed</string>
+    <string name="not_installed">Not Installed</string>
     <string name="no_processes">No running processes</string>
     <string name="data_db">Database</string>
     <string name="term_home">Terminal Home</string>

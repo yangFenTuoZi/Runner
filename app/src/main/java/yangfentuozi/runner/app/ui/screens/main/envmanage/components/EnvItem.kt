@@ -1,26 +1,30 @@
 package yangfentuozi.runner.app.ui.screens.main.envmanage.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
+import yangfentuozi.runner.app.ui.components.BeautifulCard
 import yangfentuozi.runner.shared.data.EnvInfo
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -28,46 +32,67 @@ import yangfentuozi.runner.shared.data.EnvInfo
 fun EnvItem(
     env: EnvInfo,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onToggle: () -> Unit
 ) {
-    var showMenu by remember { mutableStateOf(false) }
 
-    Card(
+    BeautifulCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = onEdit,
-                onLongClick = { showMenu = true }
-            )
+            .fillMaxWidth(),
+        onClick = onEdit
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = env.key ?: "",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
+                    modifier = Modifier
+                        .padding(top = 4.dp),
                     text = env.value ?: "",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false }
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Switch(
+                checked = env.enabled,
+                onCheckedChange = { onToggle() }
+            )
+        }
+
+        // 分割线
+        Spacer(modifier = Modifier.height(14.dp))
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+            thickness = 0.5.dp
+        )
+
+        // 底部按钮：删除
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            // 右侧：删除按钮
+            IconButton(
+                onClick = {
+                    onDelete()
+                },
+                modifier = Modifier.size(36.dp),
             ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.delete)) },
-                    onClick = {
-                        onDelete()
-                        showMenu = false
-                    }
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }

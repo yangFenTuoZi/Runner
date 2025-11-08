@@ -1,30 +1,14 @@
 package yangfentuozi.runner.app.ui.screens.main.home.components
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.ui.components.BeautifulCard
+import yangfentuozi.runner.app.ui.components.ModernActionCard
 import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
 
 @SuppressLint("DefaultLocale")
@@ -38,52 +22,17 @@ fun TermExtStatusCard(
 
     val isInstalled = (termExtVersion?.versionCode ?: -1) != -1
 
-    BeautifulCard(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(
-                    if (isInstalled) R.drawable.ic_check_circle_outline_24 else R.drawable.ic_error_outline_24
-                ),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = if (isInstalled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(if (isInstalled) R.string.term_ext_installed else R.string.term_ext_not_installed),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                if (isInstalled) {
-                    Text(
-                        text = "%s (%d)".format(termExtVersion?.versionName ?: "", termExtVersion?.versionCode ?: 0),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+    ModernActionCard(
+        icon = Icons.Default.Terminal,
+        title = stringResource(R.string.term_ext),
+        subtitle = if (isInstalled) stringResource(R.string.installed)  + " | ${termExtVersion?.versionName} (${termExtVersion?.versionCode}) " else stringResource(R.string.not_installed),
+        buttonText = stringResource(if (isInstalled) R.string.remove else R.string.install),
+        onButtonClick = {
             if (!isInstalled) {
-                IconButton(onClick = onInstallTermExt) {
-                    Icon(
-                        imageVector = Icons.Outlined.Folder,
-                        contentDescription = stringResource(R.string.install_term_ext)
-                    )
-                }
+                onInstallTermExt.invoke()
             } else {
-                IconButton(onClick = onRemoveTermExt) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = stringResource(R.string.remove_term_ext)
-                    )
-                }
+                onRemoveTermExt.invoke()
             }
         }
-    }
+    )
 }

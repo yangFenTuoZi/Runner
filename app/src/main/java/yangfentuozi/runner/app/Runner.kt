@@ -22,9 +22,6 @@ object Runner {
     var binder: IBinder? = null
     var shizukuPermission: Boolean = false
     var shizukuStatus: Boolean = false
-    var shizukuUid: Int = -1
-    var shizukuApiVersion: Int = -1
-    var shizukuPatchVersion: Int = -1
     var serviceVersion: Int = -1
 
     private val userServiceArgs: UserServiceArgs = UserServiceArgs(
@@ -73,27 +70,12 @@ object Runner {
 
     private val onBinderReceivedListener = OnBinderReceivedListener {
         shizukuStatus = true
-        shizukuUid = Shizuku.getUid()
-        shizukuApiVersion = Shizuku.getVersion()
-        try {
-            val serverPatchVersionField = Shizuku::class.java.getDeclaredField("serverPatchVersion")
-            serverPatchVersionField.isAccessible = true
-            shizukuPatchVersion = serverPatchVersionField.getInt(null)
-        } catch (_: NoSuchFieldException) {
-            shizukuPatchVersion = 0
-        } catch (_: IllegalAccessException) {
-            shizukuPatchVersion = 0
-        }
-        if (shizukuPatchVersion < 0) shizukuPatchVersion = 0
         scheduleShizukuStatusListener(true)
         tryBindService()
     }
 
     private val onBinderDeadListener = OnBinderDeadListener {
         shizukuStatus = false
-        shizukuPatchVersion = -1
-        shizukuApiVersion = -1
-        shizukuUid = -1
         serviceVersion = -1
         binder = null
         service = null

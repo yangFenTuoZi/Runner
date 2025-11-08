@@ -7,6 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Layers
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.StopCircle
+import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -107,7 +112,7 @@ fun MainScreen() {
                         }
                     }) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_stop_circle_outline_24),
+                            imageVector = Icons.Outlined.StopCircle,
                             contentDescription = stringResource(R.string.stop_server)
                         )
                     }
@@ -125,7 +130,7 @@ fun MainScreen() {
                         NavigationBarItem(
                             icon = {
                                 Icon(
-                                    imageVector = ImageVector.vectorResource(item.iconRes),
+                                    imageVector = item.icon,
                                     contentDescription = stringResource(item.labelRes)
                                 )
                             },
@@ -247,16 +252,16 @@ private fun StopServerDialog(
 
 private data class BottomNavItem(
     val route: String,
-    val iconRes: Int,
+    val icon: ImageVector,
     val labelRes: Int
 )
 
 private val bottomNavItems = listOf(
-    BottomNavItem(Screen.Home.route, R.drawable.ic_home_outline_24, R.string.title_home),
-    BottomNavItem(Screen.Runner.route, R.drawable.ic_play_arrow_outline_24, R.string.title_runner),
-    BottomNavItem(Screen.Terminal.route, R.drawable.ic_terminal_24, R.string.title_terminal),
-    BottomNavItem(Screen.Proc.route, R.drawable.ic_layers_outline_24, R.string.title_proc),
-    BottomNavItem(Screen.Settings.route, R.drawable.ic_settings_outline_24, R.string.title_settings)
+    BottomNavItem(Screen.Home.route, Icons.Outlined.Home, R.string.title_home),
+    BottomNavItem(Screen.Runner.route, Icons.Outlined.PlayArrow, R.string.title_runner),
+    BottomNavItem(Screen.Terminal.route, Icons.Outlined.Terminal, R.string.title_terminal),
+    BottomNavItem(Screen.Proc.route, Icons.Outlined.Layers, R.string.title_proc),
+    BottomNavItem(Screen.Settings.route, Icons.Outlined.Settings, R.string.title_settings)
 )
 
 sealed class Screen(val route: String) {

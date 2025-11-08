@@ -15,7 +15,10 @@ class EnvironmentDao(private val db: SQLiteDatabase) {
     }
 
     // 更新键值对
-    fun update(key: String?, value: String?): Boolean {
+    fun update(
+        key: String?,
+        value: String?
+    ): Boolean {
         val values = ContentValues()
         values.put(DataDbHelper.COLUMN_VALUE, value)
         val rowsAffected = db.update(
@@ -27,16 +30,18 @@ class EnvironmentDao(private val db: SQLiteDatabase) {
         return rowsAffected > 0 // 返回是否更新成功
     }
 
-    fun update(fromKey: String?, fromValue: String?, toKey: String?, toValue: String?): Boolean {
+    // 更新启用状态
+    fun update(
+        key: String?,
+        enabled: Boolean
+    ): Boolean {
         val values = ContentValues()
-        values.put(DataDbHelper.COLUMN_KEY, toKey)
-        values.put(DataDbHelper.COLUMN_VALUE, toValue)
-
+        values.put(DataDbHelper.COLUMN_ENABLED, if (enabled) 1 else 0)
         val rowsAffected = db.update(
             DataDbHelper.TABLE_ENVIRONMENT,
             values,
-            DataDbHelper.COLUMN_KEY + " = ? AND " + DataDbHelper.COLUMN_VALUE + " = ?",
-            arrayOf(fromKey, fromValue)
+            DataDbHelper.COLUMN_KEY + " = ?",
+            arrayOf(key)
         )
         return rowsAffected > 0 // 返回是否更新成功
     }
@@ -74,7 +79,7 @@ class EnvironmentDao(private val db: SQLiteDatabase) {
         get() {
             db.query(
                 DataDbHelper.TABLE_ENVIRONMENT,
-                arrayOf(DataDbHelper.COLUMN_KEY, DataDbHelper.COLUMN_VALUE),
+                arrayOf(DataDbHelper.COLUMN_KEY, DataDbHelper.COLUMN_VALUE, DataDbHelper.COLUMN_ENABLED),
                 null,
                 null,
                 null,
@@ -83,13 +88,12 @@ class EnvironmentDao(private val db: SQLiteDatabase) {
             ).use { cursor ->
                 val arrayList = ArrayList<EnvInfo>()
                 while (cursor.moveToNext()) {
-                    val key = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEY))
-                    val value =
-                        cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_VALUE))
-                    val envInfo = EnvInfo()
-                    envInfo.key = key
-                    envInfo.value = value
-                    arrayList.add(envInfo)
+
+                    arrayList.add(EnvInfo().apply {
+                        key = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_KEY))
+                        value = cursor.getString(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_VALUE))
+                        enabled = cursor.getInt(cursor.getColumnIndexOrThrow(DataDbHelper.COLUMN_ENABLED)) == 1
+                    })
                 }
                 return arrayList
             }

@@ -6,12 +6,14 @@ import android.os.Parcelable
 open class EnvInfo : Parcelable {
     var key: String? = null
     var value: String? = null
+    var enabled: Boolean = true
 
     constructor()
 
     constructor(source: Parcel) : super() {
         key = source.readString()
         value = source.readString()
+        enabled = source.readBoolean()
     }
 
     override fun describeContents(): Int {
@@ -21,6 +23,7 @@ open class EnvInfo : Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(key)
         dest.writeString(value)
+        dest.writeBoolean(enabled)
     }
 
     companion object {

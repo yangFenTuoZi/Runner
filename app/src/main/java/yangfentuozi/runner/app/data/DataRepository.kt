@@ -45,8 +45,12 @@ class DataRepository private constructor(context: Context) {
         environmentDao.insert(key, value)
         syncToService()
     }
-    fun updateEnv(fromKey: String, fromValue: String, toKey: String, toValue: String) {
-        environmentDao.update(fromKey, fromValue, toKey, toValue)
+    fun updateEnv(key: String, value: String) {
+        environmentDao.update(key, value)
+        syncToService()
+    }
+    fun updateEnv(key: String, enabled: Boolean) {
+        environmentDao.update(key, enabled)
         syncToService()
     }
     fun deleteEnv(key: String) {
