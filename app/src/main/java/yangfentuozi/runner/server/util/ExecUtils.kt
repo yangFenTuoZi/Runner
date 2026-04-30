@@ -1,10 +1,10 @@
 package yangfentuozi.runner.server.util
 
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.server.Server
 
 class ExecUtils : JniUtilsBase() {
     override val jniPath: String
-        get() = ServerMain.LIB_EXEC_UTILS
+        get() = Server.LIB_EXEC_UTILS
 
     /**
      * 使用 JNI 创建进程并重定向文件描述符

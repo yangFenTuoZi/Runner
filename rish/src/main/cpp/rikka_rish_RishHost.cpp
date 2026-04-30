@@ -79,7 +79,8 @@ static jintArray RishHost_startHost(
 
     int stdin_pipe[2]{-1}, stdout_pipe[2]{-1}, stderr_pipe[2]{-1};
 
-    LOGD("istty stdin %d stdout %d stderr %d", (tty & ATTY_IN) ? 1 : 0, (tty & ATTY_OUT) ? 1 : 0, (tty & ATTY_ERR) ? 1 : 0);
+    LOGD("istty stdin %d stdout %d stderr %d", (tty & ATTY_IN) ? 1 : 0, (tty & ATTY_OUT) ? 1 : 0,
+         (tty & ATTY_ERR) ? 1 : 0);
 
     if (!in_tty) {
         pipe2(stdin_pipe, 0);
@@ -224,7 +225,8 @@ static jintArray RishHost_startHost(
             LOGD("pipe -> err");
         }
 
-        LOGD("istty stdin %d stdout %d stderr %d", isatty(STDIN_FILENO), isatty(STDOUT_FILENO), isatty(STDERR_FILENO));
+        LOGD("istty stdin %d stdout %d stderr %d", isatty(STDIN_FILENO), isatty(STDOUT_FILENO),
+             isatty(STDERR_FILENO));
 
         if (pts != -1) {
             close(pts);
@@ -233,17 +235,16 @@ static jintArray RishHost_startHost(
         // Use the first argument as the program to execute
         const char *program = argv[0] ? argv[0] : "/system/bin/sh";
         LOGD("execvp: %s", program);
-        
+
         if (envv) {
-            if (execvpe(program, (char *const *) argv, (char *const *) envv) == -1) {
-                PLOGE("execvpe %s", program);
-                exit(1);
+            const char **p = envv;
+            for (; *p != NULL; p++) {
+                putenv((char *)*p);
             }
-        } else {
-            if (execvp(program, (char *const *) argv) == -1) {
-                PLOGE("execvp %s", program);
-                exit(1);
-            }
+        }
+        if (execvp(program, (char *const *) argv) == -1) {
+            PLOGE("execvp %s", program);
+            exit(1);
         }
         exit(0);
     }

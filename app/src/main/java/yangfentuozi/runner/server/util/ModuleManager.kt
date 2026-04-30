@@ -5,11 +5,15 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
+import android.system.ErrnoException
+import android.system.Os
 import android.util.Log
-import yangfentuozi.runner.server.ServerMain.Companion.HOME_PATH
-import yangfentuozi.runner.server.ServerMain.Companion.PAGE_SIZE
-import yangfentuozi.runner.server.ServerMain.Companion.TAG
-import yangfentuozi.runner.server.ServerMain.Companion.USR_PATH
+import yangfentuozi.runner.server.Server.Companion.HOME_PATH
+import yangfentuozi.runner.server.Server.Companion.PAGE_SIZE
+import yangfentuozi.runner.server.Server.Companion.SHELLS_PATH
+import yangfentuozi.runner.server.Server.Companion.SHELL_PATH
+import yangfentuozi.runner.server.Server.Companion.TAG
+import yangfentuozi.runner.server.Server.Companion.USR_PATH
 import yangfentuozi.runner.server.callback.IExitCallback
 import yangfentuozi.runner.shared.data.TermModuleInfo
 import java.io.File
@@ -39,7 +43,6 @@ object ModuleManager {
             "$USR_PATH/lib",
             "$USR_PATH/etc",
             "$USR_PATH/etc/profile.d",
-            "$USR_PATH/etc/shells.d",
             "$USR_PATH/opt",
             "$USR_PATH/tmp"
         ).forEach {
@@ -54,20 +57,6 @@ object ModuleManager {
                     # !!!请不要修改此文件，服务每次启动都会覆盖它!!!
                     # !!!Please do not modify this file, it will be overwritten each time the service starts.!!!
 
-                    # 设置基本变量
-                    export HOME=$$HOME_PATH
-                    export PREFIX=$$USR_PATH
-                    if [ -z "$PATH" ]; then
-                        export PATH=$$USR_PATH/bin
-                    else
-                        export PATH=$$USR_PATH/bin:$PATH
-                    fi
-                    if [ -z "$LD_LIBRARY_PATH" ]; then
-                        export LD_LIBRARY_PATH=$$USR_PATH/lib
-                    else
-                        export LD_LIBRARY_PATH=$$USR_PATH/lib:$LD_LIBRARY_PATH
-                    fi
-
                     # 加载profile.d下的所有sh配置
                     for i in $PREFIX/etc/profile.d/*.sh; do
                       if [ -r $i ]; then
@@ -79,6 +68,23 @@ object ModuleManager {
             }
         } catch (e: IOException) {
             Log.e(TAG, "writing profile error", e)
+        }
+
+        if (!File(SHELL_PATH).exists()) {
+            try {
+                Os.symlink("/system/bin/sh", SHELL_PATH)
+            } catch (_: ErrnoException) {
+            }
+        }
+
+        if (!File(SHELLS_PATH).exists()) {
+            try {
+                FileWriter(SHELLS_PATH).use {
+                    it.write("/system/bin/sh")
+                }
+            } catch (e: IOException) {
+                Log.e(TAG, "writing shells file error", e)
+            }
         }
     }
 
@@ -111,9 +117,7 @@ object ModuleManager {
             if (file.isDirectory && moduleProp.exists() && moduleProp.isFile) {
                 try {
                     FileInputStream(moduleProp).use { `in` ->
-                        modules.add(TermModuleInfo.fromInputStream(`in`).apply {
-                            isEnabled = !File(file, "disable").exists()
-                        })
+                        modules.add(TermModuleInfo.fromInputStream(`in`))
                     }
                 } catch (e: IOException) {
                     Log.e(TAG, "getModuleInfo error", e)
@@ -136,26 +140,6 @@ object ModuleManager {
                 null
             }
         } else null
-    }
-
-    fun disableModule(moduleId: String) {
-        if (isModule(moduleId) && isEnable(moduleId)) {
-            File("$MODULES_PATH/$moduleId/disable").createNewFile()
-            exec("export HOME=$HOME_PATH\nexport MODDIR=$MODULES_PATH/$moduleId\nexport PREFIX=$USR_PATH\n/system/bin/sh $MODULES_PATH/$moduleId/disable.sh")
-        }
-    }
-
-    fun enableModule(moduleId: String) {
-        if (isModule(moduleId) && !isEnable(moduleId)) {
-            File("$MODULES_PATH/$moduleId/disable").delete()
-            exec("export HOME=$HOME_PATH\nexport MODDIR=$MODULES_PATH/$moduleId\nexport PREFIX=$USR_PATH\n/system/bin/sh $MODULES_PATH/$moduleId/enable.sh")
-        }
-    }
-
-    fun isEnable(moduleId: String): Boolean {
-        return if (isModule(moduleId)) {
-            !File("$MODULES_PATH/$moduleId/disable").exists()
-        } else false
     }
 
     fun install(
@@ -259,8 +243,6 @@ object ModuleManager {
                 val moduleId = moduleInfo.moduleId!!
                 moduleDir = "$MODULES_PATH/$moduleId"
                 if (isModule(moduleId)) {
-                    print("Disable the previous version")
-                    disableModule(moduleId)
                     print("Backup the previous version")
                     previousVersionBackupDir = "${moduleDir}_backup_${UUID.randomUUID()}"
                     File(moduleDir).renameTo(File(previousVersionBackupDir))
@@ -384,9 +366,6 @@ object ModuleManager {
                 abort("$moduleId hasn't been installed!")
                 return@post
             }
-
-            print("Disable the module")
-            disableModule(moduleId)
 
             val uninstallScript = "$moduleDir/uninstall.sh"
             print("Execute uninstall script")

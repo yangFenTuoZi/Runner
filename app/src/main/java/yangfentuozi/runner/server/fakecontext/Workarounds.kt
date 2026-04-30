@@ -3,7 +3,7 @@ package yangfentuozi.runner.server.fakecontext
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.server.Server
 import java.lang.reflect.Constructor
 
 @SuppressLint("PrivateApi,BlockedPrivateApi,SoonBlockedPrivateApi,DiscouragedPrivateApi")
@@ -36,7 +36,7 @@ object Workarounds {
                 return getSystemContextMethod.invoke(ACTIVITY_THREAD) as Context?
             } catch (throwable: Throwable) {
                 Log.e(
-                    ServerMain.TAG,
+                    Server.TAG,
                     "Workarounds: Failed to get system context: ${throwable.stackTraceToString()}",
                     throwable
                 )

@@ -9,7 +9,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.data.database.DataDbHelper
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.server.Server
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -58,7 +58,7 @@ object BackupManager {
                 context.contentResolver.openOutputStream(uri)?.use { output ->
                     TarArchiveOutputStream(output).use { taos ->
                         taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
-                        ServerMain.tarFileRecursive(backupTmpDir, backupTmpDir, taos)
+                        Server.tarFileRecursive(backupTmpDir, backupTmpDir, taos)
                     }
                 }
             } catch (e: Exception) {
@@ -89,7 +89,7 @@ object BackupManager {
                                 val parent = outFile.parentFile
                                 if (parent != null && !parent.exists()) parent.mkdirs()
                                 FileOutputStream(outFile).use { fos ->
-                                    val buffer = ByteArray(ServerMain.PAGE_SIZE)
+                                    val buffer = ByteArray(Server.PAGE_SIZE)
                                     var len: Int
                                     while ((tais.read(buffer).also { len = it }) != -1) {
                                         fos.write(buffer, 0, len)

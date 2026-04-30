@@ -17,19 +17,12 @@ else ()
     add_definitions(-DDEBUG)
 endif ()
 
-find_package(cxx REQUIRED CONFIG)
+# librunner_process
+add_library(runner_process SHARED
+        process.c)
 
-# libprocessutils
-add_library(processutils SHARED
-        processutils.c)
+# librunner_exec
+add_library(runner_exec SHARED
+        exec.c)
 
-set_target_properties(processutils PROPERTIES PREFIX "lib")
-set_target_properties(processutils PROPERTIES SUFFIX ".so")
-
-# libexecutils
-add_library(executils SHARED
-        executils.c)
-
-set_target_properties(executils PROPERTIES PREFIX "lib")
-set_target_properties(executils PROPERTIES SUFFIX ".so")
-target_link_libraries(executils log)
+target_link_libraries(runner_exec log)

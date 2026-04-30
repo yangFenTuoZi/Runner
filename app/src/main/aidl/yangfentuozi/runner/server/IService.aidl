@@ -21,8 +21,10 @@ interface IService {
     void installTermModule(String modZip, in IExitCallback callback, in ParcelFileDescriptor stdout) = 2000;
     void uninstallTermModule(String moduleId, in IExitCallback callback, in ParcelFileDescriptor stdout, boolean purge) = 2001;
     TermModuleInfo[] getTermModules() = 2002;
-    void enableTermModule(String moduleId) = 2003;
-    void disableTermModule(String moduleId) = 2004;
+
+    String[] getAvailableShells() = 2100;
+    String getCurrentShell() = 2101;
+    void setCurrentShell(String shell) = 2102;
 
     IBinder getShellService() = 30000;
 }

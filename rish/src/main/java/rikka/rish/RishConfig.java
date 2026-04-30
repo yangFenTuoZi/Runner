@@ -24,7 +24,7 @@ public class RishConfig {
         if (libraryPath == null) {
             System.loadLibrary("rikka");
         } else {
-            System.load(libraryPath + "/librish.so");
+            System.load(libraryPath + "/librunner_rish.so");
         }
     }
 

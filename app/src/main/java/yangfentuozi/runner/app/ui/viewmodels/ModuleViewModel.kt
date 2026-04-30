@@ -51,21 +51,5 @@ class ModuleViewModel(application: Application) : AndroidViewModel(application),
     override fun hideAllDialogs() {
         hideUninstallDialog()
     }
-
-    fun onToggle(moduleInfo: TermModuleInfo) {
-        viewModelScope.launch {
-            if (Runner.pingServer()) {
-                try {
-                    if (moduleInfo.isEnabled) {
-                        Runner.service?.disableTermModule(moduleInfo.moduleId)
-                    } else {
-                        Runner.service?.enableTermModule(moduleInfo.moduleId)
-                    }
-                } catch (_: Exception) {
-                }
-            }
-            loadModules()
-        }
-    }
 }
 

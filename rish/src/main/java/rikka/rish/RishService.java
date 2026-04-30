@@ -5,10 +5,6 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,20 +14,13 @@ public class RishService extends IRishService.Stub {
 
     private static final Map<Integer, RishHost> HOSTS = new HashMap<>();
 
-    @NonNull
-    private String[] customEnv = new String[0];
-
     @Override
     public int createHost(
             String[] args, String term, String dir,
             byte tty,
             ParcelFileDescriptor stdin, ParcelFileDescriptor stdout, ParcelFileDescriptor stderr) {
 
-        ArrayList<String> finalEnv = new ArrayList<>(customEnv.length + 1);
-        finalEnv.addAll(Arrays.asList(customEnv));
-        finalEnv.removeIf(s -> s.startsWith("TERM="));
-        finalEnv.add("TERM=" + term);
-        RishHost host = new RishHost(args, finalEnv.toArray(new String[0]), dir, tty, stdin, stdout, stderr);
+        RishHost host = new RishHost(args, new String[]{"TERM=" + term}, dir, tty, stdin, stdout, stderr);
         host.start();
         Log.d(TAG, "Forked " + host.getPid());
 

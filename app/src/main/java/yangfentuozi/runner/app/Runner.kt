@@ -13,7 +13,7 @@ import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
 import rikka.shizuku.Shizuku.UserServiceArgs
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.server.IService
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.server.Server
 import yangfentuozi.runner.term.RishBinderHolder
 
 
@@ -27,7 +27,7 @@ object Runner {
     private val userServiceArgs: UserServiceArgs = UserServiceArgs(
         ComponentName(
             BuildConfig.APPLICATION_ID,
-            ServerMain::class.java.getName()
+            Server::class.java.getName()
         )
     )
         .daemon(true)

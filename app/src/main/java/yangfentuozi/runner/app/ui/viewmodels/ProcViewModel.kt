@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.server.Server
 import yangfentuozi.runner.shared.data.ProcessInfo
 
 class ProcViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
@@ -35,7 +35,7 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
                 if (Runner.pingServer()) {
                     try {
                         val allProcesses = Runner.service?.processes
-                        allProcesses?.filter { it.exe == ServerMain.USR_PATH + "/bin/bash" }
+                        allProcesses?.filter { it.exe == Server.USR_PATH + "/bin/bash" }
                             ?: emptyList()
                     } catch (e: Exception) {
                         emptyList()

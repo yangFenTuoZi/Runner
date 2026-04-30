@@ -43,7 +43,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                arguments += listOf("-DANDROID_STL=none")
+                arguments += listOf("")
             }
         }
     }
@@ -72,7 +72,6 @@ android {
         viewBinding = true
         buildConfig = true
         aidl = true
-        prefab = true
         compose = true
     }
     kotlin {
@@ -152,7 +151,6 @@ dependencies {
     implementation("dev.rikka.hidden:compat:4.4.0")
 
     implementation("org.apache.commons:commons-compress:1.28.0")
-    implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
     implementation ("com.github.Kyant0:Capsule:2.1.0")
 
     implementation(project(":emulatorview"))

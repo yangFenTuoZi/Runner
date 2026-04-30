@@ -14,7 +14,6 @@ data class TermModuleInfo(
     val author: String?,
     val description: String?,
     val updateJson: String?,
-    var isEnabled: Boolean = false
 ) : Parcelable {
 
     override fun describeContents(): Int {
@@ -29,7 +28,6 @@ data class TermModuleInfo(
         dest.writeString(author)
         dest.writeString(description)
         dest.writeString(updateJson)
-        dest.writeInt(if (isEnabled) 1 else 0)
     }
 
     companion object {
@@ -54,7 +52,6 @@ data class TermModuleInfo(
                 author = `in`.readString(),
                 description = `in`.readString(),
                 updateJson = `in`.readString(),
-                isEnabled = `in`.readInt() == 1
             )
         }
 

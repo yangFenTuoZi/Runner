@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import yangfentuozi.runner.app.Runner
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.server.Server
 import yangfentuozi.runner.server.callback.IExitCallback
 import java.io.File
 import java.io.FileNotFoundException
@@ -59,7 +59,7 @@ class InstallTermExtViewModel(application: Application) : AndroidViewModel(appli
                 val file = File(termExtCacheDir, "term_ext.zip")
                 input.use { inputStream ->
                     file.outputStream().use { outputStream ->
-                        inputStream.copyTo(outputStream, bufferSize = ServerMain.PAGE_SIZE)
+                        inputStream.copyTo(outputStream, bufferSize = Server.PAGE_SIZE)
                     }
                 }
                 appendOutput("- File copied to cache: ${file.absolutePath}\n")

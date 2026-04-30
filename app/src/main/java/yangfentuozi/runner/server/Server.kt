@@ -33,14 +33,17 @@ import java.io.IOException
 import java.util.zip.ZipFile
 import kotlin.system.exitProcess
 
-class ServerMain : IService.Stub() {
+class Server : IService.Stub() {
     companion object {
-        const val TAG = "runner_server"
+        const val PROCESS_NAME = "runner_server"
+        const val TAG = "ServerMain"
         const val DATA_PATH = "/data/local/tmp/runner"
         const val USR_PATH = "$DATA_PATH/usr"
         const val HOME_PATH = "$DATA_PATH/home"
-        const val LIB_PROCESS_UTILS = "$USR_PATH/lib/libprocessutils.so"
-        const val LIB_EXEC_UTILS = "$USR_PATH/lib/libexecutils.so"
+        const val SHELLS_PATH = "$USR_PATH/etc/shells"
+        const val SHELL_PATH = "$USR_PATH/etc/shell"
+        const val LIB_PROCESS_UTILS = "$USR_PATH/lib/librunner_process.so"
+        const val LIB_EXEC_UTILS = "$USR_PATH/lib/librunner_exec.so"
         val PAGE_SIZE: Int = Os.sysconf(OsConstants._SC_PAGESIZE).toInt()
 
         fun tarGzDirectory(srcDir: File, tarGzFile: File) {
@@ -139,7 +142,7 @@ class ServerMain : IService.Stub() {
 
     init {
         // 设置进程名
-        DdmHandleAppName.setAppName(TAG, Os.getuid())
+        DdmHandleAppName.setAppName(PROCESS_NAME, Os.getuid())
 
         Log.i(TAG, "start")
 
@@ -202,19 +205,20 @@ class ServerMain : IService.Stub() {
                 }
             }
 
-            if (releaseLibFromApp("processutils", false)) {
+            if (releaseLibFromApp("runner_process", false)) {
                 // 初始化 ProcessUtils
                 processUtils.loadLibrary()
             }
-            if (releaseLibFromApp("executils", false)) {
+            if (releaseLibFromApp("runner_exec", false)) {
                 // 初始化 ExecUtils
                 execUtils.loadLibrary()
             }
-            if (releaseLibFromApp("rish", false)) {
+            if (releaseLibFromApp("runner_rish", false)) {
                 // 初始化 Rish
                 RishConfig.setLibraryPath("$USR_PATH/lib")
                 RishConfig.init()
             }
+            releaseLibFromApp("rpkg", true)
             try {
                 app.close()
             } catch (e: IOException) {
@@ -263,26 +267,20 @@ class ServerMain : IService.Stub() {
             try {
                 if (!execUtils.isLibraryLoaded) {
                     Log.e(TAG, "executils library not loaded")
-                    errOutput("-1")
                     errOutput("executils library not loaded")
                     exit(127)
                     return@Thread
                 }
-                if (!File("$USR_PATH/bin/bash").exists()) {
-                    Log.e(TAG, "bash not found")
-                    errOutput("-1")
-                    errOutput("bash not found, may be you don't install terminal extension")
+                val shell = currentShell
+                if (!File(shell).exists()) {
+                    Log.e(TAG, "$shell not found")
+                    errOutput("$shell not found, please choose a proper shell!")
                     exit(127)
                     return@Thread
                 }
-                try {
-                    Os.chmod("$USR_PATH/bin/bash", "700".toInt(8))
-                } catch (e: ErrnoException) {
-                    Log.w(TAG, "set permission error", e)
-                }
 
                 // 准备命令参数（不使用 -c，通过 stdin 传递命令）
-                val argv = arrayOf("bash")
+                val argv = arrayOf(shell.substring(shell.indexOfLast { it == '/' }))
 
                 // 创建管道用于 stdin
                 val stdinPipe = ParcelFileDescriptor.createPipe()
@@ -291,7 +289,7 @@ class ServerMain : IService.Stub() {
 
                 // 使用 JNI 执行命令
                 val pid = execUtils.exec(
-                    "$USR_PATH/bin/bash",  // 可执行文件路径
+                    shell,  // 可执行文件路径
                     argv,
                     stdinRead.detachFd(),
                     stdout.fd,
@@ -310,7 +308,6 @@ class ServerMain : IService.Stub() {
 
                 if (pid < 0) {
                     Log.e(TAG, "exec failed")
-                    errOutput("-1")
                     errOutput("exec failed")
                     exit(127)
                     return@Thread
@@ -323,8 +320,7 @@ class ServerMain : IService.Stub() {
                 exit(exitCode)
             } catch (e: Exception) {
                 Log.e(TAG, e.stackTraceToString())
-                errOutput("-1")
-                errOutput("! Exception: ${e.stackTraceToString()}")
+                errOutput("Exception: ${e.stackTraceToString()}")
                 exit(255)
             }
         }.start()
@@ -433,11 +429,16 @@ class ServerMain : IService.Stub() {
         return ModuleManager.listModules().toTypedArray()
     }
 
-    override fun enableTermModule(moduleId: String) {
-        ModuleManager.enableModule(moduleId)
+    override fun getAvailableShells(): Array<out String> {
+        return File(SHELLS_PATH).readLines().toTypedArray()
     }
 
-    override fun disableTermModule(moduleId: String) {
-        ModuleManager.disableModule(moduleId)
+    override fun getCurrentShell(): String {
+        return Os.readlink(SHELL_PATH)
+    }
+
+    override fun setCurrentShell(shell: String) {
+        File(SHELL_PATH).delete()
+        Os.symlink(shell, SHELL_PATH)
     }
 }

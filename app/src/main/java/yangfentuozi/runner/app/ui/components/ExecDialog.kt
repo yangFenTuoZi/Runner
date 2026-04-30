@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.Runner
 import yangfentuozi.runner.app.ui.theme.monoFontFamily
-import yangfentuozi.runner.server.ServerMain
+import yangfentuozi.runner.server.Server
 import yangfentuozi.runner.server.callback.IExitCallback
 import yangfentuozi.runner.shared.data.CommandInfo
 import java.io.BufferedReader
@@ -83,7 +83,7 @@ fun ExecDialog(
                     }
 
                     // 后续数据：分块读取
-                    val buffer = ByteArray(ServerMain.PAGE_SIZE)
+                    val buffer = ByteArray(Server.PAGE_SIZE)
                     while (true) {
                         val bytesRead = inputStream.read(buffer)
                         if (bytesRead <= 0) break
@@ -121,7 +121,6 @@ fun ExecDialog(
                     .fillMaxWidth()
             ) {
                 pid?.let {
-                    pid
                     Text(
                         text = "PID: $pid",
                         style = MaterialTheme.typography.titleSmall
