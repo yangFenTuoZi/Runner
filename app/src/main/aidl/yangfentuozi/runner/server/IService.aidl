@@ -18,13 +18,5 @@ interface IService {
     void backupData(String output, boolean termHome, boolean termUsr) = 500;
     void restoreData(String input) = 501;
 
-    void installTermModule(String modZip, in IExitCallback callback, in ParcelFileDescriptor stdout) = 2000;
-    void uninstallTermModule(String moduleId, in IExitCallback callback, in ParcelFileDescriptor stdout, boolean purge) = 2001;
-    TermModuleInfo[] getTermModules() = 2002;
-
-    String[] getAvailableShells() = 2100;
-    String getCurrentShell() = 2101;
-    void setCurrentShell(String shell) = 2102;
-
     IBinder getShellService() = 30000;
 }

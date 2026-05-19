@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 
 @Composable
 fun BackupDialog(
@@ -33,7 +33,7 @@ fun BackupDialog(
     var termHome by remember { mutableStateOf(true) }
     var termUsr by remember { mutableStateOf(true) }
 
-    val restricted = !Runner.pingServer()
+    val restricted = !Service.pingServer()
 
     AlertDialog(
         onDismissRequest = onDismiss,

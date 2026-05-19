@@ -6,6 +6,9 @@ pluginManagement {
         mavenLocal()
     }
 }
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
@@ -18,6 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Runner"
 include(":app")
-include(":emulatorview", ":term")
 include(":rish")
 include(":shared")

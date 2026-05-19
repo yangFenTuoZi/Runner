@@ -116,9 +116,6 @@
     <string name="waiting_service">Waiting Service…</string>
     <string name="exec_command">Exec command</string>
 
-    <string name="term_ext">Terminal Module</string>
-    <string name="installed">Installed</string>
-    <string name="not_installed">Not Installed</string>
     <string name="no_processes">No running processes</string>
     <string name="data_db">Database</string>
     <string name="term_home">Terminal Home</string>
@@ -127,10 +124,5 @@
     <string name="dark">Dark</string>
     <string name="light">Light</string>
     <string name="dark_theme">Dark theme</string>
-    <string name="runtime">Runtime</string>
     <string name="kill_all_processes">Kill all processes</string>
-    <string name="title_module">Modules</string>
-    <string name="no_modules">No installed modules</string>
-    <string name="purge_uninstall">Delete configuration files</string>
-
 </resources>

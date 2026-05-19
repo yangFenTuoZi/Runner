@@ -19,12 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.ui.components.ModernStatusCard
 
 @Composable
 fun ServiceStatusCard() {
-    val isRunning = Runner.pingServer()
+    val isRunning = Service.pingServer()
 
     ModernStatusCard(
         icon = if (isRunning) Icons.Default.CheckCircle else Icons.Default.Error,
@@ -40,7 +40,7 @@ fun ServiceStatusCard() {
             HorizontalDivider(color = contentColor.copy(alpha = 0.2f))
             Spacer(modifier = Modifier.height(12.dp))
 
-            InfoRow(stringResource(R.string.version), "${Runner.serviceVersion}", contentColor)
+            InfoRow(stringResource(R.string.version), "${Service.serviceVersion}", contentColor)
         }
     }
 }

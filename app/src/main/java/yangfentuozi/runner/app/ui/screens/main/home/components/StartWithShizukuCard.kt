@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.ui.components.ModernActionCard
 import yangfentuozi.runner.app.ui.viewmodels.HomeViewModel
 
@@ -22,13 +22,13 @@ fun StartWithShizukuCard(viewModel: HomeViewModel) {
         buttonText = stringResource(R.string.start),
         onButtonClick = {
             // 如果Shizuku未运行，提示用户
-            if (!Runner.shizukuStatus) {
+            if (!Service.shizukuStatus) {
                 Toast.makeText(context, R.string.shizuku_not_running, Toast.LENGTH_LONG).show()
                 return@ModernActionCard
             }
 
             // 如果没有权限，请求权限
-            if (!Runner.shizukuPermission) {
+            if (!Service.shizukuPermission) {
                 Toast.makeText(context, "正在请求 Shizuku 权限...", Toast.LENGTH_SHORT).show()
                 return@ModernActionCard
             }

@@ -4,9 +4,6 @@ import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
-import android.os.Build
-import android.os.SystemProperties
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,7 +31,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.ui.activity.BridgeActivity
 import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
 import yangfentuozi.runner.app.ui.components.ContentWithAutoHideFloatActionButton
 import yangfentuozi.runner.app.ui.components.ExecDialog
@@ -113,42 +109,34 @@ fun RunnerScreen(
                                 viewModel.showDeleteDialog(index)
                             },
                             onAddShortcut = {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    val shortcutManager =
-                                        context.getSystemService(ShortcutManager::class.java)
-                                    if (shortcutManager.isRequestPinShortcutSupported) {
-                                        val label =
-                                            if (command.name.isNullOrEmpty()) "Command" else command.name!!
-                                        val shortcut = ShortcutInfo.Builder(
-                                            context,
-                                            UUID.randomUUID().toString()
-                                        )
-                                            .setShortLabel(label)
-                                            .setLongLabel(label)
-                                            .setIcon(
-                                                Icon.createWithResource(
-                                                    context,
-                                                    R.mipmap.ic_launcher
-                                                )
-                                            )
-                                            .setIntent(
-                                                Intent(
-                                                    context,
-                                                    if (isColorOS()) BridgeActivity::class.java else ExecShortcutActivity::class.java
-                                                )
-                                                    .setAction(Intent.ACTION_VIEW)
-                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                    .putExtra("data", command.toBundle())
-                                            )
-                                            .build()
-                                        shortcutManager.requestPinShortcut(shortcut, null)
-                                    }
-                                } else {
-                                    Toast.makeText(
+                                val shortcutManager =
+                                    context.getSystemService(ShortcutManager::class.java)
+                                if (shortcutManager.isRequestPinShortcutSupported) {
+                                    val label =
+                                        if (command.name.isNullOrEmpty()) "Command" else command.name!!
+                                    val shortcut = ShortcutInfo.Builder(
                                         context,
-                                        "Not supported on this Android version",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                        UUID.randomUUID().toString()
+                                    )
+                                        .setShortLabel(label)
+                                        .setLongLabel(label)
+                                        .setIcon(
+                                            Icon.createWithResource(
+                                                context,
+                                                R.mipmap.ic_launcher
+                                            )
+                                        )
+                                        .setIntent(
+                                            Intent(
+                                                context,
+                                                ExecShortcutActivity::class.java
+                                            )
+                                                .setAction(Intent.ACTION_VIEW)
+                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                .putExtra("data", command.toBundle())
+                                        )
+                                        .build()
+                                    shortcutManager.requestPinShortcut(shortcut, null)
                                 }
                             }
                         )
@@ -214,9 +202,5 @@ fun RunnerScreen(
             onDismiss = { viewModel.hideExecDialog() }
         )
     }
-}
-
-private fun isColorOS(): Boolean {
-    return SystemProperties.get("ro.build.version.oplusrom").isNullOrEmpty().not()
 }
 

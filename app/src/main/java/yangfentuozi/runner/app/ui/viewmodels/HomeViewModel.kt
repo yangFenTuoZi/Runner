@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 
 class HomeViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
@@ -19,30 +19,30 @@ class HomeViewModel(application: Application) : AndroidViewModel(application), H
     val showRemoveTermExtConfirmDialog: StateFlow<Boolean> = _showRemoveTermExtConfirmDialog.asStateFlow()
 
     // Shizuku 权限监听器
-    private val shizukuPermissionListener = Runner.ShizukuPermissionListener {
+    private val shizukuPermissionListener = Service.ShizukuPermissionListener {
         triggerRefresh()
     }
 
     // Shizuku 状态监听器
-    private val shizukuStatusListener = Runner.ShizukuStatusListener {
+    private val shizukuStatusListener = Service.ShizukuStatusListener {
         triggerRefresh()
     }
 
     // 服务状态监听器
-    private val serviceStatusListener = Runner.ServiceStatusListener {
+    private val serviceStatusListener = Service.ServiceStatusListener {
         triggerRefresh()
     }
 
     init {
         // 初始化时刷新状态
         viewModelScope.launch(Dispatchers.IO) {
-            Runner.refreshStatus()
+            Service.refreshStatus()
         }
 
         // 注册监听器
-        Runner.addShizukuPermissionListener(shizukuPermissionListener)
-        Runner.addShizukuStatusListener(shizukuStatusListener)
-        Runner.addServiceStatusListener(serviceStatusListener)
+        Service.addShizukuPermissionListener(shizukuPermissionListener)
+        Service.addShizukuStatusListener(shizukuStatusListener)
+        Service.addServiceStatusListener(serviceStatusListener)
     }
 
     fun triggerRefresh() {
@@ -51,20 +51,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application), H
 
     fun tryBindService() {
         viewModelScope.launch(Dispatchers.IO) {
-            Runner.tryBindService()
+            Service.tryBindService()
         }
     }
 
     fun requestPermission() {
-        Runner.requestPermission()
+        Service.requestPermission()
     }
 
     override fun onCleared() {
         super.onCleared()
         // 移除监听器
-        Runner.removeShizukuPermissionListener(shizukuPermissionListener)
-        Runner.removeShizukuStatusListener(shizukuStatusListener)
-        Runner.removeServiceStatusListener(serviceStatusListener)
+        Service.removeShizukuPermissionListener(shizukuPermissionListener)
+        Service.removeShizukuStatusListener(shizukuStatusListener)
+        Service.removeServiceStatusListener(serviceStatusListener)
     }
 
     override fun hideAllDialogs() {

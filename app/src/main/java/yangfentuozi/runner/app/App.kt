@@ -24,7 +24,7 @@ class App : Application(), Thread.UncaughtExceptionHandler {
         instance = this
         pref = PreferenceManager.getDefaultSharedPreferences(this)
 
-        Runner.init()
+        Service.init()
     }
 
     fun addActivity(activity: Activity?) {
@@ -44,7 +44,7 @@ class App : Application(), Thread.UncaughtExceptionHandler {
 
     override fun onTerminate() {
         super.onTerminate()
-        Runner.remove()
+        Service.remove()
     }
 
     fun reinitializeDataRepository() {

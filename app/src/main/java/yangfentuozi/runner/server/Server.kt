@@ -22,10 +22,8 @@ import rikka.rish.RishService
 import yangfentuozi.runner.BuildConfig
 import yangfentuozi.runner.server.callback.IExitCallback
 import yangfentuozi.runner.server.util.ExecUtils
-import yangfentuozi.runner.server.util.ModuleManager
 import yangfentuozi.runner.server.util.ProcessUtils
 import yangfentuozi.runner.shared.data.ProcessInfo
-import yangfentuozi.runner.shared.data.TermModuleInfo
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -40,8 +38,6 @@ class Server : IService.Stub() {
         const val DATA_PATH = "/data/local/tmp/runner"
         const val USR_PATH = "$DATA_PATH/usr"
         const val HOME_PATH = "$DATA_PATH/home"
-        const val SHELLS_PATH = "$USR_PATH/etc/shells"
-        const val SHELL_PATH = "$USR_PATH/etc/shell"
         const val LIB_PROCESS_UTILS = "$USR_PATH/lib/librunner_process.so"
         const val LIB_EXEC_UTILS = "$USR_PATH/lib/librunner_exec.so"
         val PAGE_SIZE: Int = Os.sysconf(OsConstants._SC_PAGESIZE).toInt()
@@ -145,9 +141,6 @@ class Server : IService.Stub() {
         DdmHandleAppName.setAppName(PROCESS_NAME, Os.getuid())
 
         Log.i(TAG, "start")
-
-        // 确保数据文件夹存在
-        ModuleManager.init()
 
         // 准备 Handler
         mHandler = Handler(Looper.getMainLooper())
@@ -271,7 +264,8 @@ class Server : IService.Stub() {
                     exit(127)
                     return@Thread
                 }
-                val shell = currentShell
+                // todo customize shell
+                val shell = "/system/bin/sh"
                 if (!File(shell).exists()) {
                     Log.e(TAG, "$shell not found")
                     errOutput("$shell not found, please choose a proper shell!")
@@ -406,39 +400,5 @@ class Server : IService.Stub() {
             Log.e(TAG, "restoreData error", e)
             throw RemoteException(e.stackTraceToString())
         }
-    }
-
-    override fun installTermModule(
-        modZip: String,
-        callback: IExitCallback,
-        stdout: ParcelFileDescriptor
-    ) {
-        ModuleManager.install(modZip, callback, stdout)
-    }
-
-    override fun uninstallTermModule(
-        moduleId: String,
-        callback: IExitCallback,
-        stdout: ParcelFileDescriptor,
-        purge: Boolean
-    ) {
-        ModuleManager.uninstall(moduleId, callback, stdout, purge)
-    }
-
-    override fun getTermModules(): Array<TermModuleInfo> {
-        return ModuleManager.listModules().toTypedArray()
-    }
-
-    override fun getAvailableShells(): Array<out String> {
-        return File(SHELLS_PATH).readLines().toTypedArray()
-    }
-
-    override fun getCurrentShell(): String {
-        return Os.readlink(SHELL_PATH)
-    }
-
-    override fun setCurrentShell(shell: String) {
-        File(SHELL_PATH).delete()
-        Os.symlink(shell, SHELL_PATH)
     }
 }

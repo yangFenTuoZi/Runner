@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.server.Server
 import yangfentuozi.runner.shared.data.ProcessInfo
@@ -32,9 +32,9 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
         viewModelScope.launch {
             _isRefreshing.value = true
             val procs = withContext(Dispatchers.IO) {
-                if (Runner.pingServer()) {
+                if (Service.pingServer()) {
                     try {
-                        val allProcesses = Runner.service?.processes
+                        val allProcesses = Service.service?.processes
                         allProcesses?.filter { it.exe == Server.USR_PATH + "/bin/bash" }
                             ?: emptyList()
                     } catch (e: Exception) {
@@ -81,13 +81,13 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
         forceKill: Boolean = false,
         killChildren: Boolean = false
     ) {
-        if (Runner.pingServer()) {
+        if (Service.pingServer()) {
             try {
                 val signal = if (forceKill) 9 else 15
                 if (killChildren) {
-                    Runner.service?.sendSignal(IntArray(pids.size) { i -> -pids[i] }, signal)
+                    Service.service?.sendSignal(IntArray(pids.size) { i -> -pids[i] }, signal)
                 } else {
-                    Runner.service?.sendSignal(pids, signal)
+                    Service.service?.sendSignal(pids, signal)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

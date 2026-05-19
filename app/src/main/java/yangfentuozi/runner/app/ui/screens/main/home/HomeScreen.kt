@@ -13,7 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.ui.screens.main.home.components.GrantShizukuPermCard
 import yangfentuozi.runner.app.ui.screens.main.home.components.ServiceStatusCard
 import yangfentuozi.runner.app.ui.screens.main.home.components.StartWithShizukuCard
@@ -64,8 +64,8 @@ fun HomeScreen(
         item(key = "service_status_$refreshTrigger") {
             ServiceStatusCard()
         }
-        if (!Runner.pingServer()) {
-            if (!Runner.shizukuPermission) {
+        if (!Service.pingServer()) {
+            if (!Service.shizukuPermission) {
                 item(key = "grant_perm_$refreshTrigger") {
                     GrantShizukuPermCard(viewModel)
                 }

@@ -32,7 +32,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.ui.components.ContentWithAutoHideFloatActionButton
 import yangfentuozi.runner.app.ui.screens.main.proc.components.ProcessItem
 import yangfentuozi.runner.app.ui.screens.main.settings.components.CheckboxItem
@@ -87,7 +87,7 @@ fun ProcScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (!Runner.pingServer()) {
+                        text = if (!Service.pingServer()) {
                             stringResource(R.string.service_not_running)
                         } else {
                             stringResource(R.string.no_processes)
@@ -118,7 +118,7 @@ fun ProcScreen(
             }
         },
         onClickFAB = {
-            if (Runner.pingServer() && processes.isNotEmpty()) {
+            if (Service.pingServer() && processes.isNotEmpty()) {
                 viewModel.showKillDialog(-1010)
             }
         },

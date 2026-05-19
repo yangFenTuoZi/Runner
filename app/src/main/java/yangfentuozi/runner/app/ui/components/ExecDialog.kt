@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.ui.theme.monoFontFamily
 import yangfentuozi.runner.server.Server
 import yangfentuozi.runner.server.callback.IExitCallback
@@ -41,7 +41,7 @@ fun ExecDialog(
     DisposableEffect(Unit) {
         val thread = Thread {
             try {
-                val service = Runner.service
+                val service = Service.service
                 if (service == null) {
                     output = "Service not available"
                     isExecuting = false

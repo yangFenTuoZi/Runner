@@ -7,7 +7,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import yangfentuozi.runner.app.App
-import yangfentuozi.runner.app.Runner
+import yangfentuozi.runner.app.Service
 import yangfentuozi.runner.app.data.database.DataDbHelper
 import yangfentuozi.runner.server.Server
 import java.io.File
@@ -36,9 +36,9 @@ object BackupManager {
                 backupTmpDir.deleteRecursively()
                 backupTmpDir.mkdirs()
 
-                val restricted = !Runner.pingServer()
+                val restricted = !Service.pingServer()
                 if (!restricted) {
-                    Runner.service?.backupData(backupTmpDir.absolutePath, backupTermHome, backupTermUsr)
+                    Service.service?.backupData(backupTmpDir.absolutePath, backupTermHome, backupTermUsr)
                 }
 
                 if (backupAppSettings) {
@@ -116,7 +116,7 @@ object BackupManager {
                     dbFile.copyTo(targetDbFile, true)
                 }
 
-                Runner.service?.restoreData(restoreTmpDir.absolutePath)
+                Service.service?.restoreData(restoreTmpDir.absolutePath)
                 (context.applicationContext as App).reinitializeDataRepository()
 
             } catch (e: IOException) {

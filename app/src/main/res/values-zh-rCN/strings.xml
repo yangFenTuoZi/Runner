@@ -114,9 +114,6 @@
     <string name="waiting_service">等待服务…</string>
     <string name="exec_command">执行命令</string>
 
-    <string name="term_ext">终端模块</string>
-    <string name="installed">已安装</string>
-    <string name="not_installed">未安装</string>
     <string name="no_processes">没有运行的进程</string>
     <string name="data_db">数据库</string>
     <string name="term_home">终端 Home</string>
@@ -125,9 +122,5 @@
     <string name="dark">永夜</string>
     <string name="light">永昼</string>
     <string name="dark_theme">暗黑模式</string>
-    <string name="runtime">运行时</string>
     <string name="kill_all_processes">杀死所有进程</string>
-    <string name="title_module">模块</string>
-    <string name="no_modules">没有已安装的模块</string>
-    <string name="purge_uninstall">删除配置文件</string>
 </resources>
