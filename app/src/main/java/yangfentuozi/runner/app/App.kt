@@ -36,8 +36,10 @@ class App : Application(), Thread.UncaughtExceptionHandler {
     }
 
     fun finishApp() {
-        for (activity in activities) activity.finish()
-        activities.clear()
+        for (activity in activities) {
+            activities.remove(activity)
+            runCatching { activity.finish() }
+        }
         onTerminate()
         exitProcess(0)
     }

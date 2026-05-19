@@ -8,7 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import yangfentuozi.runner.app.App
 
 
-open class BaseActivity() : ComponentActivity() {
+open class BaseActivity : ComponentActivity() {
 
     lateinit var mApp: App
 
