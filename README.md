@@ -1,7 +1,6 @@
 # Runner
 
-本APP受到[ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)的启发而写，引用~~部分~~
-极小部分[ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)的代码  
+本APP受到[ShizukuRunner](https://github.com/WuDi-ZhanShen/ShizukuRunner)的启发而写
 目前仍在开发，大部分功能不全，请等后续  
 如果喜欢这个项目的话请多多为我Star吧
 
@@ -18,20 +17,25 @@
 ### 功能
 
 - [x] 命令执行实时输出
-- [x] 分离终端扩展包
-- [x] 终端bash, busybox
+- [ ] ~~分离终端扩展包~~
+- [ ] ~~终端bash, busybox~~
+> 过于冗余，考虑手动外置代替
 - [x] 允许进程后台运行
-- [x] 允许执行前降低权限（可能仅 Root 可用）
+- [ ] ~~允许执行前降低权限（可能仅 Root 可用）~~
+> 无意义，限制 SELinux 上下文更有意义，但考虑到 system_server 只观察 UID，考虑后续加回
 - [x] 支持强杀进程
 - [x] 支持杀所有子进程
 - [x] 增加进程管理
-- [x] 支持自定义环境变量
-- [ ] ~~开机自启动执行命令~~
-> 存在大量问题，已经移除
+- [ ] ~~支持自定义环境变量~~
+> 无意义，请自行 export
+- [ ] 开机自启动执行命令
 - [x] App数据备份与还原
-- [x] 终端
-- [ ] 终端侧载模块（类似 dpkg ）
-- [ ] 外部CLI
+- [ ] 终端
+> Android Terminal Emulator 架构过老，考虑重写
+- ~~[ ] 终端侧载模块（类似 dpkg ）~~
+> 无意义，重复造轮子
+- ~~[ ] 外部CLI~~
+> 无意义，但考虑使用意图框架借助 app 桥接 service 实现
 
 ### 语言
 
@@ -42,13 +46,6 @@
 
 1. 反馈请说明设备信息(系统版本、UI版本、权限等)
 2. 反馈请附日志
-3. 请使用**中文标题**反馈
-
-## 注意
-
-2024/10/04: **不再使用Shizuku**
-
-2025/04/21: **重新使用Shizuku**
 
 ## 特别鸣谢
 
