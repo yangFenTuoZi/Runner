@@ -5,7 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
-import roro.stellar.manager.ui.components.G2RoundedCorners.g2
+import yangfentuozi.runner.app.ui.components.G2RoundedCorners.g2
 
 @Immutable
 data class AppShapes(

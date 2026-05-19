@@ -9,14 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import yangfentuozi.runner.app.Service
-import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 
-class HomeViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _refreshTrigger = MutableStateFlow(0)
     val refreshTrigger: StateFlow<Int> = _refreshTrigger.asStateFlow()
-
-    private val _showRemoveTermExtConfirmDialog = MutableStateFlow(false)
-    val showRemoveTermExtConfirmDialog: StateFlow<Boolean> = _showRemoveTermExtConfirmDialog.asStateFlow()
 
     // Shizuku 权限监听器
     private val shizukuPermissionListener = Service.ShizukuPermissionListener {
@@ -65,9 +61,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application), H
         Service.removeShizukuPermissionListener(shizukuPermissionListener)
         Service.removeShizukuStatusListener(shizukuStatusListener)
         Service.removeServiceStatusListener(serviceStatusListener)
-    }
-
-    override fun hideAllDialogs() {
     }
 }
 

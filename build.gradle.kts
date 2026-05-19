@@ -1,9 +1,9 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    id("com.android.application") version "8.13.0" apply false
-    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.2.20" apply false
-    id("com.android.library") version "8.13.0" apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+
+    alias(libs.plugins.kotlin.compose) apply false
 }
 
 val gitCommitId: String = listOf("git", "rev-parse", "--short", "HEAD").execute(project.rootDir).trim()
@@ -16,6 +16,7 @@ extra.apply {
     set("targetSdk", 36)
     set("versionCode", gitCommitCount)
     set("versionName", "${baseVersionName}.r${gitCommitCount}.${gitCommitId}")
+    set("ndkVersion", "29.0.14206865")
 }
 
 fun List<String>.execute(workingDir: File): String {

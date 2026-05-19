@@ -35,9 +35,9 @@ import androidx.compose.material.icons.filled.StopCircle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,16 +50,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.material.color.DynamicColors
 import com.kyant.capsule.ContinuousRoundedRectangle
-import roro.stellar.manager.ui.components.G2RoundedCorners.g2
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
 import yangfentuozi.runner.app.data.BackupManager
+import yangfentuozi.runner.app.ui.components.G2RoundedCorners.g2
 import yangfentuozi.runner.app.ui.screens.main.settings.components.AboutDialog
 import yangfentuozi.runner.app.ui.screens.main.settings.components.BackupDialog
 import yangfentuozi.runner.app.ui.screens.main.settings.components.PreferenceCategory
@@ -76,36 +73,14 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val showBackupDialog by viewModel.showBackupDialog.collectAsState()
-    val showAboutDialog by viewModel.showAboutDialog.collectAsState()
     val blackDarkTheme by viewModel.blackDarkTheme.collectAsState()
     val followSystemAccent by viewModel.followSystemAccent.collectAsState()
     val forceKill by viewModel.forceKill.collectAsState()
     val killChildProcesses by viewModel.killChildProcesses.collectAsState()
     val lastBackupArgs by viewModel.lastBackupArgs.collectAsState()
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    // 监听生命周期事件
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> {
-                }
-
-                Lifecycle.Event.ON_STOP -> {
-                    viewModel.hideAllDialogs()
-                }
-
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
+    var showBackupDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
 
     val saveFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/x-tar")
@@ -219,7 +194,7 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.export_data),
                 subtitle = stringResource(R.string.export_data_summary),
-                onClick = { viewModel.showBackupDialog() },
+                onClick = { showBackupDialog = true },
                 icon = Icons.Default.Backup,
                 showArrow = true
             )
@@ -273,7 +248,7 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.about),
                 subtitle = "",
-                onClick = { viewModel.showAboutDialog() },
+                onClick = { showAboutDialog = true },
                 icon = Icons.Default.Info,
                 showArrow = false
             )
@@ -294,18 +269,18 @@ fun SettingsScreen(
 
     if (showBackupDialog) {
         BackupDialog(
-            onDismiss = { viewModel.hideBackupDialog() },
+            onDismiss = { showBackupDialog = false },
             onConfirm = { args ->
                 viewModel.setLastBackupArgs(args)
                 saveFileLauncher.launch("runner_backup_${System.currentTimeMillis()}.tar")
-                viewModel.hideBackupDialog()
+                showBackupDialog = false
             }
         )
     }
 
     if (showAboutDialog) {
         AboutDialog(
-            onDismiss = { viewModel.hideAboutDialog() }
+            onDismiss = { showAboutDialog = false }
         )
     }
 }
@@ -319,7 +294,7 @@ private fun ThemeSelectorWithAnimation(
     val themeCount = ThemeManager.ThemeMode.entries.size
     val currentIndex = ThemeManager.ThemeMode.entries.indexOf(currentMode)
 
-    var innerWidth by remember { mutableStateOf(0) }
+    var innerWidth by remember { mutableIntStateOf(0) }
 
     val spacing = 4.dp
     val spacingPx = with(density) { spacing.toPx() }

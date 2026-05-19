@@ -1,12 +1,12 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    id("kotlin-parcelize")
 }
 
 android {
     namespace = "yangfentuozi.runner.shared"
     compileSdk {
-        version = release(36)
+        version = release(rootProject.ext["compileSdk"] as Int)
     }
 
     defaultConfig {
@@ -21,9 +21,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-    kotlin {
-        jvmToolchain(21)
     }
     buildFeatures {
         aidl = true

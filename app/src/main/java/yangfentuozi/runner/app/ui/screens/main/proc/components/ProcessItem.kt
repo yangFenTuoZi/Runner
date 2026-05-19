@@ -19,13 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.ui.components.BeautifulCard
-import yangfentuozi.runner.app.ui.viewmodels.ProcViewModel
 import yangfentuozi.runner.shared.data.ProcessInfo
 
 @Composable
 fun ProcessItem(
     process: ProcessInfo,
-    viewModel: ProcViewModel
+    showKillDialog: (Int) -> Unit
 ) {
     // 查找 nice name
     val niceName = remember(process) {
@@ -60,7 +59,7 @@ fun ProcessItem(
             }
 
             FilledIconButton(
-                onClick = { viewModel.showKillDialog(process.pid) },
+                onClick = { showKillDialog(process.pid) },
                 modifier = Modifier.size(48.dp),
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer

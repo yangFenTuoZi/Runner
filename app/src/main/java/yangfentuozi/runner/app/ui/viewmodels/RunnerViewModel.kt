@@ -10,10 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import yangfentuozi.runner.app.data.DataRepository
-import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.shared.data.CommandInfo
 
-class RunnerViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
+class RunnerViewModel(application: Application) : AndroidViewModel(application) {
     private val dataRepository = DataRepository.getInstance(application)
 
     private val _commands = MutableStateFlow<List<CommandInfo>>(emptyList())
@@ -21,18 +20,6 @@ class RunnerViewModel(application: Application) : AndroidViewModel(application),
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
-
-    private val _showAddDialog = MutableStateFlow(false)
-    val showAddDialog: StateFlow<Boolean> = _showAddDialog.asStateFlow()
-
-    private val _showDeleteDialog = MutableStateFlow(-1)
-    val showDeleteDialog: StateFlow<Int> = _showDeleteDialog.asStateFlow()
-
-    private val _commandToExec = MutableStateFlow<CommandInfo?>(null)
-    val commandToExec: StateFlow<CommandInfo?> = _commandToExec.asStateFlow()
-
-    private val _commandToEdit = MutableStateFlow<Pair<CommandInfo, Int>?>(null)
-    val commandToEdit: StateFlow<Pair<CommandInfo, Int>?> = _commandToEdit.asStateFlow()
 
     init {
         loadCommands()
@@ -47,38 +34,6 @@ class RunnerViewModel(application: Application) : AndroidViewModel(application),
             _commands.value = cmds
             _isRefreshing.value = false
         }
-    }
-
-    fun showAddDialog() {
-        _showAddDialog.value = true
-    }
-
-    fun hideAddDialog() {
-        _showAddDialog.value = false
-    }
-
-    fun showDeleteDialog(position: Int) {
-        _showDeleteDialog.value = position
-    }
-
-    fun hideDeleteDialog() {
-        _showDeleteDialog.value = -1
-    }
-
-    fun showExecDialog(command: CommandInfo) {
-        _commandToExec.value = command
-    }
-
-    fun hideExecDialog() {
-        _commandToExec.value = null
-    }
-
-    fun showEditDialog(command: CommandInfo, position: Int) {
-        _commandToEdit.value = command to position
-    }
-
-    fun hideEditDialog() {
-        _commandToEdit.value = null
     }
 
     fun addCommand(command: CommandInfo) {
@@ -100,12 +55,6 @@ class RunnerViewModel(application: Application) : AndroidViewModel(application),
             dataRepository.deleteCommand(position)
             loadCommands()
         }
-    }
-
-    override fun hideAllDialogs() {
-        hideExecDialog()
-        hideAddDialog()
-        hideEditDialog()
     }
 }
 

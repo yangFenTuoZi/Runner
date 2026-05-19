@@ -17,18 +17,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.App
@@ -46,31 +43,7 @@ fun ProcScreen(
 ) {
     val processes by viewModel.processes.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val showKillDialog by viewModel.showKillDialog.collectAsState()
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    // 监听生命周期事件
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> {
-                    viewModel.loadProcesses()
-                }
-
-                Lifecycle.Event.ON_STOP -> {
-                    viewModel.hideAllDialogs()
-                }
-
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
+    var showKillDialog by remember { mutableIntStateOf(-1) }
 
     ContentWithAutoHideFloatActionButton(
         content = {
@@ -87,7 +60,7 @@ fun ProcScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (!Service.pingServer()) {
+                        text = if (!Service.pingService()) {
                             stringResource(R.string.service_not_running)
                         } else {
                             stringResource(R.string.no_processes)
@@ -111,15 +84,15 @@ fun ProcScreen(
                     items(processes) { process ->
                         ProcessItem(
                             process = process,
-                            viewModel = viewModel
+                            showKillDialog = { showKillDialog = it }
                         )
                     }
                 }
             }
         },
         onClickFAB = {
-            if (Service.pingServer() && processes.isNotEmpty()) {
-                viewModel.showKillDialog(-1010)
+            if (Service.pingService() && processes.isNotEmpty()) {
+                showKillDialog = -1010
             }
         },
         contentFAB = {
@@ -149,7 +122,7 @@ fun ProcScreen(
         }
 
         AlertDialog(
-            onDismissRequest = { viewModel.hideKillDialog() },
+            onDismissRequest = { showKillDialog = -1 },
             title = { Text(stringResource(if (showKillDialog == -1010) R.string.kill_all_processes_ask else R.string.kill_process_ask)) },
             text = {
                 Column {
@@ -170,7 +143,7 @@ fun ProcScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.hideKillDialog()
+                        showKillDialog = -1
                         Thread {
                             viewModel.killProcess(
                                 pid = showKillDialog,
@@ -184,7 +157,7 @@ fun ProcScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.hideKillDialog() }) {
+                TextButton(onClick = { showKillDialog = -1 }) {
                     Text(stringResource(android.R.string.cancel))
                 }
             }

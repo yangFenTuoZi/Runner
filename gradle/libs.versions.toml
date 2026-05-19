@@ -1,0 +1,80 @@
+[versions]
+agp = "9.2.1"
+kotlin = "2.3.21"
+
+annotation = "1.10.0"
+compose-bom = "2026.05.00"
+
+activity-compose = "1.13.0"
+
+libcxx = "29.0.14206865"
+lifecycle = "2.10.0"
+nav3Core = "1.1.1"
+
+material = "1.14.0"
+material3-adaptive-navigation-suite = "1.4.0"
+preference = "1.2.1"
+core-ktx = "1.18.0"
+
+shizuku = "13.1.5"
+
+hidden-api = "4.4.0"
+
+commons-compress = "1.28.0"
+capsule = "2.1.0"
+animation = "1.11.1"
+
+[libraries]
+
+# Compose BOM
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+
+# Compose
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-material = { module = "androidx.compose.material:material" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-compose-material3-adaptive-navigation-suite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite", version.ref = "material3-adaptive-navigation-suite" }
+
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+
+# Core Navigation 3 libraries
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+
+androidx-compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
+
+# AndroidX
+google-material = { module = "com.google.android.material:material", version.ref = "material" }
+
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference" }
+
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+
+# Shizuku
+libcxx = { module = "org.lsposed.libcxx:libcxx", version.ref = "libcxx" }
+shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
+shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
+
+# Hidden API
+hidden-stub = { module = "dev.rikka.hidden:stub", version.ref = "hidden-api" }
+hidden-compat = { module = "dev.rikka.hidden:compat", version.ref = "hidden-api" }
+
+# Others
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
+
+capsule = { module = "com.github.Kyant0:Capsule", version.ref = "capsule" }
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

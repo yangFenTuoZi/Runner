@@ -10,19 +10,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import yangfentuozi.runner.app.Service
-import yangfentuozi.runner.app.ui.screens.main.HideAllDialogs
 import yangfentuozi.runner.server.Server
 import yangfentuozi.runner.shared.data.ProcessInfo
 
-class ProcViewModel(application: Application) : AndroidViewModel(application), HideAllDialogs {
+class ProcViewModel(application: Application) : AndroidViewModel(application) {
     private val _processes = MutableStateFlow<List<ProcessInfo>>(emptyList())
     val processes: StateFlow<List<ProcessInfo>> = _processes.asStateFlow()
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
-
-    private val _showKillDialog = MutableStateFlow(-1)
-    val showKillDialog: StateFlow<Int> = _showKillDialog.asStateFlow()
 
     init {
         loadProcesses()
@@ -32,7 +28,7 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
         viewModelScope.launch {
             _isRefreshing.value = true
             val procs = withContext(Dispatchers.IO) {
-                if (Service.pingServer()) {
+                if (Service.pingService()) {
                     try {
                         val allProcesses = Service.service?.processes
                         allProcesses?.filter { it.exe == Server.USR_PATH + "/bin/bash" }
@@ -47,14 +43,6 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
             _processes.value = procs
             _isRefreshing.value = false
         }
-    }
-
-    fun showKillDialog(pid: Int) {
-        _showKillDialog.value = pid
-    }
-
-    fun hideKillDialog() {
-        _showKillDialog.value = -1
     }
 
     fun killProcess(
@@ -81,7 +69,7 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
         forceKill: Boolean = false,
         killChildren: Boolean = false
     ) {
-        if (Service.pingServer()) {
+        if (Service.pingService()) {
             try {
                 val signal = if (forceKill) 9 else 15
                 if (killChildren) {
@@ -93,10 +81,6 @@ class ProcViewModel(application: Application) : AndroidViewModel(application), H
                 e.printStackTrace()
             }
         }
-    }
-
-    override fun hideAllDialogs() {
-        hideKillDialog()
     }
 }
 

@@ -33,7 +33,7 @@ fun BackupDialog(
     var termHome by remember { mutableStateOf(true) }
     var termUsr by remember { mutableStateOf(true) }
 
-    val restricted = !Service.pingServer()
+    val restricted = !Service.pingService()
 
     AlertDialog(
         onDismissRequest = onDismiss,

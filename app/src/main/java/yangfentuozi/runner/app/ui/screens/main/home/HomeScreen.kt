@@ -36,10 +36,6 @@ fun HomeScreen(
                     viewModel.triggerRefresh()
                 }
 
-                Lifecycle.Event.ON_STOP -> {
-                    viewModel.hideAllDialogs()
-                }
-
                 else -> {}
             }
         }
@@ -64,7 +60,7 @@ fun HomeScreen(
         item(key = "service_status_$refreshTrigger") {
             ServiceStatusCard()
         }
-        if (!Service.pingServer()) {
+        if (!Service.pingService()) {
             if (!Service.shizukuPermission) {
                 item(key = "grant_perm_$refreshTrigger") {
                     GrantShizukuPermCard(viewModel)

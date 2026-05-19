@@ -19,16 +19,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import yangfentuozi.runner.R
 import yangfentuozi.runner.app.ui.activity.ExecShortcutActivity
@@ -38,6 +38,7 @@ import yangfentuozi.runner.app.ui.screens.main.runner.components.CommandItem
 import yangfentuozi.runner.app.ui.screens.main.runner.components.EditCommandDialog
 import yangfentuozi.runner.app.ui.theme.AppSpacing
 import yangfentuozi.runner.app.ui.viewmodels.RunnerViewModel
+import yangfentuozi.runner.shared.data.CommandInfo
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,33 +49,11 @@ fun RunnerScreen(
     val context = LocalContext.current
     val commands by viewModel.commands.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val showAddDialog by viewModel.showAddDialog.collectAsState()
-    val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
-    val commandToExec by viewModel.commandToExec.collectAsState()
-    val commandToEdit by viewModel.commandToEdit.collectAsState()
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    // 监听生命周期事件
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> {
-                }
-
-                Lifecycle.Event.ON_STOP -> {
-                    viewModel.hideAllDialogs()
-                }
-
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
+    var showAddDialog by remember { mutableIntStateOf(-1) }
+    var showDeleteDialog by remember { mutableIntStateOf(-1) }
+    var commandToExec by remember { mutableStateOf<CommandInfo?>(null) }
+    var commandToEdit by remember { mutableStateOf<Pair<CommandInfo, Int>?>(null) }
 
     ContentWithAutoHideFloatActionButton(
         content = {
@@ -103,10 +82,10 @@ fun RunnerScreen(
                     ) { index, command ->
                         CommandItem(
                             command = command,
-                            onRun = { viewModel.showExecDialog(command) },
-                            onEdit = { viewModel.showEditDialog(command, index) },
+                            onRun = { commandToExec = command },
+                            onEdit = { commandToEdit = Pair(command, index) },
                             onDelete = {
-                                viewModel.showDeleteDialog(index)
+                                showDeleteDialog = index
                             },
                             onAddShortcut = {
                                 val shortcutManager =
@@ -145,40 +124,40 @@ fun RunnerScreen(
             }
         },
         onClickFAB = {
-            viewModel.showAddDialog()
+            showAddDialog = 0
         },
         contentFAB = {
             Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
         }
     )
 
-    if (showAddDialog) {
+    if (showAddDialog != -1) {
         EditCommandDialog(
             command = null,
-            onDismiss = { viewModel.hideAddDialog() },
+            onDismiss = { showAddDialog = -1 },
             onConfirm = { newCommand ->
                 viewModel.addCommand(newCommand)
-                viewModel.hideAddDialog()
+                showAddDialog = -1
             }
         )
     }
 
     if (showDeleteDialog != -1) {
         AlertDialog(
-            onDismissRequest = { viewModel.hideDeleteDialog() },
+            onDismissRequest = { showDeleteDialog = -1 },
             title = { Text(stringResource(R.string.delete)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteCommand(showDeleteDialog)
-                        viewModel.hideDeleteDialog()
+                        showDeleteDialog = -1
                     }
                 ) {
                     Text(stringResource(android.R.string.ok))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.hideDeleteDialog() }) {
+                TextButton(onClick = { showDeleteDialog = -1 }) {
                     Text(stringResource(android.R.string.cancel))
                 }
             }
@@ -188,10 +167,10 @@ fun RunnerScreen(
     commandToEdit?.let { (command, position) ->
         EditCommandDialog(
             command = command,
-            onDismiss = { viewModel.hideEditDialog() },
+            onDismiss = { commandToEdit = null },
             onConfirm = { updatedCommand ->
                 viewModel.updateCommand(updatedCommand, position)
-                viewModel.hideEditDialog()
+                commandToEdit = null
             }
         )
     }
@@ -199,7 +178,7 @@ fun RunnerScreen(
     commandToExec?.let { command ->
         ExecDialog(
             command = command,
-            onDismiss = { viewModel.hideExecDialog() }
+            onDismiss = { commandToExec = null }
         )
     }
 }

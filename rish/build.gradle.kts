@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library")
+    alias(libs.plugins.android.library)
 }
 
 android {
@@ -38,11 +38,11 @@ android {
         aidl = true
         prefab = true
     }
-    ndkVersion = "28.1.13356709"
+    ndkVersion = rootProject.ext["ndkVersion"] as String
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.9.1")
-    implementation("org.lsposed.libcxx:libcxx:28.1.13356709")
+    implementation(libs.androidx.annotation)
+    implementation(libs.libcxx)
     implementation(project(":shared"))
 }

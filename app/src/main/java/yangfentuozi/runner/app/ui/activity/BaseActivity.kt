@@ -1,12 +1,11 @@
-package yangfentuozi.runner.app.base
+package yangfentuozi.runner.app.ui.activity
 
-import android.graphics.Color.TRANSPARENT
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import yangfentuozi.runner.app.App
-
 
 open class BaseActivity : ComponentActivity() {
 
@@ -18,8 +17,8 @@ open class BaseActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // 设置状态栏导航栏透明
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT)
+            statusBarStyle = SystemBarStyle.Companion.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.Companion.auto(Color.TRANSPARENT, Color.TRANSPARENT)
         )
     }
 

@@ -36,7 +36,7 @@ object BackupManager {
                 backupTmpDir.deleteRecursively()
                 backupTmpDir.mkdirs()
 
-                val restricted = !Service.pingServer()
+                val restricted = !Service.pingService()
                 if (!restricted) {
                     Service.service?.backupData(backupTmpDir.absolutePath, backupTermHome, backupTermUsr)
                 }

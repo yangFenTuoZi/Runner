@@ -92,7 +92,7 @@ object Service {
     }
 
     fun tryBindService() {
-        if (shizukuStatus && shizukuPermission && !pingServer()) Shizuku.bindUserService(
+        if (shizukuStatus && shizukuPermission && !pingService()) Shizuku.bindUserService(
             userServiceArgs, serviceConnection
         )
     }
@@ -105,7 +105,7 @@ object Service {
         Shizuku.requestPermission(7890)
     }
 
-    fun pingServer(): Boolean {
+    fun pingService(): Boolean {
         return binder != null && binder!!.pingBinder()
     }
 
@@ -126,7 +126,7 @@ object Service {
         try {
             val startTime = System.currentTimeMillis()
             while (System.currentTimeMillis() - startTime < timeOut) {
-                if (pingServer()) return true
+                if (pingService()) return true
                 Thread.sleep(100)
             }
             return false

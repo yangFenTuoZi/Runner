@@ -1,4 +1,4 @@
-package roro.stellar.manager.ui.components
+package yangfentuozi.runner.app.ui.components
 
 import com.kyant.capsule.continuities.G2Continuity
 import com.kyant.capsule.continuities.G2ContinuityProfile

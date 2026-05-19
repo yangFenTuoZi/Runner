@@ -24,7 +24,7 @@ import yangfentuozi.runner.app.ui.components.ModernStatusCard
 
 @Composable
 fun ServiceStatusCard() {
-    val isRunning = Service.pingServer()
+    val isRunning = Service.pingService()
 
     ModernStatusCard(
         icon = if (isRunning) Icons.Default.CheckCircle else Icons.Default.Error,
